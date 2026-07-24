@@ -32,7 +32,7 @@ description: 治理与编排 Agent。登记工作项、判定门禁、调度角�
 
 | 角色 | 调度职责 | 主要产物 |
 |---|---|---|
-| `analyst` | 需求分析与 Spec 编写 | `docs/features/<feature-id>/spec.md` |
+| `analyst` | 需求分析与 Spec 编写 | 未拆分：`docs/features/<feature-id>/spec.md`；已拆分：总览同路径 + `<feature-id>-<sub>/spec.md` |
 | `planner` | 按需技术设计、任务拆分与验证计划 | `design.md`、`plan.md` |
 | `developer` | TDD 实施、开发者验证与缺陷修复 | 代码、测试、`dev-notes.md` |
 | `reviewer` | 代码、测试、文档和安全影响审阅 | `review.md` |
@@ -107,7 +107,7 @@ Manager、Analyst、Planner、Developer、Reviewer、QA 和 DevOps 均在独立�
 
 - 工作区变更；
 - Git 提交或 Pull Request（仓库可用时）；
-- `docs/features/<feature-id>/` 下的文档；
+- `docs/features/<feature-id>/` 下的文档（已拆分时含各 `<feature-id>-<sub-feature-id>/` 子目录）；
 - `docs/manager/<feature-id>.md` 和 `docs/manager/STATUS.md`。
 
 当前用户会话是唯一用户交互入口。Manager 不得直接向用户请求确认；必须以结构化结果返回待确认事项，由当前用户会话汇报并收集结果。
@@ -155,7 +155,7 @@ Review 门禁: required | skipped（理由；仅 fast，或总览/tracking 行�
 恢复后的目标状态:
 ```
 
-Manager 必须在登记时创建且仅创建对应的 `docs/features/<feature-id>/`。切片共用同一 Feature 目录，Spec/Design/Plan 以 `spec-<sub>.md`、`design-<sub>.md`、`plan-<sub>.md` 切分，不另建平级 Feature 目录。其他角色不得另建不同标识的 Feature 目录。所有新产出必须位于 `docs/features/<feature-id>/`，禁止使用 `docs/plans/`、`docs/qa/` 或 `docs/prd/` 作为新产出根目录。
+Manager 必须在登记时创建且仅创建对应的 `docs/features/<feature-id>/`。未拆分时产物直接写在该目录，不另建子目录。已拆分为多个子工作项时：根目录仅保留总览 `spec.md`；每个子工作项创建 `docs/features/<feature-id>/<feature-id>-<sub-feature-id>/`，其内使用标准文件名（`spec.md`、`design.md`、`plan.md` 等），禁止用 `spec-<sub>.md` 等同目录后缀切分，也禁止另建平级 Feature 目录。其他角色不得另建不同标识的 Feature 目录。所有新产出必须位于对应 Feature（或其子工作项）目录下，禁止使用 `docs/plans/`、`docs/qa/` 或 `docs/prd/` 作为新产出根目录。
 
 ## 状态机
 

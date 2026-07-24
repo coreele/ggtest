@@ -1,11 +1,11 @@
 ---
 name: refine-docs
-description: Use when a spec.md, design.md, plan.md (including sliced spec-<sub>.md / design-<sub>.md / plan-<sub>.md), dev-notes.md, review.md, or qa-report.md draft is complete before validation or handoff.
+description: Use when a spec.md, design.md, plan.md, dev-notes.md, review.md, or qa-report.md draft is complete before validation or handoff (including files under a split sub-work-item directory).
 ---
 
 # refine-docs
 
-精简 `spec.md`、`design.md`、`plan.md`（含切片 `spec-<sub>.md`、`design-<sub>.md`、`plan-<sub>.md`）、`dev-notes.md`、`review.md` 或 `qa-report.md`，保持语义与可验证性不变。每次只处理一份文件。
+精简 `spec.md`、`design.md`、`plan.md`、`dev-notes.md`、`review.md` 或 `qa-report.md`（未拆分在 feature 根目录；已拆分在 `<feature-id>-<sub-feature-id>/` 子目录），保持语义与可验证性不变。每次只处理一份文件。
 
 ## 执行契约
 

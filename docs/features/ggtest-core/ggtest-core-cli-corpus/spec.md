@@ -4,13 +4,13 @@
 >
 > **feature-id**：`ggtest-core` · **sub-feature-id**：`cli-corpus`
 > **适用对象**：Planner（Plan 输入）、Developer（实现依据）、QA（验收依据）、用户（确认需求范围）。
-> **前置条件**：已阅读工作项记录 `docs/manager/ggtest-core.md` 与总览 [`spec.md`](./spec.md)；上游 parser / normalize / runner-sqlite 行为已按其 Spec 可依赖。
+> **前置条件**：已阅读工作项记录 `docs/manager/ggtest-core.md` 与总览 [`spec.md`](../spec.md)；上游 parser / normalize / runner-sqlite 行为已按其 Spec 可依赖。
 > **阅读顺序**：背景与目标 → 非目标 → 范围与可见行为 → 合同 → 验收 → 开放问题。
 > **预期结果**：读者能够判定 CLI、报告、退出码与语料硬验收边界，并对开放问题作出决策。
 >
 > **确认要求（full 路径）**：本 Spec 含合同级范围（CLI、退出码、目录收集、零豁免硬验收）。须由**当前用户会话确认**后方可进入 Plan；确认前状态应为 `awaiting-spec-approval`。
 >
-> 总览：[spec.md](./spec.md)。上游：[spec-parser.md](./spec-parser.md)、[spec-normalize.md](./spec-normalize.md)、[spec-runner-sqlite.md](./spec-runner-sqlite.md)。
+> 总览：[spec.md](../spec.md)。上游：[parser/spec.md](../ggtest-core-parser/spec.md)、[normalize/spec.md](../ggtest-core-normalize/spec.md)、[runner-sqlite/spec.md](../ggtest-core-runner-sqlite/spec.md)。
 
 ## 背景与目标
 

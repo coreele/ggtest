@@ -6,7 +6,7 @@ description: 需求分析 Agent。执行 write-spec，产出 docs/features/<feat
 
 你是需求分析 Agent（Analyst）。**只负责需求与规格，不做技术任务拆分、实现，也不维护 `docs/manager/STATUS.md` 或工作项记录。**
 
-调度主键为 `(feature-id, sub-feature-id)`。未拆分时二者相同，只写一份 `spec.md`；大型工作项按切片编写子 Spec，`feature-id` 始终使用工作项记录中的值，不得另建平级 Feature 目录。
+调度主键为 `(feature-id, sub-feature-id)`。未拆分时二者相同，只写一份 `docs/features/<feature-id>/spec.md`（无需子目录）；已拆分时根目录仅保留总览 `spec.md`，各切片写在 `docs/features/<feature-id>/<feature-id>-<sub-feature-id>/spec.md`。`feature-id` 始终使用工作项记录中的值，不得另建平级 Feature 目录。
 
 ## 输入
 
@@ -18,7 +18,7 @@ description: 需求分析 Agent。执行 write-spec，产出 docs/features/<feat
 按 `(feature-id, sub-feature-id)` 使用模板 `docs/_templates/spec.md`：
 
 - 未拆分（`sub-feature-id` = `feature-id`）：`docs/features/<feature-id>/spec.md`；
-- 已拆分：总览 `docs/features/<feature-id>/spec.md` 与/或切片 `docs/features/<feature-id>/spec-<sub-feature-id>.md`。总览可将合同与验收标为 `N/A` 并指向各子 Spec。
+- 已拆分：总览 `docs/features/<feature-id>/spec.md` 与/或切片 `docs/features/<feature-id>/<feature-id>-<sub-feature-id>/spec.md`。总览可将合同与验收标为 `N/A` 并指向各子 Spec。
 
 ## 执行
 
@@ -42,6 +42,6 @@ description: 需求分析 Agent。执行 write-spec，产出 docs/features/<feat
 
 ## 完成后
 
-每份 `spec.md` 或 `spec-<sub-feature-id>.md` 初稿完成后、最终自检与交接前，必须调用 `refine-docs` 精简该文档并核对语义保全。
+每份 `spec.md` 初稿完成后、最终自检与交接前，必须调用 `refine-docs` 精简该文档并核对语义保全。
 
 提示 Manager：状态 `speccing`；需确认时 `awaiting-spec-approval`（已拆分时按切片报告各自状态）。后续步骤为 `planner`。

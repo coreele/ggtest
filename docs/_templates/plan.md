@@ -3,8 +3,8 @@
 ## 元信息
 
 - 工作项标识: <feature-id>
-- 依据 Spec: docs/features/<feature-id>/spec.md | N/A（fast 且无 Spec 门禁）
-- 依据 Design: docs/features/<feature-id>/design.md | N/A（Design 门禁为 skipped）
+- 依据 Spec: docs/features/<feature-id>/spec.md | docs/features/<feature-id>/<feature-id>-<sub>/spec.md | N/A（fast 且无 Spec 门禁）
+- 依据 Design: docs/features/<feature-id>/design.md | docs/features/<feature-id>/<feature-id>-<sub>/design.md | N/A（Design 门禁为 skipped）
 - 路径等级: fast | standard | full
 - Review 门禁: required | skipped（理由；仅 fast）
 - 最低验证层: L1 | L2 | L3 | L4

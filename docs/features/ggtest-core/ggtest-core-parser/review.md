@@ -3,7 +3,7 @@
 > **工作项**：`ggtest-core` · **sub-feature-id**：`parser`  
 > **路径**：full · **Review 门禁**：required  
 > **审阅版本**：2026-07-24（Plan T1–T6；独立 `mvn -q clean test`）  
-> **依据**：[`spec-parser.md`](./spec-parser.md)、[`design-parser.md`](./design-parser.md)、[`plan-parser.md`](./plan-parser.md)、[`dev-notes.md`](./dev-notes.md)；`documentation.md` / `quality.md` / `security.md` / `git.md`
+> **依据**：[`spec.md`](./spec.md)、[`design.md`](./design.md)、[`plan.md`](./plan.md)、[`dev-notes.md`](./dev-notes.md)；`documentation.md` / `quality.md` / `security.md` / `git.md`
 
 ## 审阅范围
 

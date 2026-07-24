@@ -6,7 +6,7 @@
 > **适用对象**：Manager（进度跟踪）、Planner/Developer/QA（定位子 Spec）、用户（确认产品边界与已决议）。
 > **前置条件**：已阅读工作项记录 `docs/manager/ggtest-core.md`；了解 sqllogictest 格式基本概念。
 > **阅读顺序**：背景与目标 → 非目标摘要 → 子 Spec 职责与依赖 → 已决议 → 开放问题。
-> **预期结果**：读者能把握产品边界与切片切分，并跳转到对应 `spec-<sub>.md` 查看合同与验收。
+> **预期结果**：读者能把握产品边界与切片切分，并跳转到对应子目录下的 `spec.md` 查看合同与验收。
 >
 > **确认要求（full 路径）**：本总览仅作索引；**各子 Spec 须分别由当前用户会话确认**后方可进入各自 Design/Plan。不对总览行调度 Planner。
 
@@ -31,15 +31,15 @@
 
 | 顺序 | sub-feature-id | Spec 路径 | 职责摘要 | 验收对齐（原编号） |
 |---|---|---|---|---|
-| — | ggtest-core | [`spec.md`](./spec.md) | 本总览 | N/A |
-| 1 | parser | [`spec-parser.md`](./spec-parser.md) | 解析 `.test`/`.slt`/单文件 → 记录模型；解析错误含文件+行号；**不连库** | P0-7 |
-| 2 | normalize | [`spec-normalize.md`](./spec-normalize.md) | I/T/R 规范化、排序、MD5 兼容、hash-threshold；可用固定样例 | P0-2、P0-4、P0-5、P1-3 |
-| 3 | runner-sqlite | [`spec-runner-sqlite.md`](./spec-runner-sqlite.md) | Runner + 执行器抽象 + SQLite JDBC；skipif/onlyif/halt/label/statement/query | P0-3、P0-6、P0-8、P1-2、P1-4 |
-| 4 | cli-corpus | [`spec-cli-corpus.md`](./spec-cli-corpus.md) | CLI `ggtest`、统计、退出码、目录收集、官方语料硬验收 | P0-1、P1-1、P1-5、P1-6 |
+| — | ggtest-core | [`spec.md`](./spec.md) | 本总览（根目录仅保留总览 Spec） | N/A |
+| 1 | parser | [`ggtest-core-parser/spec.md`](./ggtest-core-parser/spec.md) | 解析 `.test`/`.slt`/单文件 → 记录模型；解析错误含文件+行号；**不连库** | P0-7 |
+| 2 | normalize | [`ggtest-core-normalize/spec.md`](./ggtest-core-normalize/spec.md) | I/T/R 规范化、排序、MD5 兼容、hash-threshold；可用固定样例 | P0-2、P0-4、P0-5、P1-3 |
+| 3 | runner-sqlite | [`ggtest-core-runner-sqlite/spec.md`](./ggtest-core-runner-sqlite/spec.md) | Runner + 执行器抽象 + SQLite JDBC；skipif/onlyif/halt/label/statement/query | P0-3、P0-6、P0-8、P1-2、P1-4 |
+| 4 | cli-corpus | [`ggtest-core-cli-corpus/spec.md`](./ggtest-core-cli-corpus/spec.md) | CLI `ggtest`、统计、退出码、目录收集、官方语料硬验收 | P0-1、P1-1、P1-5、P1-6 |
 
 **依赖顺序**：`parser` ∥ `normalize` → `runner-sqlite` → `cli-corpus`。
 
-**详细合同与 GWT 验收**仅在各 `spec-<sub>.md` 中维护；本总览不重复、不作整包 Plan。
+**详细合同与 GWT 验收**仅在各子目录 `spec.md` 中维护；本总览不重复、不作整包 Plan。
 
 ## 合同
 

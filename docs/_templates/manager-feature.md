@@ -9,6 +9,8 @@
 
 > 权威工作流、门禁与状态说明见 [docs/README.md](../README.md)。
 > 活跃状态见 [STATUS.md](STATUS.md)。
+>
+> 文档路径：未拆分时 Spec 为 `docs/features/<feature-id>/spec.md`（无子目录）；已拆分时根目录仅总览 Spec，各切片为 `docs/features/<feature-id>/<feature-id>-<sub>/spec.md`。
 
 ## 切片（未拆分时仅一行，sub-feature-id = feature-id）
 

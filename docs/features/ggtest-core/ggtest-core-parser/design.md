@@ -1,10 +1,10 @@
 # Design: ggtest-core / parser
 
-> 架构决策（Plan 之前完成）。仅处理模块边界、分层与记录模型的技术选型；需求合同与验收见 [`spec-parser.md`](./spec-parser.md)。
+> 架构决策（Plan 之前完成）。仅处理模块边界、分层与记录模型的技术选型；需求合同与验收见 [`spec.md`](./spec.md)。
 >
 > **feature-id**：`ggtest-core` · **sub-feature-id**：`parser`
 > **适用对象**：Planner（Plan 输入）、Developer（实现依据）、Reviewer（结构审阅）。
-> **前置条件**：已读 [`spec-parser.md`](./spec-parser.md)、总览 [`spec.md`](./spec.md)、工作项记录 [`ggtest-core.md`](../../manager/ggtest-core.md)。
+> **前置条件**：已读 [`spec.md`](./spec.md)、总览 [`spec.md`](../spec.md)、工作项记录 [`ggtest-core.md`](../../../manager/ggtest-core.md)。
 > **阅读顺序**：背景 → 模块边界与分层 → 记录模型 → 解析入口 → 错误定位 → 扩展名无关 → 方案对比 → 模块影响 → 风险 → 对 Plan 与 Developer 的要点。
 > **预期结果**：读者掌握 parser 的模块划分、记录模型形状与解析入口契约，可据此编写 Plan 与实现。
 > **失败处理**：发现 Spec 缺失合同信息（API 数据约束、错误约定、验收）时停止并报告 Manager，不在本文件替代 Spec 决策。

@@ -1,11 +1,11 @@
 # 工作项记录: ggtest-core
 
 工作项标识: ggtest-core
-描述: GGTEST——从零到一使用 Java 实现 sqllogictest 格式测试工具。大型 Spec 拆为同目录子 Spec（`spec.md` + `spec-<sub>.md`）；调度主键为 `(ggtest-core, sub-feature-id)`。
+描述: GGTEST——从零到一使用 Java 实现 sqllogictest 格式测试工具。大型 Spec 拆为多子工作项：根目录仅总览 `spec.md`，各切片目录为 `ggtest-core-<sub>/`；调度主键为 `(ggtest-core, sub-feature-id)`。
 路径等级: full
 源分支: ggtest-core-parser（parser 切片工作分支；后续切片各自独立分支）
 目标分支: main
-文档影响: docs/features/ggtest-core/（总览 + 四子 Spec）；实现阶段更新项目 README
+文档影响: docs/features/ggtest-core/（总览 + 四子工作项目录）；实现阶段更新项目 README
 
 > 权威工作流、门禁与状态说明见 [docs/README.md](../README.md)。
 > 活跃状态见 [STATUS.md](STATUS.md)。
@@ -15,10 +15,10 @@
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
 | ggtest-core | [spec.md](../features/ggtest-core/spec.md) | required（总览） | approved（总览化） | skipped（不对总览写 Design/Plan） | N/A（tracking，不调度 Review） | blocked（tracking） | 跟踪子切片；四切片均 done 后关闭父项 |
-| parser | [spec-parser.md](../features/ggtest-core/spec-parser.md) | required | approved | required（模块边界、记录模型；design-parser.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-parser → main（合入以 git 为准） |
-| normalize | [spec-normalize.md](../features/ggtest-core/spec-normalize.md) | required | required | skipped（算法已在 Spec 写死） | required | awaiting-spec-approval | 确认 Spec → Plan |
-| runner-sqlite | [spec-runner-sqlite.md](../features/ggtest-core/spec-runner-sqlite.md) | required | required | required（执行器抽象、JDBC 分层） | required | awaiting-spec-approval | 确认 Spec；上游就绪后再 Design |
-| cli-corpus | [spec-cli-corpus.md](../features/ggtest-core/spec-cli-corpus.md) | required | required | skipped（CLI/退出码已在 Spec 写死） | required | awaiting-spec-approval | 确认 Spec；最后集成 |
+| parser | [ggtest-core-parser/spec.md](../features/ggtest-core/ggtest-core-parser/spec.md) | required | approved | required（模块边界、记录模型；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-parser → main（合入以 git 为准） |
+| normalize | [ggtest-core-normalize/spec.md](../features/ggtest-core/ggtest-core-normalize/spec.md) | required | required | skipped（算法已在 Spec 写死） | required | awaiting-spec-approval | 确认 Spec → Plan |
+| runner-sqlite | [ggtest-core-runner-sqlite/spec.md](../features/ggtest-core/ggtest-core-runner-sqlite/spec.md) | required | required | required（执行器抽象、JDBC 分层） | required | awaiting-spec-approval | 确认 Spec；上游就绪后再 Design |
+| cli-corpus | [ggtest-core-cli-corpus/spec.md](../features/ggtest-core/ggtest-core-cli-corpus/spec.md) | required | required | skipped（CLI/退出码已在 Spec 写死） | required | awaiting-spec-approval | 确认 Spec；最后集成 |
 
 依赖：`parser` ∥ `normalize` → `runner-sqlite` → `cli-corpus`。
 
@@ -54,7 +54,7 @@
 | Q9 | P1-5 硬验收范围为 **select1.test、select2.test、select3.test** | **已决议** |
 | Q8 | JDBC 路径坚持「**零豁免硬验收**」；不可消除偏差须再批豁免 | **已决议** |
 | 输入后缀 | 除 `.test` 外，**等价看待 `.slt`**；递归目录收集匹配 `*.test` 与 `*.slt`；单文件路径不强制扩展名 | **已确认** |
-| 文档结构 | 同目录语义子 Spec（`spec-<sub>.md`）；STATUS 用 `(feature-id, sub-feature-id)` | **已确认** |
+| 文档结构 | 多子工作项时根目录仅总览 Spec，每切片一目录 `<feature-id>-<sub>/`；单工作项无子目录；STATUS 用 `(feature-id, sub-feature-id)` | **已确认** |
 
 ## 审计笔记
 
@@ -85,3 +85,4 @@
 - 2026-07-24 **用户授权关闭 parser（回复「ok」）**。Manager：曾按误标「非 Git」将状态置 `done`。
 - 2026-07-24 **纠正：本仓库为 Git；实现须独立工作分支**。规范已强化（`docs/standards/git.md`、Developer/Manager agent、README Merge 门禁）。工作项源分支改为 `ggtest-core-parser`、目标分支 `main`；检出工作分支承接未提交的 parser 实现；状态曾为 **`awaiting-merge`**。后续切片实施前须先建 `<feature-id>-<sub-feature-id>` 分支。
 - 2026-07-24 **流程修订：`done` = 待合入即可关闭工作流**（QA Pass + 合并授权；不等合入完成；废弃 `awaiting-merge`）。合入可在 GitHub/本地执行，合入后不再为 STATUS 单独提交。本切片状态 → **`done`**。
+- 2026-07-24 **文档结构再修正**：多子工作项改为「根目录仅总览 `spec.md` + 每切片一目录 `<feature-id>-<sub>/`（标准文件名）」；单工作项仍平铺在 feature 根下、无子目录。已迁移 `normalize` / `runner-sqlite` / `cli-corpus` Spec，并将 parser 目录内 `*-parser.md` 重命名为 `spec.md` / `design.md` / `plan.md`。工作流 README、agents、skills、standards 已同步。

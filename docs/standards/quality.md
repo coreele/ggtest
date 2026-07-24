@@ -15,7 +15,7 @@ Developer 必须在提交 Review 前执行与变更范围匹配的验证，至�
 - **静态检查** — 运行仓库配置的 linter、类型检查或格式化检查；
 - **集成验证** — 当变更涉及模块间交互、API 契约或数据流时，执行必要的集成测试或手工验证。
 
-验证命令与结果须记录在 `docs/features/<feature-id>/dev-notes.md` 或 Plan 指定的位置。
+验证命令与结果须记录在对应切片目录的 `dev-notes.md`（未拆分：`docs/features/<feature-id>/dev-notes.md`；已拆分：`docs/features/<feature-id>/<feature-id>-<sub-feature-id>/dev-notes.md`）或 Plan 指定的位置。
 
 ## 2. Plan 验证声明
 
@@ -49,7 +49,7 @@ QA 必须依据 Spec 和 Plan 执行独立验收，不得仅依赖 Developer 或
 - Plan 中声明的验证层与预期证据；
 - 适用时的回归测试（确保未引入既有功能退化）。
 
-验收结论写入 `docs/features/<feature-id>/qa-report.md`，结论为 Pass、Fail 或 Blocked。
+验收结论写入对应切片目录的 `qa-report.md`（未拆分：`docs/features/<feature-id>/qa-report.md`；已拆分：`docs/features/<feature-id>/<feature-id>-<sub-feature-id>/qa-report.md`），结论为 Pass、Fail 或 Blocked。
 
 ## 5. 完成定义（Definition of Done）
 

@@ -4,13 +4,13 @@
 >
 > **feature-id**：`ggtest-core` · **sub-feature-id**：`normalize`
 > **适用对象**：Planner（Design/Plan 输入）、Developer（实现依据）、QA（验收依据）、用户（确认需求范围）。
-> **前置条件**：已阅读工作项记录 `docs/manager/ggtest-core.md` 与总览 [`spec.md`](./spec.md)。
+> **前置条件**：已阅读工作项记录 `docs/manager/ggtest-core.md` 与总览 [`spec.md`](../spec.md)。
 > **阅读顺序**：背景与目标 → 非目标 → 范围与可见行为 → 合同 → 验收 → 开放问题。
 > **预期结果**：读者能够判定规范化与哈希比对行为边界，并对开放问题作出决策。
 >
 > **确认要求（full 路径）**：本 Spec 含合同级算法（I/T/R、排序、MD5、hash-threshold）。须由**当前用户会话确认**后方可进入 Plan；确认前状态应为 `awaiting-spec-approval`。
 >
-> 总览：[spec.md](./spec.md)。
+> 总览：[spec.md](../spec.md)。
 
 ## 背景与目标
 

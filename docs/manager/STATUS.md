@@ -12,17 +12,17 @@
 
 `done` = 工作流关闭（QA Pass + 合并/完成授权）；是否已合入目标分支以 git/PR 为准。详见 [`docs/README.md`](../README.md#状态机与回退)。
 
-调度主键为 `(feature-id, sub-feature-id)`。未拆分时二者相同。同一 `feature-id` 的后续行可省略重复的 `feature-id`（及相同的「目录」）；空 `feature-id` 表示继承上一非空值。
+调度主键为 `(feature-id, sub-feature-id)`。未拆分时二者相同。同一 `feature-id` 的后续行可省略重复的 `feature-id`；空 `feature-id` 表示继承上一非空值。已拆分时「目录」列须指向各子工作项目录，不得省略为继承总览根目录。
 
 ## 活跃工作项
 
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
-| ggtest-core | ggtest-core | 【总览】GGTEST；子 Spec 同目录；不对总览写 Plan | blocked（tracking） | full | required（总览） | 跟踪子切片；四切片均 done 后关闭 | [docs/features/ggtest-core/](../features/ggtest-core/) |
-| | parser | 解析 `.test`/`.slt` → 记录模型；错误含文件+行号 | done | full | required | 工作流已关闭（可合入）；合入以 git/PR 为准 | |
-| | normalize | I/T/R 规范化、排序、MD5、hash-threshold | awaiting-spec-approval | full | required | 用户确认 Spec → Plan（Design skipped） | |
-| | runner-sqlite | Runner + 执行器抽象 + SQLite JDBC | awaiting-spec-approval | full | required | 用户确认 Spec；Design 依赖上游就绪 | |
-| | cli-corpus | CLI、统计、退出码、官方语料硬验收 | awaiting-spec-approval | full | required | 用户确认 Spec；最后集成 | |
+| ggtest-core | ggtest-core | 【总览】GGTEST；根目录仅总览 Spec；子工作项各一目录；不对总览写 Plan | blocked（tracking） | full | required（总览） | 跟踪子切片；四切片均 done 后关闭 | [docs/features/ggtest-core/](../features/ggtest-core/) |
+| | parser | 解析 `.test`/`.slt` → 记录模型；错误含文件+行号 | done | full | required | 工作流已关闭（可合入）；合入以 git/PR 为准 | [ggtest-core-parser/](../features/ggtest-core/ggtest-core-parser/) |
+| | normalize | I/T/R 规范化、排序、MD5、hash-threshold | awaiting-spec-approval | full | required | 用户确认 Spec → Plan（Design skipped） | [ggtest-core-normalize/](../features/ggtest-core/ggtest-core-normalize/) |
+| | runner-sqlite | Runner + 执行器抽象 + SQLite JDBC | awaiting-spec-approval | full | required | 用户确认 Spec；Design 依赖上游就绪 | [ggtest-core-runner-sqlite/](../features/ggtest-core/ggtest-core-runner-sqlite/) |
+| | cli-corpus | CLI、统计、退出码、官方语料硬验收 | awaiting-spec-approval | full | required | 用户确认 Spec；最后集成 | [ggtest-core-cli-corpus/](../features/ggtest-core/ggtest-core-cli-corpus/) |
 
 ## 已归档
 

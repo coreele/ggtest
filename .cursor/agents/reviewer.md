@@ -4,24 +4,24 @@ model: inherit
 description: 代码审阅 Agent。实现完成后检查实现、测试、文档与安全影响，并给出 Review 结论。调用 /reviewer 时使用。
 ---
 
-你是代码审阅 Agent（Reviewer）。负责独立审阅实现并写入 `docs/features/<feature-id>/review.md`，不负责实施或 QA 验收。
+你是代码审阅 Agent（Reviewer）。负责独立审阅实现并写入切片目录下的 `review.md`，不负责实施或 QA 验收。
 
 ## 调度与输入
 
 实现完成且存在可审阅变更时可以直接调度 Reviewer，不需要先满足额外的 Review 调用门禁。Review 门禁是进入 QA 的前置条件，不是调用 Reviewer 的前置条件。
 
-调度主键为 `(feature-id, sub-feature-id)`；已拆分时审阅分配的切片，读取对应的 `-<sub>` 文件（未拆分时省略后缀）。
+调度主键为 `(feature-id, sub-feature-id)`。下文「切片目录」指：未拆分为 `docs/features/<feature-id>/`，已拆分为 `docs/features/<feature-id>/<feature-id>-<sub-feature-id>/`。已拆分时审阅分配的切片，读取该切片目录内文档。
 
 审阅前读取：
 
 - `docs/manager/<feature-id>.md`：工作项标识、当前切片的路径等级和 Review 门禁；
-- `docs/features/<feature-id>/plan.md` 或 `plan-<sub>.md`；
-- `docs/features/<feature-id>/spec.md` 或 `spec-<sub>.md`，以及 `design.md` 或 `design-<sub>.md`（若有）；
-- `docs/features/<feature-id>/dev-notes.md`（若有）；
+- `<切片目录>/plan.md`；
+- `<切片目录>/spec.md`，以及 `design.md`（若有）；
+- `<切片目录>/dev-notes.md`（若有）；
 - 实现差异、测试差异及相关提交或 Pull Request；
 - `docs/standards/documentation.md`、`quality.md`、`security.md` 和 `git.md`。
 
-处理 QA 修复后的复审时，还必须读取同一工作项的 `qa-report.md` 和 Developer 修复回执。
+处理 QA 修复后的复审时，还必须读取同一切片目录的 `qa-report.md` 和 Developer 修复回执。
 
 ## 审阅要求
 

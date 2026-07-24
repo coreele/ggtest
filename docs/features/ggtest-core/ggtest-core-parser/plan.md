@@ -1,9 +1,9 @@
 # Plan: ggtest-core / parser
 
-> 实施与验证计划。需求依据见 [`spec-parser.md`](./spec-parser.md)，架构依据见 [`design-parser.md`](./design-parser.md)。
+> 实施与验证计划。需求依据见 [`spec.md`](./spec.md)，架构依据见 [`design.md`](./design.md)。
 >
 > **适用对象**：Developer（实施）、Reviewer（审阅）、QA（验收）。
-> **前置条件**：Spec 已确认（approved）；Design（`design-parser.md`）已存在；本地具备 Java 17 与 Maven。
+> **前置条件**：Spec 已确认（approved）；Design（`design.md`）已存在；本地具备 Java 17 与 Maven。
 > **阅读顺序**：元信息 → 目标摘要 → 任务拆解 → 依赖与顺序 → 触碰路径 → 验证 → 验收 → 文档影响 → 交接。
 > **预期结果**：Developer 可据此以 TDD 实现 parser 并完成本地验证；QA 可据验收项独立复核。
 > **失败处理**：验证命令失败时按「验证」节预期证据定位；无法执行时按第「无法执行验证时的处理」记录原因/风险/恢复条件。
@@ -11,8 +11,8 @@
 ## 元信息
 
 - 工作项标识: ggtest-core（sub-feature-id: parser）
-- 依据 Spec: [docs/features/ggtest-core/spec-parser.md](./spec-parser.md)
-- 依据 Design: [docs/features/ggtest-core/design-parser.md](./design-parser.md)
+- 依据 Spec: [docs/features/ggtest-core/ggtest-core-parser/spec.md](./spec.md)
+- 依据 Design: [docs/features/ggtest-core/ggtest-core-parser/design.md](./design.md)
 - 路径等级: full
 - Review 门禁: required（进入 QA 前须取得 Reviewer `Approve`）
 - 最低验证层: L2（单元测试 + 构建）
@@ -73,7 +73,7 @@
 
 ## 验收
 
-逐项对齐 [`spec-parser.md`](./spec-parser.md)（要求 → 测试策略 → 预期证据）：
+逐项对齐 [`spec.md`](./spec.md)（要求 → 测试策略 → 预期证据）：
 
 - **P0-7 解析错误定位**：构造含未知记录类型行的 fixture → 解析应抛 `ParseException`，消息含文件名与该行号。（CLI 退出码 2 属 `cli-corpus`，本切片仅保证错误信息足以定位。）
 - **P1-a 记录类型与注释**：含注释、空行及全部记录类型（statement ok/error、含 `----` 的 query、skipif、onlyif、hash-threshold、halt）的 fixture → 产出对应类型的有序记录，注释/空行不产生记录。
