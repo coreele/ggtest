@@ -1,0 +1,37 @@
+# P0-2: select1.test first query — normalized I values + corpus MD5
+# query I nosort; hash-threshold 8; 30 values
+type: I
+sort: nosort
+hash-threshold: 8
+expected: 30 values hashing to 3c13dee48d9356ae19af2515e05e6b54
+values:
+358
+364
+376
+382
+398
+402
+410
+426
+432
+440
+458
+468
+478
+486
+490
+1000
+1050
+1120
+1180
+1240
+1290
+1300
+1390
+1430
+1450
+1510
+1580
+1600
+1670
+1700

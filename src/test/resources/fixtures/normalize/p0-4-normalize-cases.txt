@@ -1,0 +1,20 @@
+# P0-4a: INTEGER NULL
+type: I
+sort: nosort
+hash-threshold: 8
+expected: NULL
+raw: null
+
+# P0-4b: REAL %.3f
+type: R
+sort: nosort
+hash-threshold: 8
+expected: 3.142
+raw: 3.14159
+
+# P0-4c: TEXT empty -> (empty)
+type: T
+sort: nosort
+hash-threshold: 8
+expected: (empty)
+raw: 

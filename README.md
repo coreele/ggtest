@@ -19,7 +19,7 @@ Optional compile-only check:
 mvn -q clean compile
 ```
 
-## Parser usage (current slice)
+## Parser usage
 
 Parse a file (extension is ignored; UTF-8):
 
@@ -44,3 +44,30 @@ Malformed input throws `com.ggtest.parser.ParseException` with message
 
 Record types live in `com.ggtest.model` (`StatementRecord`, `QueryRecord`,
 `SkipIfRecord`, `OnlyIfRecord`, `HashThresholdRecord`, `HaltRecord`).
+
+## Normalize / compare usage
+
+Compare expected query results to actual rows (no JDBC). Default
+hash-threshold is `ResultComparer.DEFAULT_HASH_THRESHOLD` (8):
+
+```java
+import com.ggtest.model.ColumnType;
+import com.ggtest.model.SortMode;
+import com.ggtest.normalize.ResultComparer;
+import java.util.List;
+
+var result = ResultComparer.compare(
+        List.of(ColumnType.INTEGER, ColumnType.TEXT),
+        SortMode.ROWSORT,
+        ResultComparer.DEFAULT_HASH_THRESHOLD,
+        "1\n(empty)\n2\nx\n",
+        List.of(
+                List.of("2", "x"),
+                List.of("1", "")));
+
+if (!result.passed()) {
+    System.err.println(result.diffSummary());
+}
+```
+
+Building blocks: `ValueNormalizer`, `ResultSorter`, `ResultHasher`.

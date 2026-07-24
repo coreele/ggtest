@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <name>GGTEST</name>
-    <description>Java implementation of a sqllogictest-format test tool. This module provides the parser slice.</description>
+    <description>Java implementation of a sqllogictest-format test tool (parser and result normalize/compare).</description>
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
