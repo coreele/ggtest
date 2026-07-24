@@ -19,7 +19,7 @@
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
 | ggtest-core | ggtest-core | 【总览】GGTEST；子 Spec 同目录；不对总览写 Plan | blocked（tracking） | full | required（总览） | 跟踪子切片；四切片均 done 后关闭 | [docs/features/ggtest-core/](../features/ggtest-core/) |
-| | parser | 解析 `.test`/`.slt` → 记录模型；错误含文件+行号 | awaiting-spec-approval | full | required | **建议优先**：用户确认 Spec → Design/Plan | |
+| | parser | 解析 `.test`/`.slt` → 记录模型；错误含文件+行号 | awaiting-merge | full | required | 合并授权：ggtest-core-parser → main | |
 | | normalize | I/T/R 规范化、排序、MD5、hash-threshold | awaiting-spec-approval | full | required | 用户确认 Spec → Plan（Design skipped） | |
 | | runner-sqlite | Runner + 执行器抽象 + SQLite JDBC | awaiting-spec-approval | full | required | 用户确认 Spec；Design 依赖上游就绪 | |
 | | cli-corpus | CLI、统计、退出码、官方语料硬验收 | awaiting-spec-approval | full | required | 用户确认 Spec；最后集成 | |

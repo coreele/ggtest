@@ -69,6 +69,8 @@ Review 门禁是进入 QA 的前置条件，不是调用 Reviewer 的前置条�
 
 所有合并都必须取得当前用户会话的明确授权。QA 未达到 `Pass`、源分支或目标分支未记录时，不得请求合并授权。
 
+Git 仓库中调度 Developer **之前**，Manager 必须在工作项记录填写目标分支（默认 `main`）与源分支（推荐 `<feature-id>-<sub-feature-id>`）。未填写时不得调度 Developer 实施。实现必须在源分支上进行，禁止在 `main`/`master`/`release/*` 上直接实施（见 `docs/standards/git.md`）。
+
 ## 权威工作流
 
 ```text

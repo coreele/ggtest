@@ -109,6 +109,7 @@ Manager 登记工作项时必须记录路径等级，并分别判定 Spec、Desi
 - QA 报告必须为 `Pass`；
 - 当前用户会话必须取得明确合并授权；
 - Git 工作区必须记录源分支和目标分支，并满足 [`standards/git.md`](standards/git.md)；
+- **实现必须发生在独立工作分支上**；禁止在 `main`/`master`/`release/*` 上直接实施后合并；
 - 只有受授权的 Merge Executor 可以执行合并；
 - 合并失败时保持 `awaiting-merge` 或进入 `blocked`，不得归档。
 

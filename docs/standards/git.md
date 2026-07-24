@@ -4,22 +4,45 @@
 
 本规范规定分支、提交、Pull Request、合并和回滚要求。
 
-**主责角色：** Manager（工作项与分支策略）、Developer（提交与 Pull Request）、Merge Executor（受权合并）。
+**主责角色：** Manager（工作项与分支策略）、Developer（创建工作分支、提交与 Pull Request）、Merge Executor（受权合并）。
 
 **生效条件：** 本规范仅在工作区是 Git 仓库时生效。非 Git 工作区须跳过提交与合并操作，但不跳过 Spec、Plan、Review、QA 和归档门禁。
 
 ## 1. 工作分支
 
-每个工作项须使用独立工作分支，不得与其他工作项共用同一功能分支。
+### 1.1 必须新建分支
 
-分支名称须包含工作项标识（`feature-id`），推荐格式：
+**实现（Developer 开始写代码/测试）之前，必须先有独立工作分支。** 禁止在 `main`、`master` 或 `release/*` 上直接实施功能或缺陷修复。
+
+流程：
+
+1. Manager 在调度 Developer 前，于工作项记录填写 **目标分支**（默认 `main`）与 **源分支**（拟创建的工作分支名）；
+2. Developer 自目标分支创建并检出源分支；若源分支已存在则检出并确认基于正确目标；
+3. 全部实现、修复与相关文档提交均发生在该源分支上；
+4. QA `Pass` 且用户明确授权后，由 Merge Executor 将源分支合并入目标分支。
+
+已拆分为 `(feature-id, sub-feature-id)` 时：每个进入实施的切片使用**独立**工作分支，不得多个切片共用同一功能分支，也不得与其他工作项共用。
+
+### 1.2 命名
+
+分支名称须包含工作项标识；有切片时须包含 `sub-feature-id`：
 
 ```text
 <feature-id>
 <feature-id>-<简短描述>
+<feature-id>-<sub-feature-id>
+<feature-id>-<sub-feature-id>-<简短描述>
 ```
 
-Manager 在工作项记录中声明目标分支；Developer 自目标分支创建并推送工作分支。
+示例：`ggtest-core-parser`、`ggtest-core-normalize`。
+
+### 1.3 职责划分
+
+| 角色 | 职责 |
+|---|---|
+| Manager | 登记时或调度 Developer 前声明目标分支与源分支名；门禁检查时核对二者已填写且非「不适用」（Git 仓库时） |
+| Developer | 创建/检出工作分支后方可实施；禁止在受保护分支上直接提交实现 |
+| Merge Executor | 仅在授权后合并源分支 → 目标分支 |
 
 ## 2. 提交规范
 
@@ -54,7 +77,7 @@ Manager 在工作项记录中声明目标分支；Developer 自目标分支创�
 | Plan 确认 | 用户已确认对应 Plan |
 | 适用的 Review | Review 门禁为 `required` 时须取得 Approve |
 | QA Pass | QA 验收结论为 Pass |
-| 分支确认 | 源分支与目标分支已明确并在工作项记录中声明 |
+| 分支确认 | 源分支与目标分支已明确并在工作项记录中声明；实现位于源分支而非目标受保护分支 |
 | 用户明确授权 | 当前用户会话已授权合并 |
 
 任一条件未满足时，Merge Executor 不得执行合并。
@@ -62,6 +85,8 @@ Manager 在工作项记录中声明目标分支；Developer 自目标分支创�
 ## 5. 受保护分支
 
 禁止向受保护分支（如 `main`、`master`、`release/*`）执行 force push。
+
+禁止在受保护分支上直接实施功能或缺陷修复；实现必须经工作分支合并进入。
 
 ## 6. 无法 fast-forward 或合并策略不明确
 

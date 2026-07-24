@@ -1,0 +1,13 @@
+# equivalent content for P1-c
+
+statement ok
+CREATE TABLE t(a INT)
+
+query I
+SELECT 1
+----
+1
+
+skipif postgresql
+hash-threshold 8
+halt

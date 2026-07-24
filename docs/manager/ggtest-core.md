@@ -3,8 +3,8 @@
 工作项标识: ggtest-core
 描述: GGTEST——从零到一使用 Java 实现 sqllogictest 格式测试工具。大型 Spec 拆为同目录子 Spec（`spec.md` + `spec-<sub>.md`）；调度主键为 `(ggtest-core, sub-feature-id)`。
 路径等级: full
-源分支: 不适用（非 Git 工作区，跳过提交与合并操作）
-目标分支: 不适用（非 Git 工作区，跳过提交与合并操作）
+源分支: ggtest-core-parser（parser 切片工作分支；后续切片各自独立分支）
+目标分支: main
 文档影响: docs/features/ggtest-core/（总览 + 四子 Spec）；实现阶段更新项目 README
 
 > 权威工作流、门禁与状态说明见 [docs/README.md](../README.md)。
@@ -15,7 +15,7 @@
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
 | ggtest-core | [spec.md](../features/ggtest-core/spec.md) | required（总览） | approved（总览化） | skipped（不对总览写 Design/Plan） | N/A（tracking，不调度 Review） | blocked（tracking） | 跟踪子切片；四切片均 done 后关闭父项 |
-| parser | [spec-parser.md](../features/ggtest-core/spec-parser.md) | required | required | required（模块边界、记录模型） | required | awaiting-spec-approval | **建议优先**确认 Spec → Design/Plan |
+| parser | [spec-parser.md](../features/ggtest-core/spec-parser.md) | required | approved | required（模块边界、记录模型；design-parser.md 已产出） | required | awaiting-merge | 源分支 ggtest-core-parser → 合并授权后合入 main |
 | normalize | [spec-normalize.md](../features/ggtest-core/spec-normalize.md) | required | required | skipped（算法已在 Spec 写死） | required | awaiting-spec-approval | 确认 Spec → Plan |
 | runner-sqlite | [spec-runner-sqlite.md](../features/ggtest-core/spec-runner-sqlite.md) | required | required | required（执行器抽象、JDBC 分层） | required | awaiting-spec-approval | 确认 Spec；上游就绪后再 Design |
 | cli-corpus | [spec-cli-corpus.md](../features/ggtest-core/spec-cli-corpus.md) | required | required | skipped（CLI/退出码已在 Spec 写死） | required | awaiting-spec-approval | 确认 Spec；最后集成 |
@@ -75,3 +75,12 @@
 - 2026-07-24 **用户确认推进拆分**：曾登记四平级子工作项；后改为同目录子 Spec。总览行 → **`blocked`（tracking）**。
 - 2026-07-24 **Analyst 完成**：总览 + 四子 Spec 产出（曾位于平级目录）。四切片 → `awaiting-spec-approval`。**未**调度 Planner。
 - 2026-07-24 **文档结构修正**：四子 Spec 迁入 `docs/features/ggtest-core/spec-*.md`；STATUS 增加 `sub-feature-id` 列并省略重复 feature-id；删除平级 feature 目录与独立 manager 记录。
+- 2026-07-24 **推进第一个子切片 `parser`（建议优先，依赖 `parser ∥ normalize` 之首）**：核验 `spec-parser.md` 已完成（含记录模型合同、解析错误定位、`.slt`/`.test` 等价语义；P0-7、P1-a/b/c）。门禁判定：Spec=required、Design=required、Review=required。`full` 路径 Spec 必须用户确认。状态维持 **`awaiting-spec-approval`**，到达 **Spec 用户确认门禁**，单步编排下停止；**未**调度 Planner（Design/Plan 待 Spec 确认后）。
+- 2026-07-24 **用户确认 parser Spec（回复「ok」，批准、无修改）**。Manager：`parser` 的 Spec 用户确认 → **`approved`**；状态 `awaiting-spec-approval` → **`designing`**（Design 门禁 required）。调度 **Planner** 编写 `design-parser.md`（模块边界、记录模型）→ `plan-parser.md`；到达 **Plan 用户确认门禁**停止。**未**推进 normalize 等其他切片。
+- 2026-07-24 **Planner 完成 Design + Plan**：产出 `design-parser.md`（`com.ggtest.model` 纯数据层 + `com.ggtest.parser` 单遍状态机；`sealed interface SqlTestRecord` + record 变体；`SourceLocation`；fail-fast `ParseException` 与 `IOException` 分离以支撑退出码 2）与 `plan-parser.md`（T1 Maven 骨架→T2 模型→T3/T4 TDD 解析与错误→T5 验收 fixtures→T6 文档；验证 `mvn -q clean test`；最低验证层 L2；Review 门禁 required；用户文档/运维 N/A）。Design 门禁 **通过**（design-parser.md 存在）。Manager：`designing` →（planning）→ **`awaiting-plan-approval`**。到达 **Plan 用户确认门禁**，单步编排停止；**未**调度 Developer。默认坐标 `com.ggtest:ggtest:0.1.0-SNAPSHOT`、包名 `com.ggtest`（可在 Plan 确认时调整）。
+- 2026-07-24 **用户确认 parser Plan（回复「ok」，批准、无修改；包名 `com.ggtest`、坐标 `com.ggtest:ggtest:0.1.0-SNAPSHOT` 沿用默认）**。Manager：Plan 用户确认结果已持久化；状态 `awaiting-plan-approval` → **`planned`** → **`developing`**。用户授权连续调度 Developer → Reviewer → QA（到 QA Pass 后的关闭/完成授权门禁停）。调度 **Developer** 按已确认 Plan TDD 实施（`mvn -q clean test`，最低验证层 L2），产出代码/测试与 `dev-notes.md`。
+- 2026-07-24 **Developer 完成**：T1–T6 已交付（Maven 骨架、model、ParseException、SqlLogicTestParser、fixtures/验收测试、README+Javadoc）。验证：`mvn -q clean test` → BUILD SUCCESS，Tests run: 10, Failures: 0, Errors: 0（L2）。`dev-notes.md` 已写。状态 `developing` → **`reviewing`**。调度 **Reviewer**。
+- 2026-07-24 **Reviewer Approve**：`review.md` 结论 Approve，无阻塞项；独立 `mvn -q clean test`（JDK 17）10 tests 全过。状态 `reviewing` → **`qa`**。调度 **QA**。
+- 2026-07-24 **QA Pass（轮次 1）**：`qa-report.md` 结论 Pass；独立 `mvn -q clean test`（JDK 17）10/10；P0-7、P1-a/b/c 全过。状态 `qa` → **`awaiting-merge`**。非 Git 工作区：**合并不适用**；到达 **用户关闭/完成授权门禁**，单步编排停止。未关闭、未归档。
+- 2026-07-24 **用户授权关闭 parser（回复「ok」）**。Manager：曾按误标「非 Git」将状态置 `done`。
+- 2026-07-24 **纠正：本仓库为 Git；实现须独立工作分支**。规范已强化（`docs/standards/git.md`、Developer/Manager agent、README Merge 门禁）。工作项源分支改为 `ggtest-core-parser`、目标分支 `main`；检出工作分支承接未提交的 parser 实现；状态 **`awaiting-merge`**（待用户合并授权）。后续切片实施前须先建 `<feature-id>-<sub-feature-id>` 分支。

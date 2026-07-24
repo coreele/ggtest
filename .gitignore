@@ -1,0 +1,13 @@
+# Maven
+target/
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Local env
+.env
+.env.*
+!.env.example

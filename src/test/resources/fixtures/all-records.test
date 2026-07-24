@@ -1,0 +1,19 @@
+# all-records fixture for P1-a
+
+# before statement
+statement ok
+CREATE TABLE t(a INT)
+
+statement error
+DROP TABLE missing
+
+query II rowsort label1
+SELECT a, b FROM t
+----
+1 2
+3 4
+
+skipif mysql
+onlyif sqlite
+hash-threshold 8
+halt
