@@ -1,6 +1,8 @@
-# Spec: <feature-id>
+# Spec: <feature-id>[ / <sub-feature-id>]
 
-> 需求与规格（Plan 之前完成）。任务拆解见后续 `plan.md`。
+> 需求与规格（Plan 之前完成）。任务拆解见后续 `plan.md`（或 `plan-<sub>.md`）。
+>
+> **feature-id**：`<feature-id>` · **sub-feature-id**：`<sub-feature-id>`（未拆分时与 feature-id 相同）
 
 ## 背景与目标
 -

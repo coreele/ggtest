@@ -1,25 +1,26 @@
-# Spec: ggtest-cli-corpus
+# Spec: ggtest-core / cli-corpus
 
-> 需求与规格（Plan 之前完成）。任务拆解见后续 `plan.md`。
+> 需求与规格（Plan 之前完成）。任务拆解见后续 `plan.md`（或同目录分阶段 Plan）。
 >
+> **feature-id**：`ggtest-core` · **sub-feature-id**：`cli-corpus`
 > **适用对象**：Planner（Plan 输入）、Developer（实现依据）、QA（验收依据）、用户（确认需求范围）。
-> **前置条件**：已阅读工作项记录 `docs/manager/ggtest-cli-corpus.md` 与 Epic 总览 `docs/features/ggtest-core/spec.md`；上游 parser / normalize / runner-sqlite 行为已按其 Spec 可依赖。
+> **前置条件**：已阅读工作项记录 `docs/manager/ggtest-core.md` 与总览 [`spec.md`](./spec.md)；上游 parser / normalize / runner-sqlite 行为已按其 Spec 可依赖。
 > **阅读顺序**：背景与目标 → 非目标 → 范围与可见行为 → 合同 → 验收 → 开放问题。
 > **预期结果**：读者能够判定 CLI、报告、退出码与语料硬验收边界，并对开放问题作出决策。
 >
 > **确认要求（full 路径）**：本 Spec 含合同级范围（CLI、退出码、目录收集、零豁免硬验收）。须由**当前用户会话确认**后方可进入 Plan；确认前状态应为 `awaiting-spec-approval`。
 >
-> 父项 Epic：[ggtest-core](../ggtest-core/spec.md)。上游：[ggtest-parser](../ggtest-parser/spec.md)、[ggtest-normalize](../ggtest-normalize/spec.md)、[ggtest-runner-sqlite](../ggtest-runner-sqlite/spec.md)。
+> 总览：[spec.md](./spec.md)。上游：[spec-parser.md](./spec-parser.md)、[spec-normalize.md](./spec-normalize.md)、[spec-runner-sqlite.md](./spec-runner-sqlite.md)。
 
 ## 背景与目标
 
 - GGTEST 面向用户的唯一入口为命令行工具，并须能跑通官方 sqllogictest 语料作为成熟度证明。
-- **本项目标**：交付 CLI **`ggtest`**、执行统计报告、退出码约定、目录递归收集 `*.test`/`*.slt`，以及对官方语料的**硬验收**（失败数 = 0、退出码 = 0；**零豁免**）。
+- **本切片目标**：交付 CLI **`ggtest`**、执行统计报告、退出码约定、目录递归收集 `*.test`/`*.slt`，以及对官方语料的**硬验收**（失败数 = 0、退出码 = 0；**零豁免**）。
 - 语料由**用户自备**本地路径（已决议 Q4）。
 
 ## 非目标
 
-- 解析器、规范化、Runner/SQLite 执行器的内部实现（属上游子项；本项组装调用）。
+- 解析器、规范化、Runner/SQLite 执行器的内部实现（属上游切片；本切片组装调用）。
 - JUnit XML 等结构化报告；图形界面；CI/CD 插件；发布到 Maven Central。
 - 仓库内提交官方大语料；语料生成或维护。
 - 首期支持非 `sqlite` 的 `--engine` 值。
@@ -68,7 +69,7 @@ ggtest --url <jdbc-url> [--user <user>] [--password <password>]
 ### 数据 / 状态
 
 - 测试文件路径由用户传入；官方大语料不入库。
-- 跨文件：每个文件执行完后重置文件作用域状态（hash-threshold 回到 CLI 初值；条件与 label 映射清空），由本项编排调用 runner 时保证。
+- 跨文件：每个文件执行完后重置文件作用域状态（hash-threshold 回到 CLI 初值；条件与 label 映射清空），由本切片编排调用 runner 时保证。
 
 ### 错误与约束
 
@@ -109,7 +110,7 @@ ggtest --url <jdbc-url> [--user <user>] [--password <password>]
 
 ## 开放问题
 
-### 已决议（继承自 ggtest-core，勿重开）
+### 已决议（继承自总览，勿重开）
 
 | 编号/议题 | 结论 |
 |---|---|

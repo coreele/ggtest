@@ -1,28 +1,29 @@
-# Spec: ggtest-runner-sqlite
+# Spec: ggtest-core / runner-sqlite
 
-> 需求与规格（Plan 之前完成）。任务拆解见后续 `plan.md`。
+> 需求与规格（Plan 之前完成）。任务拆解见后续 `plan.md`（或同目录分阶段 Plan）。
 >
+> **feature-id**：`ggtest-core` · **sub-feature-id**：`runner-sqlite`
 > **适用对象**：Planner（Design/Plan 输入）、Developer（实现依据）、QA（验收依据）、用户（确认需求范围）。
-> **前置条件**：已阅读工作项记录 `docs/manager/ggtest-runner-sqlite.md` 与 Epic 总览 `docs/features/ggtest-core/spec.md`；了解 parser 记录模型与 normalize 比对合同。
+> **前置条件**：已阅读工作项记录 `docs/manager/ggtest-core.md` 与总览 [`spec.md`](./spec.md)；了解 parser 记录模型与 normalize 比对合同。
 > **阅读顺序**：背景与目标 → 非目标 → 范围与可见行为 → 合同 → 验收 → 开放问题。
 > **预期结果**：读者能够判定 Runner 与 SQLite 执行器行为边界，并对开放问题作出决策。
 >
 > **确认要求（full 路径）**：本 Spec 含合同级范围（执行器抽象、SQLite JDBC、条件控制、statement/query）。须由**当前用户会话确认**后方可进入 Design/Plan；确认前状态应为 `awaiting-spec-approval`。
 >
-> 父项 Epic：[ggtest-core](../ggtest-core/spec.md)。上游：[ggtest-parser](../ggtest-parser/spec.md)、[ggtest-normalize](../ggtest-normalize/spec.md)。
+> 总览：[spec.md](./spec.md)。上游：[spec-parser.md](./spec-parser.md)、[spec-normalize.md](./spec-normalize.md)。
 
 ## 背景与目标
 
 - GGTEST 需按文件内顺序执行已解析记录，对目标库跑 SQL 并比对结果。
-- **本项目标**：实现 Runner + **数据库执行器抽象** + 首期 **SQLite JDBC** 适配；串行单连接执行；支持 skipif/onlyif、halt→skipped、label 一致性、statement ok/error、query 比对（依赖 normalize）。
-- **多库扩展点在本项成型**（见范围「可扩展性」）。
+- **本切片目标**：实现 Runner + **数据库执行器抽象** + 首期 **SQLite JDBC** 适配；串行单连接执行；支持 skipif/onlyif、halt→skipped、label 一致性、statement ok/error、query 比对（依赖 normalize）。
+- **多库扩展点在本切片成型**（见范围「可扩展性」）。
 
 ## 非目标
 
 - 其他数据库的生产级实现（PostgreSQL 等）；首期仅交付 SQLite（JDBC）。
 - `statement error` 的错误消息/正则匹配（首期只断言「执行失败」这一事实）。
-- CLI、目录收集、统计文本格式与退出码编排、官方语料端到端硬验收（属 `ggtest-cli-corpus`；本项须能被 CLI 调用并回传逐记录结果）。
-- 解析器实现、规范化算法实现（分别属 parser / normalize；本项消费其产物）。
+- CLI、目录收集、统计文本格式与退出码编排、官方语料端到端硬验收（属 `cli-corpus`；本切片须能被 CLI 调用并回传逐记录结果）。
+- 解析器实现、规范化算法实现（分别属 parser / normalize；本切片消费其产物）。
 - 多文件并行、多连接并发。
 
 ## 范围与可见行为
@@ -103,7 +104,7 @@
 
 ## 开放问题
 
-### 已决议（继承自 ggtest-core，勿重开）
+### 已决议（继承自总览，勿重开）
 
 | 编号/议题 | 结论 |
 |---|---|
@@ -112,7 +113,7 @@
 | Q6 | halt 后记录计为 **skipped** |
 | Q1 / Q2 | Java 17 / Maven |
 | 产品名 | GGTEST |
-| Q8 | 零豁免硬验收立场由 cli-corpus 端到端落实；本项不得引入默示豁免逻辑 |
+| Q8 | 零豁免硬验收立场由 cli-corpus 端到端落实；本切片不得引入默示豁免逻辑 |
 
 ### 待确认
 

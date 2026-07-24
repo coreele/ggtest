@@ -1,27 +1,28 @@
-# Spec: ggtest-parser
+# Spec: ggtest-core / parser
 
-> 需求与规格（Plan 之前完成）。任务拆解见后续 `plan.md`。
+> 需求与规格（Plan 之前完成）。任务拆解见后续 `plan.md`（或同目录分阶段 Plan）。
 >
+> **feature-id**：`ggtest-core` · **sub-feature-id**：`parser`
 > **适用对象**：Planner（Design/Plan 输入）、Developer（实现依据）、QA（验收依据）、用户（确认需求范围）。
-> **前置条件**：已阅读工作项记录 `docs/manager/ggtest-parser.md` 与 Epic 总览 `docs/features/ggtest-core/spec.md`；了解 sqllogictest 格式基本概念。
+> **前置条件**：已阅读工作项记录 `docs/manager/ggtest-core.md` 与总览 [`spec.md`](./spec.md)；了解 sqllogictest 格式基本概念。
 > **阅读顺序**：背景与目标 → 非目标 → 范围与可见行为 → 合同 → 验收 → 开放问题。
 > **预期结果**：读者能够判定解析器行为边界，并对开放问题作出决策。
 >
 > **确认要求（full 路径）**：本 Spec 含合同级范围（记录类型、解析错误定位、扩展名语义）。须由**当前用户会话确认**后方可进入 Design/Plan；确认前状态应为 `awaiting-spec-approval`。
 >
-> 父项 Epic：[ggtest-core](../ggtest-core/spec.md)。
+> 总览：[spec.md](./spec.md)。
 
 ## 背景与目标
 
 - GGTEST 需将 sqllogictest 行式文本解析为可执行的记录模型，供 runner 消费。
-- **本项目标**：实现 parser——解析 `.test` / `.slt`（及不强制扩展名的单文件）UTF-8 输入，产出记录序列；解析失败时报告**文件名与行号**。
-- **本项不连库**；不执行 SQL、不做结果比对、不提供 CLI。
+- **本切片目标**：实现 parser——解析 `.test` / `.slt`（及不强制扩展名的单文件）UTF-8 输入，产出记录序列；解析失败时报告**文件名与行号**。
+- **本切片不连库**；不执行 SQL、不做结果比对、不提供 CLI。
 
 ## 非目标
 
-- 连接或执行任何数据库；结果规范化、哈希、排序比对（属 `ggtest-normalize`）。
-- Runner、skipif/onlyif 运行时求值、halt 执行语义（属 `ggtest-runner-sqlite`；本项仅解析这些指令为记录）。
-- CLI、目录递归收集、统计报告、官方语料硬验收（属 `ggtest-cli-corpus`）。
+- 连接或执行任何数据库；结果规范化、哈希、排序比对（属 `normalize`）。
+- Runner、skipif/onlyif 运行时求值、halt 执行语义（属 `runner-sqlite`；本切片仅解析这些指令为记录）。
+- CLI、目录递归收集、统计报告、官方语料硬验收（属 `cli-corpus`）。
 - 首期不支持的 sqllogictest-rs 扩展语法（变量替换、record/complete 等）——遇未知记录类型按解析错误处理。
 
 ## 范围与可见行为
@@ -50,13 +51,13 @@
 ### API / 接口
 
 - **解析入口（合同级，签名细节属 Design）**：接受「文件路径或等价文本源」与可读内容，产出有序记录模型；失败时抛出/返回可定位的解析错误。
-- CLI 退出码由 `ggtest-cli-corpus` 消费；本项须保证解析错误信息足以支撑退出码 `2` 的定位报告（文件+行号+原因）。
+- CLI 退出码由 `cli-corpus` 消费；本切片须保证解析错误信息足以支撑退出码 `2` 的定位报告（文件+行号+原因）。
 
 ### 数据 / 状态
 
 - **输入**：sqllogictest 行式 UTF-8 文本（扩展名语义见范围）。
 - **输出（记录模型，合同级形状，字段细节属 Design）**：有序记录列表，每条至少可区分上述记录类型，并携带源文件定位（文件名、起始行号）；`query` 须包含类型签名、可选排序模式、可选 label、SQL、是否含期望结果及期望文本（或「仅执行」标志）；`statement` 须含 SQL 与 ok/error 极性；条件/阈值/halt 指令须保留操作数。
-- 本项无跨文件运行时状态。
+- 本切片无跨文件运行时状态。
 
 ### 错误与约束
 
@@ -94,16 +95,16 @@
 
 ## 开放问题
 
-### 已决议（继承自 ggtest-core，勿重开）
+### 已决议（继承自总览，勿重开）
 
 | 编号/议题 | 结论 |
 |---|---|
 | Q1 | Java 17 |
 | Q2 | Maven |
-| Q3 | CLI 优先（本项不交付 CLI） |
+| Q3 | CLI 优先（本切片不交付 CLI） |
 | 产品名 | GGTEST |
 | 输入后缀 | `.slt` 与 `.test` 等价；单文件不强制扩展名 |
-| Q4 | 用户自备语料（本项不跑语料） |
+| Q4 | 用户自备语料（本切片不跑语料） |
 
 ### 待确认
 

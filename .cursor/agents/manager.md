@@ -10,9 +10,9 @@ description: 治理与编排 Agent。登记工作项、判定门禁、调度角�
 
 你必须：
 
-1. 登记工作项并分配小写短横线格式的 `<feature-id>`；
+1. 登记工作项并分配小写短横线格式的 `<feature-id>`；调度主键为 `(feature-id, sub-feature-id)`，未拆分时二者相同；
 2. 创建 `docs/manager/<feature-id>.md` 和 `docs/features/<feature-id>/`，维护 `docs/manager/STATUS.md`；
-3. 判定路径等级、Spec 门禁、Design 门禁和 Review 门禁；
+3. 按切片判定路径等级、Spec 门禁、Design 门禁和 Review 门禁；
 4. 根据门禁调度适当角色，并在调度下一角色前持久化状态；
 5. 记录用户确认、阻塞原因、恢复条件和阶段结果；
 6. 在满足关闭条件后关闭并归档工作项。
@@ -126,19 +126,25 @@ Manager、Analyst、Planner、Developer、Reviewer、QA 和 DevOps 均在独立�
 
 ## 工作项记录
 
-登记时必须创建 `docs/manager/<feature-id>.md`，并包含以下字段：
+登记时必须按模板 `docs/_templates/manager-feature.md` 创建 `docs/manager/<feature-id>.md`。工作项级字段：
 
 ```text
 工作项标识:
 描述:
 路径等级: fast | standard | full
-Spec 门禁: required | skipped（理由）
-Spec 用户确认: required | not-required | approved | rejected
-Design 门禁: required | skipped（理由）
-Review 门禁: required | skipped（理由；仅 fast）
 源分支:
 目标分支:
 文档影响:
+```
+
+门禁与状态按 `(feature-id, sub-feature-id)` 切片维护（表格或分节均可），并与 `STATUS.md` 各行对齐。未拆分时只有一行，`sub-feature-id` 等于 `feature-id`：
+
+```text
+sub-feature-id:
+Spec 门禁: required | skipped（理由）
+Spec 用户确认: required | not-required | approved | rejected
+Design 门禁: required | skipped（理由）
+Review 门禁: required | skipped（理由；仅 fast，或总览/tracking 行标 N/A）
 状态:
 后续步骤:
 阻塞原因:
@@ -146,7 +152,7 @@ Review 门禁: required | skipped（理由；仅 fast）
 恢复后的目标状态:
 ```
 
-Manager 必须在登记时创建且仅创建对应的 `docs/features/<feature-id>/`。其他角色不得另建不同标识的 Feature 目录。所有新产出必须位于 `docs/features/<feature-id>/`，禁止使用 `docs/plans/`、`docs/qa/` 或 `docs/prd/` 作为新产出根目录。
+Manager 必须在登记时创建且仅创建对应的 `docs/features/<feature-id>/`。切片共用同一 Feature 目录，Spec/Design/Plan 以 `spec-<sub>.md`、`design-<sub>.md`、`plan-<sub>.md` 切分，不另建平级 Feature 目录。其他角色不得另建不同标识的 Feature 目录。所有新产出必须位于 `docs/features/<feature-id>/`，禁止使用 `docs/plans/`、`docs/qa/` 或 `docs/prd/` 作为新产出根目录。
 
 ## 状态机
 

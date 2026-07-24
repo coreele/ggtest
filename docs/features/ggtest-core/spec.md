@@ -1,13 +1,14 @@
-# Spec: ggtest-core（Epic 总览）
+# Spec: ggtest-core（总览）
 
-> 需求与规格总览。本文件为 Epic 索引，**不含**详细合同与 GWT 验收；不对巨型 Spec 做 Plan。
+> 需求与规格总览。本文件为索引，**不含**详细合同与 GWT 验收；不对巨型 Spec 做整包 Plan。
 >
-> **适用对象**：Manager（进度跟踪）、Planner/Developer/QA（定位子项 Spec）、用户（确认产品边界与已决议）。
+> **feature-id**：`ggtest-core` · **sub-feature-id**：`ggtest-core`（与 feature-id 相同表示总览行）
+> **适用对象**：Manager（进度跟踪）、Planner/Developer/QA（定位子 Spec）、用户（确认产品边界与已决议）。
 > **前置条件**：已阅读工作项记录 `docs/manager/ggtest-core.md`；了解 sqllogictest 格式基本概念。
-> **阅读顺序**：背景与目标 → 非目标摘要 → 子项职责与依赖 → 已决议 → 开放问题。
-> **预期结果**：读者能把握产品边界与子项切分，并跳转到对应子项 Spec 查看合同与验收。
+> **阅读顺序**：背景与目标 → 非目标摘要 → 子 Spec 职责与依赖 → 已决议 → 开放问题。
+> **预期结果**：读者能把握产品边界与切片切分，并跳转到对应 `spec-<sub>.md` 查看合同与验收。
 >
-> **确认要求（full 路径）**：本总览仅作索引；**各子项 Spec 须分别由当前用户会话确认**后方可进入各自 Design/Plan。父项不对本总览调度 Planner。
+> **确认要求（full 路径）**：本总览仅作索引；**各子 Spec 须分别由当前用户会话确认**后方可进入各自 Design/Plan。不对总览行调度 Planner。
 
 ## 背景与目标
 
@@ -15,7 +16,7 @@
 - 现有 Java 实现 hydromatic/sql-logic-test 已停滞；Rust 实现 sqllogictest-rs 是事实标杆但不适用于 JVM 生态。
 - **目标**：从零到一实现 **GGTEST**——一个 **Java** 语言的 sqllogictest 测试工具，包含 parser（解析输入）与 runner（对目标数据库执行并比对），架构上支持多数据库扩展。
 - **首期交付**：仅支持 **SQLite（经 JDBC）**，实现格式核心功能，能够跑通官方测试语料并输出通过/失败/跳过统计。
-- **成熟度指标**：官方语料在 SQLite（JDBC）上硬验收——失败数为 0、退出码为 0（详见子项 `ggtest-cli-corpus`：P0-1 / P1-5）。零豁免为默认立场（已决议 Q8）。
+- **成熟度指标**：官方语料在 SQLite（JDBC）上硬验收——失败数为 0、退出码为 0（详见 `cli-corpus`：P0-1 / P1-5）。零豁免为默认立场（已决议 Q8）。
 
 ## 非目标摘要
 
@@ -26,36 +27,37 @@
 - 语料生成或维护（用户自备本地路径）；图形界面、守护进程、CI/CD 集成；发布到 Maven Central。
 - SQL 方言转换或改写（脚本 SQL 原样发送）。
 
-## 子项职责与依赖
+## 子 Spec 职责与依赖
 
-| 顺序 | feature-id | Spec 路径 | 职责摘要 | 验收对齐（原编号） |
+| 顺序 | sub-feature-id | Spec 路径 | 职责摘要 | 验收对齐（原编号） |
 |---|---|---|---|---|
-| 1 | ggtest-parser | [`docs/features/ggtest-parser/`](../ggtest-parser/spec.md) | 解析 `.test`/`.slt`/单文件 → 记录模型；解析错误含文件+行号；**不连库** | P0-7 |
-| 2 | ggtest-normalize | [`docs/features/ggtest-normalize/`](../ggtest-normalize/spec.md) | I/T/R 规范化、排序、MD5 兼容、hash-threshold；可用固定样例 | P0-2、P0-4、P0-5、P1-3 |
-| 3 | ggtest-runner-sqlite | [`docs/features/ggtest-runner-sqlite/`](../ggtest-runner-sqlite/spec.md) | Runner + 执行器抽象 + SQLite JDBC；skipif/onlyif/halt/label/statement/query | P0-3、P0-6、P0-8、P1-2、P1-4 |
-| 4 | ggtest-cli-corpus | [`docs/features/ggtest-cli-corpus/`](../ggtest-cli-corpus/spec.md) | CLI `ggtest`、统计、退出码、目录收集、官方语料硬验收 | P0-1、P1-1、P1-5、P1-6 |
+| — | ggtest-core | [`spec.md`](./spec.md) | 本总览 | N/A |
+| 1 | parser | [`spec-parser.md`](./spec-parser.md) | 解析 `.test`/`.slt`/单文件 → 记录模型；解析错误含文件+行号；**不连库** | P0-7 |
+| 2 | normalize | [`spec-normalize.md`](./spec-normalize.md) | I/T/R 规范化、排序、MD5 兼容、hash-threshold；可用固定样例 | P0-2、P0-4、P0-5、P1-3 |
+| 3 | runner-sqlite | [`spec-runner-sqlite.md`](./spec-runner-sqlite.md) | Runner + 执行器抽象 + SQLite JDBC；skipif/onlyif/halt/label/statement/query | P0-3、P0-6、P0-8、P1-2、P1-4 |
+| 4 | cli-corpus | [`spec-cli-corpus.md`](./spec-cli-corpus.md) | CLI `ggtest`、统计、退出码、目录收集、官方语料硬验收 | P0-1、P1-1、P1-5、P1-6 |
 
 **依赖顺序**：`parser` ∥ `normalize` → `runner-sqlite` → `cli-corpus`。
 
-**详细合同与 GWT 验收**仅在各子项 Spec 中维护；本总览不重复、不作 Plan。
+**详细合同与 GWT 验收**仅在各 `spec-<sub>.md` 中维护；本总览不重复、不作整包 Plan。
 
 ## 合同
 
 ### API / 接口
 
-N/A（本总览无独立对外接口；CLI 见 `ggtest-cli-corpus`；解析/规范化/执行见对应子项）。
+N/A（本总览无独立对外接口；CLI 见 `cli-corpus`；解析/规范化/执行见对应子 Spec）。
 
 ### 数据 / 状态
 
-N/A（见各子项）。
+N/A（见各子 Spec）。
 
 ### 错误与约束
 
-N/A（见各子项）。全局已决议约束见下表，各子项继承、**勿重开**。
+N/A（见各子 Spec）。全局已决议约束见下表，各子 Spec 继承、**勿重开**。
 
 ## 验收（Given-When-Then）
 
-N/A。本 Epic 总览不设独立 P0/P1；可验证验收分布在四个子项 Spec。
+N/A。本总览不设独立 P0/P1；可验证验收分布在四个子 Spec。
 
 ## 开放问题
 
@@ -75,10 +77,10 @@ N/A。本 Epic 总览不设独立 P0/P1；可验证验收分布在四个子项 S
 
 **附加已决议（与上表同等效力，勿重开）：**
 
-- 产品/项目名：**GGTEST**；工作项 epic：`ggtest-core`。
+- 产品/项目名：**GGTEST**；工作项 feature-id：`ggtest-core`。
 - 首期目标库：**SQLite（JDBC）**；其他库为首期非目标，扩展点保留。
 - 输入后缀：`.slt` 与 `.test` **等价**；目录递归收集 `*.test` 与 `*.slt`；单文件路径不强制扩展名。
 
 ### 待确认
 
-无（总览级）。各子项 Spec 分别确认。
+无（总览级）。各子 Spec 分别确认。

@@ -2,9 +2,9 @@
 name: write-spec
 description: >-
   Writes requirements and behavioral specs to
-  docs/features/<feature-id>/spec.md. Invoked by Analyst when Spec gate
-  requires it, scheduled by Manager after work item registration and
-  before /planner. Use when Spec gate requires it,
+  docs/features/<feature-id>/spec.md or spec-<sub-feature-id>.md.
+  Invoked by Analyst when Spec gate requires it, scheduled by Manager after
+  work item registration and before /planner. Use when Spec gate requires it,
   path is full/standard with unclear contracts, or user asks for 规格/spec.
   Skip for fast/small fixes. Do not use for task breakdown (that is plan.md).
 ---
@@ -14,11 +14,14 @@ description: >-
 ## 调用者与门禁
 
 - 调用者：Analyst。
-- 调用条件：工作项记录中的 Spec 门禁为 `required`。
+- 调用条件：工作项记录中对应 `(feature-id, sub-feature-id)` 的 Spec 门禁为 `required`。
 - 执行时机：Manager 登记工作项后、Planner 开始 Design 或 Plan 前。
-- 产出：`docs/features/<feature-id>/spec.md`，使用 `docs/_templates/spec.md`。
+- 产出：
+  - 未拆分：`docs/features/<feature-id>/spec.md`（此时 `sub-feature-id` = `feature-id`）；
+  - 已拆分：总览 `spec.md` 与/或切片 `spec-<sub-feature-id>.md`；
+  - 模板：`docs/_templates/spec.md`。
 
-本 Skill 仅定义需求与规格。实施任务拆分属于 Planner 的 `plan.md`。
+本 Skill 仅定义需求与规格。实施任务拆分属于 Planner 的 `plan.md`（或同目录 `plan-<sub>.md`）。
 
 ## 适用条件
 
@@ -32,7 +35,7 @@ description: >-
 
 ## 必含内容
 
-`spec.md` 必须包含背景与目标、非目标、范围与可见行为、合同、验收条件和开放问题。合同必须覆盖适用的 API、数据、状态和错误约定；不适用时标记 `N/A`。验收条件使用 Given-When-Then，并标记 P0 或 P1。
+每份 Spec（`spec.md` 或 `spec-<sub>.md`）必须包含背景与目标、非目标、范围与可见行为、合同、验收条件和开放问题。合同必须覆盖适用的 API、数据、状态和错误约定；不适用时标记 `N/A`。验收条件使用 Given-When-Then，并标记 P0 或 P1。总览索引 Spec 可将合同与验收标为 `N/A` 并指向子 Spec。
 
 每条 P0 必须可验证。
 
@@ -44,8 +47,8 @@ description: >-
 
 ## 执行与交接
 
-1. 确认 `<feature-id>` 与 Spec 门禁。
-2. 完成调研，编写 `spec.md`，并依据必含内容自检。
+1. 确认 `<feature-id>`、`<sub-feature-id>` 与 Spec 门禁。
+2. 完成调研，编写对应 Spec 文件，并依据必含内容自检。
 3. Git 仓库中的提交操作必须遵循 `docs/standards/git.md`；非 Git 工作区跳过提交操作。
 4. 向 Manager 报告产出路径、验证结果和用户确认要求。状态建议为 `speccing`；需要确认时建议进入 `awaiting-spec-approval`。
 

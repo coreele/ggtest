@@ -12,20 +12,22 @@
 
 状态可按门禁跳过不适用的阶段；具体转换、恢复和归档规则见 [`docs/README.md`](../README.md#状态机与回退)。
 
+调度主键为 `(feature-id, sub-feature-id)`。未拆分时二者相同。同一 `feature-id` 的后续行可省略重复的 `feature-id`（及相同的「目录」）；空 `feature-id` 表示继承上一非空值。
+
 ## 活跃工作项
 
-| feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
-|---|---|---|---|---|---|---|
-| ggtest-core | 【Epic】GGTEST 总览；已拆为 4 子项，父项不写 Plan | blocked（decomposed） | full | required（总览） | 跟踪子项；四子项均 done 后关闭 | [docs/features/ggtest-core/](../features/ggtest-core/) |
-| ggtest-parser | 解析 `.test`/`.slt` → 记录模型；错误含文件+行号 | awaiting-spec-approval | full | required | **建议优先**：用户确认 Spec → Design/Plan | [docs/features/ggtest-parser/](../features/ggtest-parser/) |
-| ggtest-normalize | I/T/R 规范化、排序、MD5、hash-threshold | awaiting-spec-approval | full | required | 用户确认 Spec → Plan（Design skipped） | [docs/features/ggtest-normalize/](../features/ggtest-normalize/) |
-| ggtest-runner-sqlite | Runner + 执行器抽象 + SQLite JDBC | awaiting-spec-approval | full | required | 用户确认 Spec；Design 依赖上游就绪 | [docs/features/ggtest-runner-sqlite/](../features/ggtest-runner-sqlite/) |
-| ggtest-cli-corpus | CLI、统计、退出码、官方语料硬验收 | awaiting-spec-approval | full | required | 用户确认 Spec；最后集成 | [docs/features/ggtest-cli-corpus/](../features/ggtest-cli-corpus/) |
+| feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
+|---|---|---|---|---|---|---|---|
+| ggtest-core | ggtest-core | 【总览】GGTEST；子 Spec 同目录；不对总览写 Plan | blocked（tracking） | full | required（总览） | 跟踪子切片；四切片均 done 后关闭 | [docs/features/ggtest-core/](../features/ggtest-core/) |
+| | parser | 解析 `.test`/`.slt` → 记录模型；错误含文件+行号 | awaiting-spec-approval | full | required | **建议优先**：用户确认 Spec → Design/Plan | |
+| | normalize | I/T/R 规范化、排序、MD5、hash-threshold | awaiting-spec-approval | full | required | 用户确认 Spec → Plan（Design skipped） | |
+| | runner-sqlite | Runner + 执行器抽象 + SQLite JDBC | awaiting-spec-approval | full | required | 用户确认 Spec；Design 依赖上游就绪 | |
+| | cli-corpus | CLI、统计、退出码、官方语料硬验收 | awaiting-spec-approval | full | required | 用户确认 Spec；最后集成 | |
 
 ## 已归档
 
 归档目录：[`docs/archive/YYYY/`](../archive/)。
 
-| feature-id | 最终状态 | 目录 |
-|---|---|---|
-| | | |
+| feature-id | sub-feature-id | 最终状态 | 目录 |
+|---|---|---|---|
+| | | | |

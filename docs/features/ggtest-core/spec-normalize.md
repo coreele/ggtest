@@ -1,27 +1,28 @@
-# Spec: ggtest-normalize
+# Spec: ggtest-core / normalize
 
-> 需求与规格（Plan 之前完成）。任务拆解见后续 `plan.md`。
+> 需求与规格（Plan 之前完成）。任务拆解见后续 `plan.md`（或同目录分阶段 Plan）。
 >
+> **feature-id**：`ggtest-core` · **sub-feature-id**：`normalize`
 > **适用对象**：Planner（Design/Plan 输入）、Developer（实现依据）、QA（验收依据）、用户（确认需求范围）。
-> **前置条件**：已阅读工作项记录 `docs/manager/ggtest-normalize.md` 与 Epic 总览 `docs/features/ggtest-core/spec.md`。
+> **前置条件**：已阅读工作项记录 `docs/manager/ggtest-core.md` 与总览 [`spec.md`](./spec.md)。
 > **阅读顺序**：背景与目标 → 非目标 → 范围与可见行为 → 合同 → 验收 → 开放问题。
 > **预期结果**：读者能够判定规范化与哈希比对行为边界，并对开放问题作出决策。
 >
 > **确认要求（full 路径）**：本 Spec 含合同级算法（I/T/R、排序、MD5、hash-threshold）。须由**当前用户会话确认**后方可进入 Plan；确认前状态应为 `awaiting-spec-approval`。
 >
-> 父项 Epic：[ggtest-core](../ggtest-core/spec.md)。
+> 总览：[spec.md](./spec.md)。
 
 ## 背景与目标
 
 - GGTEST 在比对 query 期望与实际结果前，须将列值规范化，并按需排序或做 MD5 哈希比对。
-- **本项目标**：实现结果规范化与比对原语——I/T/R 规范化、`nosort`/`rowsort`/`valuesort`、与官方 C 实现**逐字节兼容**的 MD5 哈希、以及 hash-threshold 语义。
+- **本切片目标**：实现结果规范化与比对原语——I/T/R 规范化、`nosort`/`rowsort`/`valuesort`、与官方 C 实现**逐字节兼容**的 MD5 哈希、以及 hash-threshold 语义。
 - 可用**固定样例**验收，**不必真跑库**。
 
 ## 非目标
 
-- 解析 sqllogictest 文件（属 `ggtest-parser`）。
-- 连接数据库、执行 SQL、skipif/onlyif/halt/label 运行时（属 `ggtest-runner-sqlite`）。
-- CLI、语料收集与官方语料端到端硬验收（属 `ggtest-cli-corpus`；本项可用语料中的期望哈希串作样例输入）。
+- 解析 sqllogictest 文件（属 `parser`）。
+- 连接数据库、执行 SQL、skipif/onlyif/halt/label 运行时（属 `runner-sqlite`）。
+- CLI、语料收集与官方语料端到端硬验收（属 `cli-corpus`；本切片可用语料中的期望哈希串作样例输入）。
 - 变更官方哈希算法或另立非兼容哈希格式。
 
 ## 范围与可见行为
@@ -49,7 +50,7 @@
 
 - 输入：列类型签名（`I`/`T`/`R`）、排序模式、hash-threshold、期望侧文本、实际侧值。
 - 输出：比对结论；失败时可提供期望 vs 实际的差异摘要素材。
-- 本项无跨调用持久状态；hash-threshold 由调用方传入。
+- 本切片无跨调用持久状态；hash-threshold 由调用方传入。
 
 ### 错误与约束
 
@@ -86,7 +87,7 @@
 
 ## 开放问题
 
-### 已决议（继承自 ggtest-core，勿重开）
+### 已决议（继承自总览，勿重开）
 
 | 编号/议题 | 结论 |
 |---|---|

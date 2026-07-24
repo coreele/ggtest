@@ -13,7 +13,7 @@
 | 开发、API、配置文档 | Developer | 代码注释、README、接口说明、配置说明 |
 | 架构决策 | Planner | `docs/features/<feature-id>/design.md`、ADR |
 | 部署与排障文档 | DevOps | `docs/deploy/`、运行与排障说明 |
-| Spec（需求与行为合同） | Analyst | `docs/features/<feature-id>/spec.md` |
+| Spec（需求与行为合同） | Analyst | `docs/features/<feature-id>/spec.md`；大型 Spec 可另含 `spec-<sub-feature-id>.md` |
 | 工作项与流程文档 | Manager | `docs/manager/`、工作项记录 |
 
 各角色仅维护其主责范围内的文档；跨角色文档变更须在 Plan 的「文档影响」项中声明。

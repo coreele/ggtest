@@ -8,12 +8,12 @@ description: Use when the Planner must resolve module boundaries, layering, or t
 ## 调用者与门禁
 
 - 调用者：Planner。
-- 调用条件：工作项记录中的 Design 门禁为 `required`。
+- 调用条件：工作项记录中对应 `(feature-id, sub-feature-id)` 的 Design 门禁为 `required`。
 - 执行时机：Spec 门禁满足后、Plan 编写前。
 - 输入：
   - `docs/manager/<feature-id>.md`；
-  - `docs/features/<feature-id>/spec.md`（Spec 门禁为 `required` 时）。
-- 产出：`docs/features/<feature-id>/design.md`。
+  - 对应切片的 Spec（Spec 门禁为 `required` 时）：`docs/features/<feature-id>/spec.md` 或 `spec-<sub-feature-id>.md`。
+- 产出：`docs/features/<feature-id>/design.md`（未拆分）或 `design-<sub-feature-id>.md`（已拆分，`<sub-feature-id>` 与对应 Spec/Plan 一致）。
 
 ## 设计范围
 
@@ -24,7 +24,7 @@ description: Use when the Planner must resolve module boundaries, layering, or t
 - 技术选型、备选方案与取舍；
 - 决策对模块、迁移、风险和验证策略的影响。
 
-`design.md` 必须说明设计背景、约束、候选方案、决策、影响与风险。存在可行替代方案时，必须记录比较依据。
+Design 文件必须说明设计背景、约束、候选方案、决策、影响与风险。存在可行替代方案时，必须记录比较依据。
 
 ## 边界
 
@@ -34,4 +34,4 @@ API 形状、数据约束、错误约定和行为验收属于 Spec。发现这�
 
 ## 后续步骤
 
-`design.md` 完成后返回 Planner。Planner 依据已满足门禁的 Spec、工作项记录和 `design.md` 编写 `plan.md`。
+Design 文件完成后返回 Planner。Planner 依据已满足门禁的 Spec、工作项记录和该 Design 文件编写对应切片的 `plan.md` 或 `plan-<sub-feature-id>.md`。

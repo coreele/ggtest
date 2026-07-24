@@ -2,7 +2,7 @@
 
 本文档是工作流、角色、门禁、状态和文档结构的唯一权威说明。`docs/manager/STATUS.md`、工作项记录、模板和角色指令仅保存执行所需信息，不得另行定义或复制完整流程。
 
-路径占位符统一使用小写短横线格式的 `<feature-id>`。所有工作项产物必须位于 `docs/features/<feature-id>/`；禁止使用扁平的 `docs/plans/`、`docs/qa/` 或 `docs/prd/` 作为新产出根目录。
+路径占位符统一使用小写短横线格式的 `<feature-id>`。调度主键为 `(feature-id, sub-feature-id)`：未拆分时二者相同；大型 Spec 可在同一 feature 目录下用语义子 Spec（`spec-<sub-feature-id>.md`）切片，而不另建平级 feature 目录。所有工作项产物必须位于 `docs/features/<feature-id>/`；禁止使用扁平的 `docs/plans/`、`docs/qa/` 或 `docs/prd/` 作为新产出根目录。
 
 ## 权威工作流
 
@@ -200,9 +200,10 @@ docs/
     STATUS.md
     <feature-id>.md
   features/<feature-id>/
-    spec.md
-    design.md
-    plan.md
+    spec.md                 # 默认；未拆分时 sub-feature-id = feature-id
+    spec-<sub-feature-id>.md  # 可选：大型 Spec 的语义切片
+    design.md | design-<sub>.md
+    plan.md   | plan-<sub>.md
     dev-notes.md
     review.md
     qa-report.md
@@ -218,6 +219,13 @@ docs/
 ```
 
 Manager 登记工作项时创建 `docs/features/<feature-id>/`。其他角色不得创建使用不同标识的工作项目录。
+
+### feature-id 与 sub-feature-id
+
+- **feature-id**：工作项目录与归档单位，对应 `docs/features/<feature-id>/` 与 `docs/manager/<feature-id>.md`。
+- **sub-feature-id**：可调度切片。不需要拆分时与 `feature-id` 相同，Spec 为 `spec.md`。
+- 需要拆分时：总览可用 `spec.md`（此时 `sub-feature-id` 可与 `feature-id` 相同）；各切片为 `spec-<sub-feature-id>.md`，STATUS 为同一 `feature-id` 下的多行。
+- `docs/manager/STATUS.md` 活跃表必须包含 `feature-id` 与 `sub-feature-id` 列。同一 `feature-id` 的后续行可省略重复的 `feature-id`（及相同的「目录」）；空单元格表示继承上一非空值。换 feature 时必须再写一次 `feature-id`。
 
 ### 工程规范索引
 
@@ -240,19 +248,27 @@ Manager 登记工作项时创建 `docs/features/<feature-id>/`。其他角色不
 工作项标识:
 描述:
 路径等级: fast | standard | full
+源分支:
+目标分支:
+文档影响:
+```
+
+未拆分时，同一文件还须包含该 `(feature-id, sub-feature-id)` 的门禁与状态字段（`sub-feature-id` 等于 `feature-id`）：
+
+```text
+sub-feature-id: <与 feature-id 相同>
 Spec 门禁: required | skipped（理由）
 Spec 用户确认: required | not-required | approved | rejected
 Design 门禁: required | skipped（理由）
 Review 门禁: required | skipped（理由；仅 fast）
-源分支:
-目标分支:
-文档影响:
 状态:
 后续步骤:
 阻塞原因:
 恢复条件:
 恢复后的目标状态:
 ```
+
+已拆分为多个 sub-feature 时，上述门禁与状态按切片维护（表格或分节均可），并与 `STATUS.md` 各行对齐。
 
 ## 关闭与归档
 

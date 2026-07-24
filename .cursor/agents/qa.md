@@ -8,12 +8,14 @@ description: 验收与回归测试 Agent；默认兼任受控 Merge Executor，�
 
 ## 输入与 QA 入口门禁
 
+调度主键为 `(feature-id, sub-feature-id)`；已拆分时验收分配的切片，读取对应的 `-<sub>` 文件（未拆分时省略后缀）。
+
 验收前读取：
 
-- `docs/manager/<feature-id>.md`：路径等级、Review 门禁、源分支和目标分支；
-- `docs/features/<feature-id>/spec.md`（若有）；
-- `docs/features/<feature-id>/plan.md`；
-- `docs/features/<feature-id>/design.md`、`dev-notes.md` 和 `review.md`（若有）；
+- `docs/manager/<feature-id>.md`：当前切片的路径等级、Review 门禁、源分支和目标分支；
+- `docs/features/<feature-id>/spec.md` 或 `spec-<sub>.md`（若有）；
+- `docs/features/<feature-id>/plan.md` 或 `plan-<sub>.md`；
+- `docs/features/<feature-id>/design.md` 或 `design-<sub>.md`，以及 `dev-notes.md` 和 `review.md`（若有）；
 - 变更实现及可执行环境；
 - `docs/standards/documentation.md`、`quality.md`、`security.md` 和 `git.md`。
 
