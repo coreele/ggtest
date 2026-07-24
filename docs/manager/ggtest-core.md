@@ -15,7 +15,7 @@
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
 | ggtest-core | [spec.md](../features/ggtest-core/spec.md) | required（总览） | approved（总览化） | skipped（不对总览写 Design/Plan） | N/A（tracking，不调度 Review） | blocked（tracking） | 跟踪子切片；四切片均 done 后关闭父项 |
-| parser | [spec-parser.md](../features/ggtest-core/spec-parser.md) | required | approved | required（模块边界、记录模型；design-parser.md 已产出） | required | awaiting-merge | 源分支 ggtest-core-parser → 合并授权后合入 main |
+| parser | [spec-parser.md](../features/ggtest-core/spec-parser.md) | required | approved | required（模块边界、记录模型；design-parser.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-parser → main（合入以 git 为准） |
 | normalize | [spec-normalize.md](../features/ggtest-core/spec-normalize.md) | required | required | skipped（算法已在 Spec 写死） | required | awaiting-spec-approval | 确认 Spec → Plan |
 | runner-sqlite | [spec-runner-sqlite.md](../features/ggtest-core/spec-runner-sqlite.md) | required | required | required（执行器抽象、JDBC 分层） | required | awaiting-spec-approval | 确认 Spec；上游就绪后再 Design |
 | cli-corpus | [spec-cli-corpus.md](../features/ggtest-core/spec-cli-corpus.md) | required | required | skipped（CLI/退出码已在 Spec 写死） | required | awaiting-spec-approval | 确认 Spec；最后集成 |
@@ -83,4 +83,5 @@
 - 2026-07-24 **Reviewer Approve**：`review.md` 结论 Approve，无阻塞项；独立 `mvn -q clean test`（JDK 17）10 tests 全过。状态 `reviewing` → **`qa`**。调度 **QA**。
 - 2026-07-24 **QA Pass（轮次 1）**：`qa-report.md` 结论 Pass；独立 `mvn -q clean test`（JDK 17）10/10；P0-7、P1-a/b/c 全过。状态 `qa` → **`awaiting-merge`**。非 Git 工作区：**合并不适用**；到达 **用户关闭/完成授权门禁**，单步编排停止。未关闭、未归档。
 - 2026-07-24 **用户授权关闭 parser（回复「ok」）**。Manager：曾按误标「非 Git」将状态置 `done`。
-- 2026-07-24 **纠正：本仓库为 Git；实现须独立工作分支**。规范已强化（`docs/standards/git.md`、Developer/Manager agent、README Merge 门禁）。工作项源分支改为 `ggtest-core-parser`、目标分支 `main`；检出工作分支承接未提交的 parser 实现；状态 **`awaiting-merge`**（待用户合并授权）。后续切片实施前须先建 `<feature-id>-<sub-feature-id>` 分支。
+- 2026-07-24 **纠正：本仓库为 Git；实现须独立工作分支**。规范已强化（`docs/standards/git.md`、Developer/Manager agent、README Merge 门禁）。工作项源分支改为 `ggtest-core-parser`、目标分支 `main`；检出工作分支承接未提交的 parser 实现；状态曾为 **`awaiting-merge`**。后续切片实施前须先建 `<feature-id>-<sub-feature-id>` 分支。
+- 2026-07-24 **流程修订：`done` = 待合入即可关闭工作流**（QA Pass + 合并授权；不等合入完成；废弃 `awaiting-merge`）。合入可在 GitHub/本地执行，合入后不再为 STATUS 单独提交。本切片状态 → **`done`**。

@@ -19,20 +19,21 @@ Manager 登记工作项并判定路径与门禁
 → QA 验收
   ├─ Fail：Developer 修复 → [Reviewer 复审] → QA 复测
   ├─ Blocked：记录原因和恢复条件并停止
-  └─ Pass：当前用户会话取得合并授权
-→ Merge Executor 执行合并
-→ Manager 关闭并归档工作项
+  └─ Pass：当前用户会话取得合并授权 → Manager 将状态置为 done（源分支提交）
+→ 合入目标分支（本地 Merge Executor 或 GitHub PR 均可；不再为状态单独提交）
+→ [全部切片 done 且用户要求关闭父项时] Manager 归档
 ```
+
+**`done` 的含义：** 切片工作流已关闭——质量门禁已过，且用户已授权合入（或非 Git 下已授权完成）。**不表示**变更已出现在目标分支 tip。是否已合入以 git / PR 为准。
 
 用户确认门禁不得自动越过：
 
 1. `full` 路径的 Spec 必须确认；
 2. `standard` 路径中存在业务歧义的 Spec 必须确认；
 3. 所有路径的 Plan 必须确认；
-4. 所有路径的合并必须获得明确授权。
+4. 所有路径的合并必须获得明确授权（授权后即可标 `done`，不必等合入完成）。
 
 非 Git 工作区跳过提交与合并操作，但不得跳过适用的 Spec、Design、Plan、Review、QA 和归档门禁。
-
 ## 角色与职责
 
 | 角色 | 职责 | 主要产物 | 不负责 |
@@ -110,8 +111,9 @@ Manager 登记工作项时必须记录路径等级，并分别判定 Spec、Desi
 - 当前用户会话必须取得明确合并授权；
 - Git 工作区必须记录源分支和目标分支，并满足 [`standards/git.md`](standards/git.md)；
 - **实现必须发生在独立工作分支上**；禁止在 `main`/`master`/`release/*` 上直接实施后合并；
-- 只有受授权的 Merge Executor 可以执行合并；
-- 合并失败时保持 `awaiting-merge` 或进入 `blocked`，不得归档。
+- 用户授权后，Manager 在**源分支**将状态置为 `done` 并提交（随功能一并合入）；**禁止**为「合入后再改 STATUS」再开目标分支提交；
+- 合入可由受权 Merge Executor 本地执行，或由用户在 GitHub 上合并 PR；合入本身不再触发 STATUS 变更；
+- 合入失败时进入 `blocked`（可从 `done` 转入），记录原因与恢复条件；不得归档父项。
 
 ## 状态机与回退
 
@@ -128,9 +130,12 @@ backlog
 → developing
 → reviewing
 → qa
-→ awaiting-merge
 → done
 ```
+
+旁支状态：`blocked`、`cancelled`。历史状态名 `awaiting-merge` 已废弃；勿再写入新记录。
+
+**`done`：** 工作流关闭（QA Pass + 合并/完成授权已持久化）。是否已在目标分支以 git/PR 判定，不以 STATUS 为准。
 
 状态转换规则：
 
@@ -142,6 +147,8 @@ backlog
 - Plan 编写完成：`planning → awaiting-plan-approval`；
 - Plan 确认并持久化：`awaiting-plan-approval → planned`；
 - `fast` 且 Review 门禁为 `skipped`：`developing → qa`；
+- QA `Pass` 后请求合并授权；用户授权并持久化后：`qa → done`（在源分支更新 STATUS/工作项并提交）；
+- 合入失败：`done → blocked`（或保持 `done` 并记阻塞笔记，由 Manager 择一写清）；
 - 任一活动状态可进入 `blocked`，恢复后进入工作项记录指定的目标状态；
 - 用户取消工作项时进入 `cancelled`。
 
@@ -273,16 +280,16 @@ Review 门禁: required | skipped（理由；仅 fast）
 
 ## 关闭与归档
 
-Manager 仅在以下情况关闭并归档工作项：
+切片级关闭：QA `Pass` 且用户明确授权合并（或非 Git 下授权完成）后，Manager 在源分支将状态置为 `done` 并提交。此后允许合入；**合入完成后不再改 STATUS**。
 
-1. 合并成功并将状态更新为 `done`；
+Manager 仅在以下情况归档**整个**工作项（移动 `docs/features/<feature-id>/`）：
+
+1. 各适用切片均为 `done`，且用户明确要求关闭/归档父项（建议同时核验目标分支已包含各切片实现）；
 2. 用户明确取消并将状态更新为 `cancelled`。
-
-非 Git 工作区在 QA Pass 后仍须取得用户明确授权；Manager 记录“合并不适用”后将状态更新为 `done`，再执行归档。
 
 归档步骤：
 
 1. 从 `docs/manager/STATUS.md` 的活跃列表移除工作项；
 2. 将 `docs/features/<feature-id>/` 移动到 `docs/archive/YYYY/<feature-id>/`；
 3. 在 STATUS 的归档区域记录工作项标识、最终状态和目录链接；
-4. 仓库可用时提交归档变更。
+4. 仓库可用时提交归档变更（可在目标分支或专门 chore 分支；与功能合入解耦）。

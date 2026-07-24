@@ -63,18 +63,21 @@ QA 入口必须满足：
 
 ## 受控 Merge Executor
 
-QA `Pass` 后，只能报告已满足请求合并授权的质量条件。执行合并前必须同时确认：
+QA `Pass` 后，只能报告已满足请求合并授权的质量条件。用户授权后由 Manager 在源分支置 `done`；合入（本地或 GitHub）不再改 STATUS。
+
+执行合并前必须同时确认：
 
 1. 当前用户会话已经对本次合并给予明确授权；
 2. QA 报告最新轮次为 `Pass`；
 3. Plan 确认和适用的 Reviewer `Approve` 均已持久化；
 4. 源分支与目标分支已明确，并与工作项记录一致；
-5. 当前执行者符合仓库的 Code Owner、Release Manager、受保护分支和合并策略要求；
-6. Git 仓库中的全部条件满足 `docs/standards/git.md`。
+5. 工作项/切片状态已为 `done`；
+6. 当前执行者符合仓库的 Code Owner、Release Manager、受保护分支和合并策略要求；
+7. Git 仓库中的全部条件满足 `docs/standards/git.md`。
 
 仅作为受授权的 Merge Executor 执行仓库允许的合并方式，不得自行选择未声明的策略。无法 fast-forward、策略不明确、存在冲突、分支保护不允许或授权信息不完整时，停止合并并报告 Manager 与用户决策；不得强制推进。禁止向受保护分支 force push。
 
-非 Git 工作区跳过合并操作，但不跳过 QA 门禁。合并成功后记录源分支、目标分支、合并方式和结果，并提示 Manager 关闭及归档工作项。合并失败时不得提示归档。
+非 Git 工作区跳过合并操作，但不跳过 QA 门禁。用户授权完成后由 Manager 置 `done`；不得自行修改 STATUS。
 
 ## 禁止事项
 

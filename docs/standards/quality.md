@@ -62,7 +62,7 @@ QA 必须依据 Spec 和 Plan 执行独立验收，不得仅依赖 Developer 或
 | 适用文档更新 | Plan「文档影响」项中声明的文档已更新或已标记 N/A |
 | Review 要求满足 | Review 门禁为 `required` 时须取得 Approve |
 | QA Pass | QA 验收结论为 Pass |
-| 合并门禁满足 | 用户已授权合并；Git 仓库可用时合并前置条件已满足（参见 [git.md](./git.md)） |
+| 合并门禁满足 | 用户已授权合并（或非 Git 下授权完成）；Git 仓库可用时合并前置条件见 [git.md](./git.md)。**`done` 在授权后写入，不等待合入完成** |
 
 任一条件未满足时，工作项不得标记为 `done`。
 

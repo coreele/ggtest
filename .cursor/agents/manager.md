@@ -85,11 +85,12 @@ Manager 登记工作项并确定门禁
 → [Review 门禁=required] 取得 Approve
 → QA 验收
 → 当前用户会话取得合并授权
-→ 受授权的 Merge Executor 合并
-→ Manager 关闭并归档
+→ Manager 在源分支将状态置为 done 并提交
+→ 合入目标分支（本地或 GitHub；不再改 STATUS）
+→ [父项关闭时] Manager 归档
 ```
 
-非 Git 工作区必须跳过提交与合并操作，但不得跳过适用的 Spec、Plan、Review、QA 和归档门禁。没有合并操作时，QA `Pass` 且用户确认完成关闭后，Manager 可以按非 Git 工作区规则关闭并归档。
+非 Git 工作区必须跳过提交与合并操作，但不得跳过适用的 Spec、Plan、Review、QA 和归档门禁。非 Git 下用户授权完成后，Manager 将状态置为 `done`。
 
 ## 混合编排模型
 
@@ -171,11 +172,12 @@ backlog
 → developing
 → reviewing
 → qa
-→ awaiting-merge
 → done
 ```
 
-旁支状态：`blocked`、`cancelled`。
+旁支状态：`blocked`、`cancelled`。历史名 `awaiting-merge` 已废弃。
+
+**`done`：** 切片工作流关闭（QA Pass + 用户合并/完成授权已持久化）。不表示已合入目标分支；合入以 git/PR 为准。
 
 状态规则：
 
@@ -193,8 +195,8 @@ backlog
 - Reviewer `Approve` 后允许 `reviewing → qa`；
 - Reviewer `Request changes` 时返回 `developing`，修复后重新审阅；
 - Reviewer `Comment` 不得包含阻塞项，否则必须按 `Request changes` 处理；
-- QA `Pass` 后进入 `awaiting-merge`；
-- 合并成功后进入 `done`；
+- QA `Pass` 后请求合并授权；用户授权并持久化后：在**源分支**将状态置为 `done` 并提交，随后允许合入（本地或 GitHub）；合入后不得再为 STATUS 单独提交；
+- 合入失败：`done → blocked`（或保持 `done` 并记录阻塞笔记）；
 - 任一活动状态可进入 `blocked`；必须记录原因、恢复条件和恢复后的目标状态，条件满足后恢复；
 - 用户取消时进入 `cancelled`。
 
@@ -204,7 +206,7 @@ QA 结论仅允许 `Pass`、`Fail` 或 `Blocked`：
 
 - `Fail`：登记具有唯一标识、严重程度、状态、处理说明和验证证据的缺陷；Manager 执行 `qa → developing`，调度 Developer 修复；
 - `Blocked`：进入 `blocked`，记录原因、恢复条件和恢复后的目标状态；
-- `Pass`：进入 `awaiting-merge`，由当前用户会话请求合并授权。
+- `Pass`：由当前用户会话请求合并授权；授权后 Manager 置 `done`（源分支）。
 
 Developer 修复后必须更新 `dev-notes.md` 并给出建议复测范围。`standard` 和 `full` 的修复必须重新取得 Reviewer `Approve`；随后 QA 在同一 `qa-report.md` 追加回归轮次，覆盖失败项及受影响范围。循环持续至 `Pass`、`Blocked` 或用户取消。
 
@@ -217,15 +219,15 @@ Developer 修复后必须更新 `dev-notes.md` 并给出建议复测范围。`st
 3. QA 报告结论为 `Pass`；
 4. 源分支和目标分支已记录；
 5. 当前用户会话已取得明确合并授权；
-6. Git 仓库满足 `docs/standards/git.md`。
+6. 工作项状态已为 `done`（授权后在源分支写入）；
+7. Git 仓库满足 `docs/standards/git.md`。
 
-合并失败时状态保持 `awaiting-merge` 或进入 `blocked`，不得关闭或归档。只有受授权的 Merge Executor 可以执行合并。
+合入可由受权 Merge Executor 或用户经 GitHub PR 完成。合入失败时进入 `blocked` 或保留 `done` 并记阻塞，不得归档父项。
 
-Manager 仅在以下任一条件满足时关闭工作项：
+切片在用户授权后即关闭（`done`）。Manager 仅在以下情况归档整个工作项：
 
-1. 合并成功并将状态更新为 `done`；
-2. 非 Git 工作区按适用门禁完成并将状态更新为 `done`；
-3. 用户明确取消并将状态更新为 `cancelled`。
+1. 各适用切片均为 `done`，且用户明确要求关闭/归档父项（建议核验目标分支已含实现）；
+2. 用户明确取消并将状态更新为 `cancelled`。
 
 归档步骤：
 
