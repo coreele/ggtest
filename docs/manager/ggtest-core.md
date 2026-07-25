@@ -18,7 +18,7 @@
 | parser | [ggtest-core-parser/spec.md](../features/ggtest-core/ggtest-core-parser/spec.md) | required | approved | required（模块边界、记录模型；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-parser → main（合入以 git 为准） |
 | normalize | [ggtest-core-normalize/spec.md](../features/ggtest-core/ggtest-core-normalize/spec.md) | required | approved | skipped（算法已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-normalize → main（合入以 git 为准） |
 | runner-sqlite | [ggtest-core-runner-sqlite/spec.md](../features/ggtest-core/ggtest-core-runner-sqlite/spec.md) | required | approved | required（执行器抽象、JDBC 分层；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-runner-sqlite → main（合入以 git 为准） |
-| cli-corpus | [ggtest-core-cli-corpus/spec.md](../features/ggtest-core/ggtest-core-cli-corpus/spec.md) | required | approved | skipped（CLI/退出码已在 Spec 写死） | required | developing | Developer 修复 DEF-CLI-001；随后重新 Review 与 QA |
+| cli-corpus | [ggtest-core-cli-corpus/spec.md](../features/ggtest-core/ggtest-core-cli-corpus/spec.md) | required | approved | skipped（CLI/退出码已在 Spec 写死） | required | qa | 用户合并授权（QA Pass 轮次 3 @ 4b9604f） |
 
 依赖：`parser` ∥ `normalize` → `runner-sqlite` → `cli-corpus`。
 
@@ -48,6 +48,7 @@
 - 缺陷: `DEF-CLI-001`（高，open）——P1-5 批量执行 select1/2/3 时共享 JDBC 连接导致跨文件库污染，退出码 1、总失败数 4151；单文件均通过。
 - 处理: 状态 `qa` → `developing`；Developer 按 Plan T3 修复为每文件独立连接/等价空白库并更新 `dev-notes.md`。
 - 复验: 修复后重新取得 Reviewer `Approve`，再由 QA 在同一 `qa-report.md` 追加轮次，复测 P1-5、`mvn test`/`package` 与受影响 fixtures。
+- **关闭**: QA 轮次 3 Pass；`DEF-CLI-001` 已验证关闭（实现 `4b9604f`）。
 
 ## 用户已确认决策（须由总览 Spec 与各子 Spec 继承，勿重开）
 
@@ -128,3 +129,7 @@
 - 2026-07-25 **QA Blocked（轮次 1）**：`qa-report.md` 结论 **Blocked**；独立 `mvn clean test` 110/0（Skipped 3）、`package` SUCCESS；P1-1/P1-6 Pass；P0-1/P1-5 未执行（无语料），**未**默示豁免、无 Fail 缺陷。状态 `qa` → **`blocked`**。恢复条件见「cli-corpus 切片阻塞」；**未**请求合并授权。
 - 2026-07-25 **恢复 QA**：用户提供官方语料目录 `/Users/zhougangjie/Space/sqllogictest/test`；Manager 核验 `select1.test`、`select2.test`、`select3.test` 均存在，恢复条件满足。状态 `blocked` → **`qa`**；调度 QA 设置 `GGTEST_CORPUS_DIR` 追加回归轮次，复测 P0-1/P1-5 及 fixtures。**未**请求合并授权。
 - 2026-07-25 **QA Fail（轮次 2）**：P0-1/P1-1/P1-6 Pass；P1-5 Fail——批量 select1/2/3 退出码 1、`TOTAL failed=4151`，单文件均 exit 0/failed 0。`mvn -q clean test` / `package` 因 P1-5 自动化失败而退出 1。登记高严重度缺陷 `DEF-CLI-001`（共享 JDBC 导致跨文件库污染）。状态 `qa` → **`developing`**；后续 Developer 修复 → Reviewer 重新 Approve → QA 回归。**未**请求合并授权。
+- 2026-07-25 **调度 Developer 修复 DEF-CLI-001**：核验 `qa-report.md` 轮次 2 Fail；复测范围 P1-5 + `mvn test`/`package` + fixtures；语料 `/Users/zhougangjie/Space/sqllogictest/test`。要求：按 Spec/Plan T3 每文件独立连接（或等价空白库）并重置 hash-threshold 等运行时状态；零豁免；更新 `dev-notes.md` 并验证 P0-1/P1-5。状态保持 **`developing`**。
+- 2026-07-25 **Developer 修复完成（DEF-CLI-001）**：`CliSession` 改为每文件独立 JDBC 连接→run→关闭；新增跨文件 schema 隔离测试。验证：`GGTEST_CORPUS_DIR=… mvn -q clean test` → 111/0（Skipped 1）；`package` SUCCESS；P0-1 exit 0 failed=0；P1-5 批量 exit 0、TOTAL failed=0（passed=5413）。提交 `4b9604f`。`dev-notes.md` 已更新。状态 `developing` → **`reviewing`**。调度 **Reviewer** 重新 Approve。
+- 2026-07-25 **Reviewer Approve（修复轮次）**：`review.md` 追加轮次，结论 Approve；独立 `mvn test` 111/0、`package` SUCCESS；P1-5 批量 exit 0、TOTAL failed=0。状态 `reviewing` → **`qa`**。调度 **QA** 追加回归轮次（P1-5 为主 + fixtures）。**未**请求合并授权。
+- 2026-07-25 **QA Pass（轮次 3，回归）**：`qa-report.md` 结论 Pass；`DEF-CLI-001` 已验证关闭；P0-1/P1-1/P1-5/P1-6 全过；`mvn test` 111/0、`package` SUCCESS；P1-5 批量 exit 0、TOTAL failed=0（passed=5413）。实现 `4b9604f`。状态保持 **`qa`**。到达 **合并/完成授权门禁**；**未**合并、**未**置 `done`。

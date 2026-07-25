@@ -11,6 +11,7 @@
 |---|---|---|---|---|
 | 1 | 2026-07-25 | 实现 `466c6f1`（docs `0ed8a95`、`3376b5a`）；Plan T1–T6；P0-1/P1-1/P1-5/P1-6；L4 | macOS aarch64；JDK 17.0.20；Maven 3.9.16 | **Blocked** |
 | 2 | 2026-07-25 | 实现 `466c6f1`；HEAD `cf8e2c9`（含管理文档）；回归复测 P0-1/P1-5 + fixtures；L4 零豁免 | 同左；`GGTEST_CORPUS_DIR=/Users/zhougangjie/Space/sqllogictest/test` | **Fail** |
+| 3 | 2026-07-25 | 实现 **`4b9604f`**（DEF-CLI-001 修复）；回归 P0-1/P1-1/P1-5/P1-6 + 退出码 + 跨文件隔离；L4 零豁免 | 同左 | **Pass** |
 
 ## 入口门禁核验（轮次 1）
 
@@ -211,3 +212,69 @@ GGTEST_CORPUS_DIR=/Users/zhougangjie/Space/sqllogictest/test
 - 分项：P0-1 / P1-1 / P1-6 **Pass**；**P1-5 Fail**（DEF-CLI-001）；`mvn test`/`package` **Fail**
 - 缺陷：DEF-CLI-001 open；**不合并**；**禁止**请求合并授权
 - 后续：Developer 修跨文件库隔离 → Reviewer 重新 Approve → QA 追加回归（P1-5 + `mvn test`/`package` + fixtures）
+
+---
+
+## 轮次 3（回归；DEF-CLI-001 修复验证）
+
+### 入口门禁核验（轮次 3）
+
+| 条件 | 证据 | 结果 |
+|---|---|---|
+| Plan / Spec 用户确认 | 持久化记录沿用轮次 1/2 | 满足 |
+| Review required 且重新 Approve | `review.md` 轮次 2 **Approve**（版本 `4b9604f`，无必修项） | 满足 |
+| 可验收实现与语料 | HEAD=实现 `4b9604f`；`GGTEST_CORPUS_DIR` 下 select1/2/3 存在 | 满足 |
+
+### 环境与命令（轮次 3）
+
+- 分支 `ggtest-core-cli-corpus`；HEAD=实现 **`4b9604f`**（`fix(cli): isolate JDBC connection per test file`）
+- JDK 17.0.20；Maven 3.9.16；`GGTEST_CORPUS_DIR=/Users/zhougangjie/Space/sqllogictest/test`
+- **零豁免**：无 skip、无默示通过；硬验收测试真实执行（Surefire `CorpusHardAcceptanceTest` run=2, skip=0）
+
+### Spec / Plan 验收（轮次 3；命令均以 `./bin/ggtest --url jdbc:sqlite::memory: …` 执行）
+
+| ID | 要求 | 结果 | 证据 |
+|---|---|---|---|
+| P0-1 | 官方 `select1.test` → 失败数=0、退出码=0 | **Pass** | exit **0**；`FILE … select1.test passed=1031 failed=0 skipped=0` |
+| P1-1 | 目录递归 `.test`/`.slt`，分文件+总计 | **Pass** | `fixtures/cli/nested` → `a.test`+`sub/b.slt`；`TOTAL: passed=6 failed=0`；exit 0 |
+| P1-5 | 同一次调用官方 select1/2/3 → 失败数=0、退出码=0、分文件+总计 | **Pass** | exit **0**；分文件 `failed=0`（passed=1031/1031/3351）；`TOTAL: passed=5413 failed=0 skipped=0`；无 `already exists`（轮次 2 的 exit 1、failed=4151 已消除） |
+| P1-6 | `.slt` ≡ 同等 `.test` | **Pass** | 二者 `passed=3 failed=0`、exit 0 |
+| `GGTEST_CORPUS_DIR=… mvn -q clean test` | BUILD SUCCESS；Surefire 全过 | **Pass** | exit **0**；**111** run，Failures 0，Errors 0，Skipped 1（仅 Manifest @ `clean test` 无 JAR） |
+| `GGTEST_CORPUS_DIR=… mvn -q clean package` | 成功且可启动 `ggtest` | **Pass** | exit **0**；`target/ggtest-0.1.0-SNAPSHOT.jar` 产出（未 `-DskipTests`）；`./bin/ggtest` 全轮可用 |
+| 退出码 0/1/2 | 全过→0；断言失败→1；用法/解析→2 | **Pass** | `pass.test`→0；`fail.test`→1（FAILURE 四要素）；`bad-parse.test`→2；缺位置参数→2；缺 `--url`→2 |
+
+### 回归（轮次 3）
+
+| 范围 | 结果 | 说明 |
+|---|---|---|
+| 跨文件 schema 隔离 | **Pass** | CLI 批量 `cross-file/schema-a.test`+`schema-b.test`（均 `CREATE TABLE t1`，轮次 2 失败形态）→ `TOTAL: passed=6 failed=0`、exit 0 |
+| 跨文件 hash-threshold 重置 | Pass | `first-sets-threshold.test`+`second-plain-results.test` → failed=0、exit 0 |
+| P1-1 / P1-6 / 退出码 smoke | Pass | 独立 `./bin/ggtest`，结果同上表 |
+| 上游模块（parser/normalize/runner/db） | Pass | 同次 Surefire 84 例 0 失败 |
+| 凭据不落盘 | Pass | `--password SECRET_PASS_XYZ` smoke → exit 2；输出无该口令 |
+| 修复实现独立核对 | Pass | `CliSession.runOneFile` 每文件 `try (Connection …)` + 每文件新建 `SqlLogicTestRunner(…, hashThreshold)`，与 Plan T3 一致 |
+
+### 文档与安全（轮次 3）
+
+| 项 | 结果 | 备注 |
+|---|---|---|
+| 开发/用户文档 | Pass（沿用） | 修复未改用户面合同；`dev-notes.md` 含 DEF-CLI-001 回执；Javadoc 已说明每文件连接语义 |
+| 运维 N/A | Pass（N/A） | 本地 CLI |
+| 安全（连接生命周期、语料只读、无凭据泄漏、无新依赖） | 无发现 | 允许合并（待授权） |
+
+### 缺陷（轮次 3）
+
+| ID | 严重度 | 摘要 | 状态 | 处理说明 / 验证证据 |
+|---|---|---|---|---|
+| **DEF-CLI-001** | 高 | P1-5 批量官方 select1/2/3 失败数≠0（共享 JDBC 致跨文件库污染） | **fixed（已验证关闭）** | 修复 `4b9604f`：每文件独立连接。验证：P1-5 批量 exit 0、`TOTAL failed=0`；`mvn test` 111/0；schema-a/b fixtures 批量 exit 0；Review 轮次 2 Approve。零豁免。 |
+
+### 阻塞
+
+无。
+
+### 结论（轮次 3）
+
+- **总体：Pass**
+- 分项：P0-1 / P1-1 / P1-5 / P1-6、`mvn test`/`package`、退出码 fixtures、跨文件隔离回归 **全部 Pass**；零豁免
+- 缺陷：DEF-CLI-001 **fixed（已验证关闭）**；无未解决缺陷或阻塞
+- 合并授权前置条件已满足（Plan 确认 + Reviewer Approve `4b9604f` + QA Pass）→ 可由 Manager 向用户**请求合并授权**；QA 本轮**未执行合并**
