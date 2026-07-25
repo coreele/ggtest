@@ -1,27 +1,86 @@
 # GGTEST
 
-Java implementation of a sqllogictest-format test tool (Maven, Java 17).
+Java CLI for running [sqllogictest](https://www.sqlite.org/sqllogictest)-format test
+files against SQLite via JDBC (Maven, Java 17). Command name: **`ggtest`**.
 
 ## Prerequisites
 
 - JDK 17+
 - Apache Maven 3.8+
 
-## Build and test
+## Build, test, and package
 
 ```bash
 mvn -q clean test
+mvn -q clean package
 ```
 
-Optional compile-only check:
+`mvn package` produces an executable uber-JAR under `target/ggtest-*.jar`
+(`Main-Class` = `com.ggtest.cli.Main`).
+
+## Run (`ggtest`)
+
+After packaging:
 
 ```bash
-mvn -q clean compile
+./bin/ggtest --url jdbc:sqlite::memory: path/to/file.test
+# or
+java -jar target/ggtest-0.1.0-SNAPSHOT.jar --url jdbc:sqlite::memory: path/to/file.test
 ```
 
-## Parser usage
+### CLI
 
-Parse a file (extension is ignored; UTF-8):
+```text
+ggtest --url <jdbc-url> [--user <user>] [--password <password>]
+       [--engine <name>=sqlite] [--hash-threshold <N>]
+       <file-or-dir> [<file-or-dir> ...]
+```
+
+| Option | Default | Notes |
+|---|---|---|
+| `--url` | (required) | SQLite JDBC URL, e.g. `jdbc:sqlite::memory:` or `jdbc:sqlite:/tmp/t.db` |
+| `--user` / `--password` | none | Optional DB credentials; **never** written to logs or the report |
+| `--engine` | `sqlite` | Used by `skipif` / `onlyif`; only `sqlite` is accepted in this release |
+| `--hash-threshold` | `8` | Initial hash threshold per file; file-level `hash-threshold` still applies inside a file |
+
+Positional arguments: at least one file or directory.
+
+- **File**: any extension is accepted; content must be valid sqllogictest.
+- **Directory**: recursively collects `*.test` and `*.slt` (stable absolute-path order).
+
+### Exit codes
+
+| Code | Meaning |
+|---|---|
+| `0` | All assertable records passed |
+| `1` | At least one assertion failure |
+| `2` | Usage / config / parse / connection / fatal error |
+
+### Report
+
+Stdout is plain text: per-file `passed` / `failed` / `skipped`, a `TOTAL` line,
+and `FAILURE` lines with file, line, SQL first-line summary, and reason. Parse
+and connection problems are reported as `ERROR` (exit code 2); remaining files
+still run after a parse error.
+
+### Official corpus (user-supplied)
+
+Official sqllogictest corpora are **not** shipped in this repository. Point
+`ggtest` at your local copies, for example:
+
+```bash
+ggtest --url jdbc:sqlite::memory: /path/to/select1.test
+ggtest --url jdbc:sqlite::memory: /path/to/select1.test /path/to/select2.test /path/to/select3.test
+```
+
+Optional automated hard acceptance: set `GGTEST_CORPUS_DIR` to a directory
+containing `select1.test` / `select2.test` / `select3.test`, then `mvn test`.
+
+## Library usage
+
+The CLI assembles the same APIs you can call from Java.
+
+### Parser
 
 ```java
 import com.ggtest.parser.SqlLogicTestParser;
@@ -33,22 +92,10 @@ SqlLogicTestParser parser = new SqlLogicTestParser();
 List<SqlTestRecord> records = parser.parse(Path.of("sample.test"));
 ```
 
-Parse an in-memory source (logical name used only for error locations):
-
-```java
-List<SqlTestRecord> records = parser.parse("sample.test", content);
-```
-
 Malformed input throws `com.ggtest.parser.ParseException` with message
 `<sourceName>:<lineNumber>: <reason>`.
 
-Record types live in `com.ggtest.model` (`StatementRecord`, `QueryRecord`,
-`SkipIfRecord`, `OnlyIfRecord`, `HashThresholdRecord`, `HaltRecord`).
-
-## Normalize / compare usage
-
-Compare expected query results to actual rows (no JDBC). Default
-hash-threshold is `ResultComparer.DEFAULT_HASH_THRESHOLD` (8):
+### Normalize / compare
 
 ```java
 import com.ggtest.model.ColumnType;
@@ -70,59 +117,22 @@ if (!result.passed()) {
 }
 ```
 
-Building blocks: `ValueNormalizer`, `ResultSorter`, `ResultHasher`.
-
-## Runner usage
-
-`SqlLogicTestRunner` executes one file's records in order against a
-`com.ggtest.db.DatabaseExecutor`. The first shipped executor is
-`SqliteJdbcExecutor` (`org.xerial:sqlite-jdbc`); the connection is created and
-closed by the caller:
+### Runner
 
 ```java
 import com.ggtest.db.sqlite.SqliteJdbcExecutor;
-import com.ggtest.model.SqlTestRecord;
 import com.ggtest.parser.SqlLogicTestParser;
 import com.ggtest.runner.FileRunResult;
-import com.ggtest.runner.RecordOutcome;
 import com.ggtest.runner.SqlLogicTestRunner;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.List;
 
-List<SqlTestRecord> records = new SqlLogicTestParser().parse(Path.of("sample.test"));
-
+var records = new SqlLogicTestParser().parse(Path.of("sample.test"));
 try (Connection connection = DriverManager.getConnection("jdbc:sqlite::memory:")) {
     FileRunResult result = new SqlLogicTestRunner(new SqliteJdbcExecutor(connection)).run(records);
-
-    System.out.printf(
-            "passed=%d failed=%d skipped=%d%n",
-            result.passedCount(), result.failedCount(), result.skippedCount());
-    result.recordResults().stream()
-            .filter(r -> r.outcome() == RecordOutcome.FAILED)
-            .forEach(r -> System.err.println(r.location() + ": " + r.failureReason()));
 }
 ```
 
-Behavior of one run:
-
-- `statement ok` / `statement error` assert success / failure only; error messages
-  are not matched.
-- `query` compares through `ResultComparer` when an expected block is present,
-  and asserts execution only when the `----` separator is absent.
-- `skipif <db>` / `onlyif <db>` guard the next record and are matched
-  case-insensitively against `DatabaseExecutor.engineName()` (`sqlite`).
-- `hash-threshold <N>` updates the threshold for the rest of the run; pass a
-  different initial value to the two-argument constructor.
-- `halt` stops the file; remaining records are reported as skipped.
-- A failing record does not stop the file. A `FatalDatabaseException` (closed or
-  broken connection) aborts it, and `FileRunResult.aborted()` reports that.
-- Per-file state is scoped to a single `run` call, so the next file starts clean.
-
-## Supporting another database
-
-Implement `com.ggtest.db.DatabaseExecutor` in its own package and pass it to the
-runner: report `engineName()`, execute statements and queries, return raw column
-values (`null` for SQL NULL), and throw `FatalDatabaseException` for
-connection-level failures. Parser, normalize, and runner code stays unchanged.
+Per-file state (hash-threshold, conditions, labels) is scoped to a single
+`run` call. Supporting another database: implement `com.ggtest.db.DatabaseExecutor`.

@@ -1,0 +1,6 @@
+statement ok
+CREATE TABLE t(x int);
+query I nosort
+SELECT 1
+----
+99

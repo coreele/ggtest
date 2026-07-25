@@ -1,0 +1,8 @@
+statement ok
+CREATE TABLE b(x int);
+statement ok
+INSERT INTO b VALUES(2);
+query I nosort
+SELECT x FROM b
+----
+2

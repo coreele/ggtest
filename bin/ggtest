@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Thin launcher for the GGTEST CLI (command name: ggtest).
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+JAR=""
+
+if [[ -n "${GGTEST_JAR:-}" && -f "${GGTEST_JAR}" ]]; then
+  JAR="${GGTEST_JAR}"
+else
+  # Prefer the shaded uber-jar produced by `mvn package`.
+  for candidate in "${ROOT}"/target/ggtest-*.jar; do
+    if [[ -f "${candidate}" && "${candidate}" != *"-sources.jar" && "${candidate}" != *"original"* ]]; then
+      JAR="${candidate}"
+      break
+    fi
+  done
+fi
+
+if [[ -z "${JAR}" ]]; then
+  echo "ggtest: packaged JAR not found under ${ROOT}/target." >&2
+  echo "Run 'mvn -q clean package' first, or set GGTEST_JAR to an executable JAR." >&2
+  exit 2
+fi
+
+exec java -jar "${JAR}" "$@"
