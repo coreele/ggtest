@@ -1,0 +1,13 @@
+# P0-3 counter-case: identical to p0-3-statement-assertions.test except that the
+# last record keeps `statement error` while its SQL is valid, so it must fail.
+statement ok
+CREATE TABLE t1(a INTEGER, b TEXT)
+
+statement ok
+INSERT INTO t1 VALUES(1, 'x')
+
+statement error
+INSERT INTO missing VALUES(1)
+
+statement error
+INSERT INTO t1 VALUES(2, 'y')

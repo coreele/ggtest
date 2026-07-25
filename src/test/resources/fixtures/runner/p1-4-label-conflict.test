@@ -1,0 +1,17 @@
+# P1-4: two queries share label `samevals` but return different results, so the
+# second one must fail even though it matches its own expected block.
+statement ok
+CREATE TABLE t1(a INTEGER)
+
+statement ok
+INSERT INTO t1 VALUES(1),(2)
+
+query I nosort samevals
+SELECT a FROM t1 WHERE a = 1
+----
+1
+
+query I nosort samevals
+SELECT a FROM t1 WHERE a = 2
+----
+2

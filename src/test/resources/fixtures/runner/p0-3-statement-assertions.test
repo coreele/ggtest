@@ -1,0 +1,12 @@
+# P0-3: statement ok on valid DDL/DML, statement error on a missing table.
+statement ok
+CREATE TABLE t1(a INTEGER, b TEXT)
+
+statement ok
+INSERT INTO t1 VALUES(1, 'x')
+
+statement error
+INSERT INTO missing VALUES(1)
+
+statement error
+SELECT a FROM missing

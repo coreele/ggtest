@@ -1,0 +1,13 @@
+# P0-6: on engine sqlite the first and third records are skipped, the second runs.
+# The skipped records reference missing tables, so wrongly executing them fails.
+skipif sqlite
+statement ok
+INSERT INTO absent_when_skipped VALUES(1)
+
+onlyif sqlite
+statement ok
+CREATE TABLE t1(a INTEGER)
+
+onlyif postgresql
+statement ok
+INSERT INTO absent_on_postgresql VALUES(1)

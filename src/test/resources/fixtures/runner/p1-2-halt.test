@@ -1,0 +1,14 @@
+# P1-2: records after halt are not executed and count as skipped.
+# They reference a missing table, so wrongly executing them fails.
+statement ok
+CREATE TABLE t1(a INTEGER)
+
+halt
+
+statement ok
+INSERT INTO absent_after_halt VALUES(1)
+
+query I nosort
+SELECT a FROM absent_after_halt
+----
+1

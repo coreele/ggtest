@@ -1,0 +1,25 @@
+# Real-database query path: I/T normalization, rowsort, execute-only query, and
+# hash-threshold switching the comparison to hash form.
+statement ok
+CREATE TABLE t2(a INTEGER, b TEXT)
+
+statement ok
+INSERT INTO t2 VALUES(2, 'y'), (1, NULL)
+
+query IT rowsort
+SELECT a, b FROM t2
+----
+1
+NULL
+2
+y
+
+query I nosort
+SELECT a FROM t2
+
+hash-threshold 1
+
+query I nosort
+SELECT a FROM t2 ORDER BY a
+----
+2 values hashing to 6ddb4095eb719e2a9f0a3f95677d24e0
