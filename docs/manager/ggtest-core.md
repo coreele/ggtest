@@ -18,7 +18,7 @@
 | parser | [ggtest-core-parser/spec.md](../features/ggtest-core/ggtest-core-parser/spec.md) | required | approved | required（模块边界、记录模型；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-parser → main（合入以 git 为准） |
 | normalize | [ggtest-core-normalize/spec.md](../features/ggtest-core/ggtest-core-normalize/spec.md) | required | approved | skipped（算法已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-normalize → main（合入以 git 为准） |
 | runner-sqlite | [ggtest-core-runner-sqlite/spec.md](../features/ggtest-core/ggtest-core-runner-sqlite/spec.md) | required | approved | required（执行器抽象、JDBC 分层；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-runner-sqlite → main（合入以 git 为准） |
-| cli-corpus | [ggtest-core-cli-corpus/spec.md](../features/ggtest-core/ggtest-core-cli-corpus/spec.md) | required | approved | skipped（CLI/退出码已在 Spec 写死） | required | qa | 调度 QA；P0-1/P1-5 硬验收待语料路径 |
+| cli-corpus | [ggtest-core-cli-corpus/spec.md](../features/ggtest-core/ggtest-core-cli-corpus/spec.md) | required | approved | skipped（CLI/退出码已在 Spec 写死） | required | blocked | 提供语料路径后恢复 qa；回归 P0-1/P1-5 |
 
 依赖：`parser` ∥ `normalize` → `runner-sqlite` → `cli-corpus`。
 
@@ -36,6 +36,12 @@
 - 阻塞原因: 等待子切片完成（tracking）。总览仅作索引与已决议承载，不对总览调度 Planner。
 - 恢复条件: `parser`、`normalize`、`runner-sqlite`、`cli-corpus` 均 `done`（或用户明确取消/关闭）。
 - 恢复后的目标状态: done
+
+### cli-corpus 切片阻塞（QA 轮次 1）
+
+- 阻塞原因: 官方语料硬验收 P0-1/P1-5 未执行——`GGTEST_CORPUS_DIR` unset，本机未找到含 `select1.test`/`select2.test`/`select3.test` 的路径；L4 必达项未证实。非实现 Fail（fixtures 项 P1-1/P1-6 与 mvn/package 已 Pass）。证据见 `qa-report.md`。
+- 恢复条件: 用户提供官方 sqllogictest 语料目录（须含 `select1.test`、`select2.test`、`select3.test`），设置 `GGTEST_CORPUS_DIR=<目录>`（或给出 `$SELECT1`/`$SELECT2`/`$SELECT3` 绝对路径）后，由 Manager 恢复状态并调度 QA 回归硬验收。
+- 恢复后的目标状态: `qa`（追加回归轮次复测 P0-1/P1-5；其余项可抽样回归）
 
 ## 用户已确认决策（须由总览 Spec 与各子 Spec 继承，勿重开）
 
@@ -112,3 +118,4 @@
 - 2026-07-25 **用户确认 cli-corpus Plan（回复「ok」，批准、无修改；分支 `ggtest-core-cli-corpus` → `main`）**。Manager：Plan 用户确认 → **approved**；源分支记录为 **`ggtest-core-cli-corpus`**、目标分支 **`main`**；状态 `awaiting-plan-approval` → **`planned`** → **`developing`**。调度 **Developer** 按已确认 Plan TDD 实施 T1–T6（检出源分支，`mvn -q clean test` / `package`，L4），产出代码/测试与 `dev-notes.md`。运维：代理 `127.0.0.1:7890`；多次失败则停止。官方语料用户自备；无语料时按 Plan 记录证据与恢复条件，不得默示豁免。**未**改已批准 Spec/Plan。
 - 2026-07-25 **Developer 完成**：T1–T6 已交付（`com.ggtest.cli`；`bin/ggtest`；fixtures；README；`dev-notes.md`）。验证：`mvn -q clean test` → BUILD SUCCESS，Tests run: 110, Failures: 0, Errors: 0, Skipped: 3；`mvn -q clean package` SUCCESS；`./bin/ggtest` 最小 fixtures 退出码 0。提交 `0ed8a95`（plan/manager）、`466c6f1`（实现），分支 `ggtest-core-cli-corpus`。**P0-1/P1-5 官方语料硬验收未执行**（无 `GGTEST_CORPUS_DIR`），原因/风险/恢复条件已记入 `dev-notes.md`，未默示豁免。状态 `developing` → **`reviewing`**。调度 **Reviewer**。
 - 2026-07-25 **Reviewer Approve**：`review.md` 结论 Approve，无阻塞项；独立 `mvn clean test`（JDK 17）110/110 Pass（Skipped: 3）；`package` + `bin/ggtest` smoke 退出码 0/1/2 符合合同。硬验收缺口正确记为未执行（非豁免）。状态 `reviewing` → **`qa`**。单步编排停止；**未**调度 QA（完整流程未授权）；**未**请求合并授权。
+- 2026-07-25 **调度 QA**：核验状态 `qa`、Review Approve（`review.md`）、Plan/Spec 已确认、源分支 `ggtest-core-cli-corpus` → `main`、实现 `466c6f1`；已提交 `3376b5a`（review + STATUS/qa）。环境：`GGTEST_CORPUS_DIR` 未设，常见本地路径未找到 `select1.test`。传入验证命令与代理约定后调度 QA 验收 P0-1/P1-1/P1-5/P1-6（L4）；无语料时不得默示豁免。
