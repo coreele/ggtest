@@ -18,7 +18,7 @@
 
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
-| _(无活跃工作项)_ | | | | | | | |
+| ggtest-pg | ggtest-pg | PostgreSQL + CLI `.env` 配置（多库扩展；隔离；凭据安全） | done | full | required | 已授权关闭；合入 main（不归档，用户未要求） | [docs/features/ggtest-pg/](../features/ggtest-pg/) |
 
 ## 已归档
 
