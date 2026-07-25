@@ -85,12 +85,19 @@ Manager 登记工作项并确定门禁
 → [Review 门禁=required] 取得 Approve
 → QA 验收
 → 当前用户会话取得合并授权
-→ Manager 在源分支将状态置为 done 并提交
+→ Manager 在源分支将状态置为 done，并与未入库的 review.md / qa-report.md 一次提交
 → 合入目标分支（本地或 GitHub；不再改 STATUS）
 → [父项关闭时] Manager 归档
 ```
 
 非 Git 工作区必须跳过提交与合并操作，但不得跳过适用的 Spec、Plan、Review、QA 和归档门禁。非 Git 下用户授权完成后，Manager 将状态置为 `done`。
+
+## Review / QA 报告提交纪律（Git）
+
+- Reviewer / QA **只写文件、不提交** `review.md` / `qa-report.md`。
+- QA `Pass` 后等待用户合并授权期间：**禁止**单独提交上述报告（工作区保留供父会话审阅）。
+- 用户授权后：Manager 在源分支**一次提交**纳入 STATUS/`done`、工作项记录、以及尚未入库的 `review.md` 与 `qa-report.md`；合入后不得再为 STATUS 或报告单独提交。
+- `Fail` / `Blocked` / Reviewer `Request changes` 退回修复时，可将报告与状态变更一并提交。详见 `docs/standards/git.md` §1.4。
 
 ## 混合编排模型
 
@@ -195,7 +202,7 @@ backlog
 - Reviewer `Approve` 后允许 `reviewing → qa`；
 - Reviewer `Request changes` 时返回 `developing`，修复后重新审阅；
 - Reviewer `Comment` 不得包含阻塞项，否则必须按 `Request changes` 处理；
-- QA `Pass` 后请求合并授权；用户授权并持久化后：在**源分支**将状态置为 `done` 并提交，随后允许合入（本地或 GitHub）；合入后不得再为 STATUS 单独提交；
+- QA `Pass` 后请求合并授权（**不**提交 `review.md` / `qa-report.md`）；用户授权并持久化后：在**源分支**将状态置为 `done`，并与未入库的报告**一次提交**，随后允许合入（本地或 GitHub）；合入后不得再为 STATUS 或报告单独提交；
 - 合入失败：`done → blocked`（或保持 `done` 并记录阻塞笔记）；
 - 任一活动状态可进入 `blocked`；必须记录原因、恢复条件和恢复后的目标状态，条件满足后恢复；
 - 用户取消时进入 `cancelled`。
@@ -206,7 +213,7 @@ QA 结论仅允许 `Pass`、`Fail` 或 `Blocked`：
 
 - `Fail`：登记具有唯一标识、严重程度、状态、处理说明和验证证据的缺陷；Manager 执行 `qa → developing`，调度 Developer 修复；
 - `Blocked`：进入 `blocked`，记录原因、恢复条件和恢复后的目标状态；
-- `Pass`：由当前用户会话请求合并授权；授权后 Manager 置 `done`（源分支）。
+- `Pass`：由当前用户会话请求合并授权（报告保持未提交）；授权后 Manager 置 `done` 并与报告一次提交（源分支）。
 
 Developer 修复后必须更新 `dev-notes.md` 并给出建议复测范围。`standard` 和 `full` 的修复必须重新取得 Reviewer `Approve`；随后 QA 在同一 `qa-report.md` 追加回归轮次，覆盖失败项及受影响范围。循环持续至 `Pass`、`Blocked` 或用户取消。
 
@@ -223,6 +230,8 @@ Developer 修复后必须更新 `dev-notes.md` 并给出建议复测范围。`st
 7. Git 仓库满足 `docs/standards/git.md`。
 
 合入可由受权 Merge Executor 或用户经 GitHub PR 完成。合入失败时进入 `blocked` 或保留 `done` 并记阻塞，不得归档父项。
+
+授权关闭时的源分支提交必须包含：STATUS/`done`、工作项记录更新，以及工作区中尚未入库的 `review.md` 与 `qa-report.md`（若存在）。禁止在待合并授权窗口内提前单独提交这两份报告。
 
 切片在用户授权后即关闭（`done`）。Manager 仅在以下情况归档整个工作项：
 

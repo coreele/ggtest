@@ -10,7 +10,7 @@
 
 旁支状态：`blocked`、`cancelled`。历史名 `awaiting-merge` 已废弃。
 
-`done` = 工作流关闭（QA Pass + 合并/完成授权）；是否已合入目标分支以 git/PR 为准。详见 [`docs/README.md`](../README.md#状态机与回退)。
+`done` = 工作流关闭（QA Pass + 合并/完成授权）；是否已合入目标分支以 git/PR 为准。QA Pass 待授权期间不单独提交 `review.md`/`qa-report.md`；授权后与 `done` 一次提交。详见 [`docs/README.md`](../README.md#状态机与回退)、[`standards/git.md`](../standards/git.md)。
 
 调度主键为 `(feature-id, sub-feature-id)`。未拆分时二者相同。同一 `feature-id` 的后续行可省略重复的 `feature-id`；空 `feature-id` 表示继承上一非空值。已拆分时「目录」列须指向各子工作项目录，不得省略为继承总览根目录。
 

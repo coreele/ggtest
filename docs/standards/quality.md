@@ -49,7 +49,7 @@ QA 必须依据 Spec 和 Plan 执行独立验收，不得仅依赖 Developer 或
 - Plan 中声明的验证层与预期证据；
 - 适用时的回归测试（确保未引入既有功能退化）。
 
-验收结论写入对应切片目录的 `qa-report.md`（未拆分：`docs/features/<feature-id>/qa-report.md`；已拆分：`docs/features/<feature-id>/<feature-id>-<sub-feature-id>/qa-report.md`），结论为 Pass、Fail 或 Blocked。
+验收结论写入对应切片目录的 `qa-report.md`（未拆分：`docs/features/<feature-id>/qa-report.md`；已拆分：`docs/features/<feature-id>/<feature-id>-<sub-feature-id>/qa-report.md`），结论为 Pass、Fail 或 Blocked。Git 仓库中报告的提交时机见 [git.md](./git.md) §1.4：`Pass` 待合并授权期间不单独提交；用户授权 `done` 时与状态一次提交。
 
 ## 5. 完成定义（Definition of Done）
 

@@ -19,12 +19,14 @@ Manager 登记工作项并判定路径与门禁
 → QA 验收
   ├─ Fail：Developer 修复 → [Reviewer 复审] → QA 复测
   ├─ Blocked：记录原因和恢复条件并停止
-  └─ Pass：当前用户会话取得合并授权 → Manager 将状态置为 done（源分支提交）
+  └─ Pass：当前用户会话取得合并授权 → Manager 将状态置为 done，并将未入库的 `review.md` / `qa-report.md` 与 STATUS **一次提交**（源分支）
 → 合入目标分支（本地 Merge Executor 或 GitHub PR 均可；不再为状态单独提交）
 → [全部切片 done 且用户要求关闭父项时] Manager 归档
 ```
 
 **`done` 的含义：** 切片工作流已关闭——质量门禁已过，且用户已授权合入（或非 Git 下已授权完成）。**不表示**变更已出现在目标分支 tip。是否已合入以 git / PR 为准。
+
+**Review / QA 报告提交时机（Git）：** QA `Pass` 后等待人工合并授权期间，**禁止**单独提交 `review.md` 与 `qa-report.md`（文件写在工作区即可，供父会话审阅）。用户授权后，Manager 在源分支**一次提交**中纳入：状态置 `done` 的 STATUS/工作项记录、以及尚未入库的 `review.md` 与 `qa-report.md`。合入后不得再为 STATUS 或报告单独提交。`Fail` / `Blocked` / Reviewer `Request changes` 退回修复时，可将报告与状态变更一并提交，以便修复链路有持久证据（见 [`standards/git.md`](standards/git.md)）。
 
 用户确认门禁不得自动越过：
 
@@ -111,7 +113,7 @@ Manager 登记工作项时必须记录路径等级，并分别判定 Spec、Desi
 - 当前用户会话必须取得明确合并授权；
 - Git 工作区必须记录源分支和目标分支，并满足 [`standards/git.md`](standards/git.md)；
 - **实现必须发生在独立工作分支上**；禁止在 `main`/`master`/`release/*` 上直接实施后合并；
-- 用户授权后，Manager 在**源分支**将状态置为 `done` 并提交（随功能一并合入）；**禁止**为「合入后再改 STATUS」再开目标分支提交；
+- 用户授权后，Manager 在**源分支**将状态置为 `done`，并与未入库的 `review.md` / `qa-report.md` **一次提交**（随功能一并合入）；**禁止**在待合并授权期间单独提交上述报告；**禁止**为「合入后再改 STATUS」再开目标分支提交；
 - 合入可由受权 Merge Executor 本地执行，或由用户在 GitHub 上合并 PR；合入本身不再触发 STATUS 变更；
 - 合入失败时进入 `blocked`（可从 `done` 转入），记录原因与恢复条件；不得归档父项。
 
@@ -147,7 +149,7 @@ backlog
 - Plan 编写完成：`planning → awaiting-plan-approval`；
 - Plan 确认并持久化：`awaiting-plan-approval → planned`；
 - `fast` 且 Review 门禁为 `skipped`：`developing → qa`；
-- QA `Pass` 后请求合并授权；用户授权并持久化后：`qa → done`（在源分支更新 STATUS/工作项并提交）；
+- QA `Pass` 后请求合并授权（此时不提交 `review.md` / `qa-report.md`）；用户授权并持久化后：`qa → done`（在源分支**一次提交**更新 STATUS/工作项并纳入未入库的报告）；
 - 合入失败：`done → blocked`（或保持 `done` 并记阻塞笔记，由 Manager 择一写清）；
 - 任一活动状态可进入 `blocked`，恢复后进入工作项记录指定的目标状态；
 - 用户取消工作项时进入 `cancelled`。
@@ -282,7 +284,7 @@ Review 门禁: required | skipped（理由；仅 fast）
 
 ## 关闭与归档
 
-切片级关闭：QA `Pass` 且用户明确授权合并（或非 Git 下授权完成）后，Manager 在源分支将状态置为 `done` 并提交。此后允许合入；**合入完成后不再改 STATUS**。
+切片级关闭：QA `Pass` 且用户明确授权合并（或非 Git 下授权完成）后，Manager 在源分支将状态置为 `done`，并与未入库的 `review.md` / `qa-report.md` **一次提交**。此后允许合入；**合入完成后不再改 STATUS 或补交报告**。
 
 Manager 仅在以下情况归档**整个**工作项（移动 `docs/features/<feature-id>/`）：
 

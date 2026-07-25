@@ -19,7 +19,7 @@
 1. Manager 在调度 Developer 前，于工作项记录填写 **目标分支**（默认 `main`）与 **源分支**（拟创建的工作分支名）；
 2. Developer 自目标分支创建并检出源分支；若源分支已存在则检出并确认基于正确目标；
 3. 全部实现、修复、相关文档与**工作流关闭后的 STATUS/`done` 更新**均发生在该源分支上；
-4. QA `Pass` 且用户明确授权后，Manager 在源分支将状态置为 `done` 并提交；随后由 Merge Executor 或 GitHub PR 将源分支合入目标分支。合入后不得再为 STATUS 单独提交。
+4. QA `Pass` 且用户明确授权后，Manager 在源分支将状态置为 `done`，并将尚未入库的 `review.md` / `qa-report.md` 与 STATUS/工作项记录**一次提交**；随后由 Merge Executor 或 GitHub PR 将源分支合入目标分支。合入后不得再为 STATUS 或报告单独提交。
 
 已拆分为 `(feature-id, sub-feature-id)` 时：每个进入实施的切片使用**独立**工作分支，不得多个切片共用同一功能分支，也不得与其他工作项共用。
 
@@ -40,13 +40,25 @@
 
 | 角色 | 职责 |
 |---|---|
-| Manager | 登记时或调度 Developer 前声明目标分支与源分支名；用户授权合并后在**源分支**将状态置 `done` 并提交 |
+| Manager | 登记时或调度 Developer 前声明目标分支与源分支名；用户授权合并后在**源分支**将状态置 `done`，并与未入库的 `review.md` / `qa-report.md` **一次提交** |
 | Developer | 创建/检出工作分支后方可实施；禁止在受保护分支上直接提交实现 |
 | Merge Executor | 仅在授权且 STATUS 已为 `done` 后合并源分支 → 目标分支（或用户经 GitHub 合并）；不负责改 STATUS |
+| Reviewer / QA | 将 `review.md` / `qa-report.md` 写入切片目录；**不负责**对这些报告做 Git 提交（交由 Manager 按时机提交） |
+
+### 1.4 Review / QA 报告的提交时机
+
+| 时机 | 是否提交 `review.md` / `qa-report.md` |
+|---|---|
+| Reviewer 写出结论、进入 `qa` 等待验收 | **否**（工作区保留即可；Manager 可将 STATUS 推进到 `qa`，但不得把报告一并提交仅为「进 QA」） |
+| QA `Pass`、等待人工合并授权 | **否**（父会话审阅工作区报告；禁止为「QA 结束」单独提交报告） |
+| 用户授权合并 / 关闭 | **是**：与 STATUS/`done`、工作项记录**一次提交** |
+| QA `Fail` / `Blocked`，或 Reviewer `Request changes`（退回修复） | **可以**与状态回退一并提交，使修复链路有持久证据 |
+
+禁止在「QA Pass 待人工审核」窗口内单独提交报告后又为 `done` 再开第二次纯文档提交。
 
 ## 2. 提交规范
 
-提交须保持原子性：每次提交对应单一逻辑变更，便于审阅与回滚。
+提交须保持原子性：每次提交对应单一逻辑变更，便于审阅与回滚。授权关闭时「STATUS/`done` + 未入库 review/qa 报告」视为同一逻辑关闭变更，允许同一次提交。
 
 提交信息须遵循仓库既有规范；无既有规范时采用 [Conventional Commits](https://www.conventionalcommits.org/)：
 
@@ -78,7 +90,7 @@
 | 适用的 Review | Review 门禁为 `required` 时须取得 Approve |
 | QA Pass | QA 验收结论为 Pass |
 | 分支确认 | 源分支与目标分支已明确并在工作项记录中声明；实现位于源分支而非目标受保护分支 |
-| 用户明确授权 | 当前用户会话已授权合并；Manager 已在源分支将状态置为 `done` |
+| 用户明确授权 | 当前用户会话已授权合并；Manager 已在源分支将状态置为 `done`（含未入库的 `review.md` / `qa-report.md` 一次提交） |
 
 任一条件未满足时，Merge Executor 不得执行合并。
 

@@ -51,6 +51,8 @@ QA 入口必须满足：
 
 每轮 `qa-report.md` 更新完成后、最终结论交接前，必须调用 `refine-docs` 精简本轮内容并核对语义保全。
 
+**Git：** QA **禁止**对 `qa-report.md` 执行 `git add`/`commit`/`push`。报告留在工作区；由 Manager 按 `docs/standards/git.md` §1.4 决定提交时机。尤其：最新轮次为 `Pass`、等待人工合并授权时**不得**提交报告；用户授权后由 Manager 与 STATUS/`done` **一次提交**。`Fail` / `Blocked` 退回时，Manager 可将报告与状态变更一并提交。
+
 最终结论仅允许：
 
 - `Pass`：全部适用验收项通过，不存在未解决缺陷、阻塞或关键证据缺口；
@@ -63,7 +65,7 @@ QA 入口必须满足：
 
 ## 受控 Merge Executor
 
-QA `Pass` 后，只能报告已满足请求合并授权的质量条件。用户授权后由 Manager 在源分支置 `done`；合入（本地或 GitHub）不再改 STATUS。
+QA `Pass` 后，只能报告已满足请求合并授权的质量条件；**不得**自行提交 `qa-report.md` / `review.md`。用户授权后由 Manager 在源分支置 `done` 并与未入库报告一次提交；合入（本地或 GitHub）不再改 STATUS。
 
 执行合并前必须同时确认：
 
@@ -86,5 +88,6 @@ QA `Pass` 后，只能报告已满足请求合并授权的质量条件。用户�
 - 禁止修改 `docs/manager/STATUS.md` 或工作项记录；
 - 禁止在非 `Pass` 结论下请求合并授权；
 - 禁止在缺少当前用户明确授权时执行合并；
+- 禁止提交 `qa-report.md`（或其它由 Manager 择机入库的报告）；
 - 禁止自行承担代码所有权或绕过仓库指定的合并执行者；
 - 禁止创建不同的 Feature 目录或修改 `feature-id`。

@@ -49,6 +49,8 @@ description: 代码审阅 Agent。实现完成后检查实现、测试、文档�
 
 `review.md` 初稿完成后、最终结论交接前，必须调用 `refine-docs` 精简文档并核对语义保全。
 
+**Git：** Reviewer **禁止**对 `review.md` 执行 `git add`/`commit`/`push`。报告留在工作区；由 Manager 按 `docs/standards/git.md` §1.4 决定提交时机（QA Pass 待合并授权期间不提交；用户授权 `done` 时与状态一次提交；`Request changes` 退回时可与状态一并提交）。
+
 结论规则：
 
 - `Approve`：不存在阻塞项，实现、测试、文档和安全要求满足进入 QA 的条件；
@@ -74,5 +76,6 @@ Reviewer 只报告阶段结果，由 Manager 维护状态和调度。
 - 禁止修改 `docs/manager/STATUS.md` 或工作项记录；
 - 禁止代替 QA 作出 `Pass`、`Fail` 或 `Blocked` 结论；
 - 禁止执行合并；
+- 禁止提交 `review.md`（或其它 Git 提交）；由 Manager 按规范择机提交；
 - 禁止以 `Comment` 放行未解决的安全问题或其他阻塞项；
 - 禁止创建不同的 Feature 目录或修改 `feature-id`。
