@@ -21,7 +21,7 @@
 | ggtest-core | ggtest-core | 【总览】GGTEST；根目录仅总览 Spec；子工作项各一目录；不对总览写 Plan | blocked（tracking） | full | required（总览） | 跟踪子切片；四切片均 done 后关闭 | [docs/features/ggtest-core/](../features/ggtest-core/) |
 | | parser | 解析 `.test`/`.slt` → 记录模型；错误含文件+行号 | done | full | required | 工作流已关闭（可合入）；合入以 git/PR 为准 | [ggtest-core-parser/](../features/ggtest-core/ggtest-core-parser/) |
 | | normalize | I/T/R 规范化、排序、MD5、hash-threshold | done | full | required | 工作流已关闭（可合入）；合入以 git/PR 为准 | [ggtest-core-normalize/](../features/ggtest-core/ggtest-core-normalize/) |
-| | runner-sqlite | Runner + 执行器抽象 + SQLite JDBC | awaiting-spec-approval | full | required | 用户确认 Spec；Design 依赖上游就绪 | [ggtest-core-runner-sqlite/](../features/ggtest-core/ggtest-core-runner-sqlite/) |
+| | runner-sqlite | Runner + 执行器抽象 + SQLite JDBC | done | full | required | 工作流已关闭（可合入）；合入以 git/PR 为准 | [ggtest-core-runner-sqlite/](../features/ggtest-core/ggtest-core-runner-sqlite/) |
 | | cli-corpus | CLI、统计、退出码、官方语料硬验收 | awaiting-spec-approval | full | required | 用户确认 Spec；最后集成 | [ggtest-core-cli-corpus/](../features/ggtest-core/ggtest-core-cli-corpus/) |
 
 ## 已归档

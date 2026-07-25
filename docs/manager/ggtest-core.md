@@ -3,7 +3,7 @@
 工作项标识: ggtest-core
 描述: GGTEST——从零到一使用 Java 实现 sqllogictest 格式测试工具。大型 Spec 拆为多子工作项：根目录仅总览 `spec.md`，各切片目录为 `ggtest-core-<sub>/`；调度主键为 `(ggtest-core, sub-feature-id)`。
 路径等级: full
-源分支: ggtest-core-normalize（normalize 切片工作分支；parser 切片为 ggtest-core-parser）
+源分支: ggtest-core-runner-sqlite（runner-sqlite 切片工作分支；历史：normalize=`ggtest-core-normalize`，parser=`ggtest-core-parser`）
 目标分支: main
 文档影响: docs/features/ggtest-core/（总览 + 四子工作项目录）；实现阶段更新项目 README
 
@@ -17,7 +17,7 @@
 | ggtest-core | [spec.md](../features/ggtest-core/spec.md) | required（总览） | approved（总览化） | skipped（不对总览写 Design/Plan） | N/A（tracking，不调度 Review） | blocked（tracking） | 跟踪子切片；四切片均 done 后关闭父项 |
 | parser | [ggtest-core-parser/spec.md](../features/ggtest-core/ggtest-core-parser/spec.md) | required | approved | required（模块边界、记录模型；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-parser → main（合入以 git 为准） |
 | normalize | [ggtest-core-normalize/spec.md](../features/ggtest-core/ggtest-core-normalize/spec.md) | required | approved | skipped（算法已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-normalize → main（合入以 git 为准） |
-| runner-sqlite | [ggtest-core-runner-sqlite/spec.md](../features/ggtest-core/ggtest-core-runner-sqlite/spec.md) | required | required | required（执行器抽象、JDBC 分层） | required | awaiting-spec-approval | 确认 Spec；上游就绪后再 Design |
+| runner-sqlite | [ggtest-core-runner-sqlite/spec.md](../features/ggtest-core/ggtest-core-runner-sqlite/spec.md) | required | approved | required（执行器抽象、JDBC 分层；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-runner-sqlite → main（合入以 git 为准） |
 | cli-corpus | [ggtest-core-cli-corpus/spec.md](../features/ggtest-core/ggtest-core-cli-corpus/spec.md) | required | required | skipped（CLI/退出码已在 Spec 写死） | required | awaiting-spec-approval | 确认 Spec；最后集成 |
 
 依赖：`parser` ∥ `normalize` → `runner-sqlite` → `cli-corpus`。
@@ -97,3 +97,12 @@
 - 2026-07-25 **调度 QA**：核验状态 `qa`、Review Approve、Plan/Spec 已确认、源分支 `ggtest-core-normalize` → `main`。传入验证命令与代理约定后调度 QA 验收。
 - 2026-07-25 **QA Pass（轮次 1）**：`qa-report.md` 结论 Pass；独立 `mvn clean test`（JDK 17）36/36；P0-2/P0-4/P0-5/P1-3 全过；缺陷 none。实现 `07a8e51`。状态保持 **`qa`**。到达 **合并/完成授权门禁**；**未**合并、**未**置 `done`。
 - 2026-07-25 **用户授权合并/关闭 normalize（回复「ok」）**：Plan approved、Review Approve、QA Pass、源分支 `ggtest-core-normalize`、目标分支 `main` 均已核验。Manager：合并授权已持久化；状态 `qa` → **`done`**（源分支）。调度 Merge Executor 将 `ggtest-core-normalize` 合入 `main`。**未**归档父项 `ggtest-core`（runner-sqlite、cli-corpus 未 done）。
+- 2026-07-25 **推进切片 `runner-sqlite`（`/manager 继续 runner-sqlite`）**：核验权威状态与产物。STATUS/`ggtest-core.md` 一致为 **`awaiting-spec-approval`**；路径 `full`；Spec/Design/Review 门禁均为 **required**；Spec 用户确认仍为 **required**（未 approved）。产物仅 `ggtest-core-runner-sqlite/spec.md`（无 design/plan）。上游：`parser`/`normalize` 均为 **`done`** 且已合入 `main`（`eaedcd0` / `07a8e51`+`8569af5`）。Spec 核验就绪：范围（Runner + 执行器抽象 + SQLite JDBC）、合同、验收 P0-3/P0-6/P0-8、P1-2/P1-4；开放问题仅「整体 Spec」待确认；已决议继承总览（SQLite/engine=`sqlite`/Q6/Q8 等）。状态维持 **`awaiting-spec-approval`**，到达 **Spec 用户确认门禁**，单步编排停止；**未**自行批准 Spec、**未**调度 Planner。
+- 2026-07-25 **用户确认 runner-sqlite Spec（回复「ok」，批准、无修改）**。Manager：`runner-sqlite` 的 Spec 用户确认 → **`approved`**；状态 `awaiting-spec-approval` → **`designing`**（Design 门禁 required）。调度 **Planner** 编写 `ggtest-core-runner-sqlite/design.md`（执行器抽象、JDBC 分层）→ `plan.md`。运维约定：网络失败可用代理 `127.0.0.1:7890`；多次未成功则停止。**未**自行批准 Plan、**未**改 Spec、**未**实施代码。
+- 2026-07-25 **Planner 完成 Design + Plan**：产出 `design.md`（`com.ggtest.db` / `db.sqlite` / `runner` 分层；`org.xerial:sqlite-jdbc`；Runner 禁止依赖 sqlite/`java.sql`）与 `plan.md`（T1–T5；验证 `mvn -q clean test`；最低验证层 L3；建议源分支 `ggtest-core-runner-sqlite`；驱动建议 3.53.2.0）。Design 门禁 **通过**（design.md 存在）。Manager：`designing` →（planning）→ **`awaiting-plan-approval`**。到达 **Plan 用户确认门禁**，单步编排停止；**未**自行批准 Plan、**未**调度 Developer。
+- 2026-07-25 **用户确认 runner-sqlite Plan（回复「ok」，批准、无修改；分支 `ggtest-core-runner-sqlite`，sqlite-jdbc 3.53.2.0）**。Manager：Plan 用户确认 → **approved**；源分支记录为 **`ggtest-core-runner-sqlite`**、目标分支 **`main`**；状态 `awaiting-plan-approval` → **`planned`** → **`developing`**。调度 **Developer** 按已确认 Plan TDD 实施 T1–T5（检出源分支，`mvn -q clean test`，L3），产出代码/测试与 `dev-notes.md`。运维：代理 `127.0.0.1:7890`；多次失败则停止。**未**改已批准 Spec/Design/Plan。
+- 2026-07-25 **Developer 完成**：T1–T5 已交付（`com.ggtest.db` / `db.sqlite` / `runner`；sqlite-jdbc 3.53.2.0；fixtures；README；`dev-notes.md`）。验证：`mvn -q clean test` → BUILD SUCCESS，Tests run: 84, Failures: 0（新增 48 + parser/normalize 36 无回归）。提交 `e359f05`（design/plan）、`5cf84fc`（实现），分支 `ggtest-core-runner-sqlite`。状态 `developing` → **`reviewing`**。调度 **Reviewer**。
+- 2026-07-25 **Reviewer Approve**：`review.md` 结论 Approve，无阻塞项；独立 `mvn clean test`（JDK 17）84/84 Pass；P0-8 核对 runner 无 `db.sqlite`/`java.sql`。状态 `reviewing` → **`qa`**。单步编排停止；**未**调度 QA（完整流程未授权）；**未**请求合并授权。
+- 2026-07-25 **调度 QA**：核验状态 `qa`、Review Approve、Plan/Spec 已确认、源分支 `ggtest-core-runner-sqlite` → `main`、实现 `5cf84fc`。传入验证命令与代理约定后调度 QA 验收 P0-3/P0-6/P0-8/P1-2/P1-4。
+- 2026-07-25 **QA Pass（轮次 1）**：`qa-report.md` 结论 Pass；独立 `mvn clean test`（JDK 17）84/84；P0-3/P0-6/P0-8/P1-2/P1-4 全过；缺陷 none。实现 `5cf84fc`。状态保持 **`qa`**。到达 **合并/完成授权门禁**；**未**合并、**未**置 `done`。
+- 2026-07-25 **用户授权合并/关闭 runner-sqlite（回复「ok」）**：Plan approved、Review Approve、QA Pass、源分支 `ggtest-core-runner-sqlite`、目标分支 `main` 均已核验。Manager：合并授权已持久化；状态 `qa` → **`done`**（源分支）。调度 Merge Executor 将 `ggtest-core-runner-sqlite` 合入 `main`。**未**归档父项 `ggtest-core`（cli-corpus 未 done）。
