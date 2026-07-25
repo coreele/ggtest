@@ -3,13 +3,21 @@ package com.ggtest.cli;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 
@@ -28,6 +36,27 @@ class ExecutableJarManifestTest {
             Manifest manifest = jarFile.getManifest();
             Attributes attrs = manifest.getMainAttributes();
             assertEquals("com.ggtest.cli.Main", attrs.getValue(Attributes.Name.MAIN_CLASS));
+        }
+    }
+
+    @Test
+    @EnabledIf("jarExists")
+    void packagedJarMergesJdbcDriverSpiForSqliteAndPostgres() throws IOException {
+        Path jar = findPackagedJar();
+        try (JarFile jarFile = new JarFile(jar.toFile())) {
+            ZipEntry entry = jarFile.getEntry("META-INF/services/java.sql.Driver");
+            assertTrue(entry != null, "shaded JAR must contain META-INF/services/java.sql.Driver");
+            try (InputStream in = jarFile.getInputStream(entry);
+                    BufferedReader reader =
+                            new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+                Set<String> providers = reader
+                        .lines()
+                        .map(String::trim)
+                        .filter(line -> !line.isEmpty() && !line.startsWith("#"))
+                        .collect(Collectors.toCollection(LinkedHashSet::new));
+                assertTrue(providers.contains("org.sqlite.JDBC"), providers.toString());
+                assertTrue(providers.contains("org.postgresql.Driver"), providers.toString());
+            }
         }
     }
 

@@ -235,6 +235,21 @@ class SqlLogicTestParserTest {
     }
 
     @Test
+    void pgConditionsFixture_expectedBlockEndsBeforeFollowingOnlyIf() throws Exception {
+        List<SqlTestRecord> records = parser.parse(resourcePath("fixtures/pg/conditions.test"));
+
+        QueryRecord query = records.stream()
+                .filter(QueryRecord.class::isInstance)
+                .map(QueryRecord.class::cast)
+                .findFirst()
+                .orElseThrow();
+        assertEquals(List.of("7"), query.expectedResults());
+
+        assertTrue(records.stream()
+                .anyMatch(r -> r instanceof OnlyIfRecord o && o.dbName().equalsIgnoreCase("sqlite")));
+    }
+
+    @Test
     void parse_stringSource_preservesOrderAndMultilineSql() {
         String content = """
                 statement ok

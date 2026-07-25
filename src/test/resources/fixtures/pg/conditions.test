@@ -10,6 +10,7 @@ query I nosort
 SELECT x FROM only_pg
 ----
 7
+
 onlyif sqlite
 statement ok
 CREATE TABLE only_sqlite_should_skip(x int);
