@@ -17,11 +17,19 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * P0-PG-2/3/4 CLI paths gated by {@code GGTEST_PG_URL} (optional user/password).
+ *
+ * <p>Gate vars {@code GGTEST_PG_*} are read only to build CLI argv. {@code Main.run}
+ * receives an empty env lookup + temporary working directory so repo-root
+ * {@code .env} / process {@code GGTEST_*} cannot override those flags (DEF-PG-003).
  */
 class PostgresCliIntegrationTest {
+
+    @TempDir
+    Path tempDir;
 
     @Test
     void postgresEngineRunsBasicFixture() {
@@ -76,7 +84,7 @@ class PostgresCliIntegrationTest {
                 "GGTEST_PG_URL not set; skipping PG CLI tests");
     }
 
-    private static Capture runPg(String engine, String... files) {
+    private Capture runPg(String engine, String... files) {
         List<String> args = new ArrayList<>();
         args.add("--url");
         args.add(System.getenv("GGTEST_PG_URL"));
@@ -101,7 +109,9 @@ class PostgresCliIntegrationTest {
         int code = Main.run(
                 args.toArray(String[]::new),
                 new PrintStream(stdout, true, StandardCharsets.UTF_8),
-                new PrintStream(stderr, true, StandardCharsets.UTF_8));
+                new PrintStream(stderr, true, StandardCharsets.UTF_8),
+                key -> null,
+                tempDir);
         return new Capture(code, stdout.toString(StandardCharsets.UTF_8), stderr.toString(StandardCharsets.UTF_8));
     }
 

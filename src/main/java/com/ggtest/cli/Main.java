@@ -3,6 +3,7 @@ package com.ggtest.cli;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Command-line entry point for GGTEST ({@code ggtest}).
@@ -33,16 +34,40 @@ public final class Main {
     }
 
     /**
+     * Product default: process environment via {@link System#getenv(String)} and
+     * the process current working directory for the default {@code .env} path.
+     *
      * @param args raw argv
      * @param out  report stream (stdout)
      * @param err  usage / connection error stream (stderr)
      * @return exit code 0, 1, or 2
      */
     public static int run(String[] args, PrintStream out, PrintStream err) {
+        return run(args, out, err, System::getenv, Path.of("").toAbsolutePath());
+    }
+
+    /**
+     * Injectable entry for tests that must isolate process {@code GGTEST_*} and
+     * a repo-root {@code .env}. Product {@link #main} / the three-arg
+     * {@link #run(String[], PrintStream, PrintStream)} keep the default
+     * {@code System::getenv} + process CWD contract.
+     *
+     * @param args             raw argv
+     * @param out              report stream (stdout)
+     * @param err              usage / connection error stream (stderr)
+     * @param envLookup        process environment reader (whitelist keys only)
+     * @param workingDirectory directory used for the default {@code .env} path
+     * @return exit code 0, 1, or 2
+     */
+    public static int run(
+            String[] args,
+            PrintStream out,
+            PrintStream err,
+            Function<String, String> envLookup,
+            Path workingDirectory) {
         try {
             ParsedArguments parsed = CliArgumentParser.parse(args);
-            CliOptions options = RuntimeConfigResolver.resolve(
-                    parsed, System::getenv, Path.of("").toAbsolutePath());
+            CliOptions options = RuntimeConfigResolver.resolve(parsed, envLookup, workingDirectory);
             List<Path> files = TestFileCollector.collect(options.inputs());
             return new CliSession(options, out, err).execute(files);
         } catch (UsageException ex) {

@@ -12,11 +12,18 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Orchestration, report, and exit-code behavior for the CLI (Plan T3 / Spec P1-1, P1-6).
+ *
+ * <p>Uses an injected empty env lookup and temporary working directory so a repo-root
+ * {@code .env} or process {@code GGTEST_*} cannot pollute assertions (DEF-PG-003).
  */
 class MainOrchestrationTest {
+
+    @TempDir
+    Path tempDir;
 
     @Test
     void allPassingFileExitsZeroAndPrintsPerFileTotals() {
@@ -154,11 +161,15 @@ class MainOrchestrationTest {
         assertFalse(capture.stderr().contains("super-secret"));
     }
 
-    private static Capture run(String... args) {
+    private Capture run(String... args) {
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
-        int code = Main.run(args, new PrintStream(stdout, true, StandardCharsets.UTF_8),
-                new PrintStream(stderr, true, StandardCharsets.UTF_8));
+        int code = Main.run(
+                args,
+                new PrintStream(stdout, true, StandardCharsets.UTF_8),
+                new PrintStream(stderr, true, StandardCharsets.UTF_8),
+                key -> null,
+                tempDir);
         return new Capture(code, stdout.toString(StandardCharsets.UTF_8), stderr.toString(StandardCharsets.UTF_8));
     }
 

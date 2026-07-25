@@ -18,6 +18,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 /**
  * P0-ENV / P1-ENV CLI integration using temporary {@code .env} files (never a repo {@code .env}).
+ *
+ * <p>Injects empty env lookup + {@link #tempDir} as working directory so repo-root
+ * {@code .env} / process {@code GGTEST_*} cannot pollute assertions (DEF-PG-003).
  */
 class EnvConfigIntegrationTest {
 
@@ -129,13 +132,15 @@ class EnvConfigIntegrationTest {
         assertFalse(body.toLowerCase().contains("production-password"));
     }
 
-    private static Capture run(String... args) {
+    private Capture run(String... args) {
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
         int code = Main.run(
                 args,
                 new PrintStream(stdout, true, StandardCharsets.UTF_8),
-                new PrintStream(stderr, true, StandardCharsets.UTF_8));
+                new PrintStream(stderr, true, StandardCharsets.UTF_8),
+                key -> null,
+                tempDir);
         return new Capture(code, stdout.toString(StandardCharsets.UTF_8), stderr.toString(StandardCharsets.UTF_8));
     }
 

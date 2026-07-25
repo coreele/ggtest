@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Optional L4 hard acceptance against a user-supplied official sqllogictest corpus
@@ -20,8 +21,14 @@ import org.junit.jupiter.api.Test;
  * contains {@code select1.test} (and for P1-5 also select2/select3). Never skips
  * with a pass — when the env var is unset the tests are assumed away and
  * {@code dev-notes.md} must record that hard acceptance was not executed.
+ *
+ * <p>Isolates process {@code GGTEST_*} and repo-root {@code .env} via injected
+ * empty env lookup + temporary working directory (DEF-PG-003).
  */
 class CorpusHardAcceptanceTest {
+
+    @TempDir
+    Path tempDir;
 
     private static Path corpusDir;
 
@@ -74,13 +81,15 @@ class CorpusHardAcceptanceTest {
         assertTrue(capture.stdout().contains("TOTAL:"));
     }
 
-    private static Capture run(String... args) {
+    private Capture run(String... args) {
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
         int code = Main.run(
                 args,
                 new PrintStream(stdout, true, StandardCharsets.UTF_8),
-                new PrintStream(stderr, true, StandardCharsets.UTF_8));
+                new PrintStream(stderr, true, StandardCharsets.UTF_8),
+                key -> null,
+                tempDir);
         return new Capture(code, stdout.toString(StandardCharsets.UTF_8), stderr.toString(StandardCharsets.UTF_8));
     }
 
