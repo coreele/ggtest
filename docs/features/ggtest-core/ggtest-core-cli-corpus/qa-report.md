@@ -10,6 +10,7 @@
 | 轮次 | 日期 | 实现版本 / 范围 | 环境 | 结论 |
 |---|---|---|---|---|
 | 1 | 2026-07-25 | 实现 `466c6f1`（docs `0ed8a95`、`3376b5a`）；Plan T1–T6；P0-1/P1-1/P1-5/P1-6；L4 | macOS aarch64；JDK 17.0.20；Maven 3.9.16 | **Blocked** |
+| 2 | 2026-07-25 | 实现 `466c6f1`；HEAD `cf8e2c9`（含管理文档）；回归复测 P0-1/P1-5 + fixtures；L4 零豁免 | 同左；`GGTEST_CORPUS_DIR=/Users/zhougangjie/Space/sqllogictest/test` | **Fail** |
 
 ## 入口门禁核验（轮次 1）
 
@@ -110,3 +111,103 @@
 - 分项：P1-1/P1-6 Pass；`mvn test`/`package`/fixtures 退出码 Pass；**P0-1/P1-5 Blocked（无语料）**
 - 缺陷：无；不合并；不请求合并授权
 - 后续：用户提供语料/`GGTEST_CORPUS_DIR` → 保持 `qa` → QA 回归硬验收 → 最新轮次 Pass 后方可请求合并授权
+
+---
+
+## 轮次 2（回归；语料已恢复）
+
+### 入口门禁核验（轮次 2）
+
+| 条件 | 证据 | 结果 |
+|---|---|---|
+| Plan / Spec 用户确认 | Manager 持久化；`spec.md` / Plan approved | 满足 |
+| Review Approve | `review.md` Approve；实现 `466c6f1` | 满足 |
+| 状态与语料 | Manager `blocked`→`qa`；`GGTEST_CORPUS_DIR` 下 select1/2/3 存在 | 满足 |
+
+### 环境与命令（轮次 2）
+
+- 工作区：`/Users/zhougangjie/Space/ggtest`；分支 `ggtest-core-cli-corpus`；HEAD `cf8e2c9`；实现 **`466c6f1`**
+- JDK 17.0.20；Maven 3.9.16；`GGTEST_CORPUS_DIR=/Users/zhougangjie/Space/sqllogictest/test`
+- **零豁免**：未对失败标豁免或默示通过
+
+| 命令 | 退出码 | 摘要 |
+|---|---|---|
+| `GGTEST_CORPUS_DIR=… mvn -q clean test` | **1** | Tests run: **110**, Failures: **1**, Errors: 0, Skipped: **1**；`CorpusHardAcceptanceTest.p1_5_…` 期望 exit 0 实际 1 |
+| `GGTEST_CORPUS_DIR=… mvn -q clean package` | **1** | Surefire 失败阻断 package（未 `-DskipTests`） |
+| P0-1 CLI | **0** | `TOTAL: failed=0` |
+| P1-5 CLI | **1** | `TOTAL: failed=4151` |
+
+### 硬验收命令与证据
+
+**P0-1**（要求：失败数=0、退出码=0）：
+
+```bash
+GGTEST_CORPUS_DIR=/Users/zhougangjie/Space/sqllogictest/test
+./bin/ggtest --url jdbc:sqlite::memory: "$GGTEST_CORPUS_DIR/select1.test"
+```
+
+- 退出码 **0**；`FILE: …/select1.test passed=1031 failed=0 skipped=0`；`TOTAL: passed=1031 failed=0 skipped=0` → **Pass**
+
+**P1-5**（要求：失败数=0、退出码=0、分文件+总计）：
+
+```bash
+GGTEST_CORPUS_DIR=/Users/zhougangjie/Space/sqllogictest/test
+./bin/ggtest --url jdbc:sqlite::memory: \
+  "$GGTEST_CORPUS_DIR/select1.test" \
+  "$GGTEST_CORPUS_DIR/select2.test" \
+  "$GGTEST_CORPUS_DIR/select3.test"
+```
+
+- 退出码 **1**
+- 分文件：select1 `failed=0`（passed=1031）；select2 `failed=942`（passed=89）；select3 `failed=3209`（passed=142）
+- 总计：`TOTAL: passed=1262 failed=4151 skipped=0`
+- 首败：select2/select3 line=3 `CREATE TABLE t1` → `table t1 already exists`
+- 对照：单文件 select2 / select3 → 各 exit **0**、failed=**0**（passed=1031 / 3351）
+- `CliSession` 整会话共享 JDBC 连接；Plan T3 要求每文件 JDBC → run → **关闭连接** → **Fail**（DEF-CLI-001；Q8 零豁免）
+
+### Spec / Plan 验收（轮次 2）
+
+| ID | 要求 | 结果 | 证据 |
+|---|---|---|---|
+| P0-1 | 官方 `select1.test` → 失败数=0、退出码=0 | **Pass** | CLI exit 0；failed=0 |
+| P1-1 | 目录递归 `.test`/`.slt`，分文件+总计 | **Pass** | `fixtures/cli/nested` → FILE `a.test`+`sub/b.slt`；`TOTAL: passed=6 failed=0`；exit 0 |
+| P1-5 | 官方 select1/2/3 批量 → 失败数=0、退出码=0 | **Fail** | 批量 exit 1、failed=4151；单文件均 Pass（DEF-CLI-001） |
+| P1-6 | `.slt` ≡ 同等 `.test` | **Pass** | `same-content.slt`/`.test` 均 `passed=3 failed=0`、exit 0 |
+| `mvn -q clean test` | BUILD SUCCESS；Surefire 全过 | **Fail** | exit 1；Failures: 1（P1-5） |
+| `mvn -q clean package` | 成功且可启动 `ggtest` | **Fail** | exit 1；`-DskipTests package` 仅用于产出本轮 CLI JAR，**不计** Plan Pass |
+| 退出码 0/1/2 | fixtures 0/1/2 | **Pass** | `pass.test`→0；`fail.test`→1；`bad-parse.test`→2 |
+
+### 回归
+
+| 范围 | 结果 | 说明 |
+|---|---|---|
+| P1-1 / P1-6 / 退出码 smoke | Pass | 独立 `./bin/ggtest` |
+| Surefire 其余用例 | Pass | 110 run 中仅 P1-5 硬验收失败 1；Skipped 1（Manifest） |
+| 上游模块 | 无新增失败信号 | 失败限于 cli 批量硬验收路径 |
+
+### 文档与安全（轮次 2）
+
+| 项 | 结果 | 备注 |
+|---|---|---|
+| 用户/开发文档 | Pass（沿用） | 本轮未改文档；失败属实现 |
+| 运维 N/A | Pass（N/A） | |
+| 安全（语料只读、无入库、无新凭据泄漏） | 无新发现 | 安全不单独阻断；总体 Fail → **禁止**请求合并授权 |
+
+### 缺陷（轮次 2）
+
+| ID | 严重度 | 摘要 | 状态 | 处理说明 / 验证证据 |
+|---|---|---|---|---|
+| **DEF-CLI-001** | **高** | P1-5 批量官方 select1/2/3 失败数≠0（共享 JDBC 致跨文件库污染） | **open** | Spec P1-5/Q8：失败数=0、退出码=0、零豁免。证据：批量 exit=1、`failed=4151`；首败 `table t1 already exists`；单文件 select1/2/3 均 exit=0、failed=0。`CliSession` 共享连接 ↔ Plan T3 每文件关闭连接。**Developer 修复**：每文件独立连接/等价空白库；修复后 Review required 须重新 **Approve**，再 QA 回归（同报告追加）。禁止默示豁免。 |
+
+### 阻塞
+
+| 项 | 内容 |
+|---|---|
+| — | 无环境阻塞；轮次 1 语料阻塞已解除 |
+
+### 结论（轮次 2）
+
+- **总体：Fail**
+- 分项：P0-1 / P1-1 / P1-6 **Pass**；**P1-5 Fail**（DEF-CLI-001）；`mvn test`/`package` **Fail**
+- 缺陷：DEF-CLI-001 open；**不合并**；**禁止**请求合并授权
+- 后续：Developer 修跨文件库隔离 → Reviewer 重新 Approve → QA 追加回归（P1-5 + `mvn test`/`package` + fixtures）

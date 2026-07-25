@@ -22,7 +22,7 @@
 | | parser | 解析 `.test`/`.slt` → 记录模型；错误含文件+行号 | done | full | required | 工作流已关闭（可合入）；合入以 git/PR 为准 | [ggtest-core-parser/](../features/ggtest-core/ggtest-core-parser/) |
 | | normalize | I/T/R 规范化、排序、MD5、hash-threshold | done | full | required | 工作流已关闭（可合入）；合入以 git/PR 为准 | [ggtest-core-normalize/](../features/ggtest-core/ggtest-core-normalize/) |
 | | runner-sqlite | Runner + 执行器抽象 + SQLite JDBC | done | full | required | 工作流已关闭（可合入）；合入以 git/PR 为准 | [ggtest-core-runner-sqlite/](../features/ggtest-core/ggtest-core-runner-sqlite/) |
-| | cli-corpus | CLI、统计、退出码、官方语料硬验收 | blocked | full | required | 提供官方语料路径后恢复 qa 并回归 P0-1/P1-5 | [ggtest-core-cli-corpus/](../features/ggtest-core/ggtest-core-cli-corpus/) |
+| | cli-corpus | CLI、统计、退出码、官方语料硬验收 | developing | full | required | Developer 修复 DEF-CLI-001；随后重新 Review 与 QA | [ggtest-core-cli-corpus/](../features/ggtest-core/ggtest-core-cli-corpus/) |
 
 ## 已归档
 
