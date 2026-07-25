@@ -18,7 +18,7 @@
 | parser | [ggtest-core-parser/spec.md](../features/ggtest-core/ggtest-core-parser/spec.md) | required | approved | required（模块边界、记录模型；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-parser → main（合入以 git 为准） |
 | normalize | [ggtest-core-normalize/spec.md](../features/ggtest-core/ggtest-core-normalize/spec.md) | required | approved | skipped（算法已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-normalize → main（合入以 git 为准） |
 | runner-sqlite | [ggtest-core-runner-sqlite/spec.md](../features/ggtest-core/ggtest-core-runner-sqlite/spec.md) | required | approved | required（执行器抽象、JDBC 分层；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-runner-sqlite → main（合入以 git 为准） |
-| cli-corpus | [ggtest-core-cli-corpus/spec.md](../features/ggtest-core/ggtest-core-cli-corpus/spec.md) | required | approved | skipped（CLI/退出码已在 Spec 写死） | required | qa | 用户合并授权（QA Pass 轮次 3 @ 4b9604f） |
+| cli-corpus | [ggtest-core-cli-corpus/spec.md](../features/ggtest-core/ggtest-core-cli-corpus/spec.md) | required | approved | skipped（CLI/退出码已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-cli-corpus → main（合入以 git 为准） |
 
 依赖：`parser` ∥ `normalize` → `runner-sqlite` → `cli-corpus`。
 
@@ -133,3 +133,4 @@
 - 2026-07-25 **Developer 修复完成（DEF-CLI-001）**：`CliSession` 改为每文件独立 JDBC 连接→run→关闭；新增跨文件 schema 隔离测试。验证：`GGTEST_CORPUS_DIR=… mvn -q clean test` → 111/0（Skipped 1）；`package` SUCCESS；P0-1 exit 0 failed=0；P1-5 批量 exit 0、TOTAL failed=0（passed=5413）。提交 `4b9604f`。`dev-notes.md` 已更新。状态 `developing` → **`reviewing`**。调度 **Reviewer** 重新 Approve。
 - 2026-07-25 **Reviewer Approve（修复轮次）**：`review.md` 追加轮次，结论 Approve；独立 `mvn test` 111/0、`package` SUCCESS；P1-5 批量 exit 0、TOTAL failed=0。状态 `reviewing` → **`qa`**。调度 **QA** 追加回归轮次（P1-5 为主 + fixtures）。**未**请求合并授权。
 - 2026-07-25 **QA Pass（轮次 3，回归）**：`qa-report.md` 结论 Pass；`DEF-CLI-001` 已验证关闭；P0-1/P1-1/P1-5/P1-6 全过；`mvn test` 111/0、`package` SUCCESS；P1-5 批量 exit 0、TOTAL failed=0（passed=5413）。实现 `4b9604f`。状态保持 **`qa`**。到达 **合并/完成授权门禁**；**未**合并、**未**置 `done`。
+- 2026-07-25 **用户授权合并/关闭 cli-corpus（回复「ok 允许合并」）**：Plan approved、Review Approve（修复轮次）、QA Pass（轮次 3）、源分支 `ggtest-core-cli-corpus`、目标分支 `main`（merge-base = main HEAD `5a61e2d`，可 ff）均已核验。Manager：合并授权已持久化；状态 `qa` → **`done`**（源分支）。调度 Merge Executor 将 `ggtest-core-cli-corpus` 合入 `main`（ff-only + push）。工作区 untracked `examples/`（用户演示 demo.slt）**不纳入**本切片提交，保留未提交。四切片均 `done` 后父项达到可关闭条件，但用户未明确要求归档，**不**归档。
