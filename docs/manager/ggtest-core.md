@@ -14,11 +14,11 @@
 
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
-| ggtest-core | [spec.md](../features/ggtest-core/spec.md) | required（总览） | approved（总览化） | skipped（不对总览写 Design/Plan） | N/A（tracking，不调度 Review） | blocked（tracking） | 跟踪子切片；四切片均 done 后关闭父项 |
-| parser | [ggtest-core-parser/spec.md](../features/ggtest-core/ggtest-core-parser/spec.md) | required | approved | required（模块边界、记录模型；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-parser → main（合入以 git 为准） |
-| normalize | [ggtest-core-normalize/spec.md](../features/ggtest-core/ggtest-core-normalize/spec.md) | required | approved | skipped（算法已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-normalize → main（合入以 git 为准） |
-| runner-sqlite | [ggtest-core-runner-sqlite/spec.md](../features/ggtest-core/ggtest-core-runner-sqlite/spec.md) | required | approved | required（执行器抽象、JDBC 分层；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-runner-sqlite → main（合入以 git 为准） |
-| cli-corpus | [ggtest-core-cli-corpus/spec.md](../features/ggtest-core/ggtest-core-cli-corpus/spec.md) | required | approved | skipped（CLI/退出码已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-cli-corpus → main（合入以 git 为准） |
+| ggtest-core | [spec.md](../archive/2026/ggtest-core/spec.md) | required（总览） | approved（总览化） | skipped（不对总览写 Design/Plan） | N/A（tracking，不调度 Review） | done（父项已归档） | 已关闭并归档至 `docs/archive/2026/ggtest-core/`（四切片均 done 且已合入 `main`） |
+| parser | [ggtest-core-parser/spec.md](../archive/2026/ggtest-core/ggtest-core-parser/spec.md) | required | approved | required（模块边界、记录模型；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-parser → main（合入以 git 为准） |
+| normalize | [ggtest-core-normalize/spec.md](../archive/2026/ggtest-core/ggtest-core-normalize/spec.md) | required | approved | skipped（算法已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-normalize → main（合入以 git 为准） |
+| runner-sqlite | [ggtest-core-runner-sqlite/spec.md](../archive/2026/ggtest-core/ggtest-core-runner-sqlite/spec.md) | required | approved | required（执行器抽象、JDBC 分层；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-runner-sqlite → main（合入以 git 为准） |
+| cli-corpus | [ggtest-core-cli-corpus/spec.md](../archive/2026/ggtest-core/ggtest-core-cli-corpus/spec.md) | required | approved | skipped（CLI/退出码已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-cli-corpus → main（合入以 git 为准） |
 
 依赖：`parser` ∥ `normalize` → `runner-sqlite` → `cli-corpus`。
 
@@ -134,3 +134,4 @@
 - 2026-07-25 **Reviewer Approve（修复轮次）**：`review.md` 追加轮次，结论 Approve；独立 `mvn test` 111/0、`package` SUCCESS；P1-5 批量 exit 0、TOTAL failed=0。状态 `reviewing` → **`qa`**。调度 **QA** 追加回归轮次（P1-5 为主 + fixtures）。**未**请求合并授权。
 - 2026-07-25 **QA Pass（轮次 3，回归）**：`qa-report.md` 结论 Pass；`DEF-CLI-001` 已验证关闭；P0-1/P1-1/P1-5/P1-6 全过；`mvn test` 111/0、`package` SUCCESS；P1-5 批量 exit 0、TOTAL failed=0（passed=5413）。实现 `4b9604f`。状态保持 **`qa`**。到达 **合并/完成授权门禁**；**未**合并、**未**置 `done`。
 - 2026-07-25 **用户授权合并/关闭 cli-corpus（回复「ok 允许合并」）**：Plan approved、Review Approve（修复轮次）、QA Pass（轮次 3）、源分支 `ggtest-core-cli-corpus`、目标分支 `main`（merge-base = main HEAD `5a61e2d`，可 ff）均已核验。Manager：合并授权已持久化；状态 `qa` → **`done`**（源分支）。调度 Merge Executor 将 `ggtest-core-cli-corpus` 合入 `main`（ff-only + push）。工作区 untracked `examples/`（用户演示 demo.slt）**不纳入**本切片提交，保留未提交。四切片均 `done` 后父项达到可关闭条件，但用户未明确要求归档，**不**归档。
+- 2026-07-25 **用户授权归档父项（「归档 ggtest-core」）**：核验四切片 `parser`/`normalize`/`runner-sqlite`/`cli-corpus` 均 `done` 且实现均为 `main`（=`origin/main`=`b635c08`）祖先（`eaedcd0`/`07a8e51`/`5cf84fc`/`4b9604f`/`466c6f1` 均在 `main`）。归档执行：① tracking 行 `blocked（tracking）` → **`done`**；② 从 `STATUS.md` 活跃列表移除、归档区登记；③ `git mv docs/features/ggtest-core/` → **`docs/archive/2026/ggtest-core/`**；④ 本记录内失效 `../features/ggtest-core/` 链接改指归档路径。`examples/`（`demo.slt`、`select*.test`）为未跟踪演示/语料，**不纳入**提交、保持原样。在 `main` 提交并推送归档变更。父项工作流关闭。
