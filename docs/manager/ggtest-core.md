@@ -3,7 +3,7 @@
 工作项标识: ggtest-core
 描述: GGTEST——从零到一使用 Java 实现 sqllogictest 格式测试工具。大型 Spec 拆为多子工作项：根目录仅总览 `spec.md`，各切片目录为 `ggtest-core-<sub>/`；调度主键为 `(ggtest-core, sub-feature-id)`。
 路径等级: full
-源分支: ggtest-core-parser（parser 切片工作分支；后续切片各自独立分支）
+源分支: ggtest-core-normalize（normalize 切片工作分支；parser 切片为 ggtest-core-parser）
 目标分支: main
 文档影响: docs/features/ggtest-core/（总览 + 四子工作项目录）；实现阶段更新项目 README
 
@@ -16,7 +16,7 @@
 |---|---|---|---|---|---|---|---|
 | ggtest-core | [spec.md](../features/ggtest-core/spec.md) | required（总览） | approved（总览化） | skipped（不对总览写 Design/Plan） | N/A（tracking，不调度 Review） | blocked（tracking） | 跟踪子切片；四切片均 done 后关闭父项 |
 | parser | [ggtest-core-parser/spec.md](../features/ggtest-core/ggtest-core-parser/spec.md) | required | approved | required（模块边界、记录模型；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-parser → main（合入以 git 为准） |
-| normalize | [ggtest-core-normalize/spec.md](../features/ggtest-core/ggtest-core-normalize/spec.md) | required | required | skipped（算法已在 Spec 写死） | required | awaiting-spec-approval | 确认 Spec → Plan |
+| normalize | [ggtest-core-normalize/spec.md](../features/ggtest-core/ggtest-core-normalize/spec.md) | required | approved | skipped（算法已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-normalize → main（合入以 git 为准） |
 | runner-sqlite | [ggtest-core-runner-sqlite/spec.md](../features/ggtest-core/ggtest-core-runner-sqlite/spec.md) | required | required | required（执行器抽象、JDBC 分层） | required | awaiting-spec-approval | 确认 Spec；上游就绪后再 Design |
 | cli-corpus | [ggtest-core-cli-corpus/spec.md](../features/ggtest-core/ggtest-core-cli-corpus/spec.md) | required | required | skipped（CLI/退出码已在 Spec 写死） | required | awaiting-spec-approval | 确认 Spec；最后集成 |
 
@@ -86,3 +86,14 @@
 - 2026-07-24 **纠正：本仓库为 Git；实现须独立工作分支**。规范已强化（`docs/standards/git.md`、Developer/Manager agent、README Merge 门禁）。工作项源分支改为 `ggtest-core-parser`、目标分支 `main`；检出工作分支承接未提交的 parser 实现；状态曾为 **`awaiting-merge`**。后续切片实施前须先建 `<feature-id>-<sub-feature-id>` 分支。
 - 2026-07-24 **流程修订：`done` = 待合入即可关闭工作流**（QA Pass + 合并授权；不等合入完成；废弃 `awaiting-merge`）。合入可在 GitHub/本地执行，合入后不再为 STATUS 单独提交。本切片状态 → **`done`**。
 - 2026-07-24 **文档结构再修正**：多子工作项改为「根目录仅总览 `spec.md` + 每切片一目录 `<feature-id>-<sub>/`（标准文件名）」；单工作项仍平铺在 feature 根下、无子目录。已迁移 `normalize` / `runner-sqlite` / `cli-corpus` Spec，并将 parser 目录内 `*-parser.md` 重命名为 `spec.md` / `design.md` / `plan.md`。工作流 README、agents、skills、standards 已同步。
+- 2026-07-24 **推进切片 `normalize`**：核验 `ggtest-core-normalize/spec.md` 已就绪（I/T/R、nosort/rowsort/valuesort、MD5 逐字节兼容、hash-threshold 默认 8；验收 P0-2/P0-4/P0-5、P1-3；待确认仅「整体 Spec」）。门禁：Spec=required、Design=skipped（算法已在 Spec 写死）、Review=required；Spec 用户确认仍为 **required**（未 approved）。状态维持 **`awaiting-spec-approval`**，到达 **Spec 用户确认门禁**，单步编排停止；**未**调度 Planner。
+- 2026-07-24 **用户确认 normalize Spec（回复「ok」，批准、无修改）**。Manager：`normalize` 的 Spec 用户确认 → **`approved`**；Design 门禁 skipped → 状态 `awaiting-spec-approval` → **`planning`**。调度 **Planner** 编写 `ggtest-core-normalize/plan.md`（**不写** Design）。
+- 2026-07-24 **Planner 完成 Plan**：产出 `ggtest-core-normalize/plan.md`（T1 I/T/R → T2 排序 → T3 MD5 → T4 比对入口 → T5 验收 fixtures → T6 文档；包 `com.ggtest.normalize`；验证 `mvn -q clean test`；最低验证层 L2；Review required；Design skipped，未建 design.md）。Manager：`planning` → **`awaiting-plan-approval`**。到达 **Plan 用户确认门禁**，单步编排停止；**未**调度 Developer。
+- 2026-07-24 **用户确认 normalize Plan（`/manager plan ok`，批准、无修改）**。Manager：Plan 用户确认 → **approved**；源分支记录为 **`ggtest-core-normalize`**、目标分支 **`main`**；状态 `awaiting-plan-approval` → **`planned`** → **`developing`**。调度 **Developer** 按已确认 Plan TDD 实施（检出 `ggtest-core-normalize`，`mvn -q clean test`，L2），产出代码/测试与 `dev-notes.md`。
+- 2026-07-24 **运维交接约定（本会话，不改 Spec/Plan）**：网络访问失败时允许使用 HTTP(S) 代理 `127.0.0.1:7890`；多次尝试仍未成功则停止，不得无限重试。供 Developer/工具使用。
+- 2026-07-24 **再次调度 Developer（上次调度中断；实现尚未产出）**：确认已在源分支 `ggtest-core-normalize`；Plan approved；传入代理约定后重新调度实施。
+- 2026-07-24 **Developer 完成**：T1–T6 已交付（`com.ggtest.normalize`：ValueNormalizer、ResultSorter、ResultHasher、ResultComparer；fixtures；README；`dev-notes.md`）。验证：`mvn -q clean test` → BUILD SUCCESS，Tests run: 36, Failures: 0（normalize 26 + parser 10）。提交 `07a8e51`，分支 `ggtest-core-normalize`。状态 `developing` → **`reviewing`**。调度 **Reviewer**。
+- 2026-07-24 **Reviewer Approve**：`review.md` 结论 Approve，无阻塞项；独立 `mvn clean test`（JDK 17）36/36 Pass。状态 `reviewing` → **`qa`**。单步编排停止；**未**调度 QA（完整流程未授权）。
+- 2026-07-25 **调度 QA**：核验状态 `qa`、Review Approve、Plan/Spec 已确认、源分支 `ggtest-core-normalize` → `main`。传入验证命令与代理约定后调度 QA 验收。
+- 2026-07-25 **QA Pass（轮次 1）**：`qa-report.md` 结论 Pass；独立 `mvn clean test`（JDK 17）36/36；P0-2/P0-4/P0-5/P1-3 全过；缺陷 none。实现 `07a8e51`。状态保持 **`qa`**。到达 **合并/完成授权门禁**；**未**合并、**未**置 `done`。
+- 2026-07-25 **用户授权合并/关闭 normalize（回复「ok」）**：Plan approved、Review Approve、QA Pass、源分支 `ggtest-core-normalize`、目标分支 `main` 均已核验。Manager：合并授权已持久化；状态 `qa` → **`done`**（源分支）。调度 Merge Executor 将 `ggtest-core-normalize` 合入 `main`。**未**归档父项 `ggtest-core`（runner-sqlite、cli-corpus 未 done）。
