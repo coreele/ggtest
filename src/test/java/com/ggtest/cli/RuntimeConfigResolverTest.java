@@ -178,9 +178,49 @@ class RuntimeConfigResolverTest {
                 Optional.of("super-secret-credential"),
                 "sqlite",
                 8,
+                ColorMode.AUTO,
                 java.util.List.of("a.test"));
         assertFalse(options.toString().contains("super-secret-credential"));
         assertTrue(options.toString().contains("***"));
+    }
+
+    @Test
+    void colorDefaultsToAuto() {
+        CliOptions options = resolve(
+                parsed("--url", "jdbc:sqlite::memory:", "a.test"), key -> null);
+        assertEquals(ColorMode.AUTO, options.colorMode());
+    }
+
+    @Test
+    void colorCliBeatsPropertyAndEnv() {
+        Map<String, String> env = Map.of(RuntimeConfigResolver.COLOR_ENV, "never");
+        CliOptions options = RuntimeConfigResolver.resolve(
+                parsed("--url", "jdbc:sqlite::memory:", "--color", "always", "a.test"),
+                env::get,
+                tempDir,
+                key -> RuntimeConfigResolver.COLOR_PROPERTY.equals(key) ? "never" : null);
+        assertEquals(ColorMode.ALWAYS, options.colorMode());
+    }
+
+    @Test
+    void colorPropertyBeatsEnvWhenCliAbsent() {
+        Map<String, String> env = Map.of(RuntimeConfigResolver.COLOR_ENV, "always");
+        CliOptions options = RuntimeConfigResolver.resolve(
+                parsed("--url", "jdbc:sqlite::memory:", "a.test"),
+                env::get,
+                tempDir,
+                key -> RuntimeConfigResolver.COLOR_PROPERTY.equals(key) ? "never" : null);
+        assertEquals(ColorMode.NEVER, options.colorMode());
+    }
+
+    @Test
+    void invalidColorYieldsUsageError() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> resolve(
+                        parsed("--url", "jdbc:sqlite::memory:", "--color", "rainbow", "a.test"),
+                        key -> null));
+        assertTrue(ex.getMessage().toLowerCase().contains("color"));
     }
 
     private void writeEnv(String content) throws IOException {

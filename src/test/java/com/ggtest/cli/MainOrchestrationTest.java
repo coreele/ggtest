@@ -33,13 +33,11 @@ class MainOrchestrationTest {
 
         assertEquals(0, capture.exitCode());
         assertTrue(capture.stdout().contains("pass.test"));
-        assertTrue(capture.stdout().toLowerCase().contains("passed")
-                || capture.stdout().contains("pass"));
-        assertTrue(capture.stdout().toLowerCase().contains("total")
-                || capture.stdout().contains("TOTAL"));
-        assertFalse(capture.stdout().toLowerCase().contains("failed=0")
-                && capture.stdout().matches("(?s).*failed[^0-9]*[1-9].*"));
+        assertTrue(capture.stdout().contains("[PASSED]"));
+        assertTrue(capture.stdout().contains("TOTAL:"));
         assertEquals(0, countFailures(capture.stdout()));
+        assertEquals(1, extractPassed(capture.stdout()));
+        assertFalse(capture.stdout().contains("FILE:"));
     }
 
     @Test
@@ -51,12 +49,13 @@ class MainOrchestrationTest {
         assertEquals(1, capture.exitCode());
         String out = capture.stdout();
         assertTrue(out.contains("fail.test"));
-        assertTrue(out.matches("(?s).*\\b[1-9][0-9]*\\b.*") || out.contains("line"));
-        assertTrue(out.toLowerCase().contains("select") || out.contains("SELECT"));
-        assertTrue(out.toLowerCase().contains("mismatch")
-                || out.toLowerCase().contains("expected")
-                || out.toLowerCase().contains("fail"));
+        assertTrue(out.contains("[FAILED]"));
+        assertTrue(out.contains("[WHY]"));
+        assertTrue(out.contains("[SQL]"));
+        assertTrue(out.contains("at ") && out.contains("fail.test:"));
         assertTrue(countFailures(out) >= 1);
+        assertFalse(out.contains("reason="));
+        assertFalse(out.contains(" after "));
     }
 
     @Test
@@ -69,7 +68,9 @@ class MainOrchestrationTest {
         assertEquals(2, capture.exitCode());
         assertTrue(capture.stdout().contains("bad-parse.test") || capture.stderr().contains("bad-parse.test"));
         assertTrue(capture.stdout().contains("pass.test"));
-        assertTrue(countFailures(capture.stdout()) == 0 || capture.stdout().contains("passed"));
+        assertTrue(capture.stdout().contains("[FAILED]"));
+        assertTrue(capture.stdout().contains("[PASSED]"));
+        assertEquals(1, countFailures(capture.stdout()));
     }
 
     @Test
@@ -77,7 +78,10 @@ class MainOrchestrationTest {
         Capture capture = run(fixture("pass.test").toString());
 
         assertEquals(2, capture.exitCode());
-        assertTrue(capture.stderr().toLowerCase().contains("url"));
+        assertTrue(capture.stderr().toLowerCase().contains("url")
+                || capture.stderr().contains("[WHY]"));
+        assertFalse(capture.stdout().contains("[PASSED]"));
+        assertFalse(capture.stdout().contains("TOTAL:"));
     }
 
     @Test

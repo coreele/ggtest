@@ -32,7 +32,7 @@ class ResultComparerTest {
     }
 
     @Test
-    void failureDiffSummaryIsNonEmpty() {
+    void failureDiffSummaryIsNonEmptyGitStyle() {
         var result = ResultComparer.compare(
                 List.of(ColumnType.INTEGER),
                 SortMode.NOSORT,
@@ -40,7 +40,24 @@ class ResultComparerTest {
                 List.of(List.of("2")));
         assertFalse(result.passed());
         assertFalse(result.diffSummary().isBlank());
-        assertTrue(result.diffSummary().contains("expected"));
-        assertTrue(result.diffSummary().contains("actual"));
+        assertTrue(result.diffSummary().contains("-   1"));
+        assertTrue(result.diffSummary().contains("+   2"));
+        assertFalse(result.diffSummary().contains("expected ("));
+        assertFalse(result.diffSummary().contains("actual ("));
+    }
+
+    @Test
+    void gitDiffKeepsUnchangedContextLines() {
+        var result = ResultComparer.compare(
+                List.of(ColumnType.TEXT),
+                SortMode.NOSORT,
+                "apple\nbananad\ncherry\n",
+                List.of(List.of("apple"), List.of("banana"), List.of("cherry")));
+        assertFalse(result.passed());
+        String diff = result.diffSummary();
+        assertTrue(diff.contains("    apple"));
+        assertTrue(diff.contains("-   bananad"));
+        assertTrue(diff.contains("+   banana"));
+        assertTrue(diff.contains("    cherry"));
     }
 }

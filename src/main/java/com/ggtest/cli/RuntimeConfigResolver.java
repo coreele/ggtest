@@ -12,29 +12,52 @@ import java.util.function.Function;
  * Merges CLI argv, process environment, and optional {@code .env} into
  * {@link CliOptions}, then validates engine allow-list and engine↔URL pairing.
  *
- * <p>Field-level priority: CLI &gt; process environment &gt; {@code .env}.
+ * <p>Field-level priority for connection fields: CLI &gt; process environment &gt;
+ * {@code .env}.
+ *
+ * <p>Color priority (Q-R4): explicit CLI {@code --color} &gt; system property
+ * {@value #COLOR_PROPERTY} &gt; env {@value #COLOR_ENV} &gt; default {@code auto}.
  */
 public final class RuntimeConfigResolver {
 
     public static final String ENGINE_SQLITE = "sqlite";
     public static final String ENGINE_POSTGRES = "postgres";
 
+    /** System property key for report color ({@code -Dggtest.color=…}). */
+    public static final String COLOR_PROPERTY = "ggtest.color";
+
+    /** Process environment key for report color. */
+    public static final String COLOR_ENV = "GGTEST_COLOR";
+
     private RuntimeConfigResolver() {}
 
     /**
-     * Resolves final options from parsed argv.
-     *
-     * @param parsed argv-only parse result
-     * @param envLookup process environment reader (whitelist keys only)
-     * @param workingDirectory directory used for the default {@code .env} path
+     * Resolves final options from parsed argv using {@link System#getProperty(String)}.
      */
     public static CliOptions resolve(
             ParsedArguments parsed,
             Function<String, String> envLookup,
             Path workingDirectory) {
+        return resolve(parsed, envLookup, workingDirectory, System::getProperty);
+    }
+
+    /**
+     * Resolves final options from parsed argv.
+     *
+     * @param parsed argv-only parse result
+     * @param envLookup process environment reader (whitelist keys + {@link #COLOR_ENV})
+     * @param workingDirectory directory used for the default {@code .env} path
+     * @param propertyLookup system property reader (uses {@link #COLOR_PROPERTY})
+     */
+    public static CliOptions resolve(
+            ParsedArguments parsed,
+            Function<String, String> envLookup,
+            Path workingDirectory,
+            Function<String, String> propertyLookup) {
         Objects.requireNonNull(parsed, "parsed");
         Objects.requireNonNull(envLookup, "envLookup");
         Objects.requireNonNull(workingDirectory, "workingDirectory");
+        Objects.requireNonNull(propertyLookup, "propertyLookup");
 
         Map<String, String> fileValues = loadDotEnv(parsed, workingDirectory);
         Map<String, String> envValues = readProcessEnv(envLookup);
@@ -63,6 +86,7 @@ public final class RuntimeConfigResolver {
         String engine = normalizeEngine(engineRaw == null ? CliArgumentParser.DEFAULT_ENGINE : engineRaw);
 
         int hashThreshold = resolveHashThreshold(parsed, envValues, fileValues);
+        ColorMode colorMode = resolveColorMode(parsed, envLookup, propertyLookup);
 
         if (parsed.inputs().isEmpty()) {
             throw new UsageException("at least one file or directory path is required");
@@ -70,7 +94,33 @@ public final class RuntimeConfigResolver {
 
         validateEngineUrlPair(engine, url);
 
-        return new CliOptions(url, user, password, engine, hashThreshold, parsed.inputs());
+        return new CliOptions(url, user, password, engine, hashThreshold, colorMode, parsed.inputs());
+    }
+
+    static ColorMode resolveColorMode(
+            ParsedArguments parsed,
+            Function<String, String> envLookup,
+            Function<String, String> propertyLookup) {
+        if (parsed.color().isPresent()) {
+            return parsed.color().orElseThrow();
+        }
+        String fromProperty = propertyLookup.apply(COLOR_PROPERTY);
+        if (fromProperty != null && !fromProperty.isBlank()) {
+            return ColorMode.parse(fromProperty, "-D" + COLOR_PROPERTY);
+        }
+        String fromEnv = envLookup.apply(COLOR_ENV);
+        if (fromEnv != null && !fromEnv.isBlank()) {
+            return ColorMode.parse(fromEnv, COLOR_ENV);
+        }
+        return ColorMode.AUTO;
+    }
+
+    static boolean resolveAnsiEnabled(ColorMode mode, boolean tty) {
+        return switch (mode) {
+            case ALWAYS -> true;
+            case NEVER -> false;
+            case AUTO -> tty;
+        };
     }
 
     private static Map<String, String> loadDotEnv(ParsedArguments parsed, Path workingDirectory) {

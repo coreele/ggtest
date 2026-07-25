@@ -15,6 +15,7 @@ public record ParsedArguments(
         Optional<String> engine,
         Optional<Integer> hashThreshold,
         Optional<String> envFile,
+        Optional<ColorMode> color,
         List<String> inputs) {
 
     public ParsedArguments {
@@ -24,6 +25,7 @@ public record ParsedArguments(
         engine = engine == null ? Optional.empty() : engine;
         hashThreshold = hashThreshold == null ? Optional.empty() : hashThreshold;
         envFile = envFile == null ? Optional.empty() : envFile;
+        color = color == null ? Optional.empty() : color;
         inputs = List.copyOf(Objects.requireNonNull(inputs, "inputs"));
     }
 }

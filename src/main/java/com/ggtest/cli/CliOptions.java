@@ -12,6 +12,7 @@ import java.util.Optional;
  * @param password      optional database password (never written to reports)
  * @param engine        target engine name for skipif/onlyif (default {@code sqlite})
  * @param hashThreshold initial hash-threshold for each file run (default 8)
+ * @param colorMode     report color mode ({@code auto}/{@code always}/{@code never})
  * @param inputs        positional file or directory paths (at least one)
  */
 public record CliOptions(
@@ -20,6 +21,7 @@ public record CliOptions(
         Optional<String> password,
         String engine,
         int hashThreshold,
+        ColorMode colorMode,
         List<String> inputs) {
 
     public CliOptions {
@@ -27,6 +29,7 @@ public record CliOptions(
         user = user == null ? Optional.empty() : user;
         password = password == null ? Optional.empty() : password;
         Objects.requireNonNull(engine, "engine");
+        Objects.requireNonNull(colorMode, "colorMode");
         inputs = List.copyOf(Objects.requireNonNull(inputs, "inputs"));
     }
 
@@ -43,6 +46,8 @@ public record CliOptions(
                 + engine
                 + ", hashThreshold="
                 + hashThreshold
+                + ", colorMode="
+                + colorMode
                 + ", inputs="
                 + inputs
                 + "]";

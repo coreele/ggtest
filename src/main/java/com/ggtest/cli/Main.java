@@ -10,10 +10,13 @@ import java.util.function.Function;
  *
  * <p>Parses arguments, merges optional {@code .env} / process environment,
  * collects {@code *.test}/{@code *.slt} inputs, runs them through the parser →
- * JDBC executor → record runner pipeline, prints a plain-text report, and
+ * JDBC executor → record runner pipeline, prints a human-readable report, and
  * returns exit code 0 (all passed), 1 (assertion failures), or 2 (usage /
  * parse / connection / fatal errors). Credentials are never written to the
  * report.
+ *
+ * <p>Report color: {@code --color} &gt; {@code -Dggtest.color} &gt;
+ * {@code GGTEST_COLOR} &gt; default {@code auto} (TTY only).
  */
 public final class Main {
 
@@ -43,7 +46,7 @@ public final class Main {
      * @return exit code 0, 1, or 2
      */
     public static int run(String[] args, PrintStream out, PrintStream err) {
-        return run(args, out, err, System::getenv, Path.of("").toAbsolutePath());
+        return run(args, out, err, System::getenv, Path.of("").toAbsolutePath(), System::getProperty);
     }
 
     /**
@@ -65,14 +68,38 @@ public final class Main {
             PrintStream err,
             Function<String, String> envLookup,
             Path workingDirectory) {
+        return run(args, out, err, envLookup, workingDirectory, System::getProperty);
+    }
+
+    /**
+     * Fully injectable entry for color priority tests ({@code GGTEST_COLOR} /
+     * {@code ggtest.color}).
+     *
+     * @param propertyLookup system property reader (key {@link RuntimeConfigResolver#COLOR_PROPERTY})
+     */
+    public static int run(
+            String[] args,
+            PrintStream out,
+            PrintStream err,
+            Function<String, String> envLookup,
+            Path workingDirectory,
+            Function<String, String> propertyLookup) {
         try {
             ParsedArguments parsed = CliArgumentParser.parse(args);
-            CliOptions options = RuntimeConfigResolver.resolve(parsed, envLookup, workingDirectory);
+            CliOptions options = RuntimeConfigResolver.resolve(parsed, envLookup, workingDirectory, propertyLookup);
+            boolean ansi = RuntimeConfigResolver.resolveAnsiEnabled(
+                    options.colorMode(), System.console() != null);
             List<Path> files = TestFileCollector.collect(options.inputs());
-            return new CliSession(options, out, err).execute(files);
+            return new CliSession(options, out, err, ansi).execute(files);
         } catch (UsageException ex) {
-            err.println(ex.getMessage());
+            printUsageError(err, ex.getMessage());
             return 2;
         }
+    }
+
+    /** Multi-line usage/config hard-error style (no success TOTAL). */
+    static void printUsageError(PrintStream err, String message) {
+        err.println("Error: usage");
+        err.println("    [WHY] " + (message == null ? "" : message.strip()));
     }
 }

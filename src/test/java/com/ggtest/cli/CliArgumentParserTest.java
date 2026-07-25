@@ -24,7 +24,18 @@ class CliArgumentParserTest {
         assertTrue(parsed.engine().isEmpty());
         assertTrue(parsed.hashThreshold().isEmpty());
         assertTrue(parsed.envFile().isEmpty());
+        assertTrue(parsed.color().isEmpty());
         assertEquals(List.of("a.test", "dir/"), parsed.inputs());
+    }
+
+    @Test
+    void parsesColorFlag() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {
+            "--url", "jdbc:sqlite::memory:",
+            "--color", "never",
+            "a.test"
+        });
+        assertEquals(Optional.of(ColorMode.NEVER), parsed.color());
     }
 
     @Test

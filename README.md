@@ -40,7 +40,7 @@ java -jar target/ggtest-0.1.0-SNAPSHOT.jar --url jdbc:sqlite::memory: path/to/fi
 ```text
 ggtest [--url <jdbc-url>] [--user <user>] [--password <password>]
        [--engine <name>=sqlite] [--hash-threshold <N>]
-       [--env-file <path>]
+       [--env-file <path>] [--color <auto|always|never>]
        <file-or-dir> [<file-or-dir> ...]
 ```
 
@@ -51,6 +51,7 @@ ggtest [--url <jdbc-url>] [--user <user>] [--password <password>]
 | `--engine` | `sqlite` | `sqlite` or `postgres` (case-insensitive); must match the URL scheme |
 | `--hash-threshold` | `8` | Initial hash threshold per file; file-level `hash-threshold` still applies |
 | `--env-file` | (CWD `.env`) | When set, **replaces** the default CWD `.env` (does not layer both) |
+| `--color` | `auto` | `auto` (TTY only), `always`, or `never`; see color priority below |
 
 Positional arguments: at least one file or directory.
 
@@ -71,7 +72,11 @@ Runtime keys (whitelist): `GGTEST_URL`, `GGTEST_USER`, `GGTEST_PASSWORD`,
 | Concern | Variables |
 |---|---|
 | Runtime config | `GGTEST_URL`, `GGTEST_USER`, `GGTEST_PASSWORD`, `GGTEST_ENGINE`, `GGTEST_HASH_THRESHOLD` |
+| Report color | `GGTEST_COLOR` (`auto` \| `always` \| `never`); also `-Dggtest.color=…` |
 | Test gate (CI / local PG) | `GGTEST_PG_URL`, `GGTEST_PG_USER`, `GGTEST_PG_PASSWORD` |
+
+**Color priority:** explicit `--color` > system property `ggtest.color` > env `GGTEST_COLOR` > default `auto`.
+CI / pipes typically use `--color never`, `-Dggtest.color=never`, or rely on non-TTY `auto`.
 
 ### Engines and isolation
 
@@ -93,12 +98,68 @@ Official sqllogictest corpora on PostgreSQL are **not** a hard acceptance criter
 | `1` | At least one assertion failure |
 | `2` | Usage / config / parse / connection / fatal error |
 
+Exit codes are independent of file-level `TOTAL` counts: a hard-error file increments
+`TOTAL.failed` but still yields exit code `2`.
+
 ### Report
 
-Stdout is plain text: per-file `passed` / `failed` / `skipped`, a `TOTAL` line,
-and `FAILURE` lines with file, line, SQL first-line summary, and reason. Parse
-and connection problems are reported as `ERROR` (exit code 2); remaining files
-still run after a parse error. Passwords are never printed.
+Stdout is a human-readable per-file report (paths relative to the process CWD).
+Counts in `TOTAL:` are **file counts** (not query counts).
+
+**Success:**
+
+```text
+examples/demo.slt                                            .. [PASSED] in 5 ms
+examples/demo2.slt                                           .. [PASSED] in 6 ms
+
+TOTAL: passed=2 failed=0 skipped=0
+```
+
+**Failure** (inline `[WHY]` / `[SQL]` / `[Diff]` git-style + `at file:line`; then
+`Error:` listing **only failed** files):
+
+```text
+examples/demo.slt                                            .. [FAILED] in 18 ms
+    [WHY] query result mismatch:
+    [SQL] SELECT name ...
+    [Diff] (-expected|+actual)
+        apple
+    -   bananad
+    +   banana
+        cherry
+    at examples/demo.slt:22
+
+Error: some test case failed:
+[
+    "examples/demo.slt",
+]
+
+TOTAL: passed=0 failed=1 skipped=0
+```
+
+**Mixed** (discovery/parameter order; failure details inline; no extra blank blocks
+between success/skip lines; `Error:` only failed paths):
+
+```text
+examples/demo.slt                                            .. [FAILED] in 18 ms
+    [WHY] query result mismatch:
+    ...
+    at examples/demo.slt:22
+
+examples/demo2.slt                                           .. [PASSED] in 6 ms
+examples/select1.test                                        .. [PASSED] in 142 ms
+
+Error: some test case failed:
+[
+    "examples/demo.slt",
+]
+
+TOTAL: passed=2 failed=1 skipped=0
+```
+
+Skipped files print `.. [SKIPPED]` **without** timing. Hard errors use the same
+visual system, count toward `TOTAL.failed`, and keep exit code `2`. Passwords are
+never printed.
 
 ### Official corpus (user-supplied)
 

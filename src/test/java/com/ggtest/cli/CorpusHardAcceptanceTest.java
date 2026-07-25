@@ -1,6 +1,7 @@
 package com.ggtest.cli;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -55,6 +56,9 @@ class CorpusHardAcceptanceTest {
         assertEquals(0, capture.exitCode());
         assertEquals(0, totalFailed(capture.stdout()));
         assertTrue(capture.stdout().contains("TOTAL:"));
+        assertTrue(capture.stdout().contains("[PASSED]"));
+        assertFalse(capture.stdout().contains("FILE:"));
+        assertFalse(capture.stdout().contains("PASS in"));
     }
 
     @Test
@@ -79,6 +83,17 @@ class CorpusHardAcceptanceTest {
         assertTrue(capture.stdout().contains("select2.test"));
         assertTrue(capture.stdout().contains("select3.test"));
         assertTrue(capture.stdout().contains("TOTAL:"));
+        assertTrue(capture.stdout().contains("[PASSED]"));
+        assertFalse(capture.stdout().contains("FILE:"));
+        // File-level TOTAL: three input files → passed=3 when all succeed
+        assertEquals(3, totalPassed(capture.stdout()));
+    }
+
+    private static int totalPassed(String stdout) {
+        Pattern pattern = Pattern.compile("TOTAL:.*passed=(\\d+)", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(stdout);
+        assertTrue(matcher.find(), "TOTAL passed= count missing in:\n" + stdout);
+        return Integer.parseInt(matcher.group(1));
     }
 
     private Capture run(String... args) {

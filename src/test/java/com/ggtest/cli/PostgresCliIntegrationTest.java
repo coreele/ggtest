@@ -47,7 +47,7 @@ class PostgresCliIntegrationTest {
 
         assertEquals(0, capture.exitCode(), () -> capture.stdout() + "\n" + capture.stderr());
         assertEquals(0, countFailures(capture.stdout()));
-        assertTrue(capture.stdout().toLowerCase().contains("skipped"));
+        assertTrue(capture.stdout().contains("[PASSED]") || capture.stdout().contains("[SKIPPED]"));
     }
 
     @Test

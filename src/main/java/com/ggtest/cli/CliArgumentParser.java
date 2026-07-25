@@ -10,6 +10,10 @@ import java.util.Optional;
  * <p>Does not open connections, read {@code .env}, or read the process
  * environment. Usage errors raise {@link UsageException}; callers map those to
  * exit code 2. Merging and validation happen in {@link RuntimeConfigResolver}.
+ *
+ * <p>Color: {@code --color <auto|always|never>} (default resolved later as
+ * {@code auto}). Priority over system property {@code ggtest.color} and env
+ * {@code GGTEST_COLOR} is applied in {@link RuntimeConfigResolver}.
  */
 public final class CliArgumentParser {
 
@@ -34,6 +38,7 @@ public final class CliArgumentParser {
         Optional<String> engine = Optional.empty();
         Optional<Integer> hashThreshold = Optional.empty();
         Optional<String> envFile = Optional.empty();
+        Optional<ColorMode> color = Optional.empty();
         List<String> inputs = new ArrayList<>();
 
         for (int i = 0; i < args.length; i++) {
@@ -47,6 +52,7 @@ public final class CliArgumentParser {
                     case "--hash-threshold" ->
                         hashThreshold = Optional.of(parseHashThreshold(requireValue(args, ++i, "--hash-threshold")));
                     case "--env-file" -> envFile = Optional.of(requireValue(args, ++i, "--env-file"));
+                    case "--color" -> color = Optional.of(ColorMode.parse(requireValue(args, ++i, "--color"), "--color"));
                     default -> throw new UsageException("unknown option: " + arg);
                 }
             } else {
@@ -54,7 +60,7 @@ public final class CliArgumentParser {
             }
         }
 
-        return new ParsedArguments(url, user, password, engine, hashThreshold, envFile, inputs);
+        return new ParsedArguments(url, user, password, engine, hashThreshold, envFile, color, inputs);
     }
 
     private static String requireValue(String[] args, int index, String option) {

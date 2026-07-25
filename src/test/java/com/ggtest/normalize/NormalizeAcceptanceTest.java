@@ -83,8 +83,7 @@ class NormalizeAcceptanceTest {
         var nosort = ResultComparer.compare(types, SortMode.NOSORT, expected, actual);
         assertFalse(nosort.passed());
         assertFalse(nosort.diffSummary().isBlank());
-        assertTrue(nosort.diffSummary().contains("expected"));
-        assertTrue(nosort.diffSummary().contains("actual"));
+        assertTrue(nosort.diffSummary().contains("-   ") || nosort.diffSummary().contains("+   "));
     }
 
     @Test

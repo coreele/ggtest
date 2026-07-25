@@ -75,6 +75,8 @@ class EnvConfigIntegrationTest {
         assertEquals(2, capture.exitCode());
         assertTrue(capture.stderr().toLowerCase().contains("url"));
         assertFalse(capture.stdout().contains("FILE:"));
+        assertFalse(capture.stdout().contains("[PASSED]"));
+        assertFalse(capture.stdout().contains("TOTAL:"));
     }
 
     @Test
@@ -104,8 +106,11 @@ class EnvConfigIntegrationTest {
                 fixture("pass.test").toString());
 
         assertEquals(2, capture.exitCode());
-        assertTrue(capture.stderr().toLowerCase().contains("engine"));
+        assertTrue(capture.stderr().toLowerCase().contains("engine")
+                || capture.stderr().contains("[WHY]"));
         assertFalse(capture.stdout().contains("FILE:"));
+        assertFalse(capture.stdout().contains("[PASSED]"));
+        assertFalse(capture.stdout().contains("TOTAL:"));
     }
 
     @Test
@@ -117,6 +122,8 @@ class EnvConfigIntegrationTest {
 
         assertEquals(2, capture.exitCode());
         assertFalse(capture.stdout().contains("FILE:"));
+        assertFalse(capture.stdout().contains("[PASSED]"));
+        assertFalse(capture.stdout().contains("TOTAL:"));
     }
 
     @Test

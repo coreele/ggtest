@@ -26,7 +26,7 @@ public final class ResultComparer {
      * @param passed       whether actual matches expected
      * @param expectedView expected side as compared (full lines or hash form)
      * @param actualView   actual side as compared
-     * @param diffSummary  non-empty when {@code passed} is false; material for failure reports
+     * @param diffSummary  non-empty when {@code passed} is false; git-style material for failure reports
      */
     public record CompareResult(
             boolean passed,
@@ -108,46 +108,67 @@ public final class ResultComparer {
         return lines;
     }
 
-    private static String buildDiffSummary(List<String> expected, List<String> actual) {
+    /**
+     * Git-style line diff: unchanged lines prefixed with four spaces; expected-only
+     * with {@code -   }; actual-only with {@code +   }. Comparison semantics are
+     * unchanged — this only affects presentation.
+     */
+    static String buildDiffSummary(List<String> expected, List<String> actual) {
+        List<DiffOp> ops = diffOps(expected, actual);
         StringBuilder sb = new StringBuilder();
-        sb.append("expected (").append(expected.size()).append(" lines):\n");
-        appendPreview(sb, expected);
-        sb.append("actual (").append(actual.size()).append(" lines):\n");
-        appendPreview(sb, actual);
-        int limit = Math.min(expected.size(), actual.size());
-        for (int i = 0; i < limit; i++) {
-            if (!expected.get(i).equals(actual.get(i))) {
-                sb.append("first difference at line ")
-                        .append(i + 1)
-                        .append(": expected=")
-                        .append(expected.get(i))
-                        .append(" actual=")
-                        .append(actual.get(i))
-                        .append('\n');
-                break;
-            }
-        }
-        if (expected.size() != actual.size()) {
-            boolean commonPrefixEqual = limit == 0
-                    || expected.subList(0, limit).equals(actual.subList(0, limit));
-            if (commonPrefixEqual) {
-                sb.append("length mismatch: expected ")
-                        .append(expected.size())
-                        .append(" vs actual ")
-                        .append(actual.size())
-                        .append('\n');
+        for (DiffOp op : ops) {
+            switch (op.kind()) {
+                case EQUAL -> sb.append("    ").append(op.line()).append('\n');
+                case DELETE -> sb.append("-   ").append(op.line()).append('\n');
+                case INSERT -> sb.append("+   ").append(op.line()).append('\n');
             }
         }
         return sb.toString();
     }
 
-    private static void appendPreview(StringBuilder sb, List<String> lines) {
-        int preview = Math.min(lines.size(), 8);
-        for (int i = 0; i < preview; i++) {
-            sb.append("  ").append(lines.get(i)).append('\n');
+    private static List<DiffOp> diffOps(List<String> expected, List<String> actual) {
+        int n = expected.size();
+        int m = actual.size();
+        int[][] lcs = new int[n + 1][m + 1];
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = m - 1; j >= 0; j--) {
+                if (expected.get(i).equals(actual.get(j))) {
+                    lcs[i][j] = lcs[i + 1][j + 1] + 1;
+                } else {
+                    lcs[i][j] = Math.max(lcs[i + 1][j], lcs[i][j + 1]);
+                }
+            }
         }
-        if (lines.size() > preview) {
-            sb.append("  ... (").append(lines.size() - preview).append(" more)\n");
+        List<DiffOp> ops = new ArrayList<>();
+        int i = 0;
+        int j = 0;
+        while (i < n && j < m) {
+            if (expected.get(i).equals(actual.get(j))) {
+                ops.add(new DiffOp(DiffKind.EQUAL, expected.get(i)));
+                i++;
+                j++;
+            } else if (lcs[i + 1][j] >= lcs[i][j + 1]) {
+                ops.add(new DiffOp(DiffKind.DELETE, expected.get(i)));
+                i++;
+            } else {
+                ops.add(new DiffOp(DiffKind.INSERT, actual.get(j)));
+                j++;
+            }
         }
+        while (i < n) {
+            ops.add(new DiffOp(DiffKind.DELETE, expected.get(i++)));
+        }
+        while (j < m) {
+            ops.add(new DiffOp(DiffKind.INSERT, actual.get(j++)));
+        }
+        return ops;
     }
+
+    private enum DiffKind {
+        EQUAL,
+        DELETE,
+        INSERT
+    }
+
+    private record DiffOp(DiffKind kind, String line) {}
 }

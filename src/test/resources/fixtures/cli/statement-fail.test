@@ -1,0 +1,2 @@
+statement ok
+INSERT INTO definitely_missing_ggtest_table VALUES (1)
