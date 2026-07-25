@@ -16,7 +16,7 @@
 
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
-| ggtest-cli-report | [spec.md](../features/ggtest-cli-report/spec.md) | required（通过；增量已回写） | **approved**（本轮增量用户已拍板） | skipped | required | **done**（用户已授权合入 `main`） | 合入 `main` 后归档 |
+| ggtest-cli-report | [spec.md](../archive/2026/ggtest-cli-report/spec.md) | required（通过；增量已回写） | **approved**（本轮增量用户已拍板） | skipped | required | **done**（已合入 `main`；已归档） | none |
 
 阻塞原因: none
 恢复条件: none
@@ -226,3 +226,4 @@ TOTAL: passed=2 failed=1 skipped=0
 - 2026-07-25 **短审 Approve（轮次 3）**：`review.md` 已追加；阻塞 none。状态 → **`qa`（SQL 省略回归）**。调度 **QA**。
 - 2026-07-25 **QA 回归 Pass（轮次 3）**：`qa-report.md` 已追加；多行 `[SQL] … ...`、单行无省略核对通过；`mvn -q test` / package / jar 冒烟通过。状态回到 **`qa`（Pass；待合并授权）**。**未** commit/merge。
 - 2026-07-25 **用户授权合入**：当前用户会话明确授权将源分支 `ggtest-cli-report` 合入 `main`。合并前置条件核验通过：Plan approved、Review Approve（轮次 3）、QA Pass（轮次 3）、源/目标分支已记录。状态 `qa` → **`done`**。Manager 在源分支执行：① `feat` 提交实现/测试/fixtures/README/spec/plan/dev-notes；② `docs` 一次提交 STATUS/`done`、本台账、`review.md`、`qa-report.md`。**排除**：`.env`（gitignore 覆盖）、`examples/` 未跟踪语料、`.gitignore` 本地工具忽略项改动、architecture-overview 工作项文档（仅 STATUS 登记行随治理文件入库）。随后由 QA 兼任 Merge Executor fast-forward 合入 `main`（不 push 远端），再归档。遗留缺口：TTY 下 `auto` 真机彩色未验证（低风险，见 dev-notes §缺口）。
+- 2026-07-25 **合入并归档**：`main` fast-forward 至 `c67184a`（`529792e` feat + `c67184a` docs/done）。用户明确要求关闭并归档：`docs/features/ggtest-cli-report/` → `docs/archive/2026/ggtest-cli-report/`；STATUS 活跃列表移除本项并记入归档区。工作项关闭。未 push 远端（用户未要求）。
