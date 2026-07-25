@@ -23,9 +23,10 @@ import java.util.Properties;
 /**
  * Runs collected test files against a JDBC database and writes the CLI report.
  *
- * <p>Each file gets a fresh {@link SqlLogicTestRunner} constructed with the CLI
- * {@code --hash-threshold} so per-file hash-threshold / condition / label state
- * never leaks across files. One JDBC connection is shared for the whole session.
+ * <p>Each file gets an independent JDBC connection (opened, used, then closed)
+ * and a fresh {@link SqlLogicTestRunner} constructed with the CLI
+ * {@code --hash-threshold}, so database schema and per-file hash-threshold /
+ * condition / label state never leak across files.
  */
 final class CliSession {
 
@@ -48,20 +49,14 @@ final class CliSession {
         int totalSkipped = 0;
         boolean hardError = false;
 
-        try (Connection connection = openConnection()) {
-            SqliteJdbcExecutor executor = new SqliteJdbcExecutor(connection);
-            SqlLogicTestParser parser = new SqlLogicTestParser();
+        SqlLogicTestParser parser = new SqlLogicTestParser();
 
-            for (Path file : files) {
-                FileOutcome outcome = runOneFile(parser, executor, file);
-                hardError = hardError || outcome.hardError();
-                totalPassed += outcome.passed();
-                totalFailed += outcome.failed();
-                totalSkipped += outcome.skipped();
-            }
-        } catch (SQLException ex) {
-            err.println("connection failed: " + sanitize(ex.getMessage()));
-            return 2;
+        for (Path file : files) {
+            FileOutcome outcome = runOneFile(parser, file);
+            hardError = hardError || outcome.hardError();
+            totalPassed += outcome.passed();
+            totalFailed += outcome.failed();
+            totalSkipped += outcome.skipped();
         }
 
         out.printf("TOTAL: passed=%d failed=%d skipped=%d%n", totalPassed, totalFailed, totalSkipped);
@@ -75,7 +70,7 @@ final class CliSession {
         return 0;
     }
 
-    private FileOutcome runOneFile(SqlLogicTestParser parser, SqliteJdbcExecutor executor, Path file) {
+    private FileOutcome runOneFile(SqlLogicTestParser parser, Path file) {
         String display = file.toString();
         List<SqlTestRecord> records;
         try {
@@ -92,26 +87,33 @@ final class CliSession {
             return FileOutcome.forHardError();
         }
 
-        SqlLogicTestRunner runner = new SqlLogicTestRunner(executor, options.hashThreshold());
-        FileRunResult result = runner.run(records);
+        try (Connection connection = openConnection()) {
+            SqliteJdbcExecutor executor = new SqliteJdbcExecutor(connection);
+            SqlLogicTestRunner runner = new SqlLogicTestRunner(executor, options.hashThreshold());
+            FileRunResult result = runner.run(records);
 
-        out.printf(
-                "FILE: %s passed=%d failed=%d skipped=%d%n",
-                display, result.passedCount(), result.failedCount(), result.skippedCount());
+            out.printf(
+                    "FILE: %s passed=%d failed=%d skipped=%d%n",
+                    display, result.passedCount(), result.failedCount(), result.skippedCount());
 
-        for (RecordResult recordResult : result.recordResults()) {
-            if (recordResult.outcome() == RecordOutcome.FAILED) {
-                printFailure(display, recordResult);
+            for (RecordResult recordResult : result.recordResults()) {
+                if (recordResult.outcome() == RecordOutcome.FAILED) {
+                    printFailure(display, recordResult);
+                }
             }
-        }
 
-        if (result.aborted()) {
-            out.printf("ERROR: file=%s reason=%s%n", display, sanitize(result.abortReason()));
+            if (result.aborted()) {
+                out.printf("ERROR: file=%s reason=%s%n", display, sanitize(result.abortReason()));
+                return new FileOutcome(
+                        result.passedCount(), result.failedCount(), result.skippedCount(), true);
+            }
             return new FileOutcome(
-                    result.passedCount(), result.failedCount(), result.skippedCount(), true);
+                    result.passedCount(), result.failedCount(), result.skippedCount(), false);
+        } catch (SQLException ex) {
+            err.println("connection failed: " + sanitize(ex.getMessage()));
+            out.printf("FILE: %s passed=0 failed=0 skipped=0 (connection error)%n", display);
+            return FileOutcome.forHardError();
         }
-        return new FileOutcome(
-                result.passedCount(), result.failedCount(), result.skippedCount(), false);
     }
 
     private void printFailure(String file, RecordResult recordResult) {

@@ -124,6 +124,25 @@ class MainOrchestrationTest {
         assertEquals(0, countFailures(capture.stdout()));
     }
 
+    /**
+     * DEF-CLI-001 / Plan T3: each file must get an independent JDBC connection
+     * (or equivalent blank DB). Two files that both {@code CREATE TABLE t1} must
+     * both pass when run in one CLI invocation against {@code jdbc:sqlite::memory:}.
+     */
+    @Test
+    void laterFileIsNotPollutedByEarlierDatabaseSchema() {
+        Capture capture = run(
+                "--url", "jdbc:sqlite::memory:",
+                fixture("cross-file/schema-a.test").toString(),
+                fixture("cross-file/schema-b.test").toString());
+
+        assertEquals(0, capture.exitCode(), () -> "stdout:\n" + capture.stdout() + "\nstderr:\n" + capture.stderr());
+        assertEquals(0, countFailures(capture.stdout()));
+        assertTrue(capture.stdout().contains("schema-a.test"));
+        assertTrue(capture.stdout().contains("schema-b.test"));
+        assertFalse(capture.stdout().toLowerCase().contains("already exists"));
+    }
+
     @Test
     void connectionFailureExitsTwo() {
         Capture capture = run(
