@@ -29,7 +29,13 @@ class RunnerDependencyIsolationTest {
         List<String> violations = new ArrayList<>();
         for (Path source : javaSources(MAIN_SOURCES.resolve("runner"))) {
             String body = read(source);
-            for (String forbidden : List.of("com.ggtest.db.sqlite", "java.sql", "org.sqlite", "org.xerial")) {
+            for (String forbidden : List.of(
+                    "com.ggtest.db.sqlite",
+                    "com.ggtest.db.postgres",
+                    "java.sql",
+                    "org.sqlite",
+                    "org.xerial",
+                    "org.postgresql")) {
                 if (body.contains(forbidden)) {
                     violations.add(source + " references " + forbidden);
                 }
@@ -43,11 +49,12 @@ class RunnerDependencyIsolationTest {
     void executorAbstractionStaysFreeOfJdbc() {
         List<String> violations = new ArrayList<>();
         for (Path source : javaSources(MAIN_SOURCES.resolve("db"))) {
-            if (source.getParent().endsWith("sqlite")) {
+            Path parent = source.getParent();
+            if (parent.endsWith("sqlite") || parent.endsWith("postgres")) {
                 continue;
             }
             String body = read(source);
-            for (String forbidden : List.of("java.sql", "org.sqlite", "org.xerial")) {
+            for (String forbidden : List.of("java.sql", "org.sqlite", "org.xerial", "org.postgresql")) {
                 if (body.contains(forbidden)) {
                     violations.add(source + " references " + forbidden);
                 }

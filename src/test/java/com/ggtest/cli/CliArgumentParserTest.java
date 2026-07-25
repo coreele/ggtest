@@ -5,73 +5,54 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class CliArgumentParserTest {
 
     @Test
-    void parsesRequiredUrlAndPositionalInputsWithDefaults() {
-        CliOptions options = CliArgumentParser.parse(new String[] {
+    void parsesRequiredPositionalInputsWithOptionalUrlAndDefaultsAbsent() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {
             "--url", "jdbc:sqlite::memory:",
             "a.test",
             "dir/"
         });
 
-        assertEquals("jdbc:sqlite::memory:", options.url());
-        assertTrue(options.user().isEmpty());
-        assertTrue(options.password().isEmpty());
-        assertEquals("sqlite", options.engine());
-        assertEquals(8, options.hashThreshold());
-        assertEquals(List.of("a.test", "dir/"), options.inputs());
+        assertEquals(Optional.of("jdbc:sqlite::memory:"), parsed.url());
+        assertTrue(parsed.user().isEmpty());
+        assertTrue(parsed.password().isEmpty());
+        assertTrue(parsed.engine().isEmpty());
+        assertTrue(parsed.hashThreshold().isEmpty());
+        assertTrue(parsed.envFile().isEmpty());
+        assertEquals(List.of("a.test", "dir/"), parsed.inputs());
     }
 
     @Test
-    void parsesOptionalUserPasswordEngineAndHashThreshold() {
-        CliOptions options = CliArgumentParser.parse(new String[] {
+    void parsesOptionalUserPasswordEngineHashThresholdAndEnvFile() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {
             "--url", "jdbc:sqlite:file.db",
             "--user", "u",
             "--password", "secret-password",
             "--engine", "sqlite",
             "--hash-threshold", "16",
+            "--env-file", "/tmp/custom.env",
             "one.test"
         });
 
-        assertEquals("jdbc:sqlite:file.db", options.url());
-        assertEquals("u", options.user().orElseThrow());
-        assertEquals("secret-password", options.password().orElseThrow());
-        assertEquals("sqlite", options.engine());
-        assertEquals(16, options.hashThreshold());
-        assertEquals(List.of("one.test"), options.inputs());
+        assertEquals(Optional.of("jdbc:sqlite:file.db"), parsed.url());
+        assertEquals(Optional.of("u"), parsed.user());
+        assertEquals(Optional.of("secret-password"), parsed.password());
+        assertEquals(Optional.of("sqlite"), parsed.engine());
+        assertEquals(Optional.of(16), parsed.hashThreshold());
+        assertEquals(Optional.of("/tmp/custom.env"), parsed.envFile());
+        assertEquals(List.of("one.test"), parsed.inputs());
     }
 
     @Test
-    void missingUrlYieldsUsageError() {
-        UsageException ex = assertThrows(
-                UsageException.class,
-                () -> CliArgumentParser.parse(new String[] {"a.test"}));
-        assertTrue(ex.getMessage().toLowerCase().contains("url"));
-    }
-
-    @Test
-    void missingPositionalInputsYieldsUsageError() {
-        UsageException ex = assertThrows(
-                UsageException.class,
-                () -> CliArgumentParser.parse(new String[] {"--url", "jdbc:sqlite::memory:"}));
-        assertTrue(ex.getMessage().toLowerCase().contains("file")
-                || ex.getMessage().toLowerCase().contains("input")
-                || ex.getMessage().toLowerCase().contains("path"));
-    }
-
-    @Test
-    void unsupportedEngineYieldsUsageError() {
-        UsageException ex = assertThrows(
-                UsageException.class,
-                () -> CliArgumentParser.parse(new String[] {
-                    "--url", "jdbc:sqlite::memory:",
-                    "--engine", "postgres",
-                    "a.test"
-                }));
-        assertTrue(ex.getMessage().toLowerCase().contains("engine"));
+    void missingUrlIsAllowedAtParseTime() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {"a.test"});
+        assertTrue(parsed.url().isEmpty());
+        assertEquals(List.of("a.test"), parsed.inputs());
     }
 
     @Test
@@ -106,7 +87,7 @@ class CliArgumentParserTest {
                 () -> CliArgumentParser.parse(new String[] {
                     "--url", "jdbc:sqlite::memory:",
                     "--password", "super-secret-credential",
-                    "--engine", "postgres",
+                    "--unknown-flag",
                     "a.test"
                 }));
         assertTrue(!ex.getMessage().contains("super-secret-credential"));

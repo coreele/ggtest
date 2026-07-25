@@ -2,14 +2,14 @@ package com.ggtest.cli;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 /**
- * Parses {@code ggtest} command-line arguments into {@link CliOptions}.
+ * Parses {@code ggtest} command-line arguments into {@link ParsedArguments}.
  *
- * <p>Does not open connections or read files. Usage errors raise
- * {@link UsageException}; callers map those to exit code 2.
+ * <p>Does not open connections, read {@code .env}, or read the process
+ * environment. Usage errors raise {@link UsageException}; callers map those to
+ * exit code 2. Merging and validation happen in {@link RuntimeConfigResolver}.
  */
 public final class CliArgumentParser {
 
@@ -20,30 +20,33 @@ public final class CliArgumentParser {
 
     /**
      * @param args raw argv (excluding the program name)
-     * @return validated options
-     * @throws UsageException when required options are missing or values are illegal
+     * @return argv-only parse result (URL may be absent)
+     * @throws UsageException when options are malformed
      */
-    public static CliOptions parse(String[] args) {
+    public static ParsedArguments parse(String[] args) {
         if (args == null) {
             throw new UsageException("missing arguments");
         }
 
-        String url = null;
+        Optional<String> url = Optional.empty();
         Optional<String> user = Optional.empty();
         Optional<String> password = Optional.empty();
-        String engine = DEFAULT_ENGINE;
-        int hashThreshold = DEFAULT_HASH_THRESHOLD;
+        Optional<String> engine = Optional.empty();
+        Optional<Integer> hashThreshold = Optional.empty();
+        Optional<String> envFile = Optional.empty();
         List<String> inputs = new ArrayList<>();
 
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
             if (arg.startsWith("-")) {
                 switch (arg) {
-                    case "--url" -> url = requireValue(args, ++i, "--url");
+                    case "--url" -> url = Optional.of(requireValue(args, ++i, "--url"));
                     case "--user" -> user = Optional.of(requireValue(args, ++i, "--user"));
                     case "--password" -> password = Optional.of(requireValue(args, ++i, "--password"));
-                    case "--engine" -> engine = requireValue(args, ++i, "--engine");
-                    case "--hash-threshold" -> hashThreshold = parseHashThreshold(requireValue(args, ++i, "--hash-threshold"));
+                    case "--engine" -> engine = Optional.of(requireValue(args, ++i, "--engine"));
+                    case "--hash-threshold" ->
+                        hashThreshold = Optional.of(parseHashThreshold(requireValue(args, ++i, "--hash-threshold")));
+                    case "--env-file" -> envFile = Optional.of(requireValue(args, ++i, "--env-file"));
                     default -> throw new UsageException("unknown option: " + arg);
                 }
             } else {
@@ -51,23 +54,7 @@ public final class CliArgumentParser {
             }
         }
 
-        if (url == null || url.isBlank()) {
-            throw new UsageException("missing required option: --url");
-        }
-        if (inputs.isEmpty()) {
-            throw new UsageException("at least one file or directory path is required");
-        }
-        if (!DEFAULT_ENGINE.equalsIgnoreCase(engine)) {
-            throw new UsageException("unsupported --engine value '" + engine + "'; only 'sqlite' is allowed");
-        }
-
-        return new CliOptions(
-                url,
-                user,
-                password,
-                engine.toLowerCase(Locale.ROOT),
-                hashThreshold,
-                inputs);
+        return new ParsedArguments(url, user, password, engine, hashThreshold, envFile, inputs);
     }
 
     private static String requireValue(String[] args, int index, String option) {

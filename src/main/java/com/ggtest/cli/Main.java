@@ -7,11 +7,12 @@ import java.util.List;
 /**
  * Command-line entry point for GGTEST ({@code ggtest}).
  *
- * <p>Parses arguments, collects {@code *.test}/{@code *.slt} inputs, runs them
- * through the parser → SQLite JDBC executor → record runner pipeline, prints a
- * plain-text report, and returns exit code 0 (all passed), 1 (assertion
- * failures), or 2 (usage / parse / connection / fatal errors). Credentials
- * passed via {@code --password} are never written to the report.
+ * <p>Parses arguments, merges optional {@code .env} / process environment,
+ * collects {@code *.test}/{@code *.slt} inputs, runs them through the parser →
+ * JDBC executor → record runner pipeline, prints a plain-text report, and
+ * returns exit code 0 (all passed), 1 (assertion failures), or 2 (usage /
+ * parse / connection / fatal errors). Credentials are never written to the
+ * report.
  */
 public final class Main {
 
@@ -39,7 +40,9 @@ public final class Main {
      */
     public static int run(String[] args, PrintStream out, PrintStream err) {
         try {
-            CliOptions options = CliArgumentParser.parse(args);
+            ParsedArguments parsed = CliArgumentParser.parse(args);
+            CliOptions options = RuntimeConfigResolver.resolve(
+                    parsed, System::getenv, Path.of("").toAbsolutePath());
             List<Path> files = TestFileCollector.collect(options.inputs());
             return new CliSession(options, out, err).execute(files);
         } catch (UsageException ex) {

@@ -1,0 +1,15 @@
+skipif postgres
+statement ok
+CREATE TABLE should_skip(x int);
+onlyif postgres
+statement ok
+CREATE TABLE only_pg(x int);
+statement ok
+INSERT INTO only_pg VALUES(7);
+query I nosort
+SELECT x FROM only_pg
+----
+7
+onlyif sqlite
+statement ok
+CREATE TABLE only_sqlite_should_skip(x int);
