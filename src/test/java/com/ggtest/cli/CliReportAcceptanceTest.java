@@ -198,6 +198,43 @@ class CliReportAcceptanceTest {
     }
 
     @Test
+    void p1_4_colorAutoUsesInjectedTty() {
+        String fail = fixture("fail.test").toString();
+
+        Capture withTty = runWithTty(
+                true,
+                "--color", "auto",
+                "--url", "jdbc:sqlite::memory:",
+                fail);
+        assertEquals(1, withTty.exitCode());
+        assertTrue(ANSI.matcher(withTty.stdout()).find(), () -> "auto+tty must enable ANSI\n" + withTty.dump());
+
+        Capture withoutTty = runWithTty(
+                false,
+                "--color", "auto",
+                "--url", "jdbc:sqlite::memory:",
+                fail);
+        assertEquals(1, withoutTty.exitCode());
+        assertFalse(
+                ANSI.matcher(withoutTty.stdout()).find(),
+                () -> "auto+non-tty must be plain\n" + withoutTty.dump());
+
+        Capture alwaysNoTty = runWithTty(
+                false,
+                "--color", "always",
+                "--url", "jdbc:sqlite::memory:",
+                fail);
+        assertTrue(ANSI.matcher(alwaysNoTty.stdout()).find(), alwaysNoTty::dump);
+
+        Capture neverWithTty = runWithTty(
+                true,
+                "--color", "never",
+                "--url", "jdbc:sqlite::memory:",
+                fail);
+        assertFalse(ANSI.matcher(neverWithTty.stdout()).find(), neverWithTty::dump);
+    }
+
+    @Test
     void p1_5_colorPriorityPropertyOverEnvAndCliOverBoth() {
         Map<String, String> env = new HashMap<>();
         Map<String, String> props = new HashMap<>();
@@ -241,6 +278,15 @@ class CliReportAcceptanceTest {
     }
 
     private Capture runWith(Map<String, String> env, Map<String, String> props, String... args) {
+        return runWithTty(false, env, props, args);
+    }
+
+    private Capture runWithTty(boolean tty, String... args) {
+        return runWithTty(tty, Map.of(), Map.of(), args);
+    }
+
+    private Capture runWithTty(
+            boolean tty, Map<String, String> env, Map<String, String> props, String... args) {
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
         int code = Main.run(
@@ -249,7 +295,8 @@ class CliReportAcceptanceTest {
                 new PrintStream(stderr, true, StandardCharsets.UTF_8),
                 env::get,
                 tempDir,
-                props::get);
+                props::get,
+                () -> tty);
         return new Capture(code, stdout.toString(StandardCharsets.UTF_8), stderr.toString(StandardCharsets.UTF_8));
     }
 

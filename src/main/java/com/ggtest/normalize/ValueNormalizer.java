@@ -6,6 +6,10 @@ import java.util.Locale;
 /**
  * Converts a single raw column value to sqllogictest-normalized text for the
  * given {@link ColumnType}.
+ *
+ * <p>Illegal integer / real inputs follow sqllogictest: unparsable {@code I}
+ * becomes {@code "0"}; unparsable {@code R} becomes {@code "0.000"}. This is
+ * intentional Spec alignment (CA-008), not error swallowing.
  */
 public final class ValueNormalizer {
 
@@ -13,6 +17,10 @@ public final class ValueNormalizer {
 
     /**
      * Normalizes {@code raw} according to Spec I/T/R rules.
+     *
+     * <p>For {@link ColumnType#INTEGER} / {@link ColumnType#REAL}, values that
+     * cannot be parsed are normalized to {@code "0"} / {@code "0.000"}
+     * respectively (sqllogictest-compatible; not a silent bug).
      *
      * @param type column type from the query type signature
      * @param raw  raw value; {@code null} means SQL NULL
@@ -29,6 +37,10 @@ public final class ValueNormalizer {
         };
     }
 
+    /**
+     * Parses {@code raw} as a long; on {@link NumberFormatException} returns
+     * {@code "0"} (sqllogictest illegal-{@code I} rule).
+     */
     private static String normalizeInteger(String raw) {
         try {
             long value = Long.parseLong(raw);
@@ -38,6 +50,11 @@ public final class ValueNormalizer {
         }
     }
 
+    /**
+     * Parses {@code raw} as a double and formats to three decimal places; on
+     * {@link NumberFormatException} returns {@code "0.000"} (sqllogictest
+     * illegal-{@code R} rule).
+     */
     private static String normalizeReal(String raw) {
         try {
             double value = Double.parseDouble(raw);

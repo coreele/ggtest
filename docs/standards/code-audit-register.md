@@ -25,4 +25,4 @@
 | CA-005 | Tech Debt | resolved | `SqlLogicDefaults` / `ResultComparer` 转发 | column separator 单一权威 | 已合入 `main`（`fix-shared-defaults`） | none | 2026-07-26 |
 | CA-006 | Tech Debt | resolved | `FileRunner` / 原 `CliSession.runPostgresFile` | PG teardown 仅 finally 一次 | 已合入 `main`（`fix-pg-teardown-once`；refactor 保留） | none | 2026-07-26 |
 | CA-007 | 优化 | accepted | `ResultComparer` LCS | 失败 diff `O(n*m)` | 超大失败集可能陡增；通过路径不受影响；本批不做大改 | backlog / 后续按需 | 2026-07-26 |
-| CA-008 | Accepted Risk | accepted | `ValueNormalizer` | 非法 I/R 归一为 0 / 0.000（对齐 sqllogictest） | 非缺陷；可补 Javadoc | 可选文档改进，本批不强制 | 2026-07-26 |
+| CA-008 | Accepted Risk | accepted | `ValueNormalizer` | 非法 I/R 归一为 0 / 0.000（对齐 sqllogictest） | 非缺陷；Javadoc 已标明语义 | Javadoc done; monitor only | 2026-07-26 |

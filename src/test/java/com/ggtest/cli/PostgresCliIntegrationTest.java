@@ -78,6 +78,34 @@ class PostgresCliIntegrationTest {
         assertFalse(capture.stderr().contains(password));
     }
 
+    /**
+     * Controllable non-empty password path: synthetic CLI {@code --password} against an
+     * unreachable PG URL. Proves connection assembly is attempted and the password never
+     * appears on stdout/stderr (no real PG required). Connection hard-errors exit {@code 2}.
+     */
+    @Test
+    void nonEmptyPasswordNeverPrintedWhenPostgresConnectionFails() {
+        String password = "test-nonempty-pg-secret-never-echo";
+        Capture capture = runMain(
+                "--url",
+                "jdbc:postgresql://127.0.0.1:1/ggtest_unreachable",
+                "--engine",
+                "postgres",
+                "--user",
+                "ggtest",
+                "--password",
+                password,
+                fixture("basic.test").toString());
+
+        String combined = capture.stdout() + "\n" + capture.stderr();
+        assertTrue(
+                combined.toLowerCase().contains("connection failed"),
+                () -> "expected connection attempt path:\n" + combined);
+        assertEquals(2, capture.exitCode(), () -> "connection hard-error exits 2:\n" + combined);
+        assertFalse(capture.stdout().contains(password), "password must not appear on stdout");
+        assertFalse(capture.stderr().contains(password), "password must not appear on stderr");
+    }
+
     private static void assumePg() {
         assumeTrue(
                 System.getenv("GGTEST_PG_URL") != null && !System.getenv("GGTEST_PG_URL").isBlank(),
@@ -103,11 +131,14 @@ class PostgresCliIntegrationTest {
         for (String file : files) {
             args.add(file);
         }
+        return runMain(args.toArray(String[]::new));
+    }
 
+    private Capture runMain(String... args) {
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
         int code = Main.run(
-                args.toArray(String[]::new),
+                args,
                 new PrintStream(stdout, true, StandardCharsets.UTF_8),
                 new PrintStream(stderr, true, StandardCharsets.UTF_8),
                 key -> null,

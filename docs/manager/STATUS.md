@@ -18,10 +18,9 @@
 
 ## 活跃工作项
 
-（无）
-
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
+| chore-audit-tails | chore-audit-tails | 审计尾巴收口（CA-008 Javadoc；TTY color；PG 非空密码；select1–5 硬验收；排除 CA-007） | done | fast | skipped | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [docs/features/chore-audit-tails/](../features/chore-audit-tails/) |
 
 ## 已归档
 

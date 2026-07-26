@@ -172,6 +172,36 @@ class RuntimeConfigResolverTest {
     }
 
     @Test
+    void nonEmptyPasswordFromCliIsAssembledForPostgres() {
+        CliOptions options = resolve(
+                parsed(
+                        "--url",
+                        "jdbc:postgresql://localhost/db",
+                        "--engine",
+                        "postgres",
+                        "--password",
+                        "nonempty-assembly-secret",
+                        "a.test"),
+                key -> null);
+
+        assertEquals(Optional.of("nonempty-assembly-secret"), options.password());
+        assertEquals("postgres", options.engine());
+    }
+
+    @Test
+    void nonEmptyPasswordFromProcessEnvIsAssembledForPostgres() {
+        Map<String, String> process = Map.of(
+                "GGTEST_URL", "jdbc:postgresql://localhost/db",
+                "GGTEST_ENGINE", "postgres",
+                "GGTEST_PASSWORD", "nonempty-env-assembly-secret");
+
+        CliOptions options = resolve(parsed("a.test"), process::get);
+
+        assertEquals(Optional.of("nonempty-env-assembly-secret"), options.password());
+        assertEquals("postgres", options.engine());
+    }
+
+    @Test
     void cliOptionsToStringRedactsPassword() {
         CliOptions options = new CliOptions(
                 "jdbc:sqlite::memory:",
@@ -247,6 +277,20 @@ class RuntimeConfigResolverTest {
                         parsed("--url", "jdbc:sqlite::memory:", "--color", "rainbow", "a.test"),
                         key -> null));
         assertTrue(ex.getMessage().toLowerCase().contains("color"));
+    }
+
+    @Test
+    void resolveAnsiEnabledAutoFollowsInjectedTty() {
+        assertTrue(RuntimeConfigResolver.resolveAnsiEnabled(ColorMode.AUTO, true));
+        assertFalse(RuntimeConfigResolver.resolveAnsiEnabled(ColorMode.AUTO, false));
+    }
+
+    @Test
+    void resolveAnsiEnabledAlwaysAndNeverIgnoreTty() {
+        assertTrue(RuntimeConfigResolver.resolveAnsiEnabled(ColorMode.ALWAYS, false));
+        assertTrue(RuntimeConfigResolver.resolveAnsiEnabled(ColorMode.ALWAYS, true));
+        assertFalse(RuntimeConfigResolver.resolveAnsiEnabled(ColorMode.NEVER, true));
+        assertFalse(RuntimeConfigResolver.resolveAnsiEnabled(ColorMode.NEVER, false));
     }
 
     private void writeEnv(String content) throws IOException {

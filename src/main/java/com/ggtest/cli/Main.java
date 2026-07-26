@@ -3,6 +3,7 @@ package com.ggtest.cli;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
 /**
@@ -73,7 +74,8 @@ public final class Main {
 
     /**
      * Fully injectable entry for color priority tests ({@code GGTEST_COLOR} /
-     * {@code ggtest.color}).
+     * {@code ggtest.color}). Product TTY detection defaults to
+     * {@code System.console() != null}.
      *
      * @param propertyLookup system property reader (key {@link RuntimeConfigResolver#COLOR_PROPERTY})
      */
@@ -84,11 +86,29 @@ public final class Main {
             Function<String, String> envLookup,
             Path workingDirectory,
             Function<String, String> propertyLookup) {
+        return run(args, out, err, envLookup, workingDirectory, propertyLookup, () -> System.console() != null);
+    }
+
+    /**
+     * Same as {@link #run(String[], PrintStream, PrintStream, Function, Path, Function)} with an
+     * injectable TTY probe for {@code --color auto} tests. Product callers keep
+     * {@code System.console() != null} via the six-arg overload.
+     *
+     * @param isTty whether stdout is treated as a TTY ({@code auto} enables ANSI when true)
+     */
+    public static int run(
+            String[] args,
+            PrintStream out,
+            PrintStream err,
+            Function<String, String> envLookup,
+            Path workingDirectory,
+            Function<String, String> propertyLookup,
+            BooleanSupplier isTty) {
         try {
             ParsedArguments parsed = CliArgumentParser.parse(args);
             CliOptions options = RuntimeConfigResolver.resolve(parsed, envLookup, workingDirectory, propertyLookup);
             boolean ansi = RuntimeConfigResolver.resolveAnsiEnabled(
-                    options.colorMode(), System.console() != null);
+                    options.colorMode(), isTty.getAsBoolean());
             List<Path> files = TestFileCollector.collect(options.inputs());
             return new CliSession(options, out, err, ansi).execute(files);
         } catch (UsageException ex) {
