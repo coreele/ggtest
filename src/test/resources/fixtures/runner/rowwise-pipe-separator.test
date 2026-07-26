@@ -1,0 +1,11 @@
+# Row-wise expected results with per-query ---- separator | header (bare text, no quote shell).
+statement ok
+CREATE TABLE rw(a INTEGER, b INTEGER, c TEXT)
+
+statement ok
+INSERT INTO rw VALUES(1, 1, 'hello world')
+
+query IIT nosort
+SELECT a, b, c FROM rw
+---- separator |
+1 | 1 | hello world

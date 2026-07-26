@@ -121,6 +121,30 @@ class RunnerAcceptanceTest {
     }
 
     @Test
+    void p0_9_rowWiseDefaultSpaceFixturePasses() {
+        FileRunResult result = run("rowwise-default-space.test");
+
+        assertEquals(0, result.failedCount(), () -> firstFailure(result));
+        assertEquals(3, result.passedCount());
+    }
+
+    @Test
+    void p0_2_p0_9_rowWisePipeBareTextExpectationHeaderFixturePasses() {
+        FileRunResult result = run("rowwise-pipe-separator.test");
+
+        assertEquals(0, result.failedCount(), () -> firstFailure(result));
+        assertEquals(3, result.passedCount());
+    }
+
+    @Test
+    void p0_3_p0_9_rowWiseMixedScopeAndHashFixturePasses() {
+        FileRunResult result = run("rowwise-mixed.test");
+
+        assertEquals(0, result.failedCount(), () -> firstFailure(result));
+        assertEquals(6, result.passedCount());
+    }
+
+    @Test
     void runnerDrivesAnyExecutorImplementation() {
         List<SqlTestRecord> records = parse("p0-6-conditions.test");
         FakeDatabaseExecutor otherEngine = new FakeDatabaseExecutor("duckdb");

@@ -181,6 +181,190 @@ class SqlLogicTestParserTest {
         assertInstanceOf(HaltRecord.class, records.get(6));
     }
 
+    // --- query expectation-header ---- / ---- separator (R1) ---
+
+    @Test
+    void expectationHeader_pipeSeparator_bindsToThisQueryOnly() {
+        String content = """
+                query III
+                SELECT 1, 2, 3
+                ---- separator |
+                1|2|3
+                """;
+
+        List<SqlTestRecord> records = parser.parse("sep.test", content);
+
+        assertEquals(1, records.size());
+        QueryRecord query = assertInstanceOf(QueryRecord.class, records.get(0));
+        assertTrue(query.hasExpectedResults());
+        assertEquals("|", query.columnSeparator());
+        assertTrue(query.explicitColumnSeparator());
+        assertEquals(List.of("1|2|3"), query.expectedResults());
+    }
+
+    @Test
+    void p0_3_nextQueryExactDashes_defaultsToSpaceNotInherited() {
+        String content = """
+                query III
+                SELECT 1, 2, 3
+                ---- separator |
+                1|2|3
+
+                query III
+                SELECT 4, 5, 6
+                ----
+                4 5 6
+                """;
+
+        List<SqlTestRecord> records = parser.parse("scope.test", content);
+        assertEquals(2, records.size());
+
+        QueryRecord first = assertInstanceOf(QueryRecord.class, records.get(0));
+        assertEquals("|", first.columnSeparator());
+        assertTrue(first.explicitColumnSeparator());
+
+        QueryRecord second = assertInstanceOf(QueryRecord.class, records.get(1));
+        assertEquals(" ", second.columnSeparator());
+        assertFalse(second.explicitColumnSeparator());
+        assertEquals(List.of("4 5 6"), second.expectedResults());
+    }
+
+    @Test
+    void p0_2_targetWriting_iitPipeBareTextExpectationHeader() {
+        String content = """
+                query IIT nosort
+                SELECT 1, 1, 'hello world'
+                ---- separator |
+                1 | 1 | hello world
+                """;
+
+        List<SqlTestRecord> records = parser.parse("target.test", content);
+        QueryRecord query = assertInstanceOf(QueryRecord.class, records.get(0));
+        assertEquals("|", query.columnSeparator());
+        assertTrue(query.explicitColumnSeparator());
+        assertEquals(List.of("1 | 1 | hello world"), query.expectedResults());
+        assertEquals(3, query.typeSignature().size());
+    }
+
+    @Test
+    void topLevelSeparatorDirective_throwsReadableParseException() {
+        String content = """
+                ---- separator |
+
+                query III
+                SELECT 1, 2, 3
+                ----
+                1 2 3
+                """;
+
+        ParseException ex = assertThrows(
+                ParseException.class, () -> parser.parse("toplevel.test", content));
+        assertEquals("toplevel.test", ex.sourceName());
+        assertEquals(1, ex.lineNumber());
+        assertFalse(ex.reason().isBlank());
+        String reason = ex.reason().toLowerCase();
+        assertTrue(
+                reason.contains("expect") || reason.contains("query") || reason.contains("separator"),
+                ex.reason());
+    }
+
+    @Test
+    void expectationHeader_emptyDelim_throwsReadableParseException() {
+        String content = """
+                query I
+                SELECT 1
+                ---- separator
+                1
+                """;
+
+        ParseException ex = assertThrows(
+                ParseException.class, () -> parser.parse("empty-delim.test", content));
+        assertEquals("empty-delim.test", ex.sourceName());
+        assertFalse(ex.reason().isBlank());
+        assertTrue(
+                ex.reason().toLowerCase().contains("separator")
+                        || ex.reason().toLowerCase().contains("delim")
+                        || ex.reason().toLowerCase().contains("empty"),
+                ex.reason());
+    }
+
+    @Test
+    void expectationHeader_trailingSpaceOnlyAfterKeyword_throws() {
+        // keyword followed by one whitespace and nothing else → empty delim
+        String content = "query I\nSELECT 1\n---- separator \n1\n";
+        ParseException ex = assertThrows(
+                ParseException.class, () -> parser.parse("trail.test", content));
+        assertFalse(ex.reason().isBlank());
+    }
+
+    @Test
+    void illegalDashDashDashDashLine_throwsReadableParseException() {
+        ParseException ex = assertThrows(
+                ParseException.class, () -> parser.parse("bad.test", "---- foo\n"));
+
+        assertEquals("bad.test", ex.sourceName());
+        assertEquals(1, ex.lineNumber());
+        assertFalse(ex.reason().isBlank());
+    }
+
+    @Test
+    void misspelledSeperator_throwsReadableParseException() {
+        ParseException ex = assertThrows(
+                ParseException.class, () -> parser.parse("typo.test", "---- seperator |\n"));
+        assertEquals(1, ex.lineNumber());
+        assertFalse(ex.reason().isBlank());
+    }
+
+    @Test
+    void bareSeparatorWithoutDashes_isUnknownRecordType() {
+        ParseException ex = assertThrows(
+                ParseException.class, () -> parser.parse("bare.test", "separator |\n"));
+        assertTrue(ex.reason().contains("unknown") || ex.reason().contains("separator"), ex.reason());
+    }
+
+    @Test
+    void threeDashSeparator_isUnknownRecordType() {
+        ParseException ex = assertThrows(
+                ParseException.class, () -> parser.parse("old.test", "---separator |\n"));
+        assertFalse(ex.reason().isBlank());
+    }
+
+    @Test
+    void exactFourDashes_expectationHeader_defaultsSpaceNonExplicit() {
+        String content = """
+                query I
+                SELECT 1
+                ----
+                1
+                """;
+        List<SqlTestRecord> records = parser.parse("boundary.test", content);
+        assertEquals(1, records.size());
+        QueryRecord query = assertInstanceOf(QueryRecord.class, records.get(0));
+        assertTrue(query.hasExpectedResults());
+        assertEquals(List.of("1"), query.expectedResults());
+        assertEquals(" ", query.columnSeparator());
+        assertFalse(query.explicitColumnSeparator());
+    }
+
+    @Test
+    void expectationHeader_spaceLiteralDelim_allowed() {
+        // keyword, one leading space consumed, remaining space is the delimiter literal
+        String content = "query I\nSELECT 1\n---- separator  \n1\n";
+        List<SqlTestRecord> records = parser.parse("space-delim.test", content);
+        QueryRecord query = assertInstanceOf(QueryRecord.class, records.get(0));
+        assertEquals(" ", query.columnSeparator());
+        assertTrue(query.explicitColumnSeparator());
+    }
+
+    @Test
+    void expectationHeader_multiCharDelim_allowed() {
+        String content = "query I\nSELECT 1\n---- separator ::\n1\n";
+        List<SqlTestRecord> records = parser.parse("multi.test", content);
+        QueryRecord query = assertInstanceOf(QueryRecord.class, records.get(0));
+        assertEquals("::", query.columnSeparator());
+        assertTrue(query.explicitColumnSeparator());
+    }
+
     // --- P1-b: query without ---- ---
 
     @Test

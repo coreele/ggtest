@@ -6,7 +6,12 @@ package com.ggtest.model;
  * hierarchy and can exhaustively {@code switch} over the permitted variants.
  */
 public sealed interface SqlTestRecord
-        permits StatementRecord, QueryRecord, SkipIfRecord, OnlyIfRecord, HashThresholdRecord, HaltRecord {
+        permits StatementRecord,
+                QueryRecord,
+                SkipIfRecord,
+                OnlyIfRecord,
+                HashThresholdRecord,
+                HaltRecord {
 
     /** Source location (name + starting line) where this record begins. */
     SourceLocation location();

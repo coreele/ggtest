@@ -40,15 +40,23 @@ public final class ResultSorter {
             normalizedRows.add(normalized);
         }
 
+        return sortAndFlatten(sortMode, normalizedRows);
+    }
+
+    /**
+     * Applies {@link SortMode} to already-parsed rows and flattens to a value sequence.
+     * Used for row-wise expected results (no further cell normalization).
+     */
+    static List<String> sortAndFlatten(SortMode sortMode, List<List<String>> rows) {
         return switch (sortMode) {
-            case NOSORT -> flatten(normalizedRows);
+            case NOSORT -> flatten(rows);
             case ROWSORT -> {
-                List<List<String>> sorted = new ArrayList<>(normalizedRows);
+                List<List<String>> sorted = new ArrayList<>(rows);
                 sorted.sort(rowComparator());
                 yield flatten(sorted);
             }
             case VALUESORT -> {
-                List<String> values = flatten(normalizedRows);
+                List<String> values = flatten(rows);
                 values.sort(Comparator.naturalOrder());
                 yield values;
             }

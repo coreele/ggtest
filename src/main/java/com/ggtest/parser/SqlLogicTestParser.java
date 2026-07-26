@@ -30,6 +30,8 @@ import java.util.Optional;
  */
 public final class SqlLogicTestParser {
 
+    private static final String DEFAULT_COLUMN_SEPARATOR = " ";
+
     /**
      * Reads {@code file} as UTF-8 and parses it. The source name used in
      * locations and errors is {@code file.toString()}.
@@ -79,6 +81,10 @@ public final class SqlLogicTestParser {
     private static SqlTestRecord parseRecord(String sourceName, LineBuffer lines) {
         int startLine = lines.peekLineNumber();
         String header = lines.next();
+        String trimmed = header.trim();
+        if (trimmed.startsWith("----")) {
+            throwTopLevelDashDash(sourceName, startLine, header);
+        }
         String[] tokens = splitTokens(header);
         if (tokens.length == 0) {
             throw new ParseException(sourceName, startLine, "empty record header");
@@ -95,6 +101,33 @@ public final class SqlLogicTestParser {
             default -> throw new ParseException(
                     sourceName, startLine, "unknown record type: " + kind);
         };
+    }
+
+    /**
+     * Top-level lines beginning with {@code ----} are never records: exact
+     * {@code ----} is an expected-results separator; {@code ---- separator …}
+     * belongs on a query expectation header (R1).
+     */
+    private static void throwTopLevelDashDash(String sourceName, int startLine, String header) {
+        String trimmed = header.trim();
+        if (trimmed.equals("----")) {
+            throw new ParseException(
+                    sourceName,
+                    startLine,
+                    "---- is an expected-results separator, not a top-level record");
+        }
+        if (looksLikeSeparatorExpectationHeader(stripLeadingWhitespace(header))) {
+            throw new ParseException(
+                    sourceName,
+                    startLine,
+                    "---- separator must be a query expectation header, not a top-level record");
+        }
+        throw new ParseException(
+                sourceName,
+                startLine,
+                "invalid ---- directive (expected '----' or '---- separator <delim>' as a query"
+                        + " expectation header): "
+                        + trimmed);
     }
 
     private static StatementRecord parseStatement(
@@ -141,15 +174,20 @@ public final class SqlLogicTestParser {
         List<String> sqlLines = new ArrayList<>();
         boolean hasExpected = false;
         List<String> expected = List.of();
+        String columnSeparator = DEFAULT_COLUMN_SEPARATOR;
+        boolean explicitColumnSeparator = false;
 
         while (lines.hasNext()) {
             String line = lines.peek();
             if (line.isEmpty()) {
                 break;
             }
-            if (line.equals("----")) {
+            Optional<ExpectationHeader> header = tryParseExpectationHeader(sourceName, lines.peekLineNumber(), line);
+            if (header.isPresent()) {
                 lines.next();
                 hasExpected = true;
+                columnSeparator = header.get().columnSeparator();
+                explicitColumnSeparator = header.get().explicit();
                 expected = readExpectedResults(lines);
                 break;
             }
@@ -171,7 +209,78 @@ public final class SqlLogicTestParser {
                 String.join("\n", sqlLines),
                 hasExpected,
                 expected,
+                columnSeparator,
+                explicitColumnSeparator,
                 new SourceLocation(sourceName, startLine));
+    }
+
+    /**
+     * Parses a query expectation header line: exact {@code ----} (default space) or
+     * {@code ---- separator <delim>} (explicit). Other {@code ----…} lines fail.
+     */
+    private static Optional<ExpectationHeader> tryParseExpectationHeader(
+            String sourceName, int lineNumber, String rawLine) {
+        String leadingStripped = stripLeadingWhitespace(rawLine);
+        if (!leadingStripped.startsWith("----")) {
+            return Optional.empty();
+        }
+        String trimmed = rawLine.trim();
+        if (trimmed.equals("----")) {
+            return Optional.of(new ExpectationHeader(DEFAULT_COLUMN_SEPARATOR, false));
+        }
+        return Optional.of(parseSeparatorExpectationHeader(sourceName, lineNumber, leadingStripped));
+    }
+
+    private static ExpectationHeader parseSeparatorExpectationHeader(
+            String sourceName, int lineNumber, String line) {
+        // line starts with ---- (caller stripped leading whitespace) but is not exactly ----
+        int i = 4;
+        while (i < line.length() && Character.isWhitespace(line.charAt(i))) {
+            i++;
+        }
+        final String keyword = "separator";
+        if (i + keyword.length() > line.length()
+                || !line.regionMatches(i, keyword, 0, keyword.length())) {
+            throw new ParseException(
+                    sourceName,
+                    lineNumber,
+                    "invalid ---- directive (expected '----' or '---- separator <delim>'): "
+                            + line.trim());
+        }
+        i += keyword.length();
+        // After keyword: optional one leading whitespace, then <delim> to end of line.
+        // Do not use splitTokens — delim is the literal remainder (may contain spaces).
+        if (i < line.length() && Character.isWhitespace(line.charAt(i))) {
+            i++;
+        }
+        String delim = line.substring(i);
+        if (delim.isEmpty()) {
+            throw new ParseException(
+                    sourceName, lineNumber, "---- separator requires a non-empty delimiter");
+        }
+        return new ExpectationHeader(delim, true);
+    }
+
+    /** True when the line matches {@code ----} + optional blank + {@code separator}… (for messages). */
+    private static boolean looksLikeSeparatorExpectationHeader(String line) {
+        if (!line.startsWith("----")) {
+            return false;
+        }
+        int i = 4;
+        while (i < line.length() && Character.isWhitespace(line.charAt(i))) {
+            i++;
+        }
+        final String keyword = "separator";
+        return i + keyword.length() <= line.length()
+                && line.regionMatches(i, keyword, 0, keyword.length());
+    }
+
+    private static String stripLeadingWhitespace(String line) {
+        int i = 0;
+        while (i < line.length() && Character.isWhitespace(line.charAt(i))) {
+            i++;
+        }
+        return line.substring(i);
     }
 
     private static SkipIfRecord parseSkipIf(String sourceName, int startLine, String[] tokens) {
@@ -269,8 +378,13 @@ public final class SqlLogicTestParser {
     }
 
     private static boolean isRecordStart(String line) {
-        if (line.isEmpty() || line.startsWith("#") || line.equals("----")) {
+        if (line.isEmpty() || line.startsWith("#")) {
             return false;
+        }
+        String trimmed = line.trim();
+        if (trimmed.startsWith("----")) {
+            // Expectation headers are handled inside parseQuery; other ----… fail at top level.
+            return true;
         }
         int space = indexOfWhitespace(line);
         String first = space < 0 ? line : line.substring(0, space);
@@ -296,6 +410,8 @@ public final class SqlLogicTestParser {
         }
         return -1;
     }
+
+    private record ExpectationHeader(String columnSeparator, boolean explicit) {}
 
     /** Mutable cursor over source lines with 1-based line numbers. */
     private static final class LineBuffer {

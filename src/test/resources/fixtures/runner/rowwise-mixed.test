@@ -1,0 +1,34 @@
+# Mix value-per-line and row-wise; per-query expectation headers (no file-level separator).
+statement ok
+CREATE TABLE mix(a INTEGER, b INTEGER, c INTEGER)
+
+statement ok
+INSERT INTO mix VALUES(1, 2, 3), (4, 5, 6)
+
+# Value-per-line (default)
+query III nosort
+SELECT a, b, c FROM mix WHERE a = 1
+----
+1
+2
+3
+
+# Row-wise with pipe on this query only
+query III nosort
+SELECT a, b, c FROM mix WHERE a = 4
+---- separator |
+4|5|6
+
+# Next query uses exact ---- → default space (does not inherit |)
+query III nosort
+SELECT a, b, c FROM mix WHERE a = 1
+----
+1 2 3
+
+# Hash path after row-wise expand (threshold forces hash form)
+hash-threshold 1
+
+query III nosort
+SELECT a, b, c FROM mix WHERE a = 1
+----
+3 values hashing to c0710d6b4f15dfa88f600b0e6b624077

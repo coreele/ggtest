@@ -28,7 +28,9 @@ import java.util.Objects;
  *
  * <p>Per-file state — hash-threshold, pending {@code skipif}/{@code onlyif}
  * conditions, and label results — lives inside a single {@link #run(List)} call;
- * callers reset it by starting a new run for the next file. Instances are
+ * callers reset it by starting a new run for the next file. Column separator for
+ * row-wise expectations is taken from each {@link QueryRecord} (expectation header),
+ * not from file-level state. Instances are
  * stateless and reusable, but not thread-safe beyond whatever the supplied
  * executor and its connection allow (execution is serial on one connection).
  *
@@ -144,6 +146,8 @@ public final class SqlLogicTestRunner {
                     record.typeSignature(),
                     record.sortMode(),
                     state.hashThreshold(),
+                    record.columnSeparator(),
+                    record.explicitColumnSeparator(),
                     expectedText(record),
                     result.rows());
         } catch (IllegalArgumentException ex) {

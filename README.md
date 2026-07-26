@@ -90,6 +90,43 @@ Engine↔URL mismatch or unknown engine → exit code `2`, no connection, no exe
 Official sqllogictest corpora on PostgreSQL are **not** a hard acceptance criterion
 (zero failures on PG select1/2/3 is optional exploration only).
 
+### Expected results (value-per-line and row-wise)
+
+After a `query` record’s expectation header, expected results may be written in either
+form (inferred automatically per query from the type signature column count `C` and
+that query’s column separator `S`):
+
+| Form | Rule | Example (`query III`) |
+|---|---|---|
+| **Value-per-line** (default / official C style) | One normalized cell value per line | `1` / `2` / `3` on three lines |
+| **Row-wise** (sqllogictest-rs style) | One result row per line; columns separated by `S` | `1 2 3` on one line |
+
+Default `S` is a single space (U+0020), when the expectation header is exactly `----`.
+To set a different separator **for this query only**, write it on the expectation header:
+
+```text
+query IIT nosort
+SELECT 1, 1, 'hello world'
+---- separator |
+1 | 1 | hello world
+```
+
+That header both opens the expected body and binds `S` to `|` for this record only.
+The next query that uses a plain `----` gets the default space separator again (no
+file-level inheritance). Empty `<delim>` and other malformed `----…` lines are parse
+errors. A top-level `---- separator …` (not under a query) is also a parse error.
+Three-dash or bare `separator` lines are not recognized.
+
+With an explicit `---- separator` header, tokens are trimmed after split; cell text is
+the trimmed token as-is (no quote shell). Spaces inside a cell work with a delimiter
+like `|` (example above). If a cell contains the current delimiter, pick a different
+`S` or use value-per-line. Plain `----` keeps the default space row-wise rules
+(consecutive spaces still produce empty tokens; no trim).
+
+Single-column queries usually look the same in both forms. Hash expectations
+(`N values hashing to <md5>`) are unchanged; row-wise only affects how plaintext
+expected lines expand into the value sequence before compare/hash.
+
 ### Exit codes
 
 | Code | Meaning |
@@ -232,6 +269,7 @@ try (Connection connection = DriverManager.getConnection("jdbc:sqlite::memory:")
 }
 ```
 
-Per-file state (hash-threshold, conditions, labels) is scoped to a single
-`run` call. Supporting another database: implement `com.ggtest.db.DatabaseExecutor`
+Per-file state (hash-threshold, conditions, labels) is scoped to a single `run` call.
+Column separator for row-wise expectations comes from each query’s expectation header.
+Supporting another database: implement `com.ggtest.db.DatabaseExecutor`
 (see `com.ggtest.db.postgres.PostgresJdbcExecutor`).

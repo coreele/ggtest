@@ -5,11 +5,15 @@ import com.ggtest.model.SortMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Compares expected sqllogictest result text against actual raw query rows
  * after I/T/R normalization, sorting, and optional MD5 hashing.
+ *
+ * <p>Supports value-per-line expectations (default) and row-wise expectations
+ * inferred from column count and the current query's column separator. When the
+ * expectation header used {@code ---- separator}, tokens are trimmed after split;
+ * there is no quote shell on expected cells.
  *
  * <p>No JDBC dependency — callers supply already-fetched values.
  */
@@ -17,6 +21,9 @@ public final class ResultComparer {
 
     /** Default hash-threshold initial value (Q5). */
     public static final int DEFAULT_HASH_THRESHOLD = 8;
+
+    /** Default column separator for row-wise expected lines (U+0020). */
+    public static final String DEFAULT_COLUMN_SEPARATOR = " ";
 
     private ResultComparer() {}
 
@@ -35,12 +42,13 @@ public final class ResultComparer {
             String diffSummary) {}
 
     /**
-     * Compares expected text to actual rows.
+     * Compares expected text to actual rows using {@link #DEFAULT_COLUMN_SEPARATOR}
+     * and a non-explicit separator (default space row-wise rules).
      *
      * @param typeSignature  column types
      * @param sortMode       sort mode applied before compare/hash
      * @param hashThreshold  current threshold; {@code <= 0} disables hashing
-     * @param expectedText   expected body after {@code ----} (values or hash line)
+     * @param expectedText   expected body after the expectation header
      * @param actualRows     raw result rows
      */
     public static CompareResult compare(
@@ -49,15 +57,49 @@ public final class ResultComparer {
             int hashThreshold,
             String expectedText,
             List<List<String>> actualRows) {
+        return compare(
+                typeSignature,
+                sortMode,
+                hashThreshold,
+                DEFAULT_COLUMN_SEPARATOR,
+                false,
+                expectedText,
+                actualRows);
+    }
+
+    /**
+     * Compares expected text to actual rows with an explicit/non-explicit column separator.
+     *
+     * @param typeSignature              column types
+     * @param sortMode                   sort mode applied before compare/hash
+     * @param hashThreshold              current threshold; {@code <= 0} disables hashing
+     * @param columnSeparator            literal separator for inferring/splitting row-wise lines
+     * @param explicitColumnSeparator    whether the query expectation header used {@code ---- separator}
+     * @param expectedText               expected body after the expectation header
+     * @param actualRows                 raw result rows
+     */
+    public static CompareResult compare(
+            List<ColumnType> typeSignature,
+            SortMode sortMode,
+            int hashThreshold,
+            String columnSeparator,
+            boolean explicitColumnSeparator,
+            String expectedText,
+            List<List<String>> actualRows) {
         Objects.requireNonNull(typeSignature, "typeSignature");
         Objects.requireNonNull(sortMode, "sortMode");
+        Objects.requireNonNull(columnSeparator, "columnSeparator");
         Objects.requireNonNull(actualRows, "actualRows");
         if (typeSignature.isEmpty()) {
             throw new IllegalArgumentException("typeSignature must not be empty");
         }
+        if (columnSeparator.isEmpty()) {
+            throw new IllegalArgumentException("columnSeparator must not be empty");
+        }
 
         List<String> normalized = ResultSorter.normalizeAndSort(typeSignature, sortMode, actualRows);
-        List<String> expectedLines = splitExpectedLines(expectedText);
+        List<String> expectedLines = ExpectedResultExpander.expand(
+                typeSignature, sortMode, columnSeparator, explicitColumnSeparator, expectedText);
         List<String> actualLines = renderActual(normalized, hashThreshold);
 
         if (expectedLines.equals(actualLines)) {
@@ -67,14 +109,22 @@ public final class ResultComparer {
     }
 
     /**
-     * Convenience overload using {@link #DEFAULT_HASH_THRESHOLD}.
+     * Convenience overload using {@link #DEFAULT_HASH_THRESHOLD} and
+     * {@link #DEFAULT_COLUMN_SEPARATOR} (non-explicit).
      */
     public static CompareResult compare(
             List<ColumnType> typeSignature,
             SortMode sortMode,
             String expectedText,
             List<List<String>> actualRows) {
-        return compare(typeSignature, sortMode, DEFAULT_HASH_THRESHOLD, expectedText, actualRows);
+        return compare(
+                typeSignature,
+                sortMode,
+                DEFAULT_HASH_THRESHOLD,
+                DEFAULT_COLUMN_SEPARATOR,
+                false,
+                expectedText,
+                actualRows);
     }
 
     static List<String> renderActual(List<String> normalizedValues, int hashThreshold) {
@@ -84,28 +134,9 @@ public final class ResultComparer {
         return List.copyOf(normalizedValues);
     }
 
+    /** Retained for package tests that inspect physical expected lines. */
     static List<String> splitExpectedLines(String expectedText) {
-        if (expectedText == null || expectedText.isEmpty()) {
-            return List.of();
-        }
-        String normalized = expectedText.replace("\r\n", "\n").replace('\r', '\n');
-        if (normalized.endsWith("\n")) {
-            normalized = normalized.substring(0, normalized.length() - 1);
-        }
-        if (normalized.isEmpty()) {
-            return List.of();
-        }
-        String[] parts = normalized.split("\n", -1);
-        List<String> lines = new ArrayList<>(parts.length);
-        for (String part : parts) {
-            lines.add(part);
-        }
-        Optional<ResultHasher.HashExpectation> hash =
-                ResultHasher.parseHashExpectation(String.join("\n", lines));
-        if (hash.isPresent() && lines.size() == 1) {
-            return lines;
-        }
-        return lines;
+        return ExpectedResultExpander.physicalLines(expectedText);
     }
 
     /**
