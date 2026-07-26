@@ -186,27 +186,12 @@ final class CliSession {
 
     private FileOutcome runPostgresFile(Connection connection, List<SqlTestRecord> records, String display) {
         String schema = null;
+        FileOutcome outcome = null;
+        SQLException teardownException = null;
         try {
             schema = PostgresSchemaIsolation.prepare(connection);
             PostgresJdbcExecutor executor = new PostgresJdbcExecutor(connection);
-            FileOutcome outcome = runWithExecutor(executor, records, display);
-            try {
-                PostgresSchemaIsolation.teardown(connection, schema);
-                schema = null;
-            } catch (SQLException ex) {
-                err.println("schema teardown failed: " + sanitize(ex.getMessage()));
-                List<String> details = new ArrayList<>(outcome.detailLines());
-                if (details.isEmpty()) {
-                    details = detailLines(
-                            "schema teardown failed: " + sanitize(ex.getMessage()),
-                            null,
-                            null,
-                            display,
-                            null);
-                }
-                return FileOutcome.hardFailure(details);
-            }
-            return outcome.hardError() ? FileOutcome.hardFailure(outcome.detailLines()) : outcome;
+            outcome = runWithExecutor(executor, records, display);
         } catch (SQLException ex) {
             err.println("schema isolation failed: " + sanitize(ex.getMessage()));
             return FileOutcome.hardFailure(detailLines(
@@ -221,9 +206,23 @@ final class CliSession {
                     PostgresSchemaIsolation.teardown(connection, schema);
                 } catch (SQLException ex) {
                     err.println("schema teardown failed: " + sanitize(ex.getMessage()));
+                    teardownException = ex;
                 }
             }
         }
+        if (teardownException != null) {
+            List<String> details = new ArrayList<>(outcome.detailLines());
+            if (details.isEmpty()) {
+                details = detailLines(
+                        "schema teardown failed: " + sanitize(teardownException.getMessage()),
+                        null,
+                        null,
+                        display,
+                        null);
+            }
+            return FileOutcome.hardFailure(details);
+        }
+        return outcome.hardError() ? FileOutcome.hardFailure(outcome.detailLines()) : outcome;
     }
 
     private FileOutcome runWithExecutor(
