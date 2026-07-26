@@ -7,8 +7,8 @@
 目标分支: main
 文档影响: docs/features/fix-rowwise-value-per-line-compat/；README.md / README.zh-CN.md（必要时）；**本轮用户改口**：入库/更新 `examples/demo.slt`、新增 `examples/demo_zh.slt`（公开功能 showcase）；`select*.test` 大语料仍不强制入库（本地保留勿删）；`demo2.slt` 由 Developer 决定并入 demo 或保留
 
-> 权威工作流、门禁与状态说明见 [docs/README.md](../README.md)。
-> 活跃状态见 [STATUS.md](STATUS.md)。
+> 权威工作流、门禁与状态说明见 [docs/README.md](../../README.md)。
+> 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
 >
 > 文档路径：未拆分时 Spec 为 `docs/features/<feature-id>/spec.md`（无子目录）。
 
@@ -16,16 +16,16 @@
 
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
-| fix-rowwise-value-per-line-compat | [spec.md](../features/fix-rowwise-value-per-line-compat/spec.md) | required（新增 query 头 `separator` 语法 + 移除既有语法 + 错误约定；有意取代归档合同） | not-required（合同由用户 2026-07-26 逐条拍板口述；OQ-1 随 Plan 确认已拍板） | skipped（parser/model/normalize 既有分层内实现；无模块边界/选型决策） | required（standard；语料兼容 + 语法变更；合入前 demo/README 补充按文档/示例 fast 轻量确认，原 Approve 仍有效） | done | 工作流已关闭（QA Pass×2 + merge-auth）；**因用户禁止 commit，未执行源分支一次提交与合入 main**；待用户自行提交后合入 |
+| fix-rowwise-value-per-line-compat | [spec.md](./spec.md) | required（新增 query 头 `separator` 语法 + 移除既有语法 + 错误约定；有意取代归档合同） | not-required（合同由用户 2026-07-26 逐条拍板口述；OQ-1 随 Plan 确认已拍板） | skipped（parser/model/normalize 既有分层内实现；无模块边界/选型决策） | required（standard；语料兼容 + 语法变更；合入前 demo/README 补充按文档/示例 fast 轻量确认，原 Approve 仍有效） | done | 工作流已关闭（QA Pass×2 + merge-auth）；**已合入 main**（证据：`8a0c236`、`aa90c72`；后续 `9eaa742`/`a92b7a1` 清理 demo2） |
 
-阻塞原因: 用户禁止 git commit；正式合入 main 需要：(1) 源分支一次提交纳入 STATUS/done、工作项、review.md、qa-report.md、demo/README 等；(2) 再将源分支合入 main（当前可 FF：`main`←`8a0c236` 仅含实现，demo/README 等仍在工作区未入库）。
-恢复条件: 用户自行在源分支提交上述文件并合入 main（或授权 Manager/Merge Executor 执行 commit+merge）。
-恢复后的目标状态: done（已达成工作流关闭；合入以 git 为准）
+阻塞原因: none（先前「禁止 commit / 未合入」叙述已过时；git 事实显示已在 main）
+恢复条件: N/A
+恢复后的目标状态: N/A
 
 ## Manager 门禁判定（2026-07-26 第二次；取代首次判定）
 
 - **路径**：fast → **standard** — 用户拍板由小修（混形回退）升级为合同变更：新增公开语法、移除既有语法、有意取代归档合同。
-- **Spec**：skipped → **required** — 新增行为（query 头 `separator <delim>`）、公开接口（`.test` 文法）、错误约定（token 数 ≠ C、delim 后多余 token、`---- separator` 移除后报错）均变。归档 [`ggtest-rowwise-expected`](../archive/2026/ggtest-rowwise-expected/spec.md) 合同被**有意取代**（默认空格行式 `1 2 3` 不再支持）。
+- **Spec**：skipped → **required** — 新增行为（query 头 `separator <delim>`）、公开接口（`.test` 文法）、错误约定（token 数 ≠ C、delim 后多余 token、`---- separator` 移除后报错）均变。归档 [`ggtest-rowwise-expected`](../ggtest-rowwise-expected/spec.md) 合同被**有意取代**（默认空格行式 `1 2 3` 不再支持）。
 - **Spec 用户确认**：not-required — 合同由用户在当前会话逐条拍板（见「用户决策」节），Spec 为转写；OQ-1 随 Plan 确认拍板。
 - **Design**：skipped — 触及 `SqlLogicTestParser` / `QueryRecord` / `ExpectedResultExpander` / `ResultComparer`，但均在既有 parser/model/normalize 分层内，无边界或选型决策。
 - **Review**：required — standard 必须。
@@ -72,8 +72,12 @@
 ## 合入授权
 
 - **approved**（2026-07-26）：当前用户会话明确授权将 `fix-rowwise-value-per-line-compat` 合入 `main`。
-- **提交纪律覆盖**：用户明确 **不要提交**（禁止 `git commit` / amend / push）。标准「源分支置 done + review/qa 一次提交再合入」无法完整执行；工作区已更新 STATUS/`done`。
-- **合入结果（2026-07-26）**：**未完成**。实现 tip `8a0c236` 相对 `main`（`30d04bf`）可 FF，但 demo/README/STATUS/review/qa 等均未入库；在零 commit 下无法制造含补充产物的合入，亦未擅自 FF（否则 main 缺 demo/README）。未 push。
+- **提交纪律覆盖（历史）**：授权当时曾禁止即时 commit；后续已由用户/会话完成入库与合入（见下）。
+- **合入结果（已核对 git，2026-07-26）**：**已合入 `main`**。证据：
+  - `8a0c236` `fix(rowwise): value-per-line default; query-head separator`（实现）
+  - `aa90c72` `docs(fix-rowwise-value-per-line-compat): demos, README, mark done`（demo/demo_zh、README、review/qa、STATUS/done）
+  - 后续清理：`9eaa742` / `a92b7a1`（移除冗余 `demo2.slt`）
+  - 当前分支 `main`；`git merge-base --is-ancestor` 确认上述 SHA 均在 `main` 上。
 
 ## 本轮追加范围（合入前文档/示例；2026-07-26）
 
@@ -111,4 +115,5 @@
 - 2026-07-26：用户授权合并 + 禁止 commit；追加 demo/demo_zh/README 入库范围；状态 `qa` → `developing`；调度 Developer（零 commit）。
 - 2026-07-26：Developer 完成合入前补充（demo 并入 demo2 独特用例并保留 demo2；新增 demo_zh；README 中英同步；sqlite `passed=2 failed=0`）→ `reviewing`；调度 Reviewer 轻量确认。
 - 2026-07-26：Reviewer 合入前文档/示例补充 **Approve**（原 Approve 仍有效；已追加 review.md）→ `qa`；调度 QA 冒烟。
-- 2026-07-26：QA 合入前补充冒烟 **Pass**（demo+demo_zh sqlite `passed=2 failed=0`；已追加 qa-report.md）→ 工作区置 `done`；**因禁止 commit 无法一次提交并合入 main**；向父会话返回阻断与文件清单。
+- 2026-07-26：QA 合入前补充冒烟 **Pass**（demo+demo_zh sqlite `passed=2 failed=0`；已追加 qa-report.md）→ 工作区置 `done`；当时因禁止 commit 暂未入库（历史阻断）。
+- 2026-07-26：git 事实核对——实现与 docs/demo 已在 `main`（`8a0c236`、`aa90c72` 及 demo2 清理提交）。Manager 修正 STATUS/工作项中「未合入 main」漂移；后续步骤改为已合入 main（未归档）。

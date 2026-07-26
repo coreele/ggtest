@@ -11,6 +11,7 @@
 > 活跃状态见 [STATUS.md](STATUS.md)。
 >
 > 文档路径：未拆分时 Spec 为 `docs/features/<feature-id>/spec.md`（无子目录）；已拆分时根目录仅总览 Spec，各切片为 `docs/features/<feature-id>/<feature-id>-<sub>/spec.md`。
+> 归档后本文件迁至 `docs/archive/YYYY/<feature-id>/manager.md`，相对链接须同步修正；`docs/manager/` 仅保留活跃工作项记录与 `STATUS.md`。
 
 ## 切片（未拆分时仅一行，sub-feature-id = feature-id）
 

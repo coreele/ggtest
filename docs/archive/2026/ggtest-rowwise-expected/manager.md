@@ -7,8 +7,8 @@
 目标分支: main
 文档影响: docs/archive/2026/ggtest-rowwise-expected/{spec,design,plan,dev-notes,review,qa-report}.md；README；fixtures 于 `src/test/resources/fixtures/`
 
-> 权威工作流、门禁与状态说明见 [docs/README.md](../README.md)。
-> 活跃状态见 [STATUS.md](STATUS.md)。
+> 权威工作流、门禁与状态说明见 [docs/README.md](../../README.md)。
+> 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
 >
 > 文档路径：已归档至 `docs/archive/2026/ggtest-rowwise-expected/`。
 
@@ -16,7 +16,7 @@
 
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
-| ggtest-rowwise-expected | [spec.md](../archive/2026/ggtest-rowwise-expected/spec.md) | required | **approved** | required | required（**Approve**） | **done**（已合入 `main`；已归档） | none |
+| ggtest-rowwise-expected | [spec.md](./spec.md) | required | **approved** | required | required（**Approve**） | **done**（已合入 `main`；已归档） | none |
 
 阻塞原因: none
 恢复条件: none

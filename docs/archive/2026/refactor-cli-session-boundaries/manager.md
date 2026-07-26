@@ -7,8 +7,8 @@
 目标分支: main
 文档影响: docs/features/refactor-cli-session-boundaries/design.md、plan.md；登记册 CA-003
 
-> 权威工作流、门禁与状态说明见 [docs/README.md](../README.md)。
-> 活跃状态见 [STATUS.md](STATUS.md)。
+> 权威工作流、门禁与状态说明见 [docs/README.md](../../README.md)。
+> 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
 
 ## 切片（未拆分时仅一行，sub-feature-id = feature-id）
 

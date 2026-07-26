@@ -7,18 +7,18 @@
 目标分支: main
 文档影响: docs/features/ggtest-core/（总览 + 四子工作项目录）；实现阶段更新项目 README
 
-> 权威工作流、门禁与状态说明见 [docs/README.md](../README.md)。
-> 活跃状态见 [STATUS.md](STATUS.md)。
+> 权威工作流、门禁与状态说明见 [docs/README.md](../../README.md)。
+> 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
 
 ## 子切片跟踪
 
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
-| ggtest-core | [spec.md](../archive/2026/ggtest-core/spec.md) | required（总览） | approved（总览化） | skipped（不对总览写 Design/Plan） | N/A（tracking，不调度 Review） | done（父项已归档） | 已关闭并归档至 `docs/archive/2026/ggtest-core/`（四切片均 done 且已合入 `main`） |
-| parser | [ggtest-core-parser/spec.md](../archive/2026/ggtest-core/ggtest-core-parser/spec.md) | required | approved | required（模块边界、记录模型；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-parser → main（合入以 git 为准） |
-| normalize | [ggtest-core-normalize/spec.md](../archive/2026/ggtest-core/ggtest-core-normalize/spec.md) | required | approved | skipped（算法已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-normalize → main（合入以 git 为准） |
-| runner-sqlite | [ggtest-core-runner-sqlite/spec.md](../archive/2026/ggtest-core/ggtest-core-runner-sqlite/spec.md) | required | approved | required（执行器抽象、JDBC 分层；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-runner-sqlite → main（合入以 git 为准） |
-| cli-corpus | [ggtest-core-cli-corpus/spec.md](../archive/2026/ggtest-core/ggtest-core-cli-corpus/spec.md) | required | approved | skipped（CLI/退出码已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-cli-corpus → main（合入以 git 为准） |
+| ggtest-core | [spec.md](./spec.md) | required（总览） | approved（总览化） | skipped（不对总览写 Design/Plan） | N/A（tracking，不调度 Review） | done（父项已归档） | 已关闭并归档至 `docs/archive/2026/ggtest-core/`（四切片均 done 且已合入 `main`） |
+| parser | [ggtest-core-parser/spec.md](./ggtest-core-parser/spec.md) | required | approved | required（模块边界、记录模型；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-parser → main（合入以 git 为准） |
+| normalize | [ggtest-core-normalize/spec.md](./ggtest-core-normalize/spec.md) | required | approved | skipped（算法已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-normalize → main（合入以 git 为准） |
+| runner-sqlite | [ggtest-core-runner-sqlite/spec.md](./ggtest-core-runner-sqlite/spec.md) | required | approved | required（执行器抽象、JDBC 分层；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-runner-sqlite → main（合入以 git 为准） |
+| cli-corpus | [ggtest-core-cli-corpus/spec.md](./ggtest-core-cli-corpus/spec.md) | required | approved | skipped（CLI/退出码已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-cli-corpus → main（合入以 git 为准） |
 
 依赖：`parser` ∥ `normalize` → `runner-sqlite` → `cli-corpus`。
 

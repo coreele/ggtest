@@ -228,13 +228,15 @@ docs/
     review.md
     qa-report.md
   archive/YYYY/<feature-id>/
+    manager.md                       # 原 docs/manager/<feature-id>.md
+    spec.md / design.md / …          # 原 docs/features/<feature-id>/ 内容（若有）
 ```
 
-Manager 登记工作项时创建 `docs/features/<feature-id>/`。其他角色不得创建使用不同标识的工作项目录。
+Manager 登记工作项时创建 `docs/features/<feature-id>/` 与 `docs/manager/<feature-id>.md`。其他角色不得创建使用不同标识的工作项目录。`docs/manager/` 下除 `STATUS.md` 外仅保留**活跃**工作项记录；已 `done` / `cancelled` 且完成归档的记录不得留在 `docs/manager/`。
 
 ### feature-id 与 sub-feature-id
 
-- **feature-id**：工作项目录与归档单位，对应 `docs/features/<feature-id>/` 与 `docs/manager/<feature-id>.md`。
+- **feature-id**：工作项目录与归档单位。活跃时对应 `docs/features/<feature-id>/` 与 `docs/manager/<feature-id>.md`；归档后二者一并位于 `docs/archive/YYYY/<feature-id>/`（工作项记录文件名为 `manager.md`）。
 - **sub-feature-id**：可调度切片。不需要拆分时与 `feature-id` 相同，产物直接写在 `docs/features/<feature-id>/`（`spec.md` 等），**不**再建子目录。
 - 需要拆分时：根目录仅保留总览 `spec.md`（此时总览行的 `sub-feature-id` 可与 `feature-id` 相同）；每个子工作项一个目录 `docs/features/<feature-id>/<feature-id>-<sub-feature-id>/`，目录内使用标准文件名（`spec.md`、`design.md`、`plan.md` 等），STATUS 为同一 `feature-id` 下的多行。
 - `docs/manager/STATUS.md` 活跃表必须包含 `feature-id` 与 `sub-feature-id` 列。同一 `feature-id` 的后续行可省略重复的 `feature-id`；「目录」列在已拆分时应指向各子目录（不可省略为继承总览根目录）。空 `feature-id` 表示继承上一非空值。换 feature 时必须再写一次 `feature-id`。
@@ -286,14 +288,17 @@ Review 门禁: required | skipped（理由；仅 fast）
 
 切片级关闭：QA `Pass` 且用户明确授权合并（或非 Git 下授权完成）后，Manager 在源分支将状态置为 `done`，并与未入库的 `review.md` / `qa-report.md` **一次提交**。此后允许合入；**合入完成后不再改 STATUS 或补交报告**。
 
-Manager 仅在以下情况归档**整个**工作项（移动 `docs/features/<feature-id>/`）：
+Manager 仅在以下情况归档**整个**工作项（features 产物与 manager 工作项记录**一并**迁入归档目录）：
 
 1. 各适用切片均为 `done`，且用户明确要求关闭/归档父项（建议同时核验目标分支已包含各切片实现）；
-2. 用户明确取消并将状态更新为 `cancelled`。
+2. 用户明确取消并将状态更新为 `cancelled`（无 features 产物时仍须归档工作项记录）。
 
 归档步骤：
 
 1. 从 `docs/manager/STATUS.md` 的活跃列表移除工作项；
-2. 将 `docs/features/<feature-id>/` 移动到 `docs/archive/YYYY/<feature-id>/`；
-3. 在 STATUS 的归档区域记录工作项标识、最终状态和目录链接；
-4. 仓库可用时提交归档变更（可在目标分支或专门 chore 分支；与功能合入解耦）。
+2. 确保 `docs/archive/YYYY/<feature-id>/` 存在：若存在 `docs/features/<feature-id>/`，将其**移动**到该归档目录；若无 features 目录（例如纯 cancelled、草稿已删），则创建空的归档目录；
+3. 将 `docs/manager/<feature-id>.md` **移动**为 `docs/archive/YYYY/<feature-id>/manager.md`，并修正文内相对链接（指向 `docs/README.md`、`STATUS.md`、同目录产物）；
+4. 在 STATUS 的归档区域记录工作项标识、最终状态和归档目录链接（目录列指向 `docs/archive/YYYY/<feature-id>/`，工作项记录为其中的 `manager.md`）；
+5. 仓库可用时提交归档变更（可在目标分支或专门 chore 分支；与功能合入解耦）。
+
+归档完成后，`docs/manager/<feature-id>.md` 与 `docs/features/<feature-id>/` 均不得再残留。

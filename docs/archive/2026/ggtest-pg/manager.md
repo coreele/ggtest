@@ -7,8 +7,8 @@
 目标分支: main
 文档影响: docs/features/ggtest-pg/；README / CLI 用法 / `.env.example`（见 Plan）
 
-> 权威工作流、门禁与状态说明见 [docs/README.md](../README.md)。
-> 活跃状态见 [STATUS.md](STATUS.md)。
+> 权威工作流、门禁与状态说明见 [docs/README.md](../../README.md)。
+> 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
 >
 > 文档路径：未拆分时 Spec 为 `docs/features/ggtest-pg/spec.md`（无子目录）。
 
@@ -16,7 +16,7 @@
 
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
-| ggtest-pg | [spec.md](../features/ggtest-pg/spec.md) | required | approved | required（多库边界 + `.env` 配置解析/优先级） | required | done | 已授权关闭；合入 main（父项不归档，用户未要求） |
+| ggtest-pg | [spec.md](./spec.md) | required | approved | required（多库边界 + `.env` 配置解析/优先级） | required | done | 已授权关闭；合入 main；已归档至 `docs/archive/2026/ggtest-pg/` |
 
 阻塞原因: none
 恢复条件: none

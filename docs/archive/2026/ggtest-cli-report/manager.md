@@ -7,8 +7,8 @@
 目标分支: main
 文档影响: docs/features/ggtest-cli-report/spec.md；后续 plan/dev-notes/review/qa；可能涉及 README CLI 输出示例、既有报告断言测试（`CorpusHardAcceptanceTest`/`MainOrchestrationTest`/`EnvConfigIntegrationTest`/`ResultComparerTest`）；**计数语义改为按文件**（非 query）
 
-> 权威工作流、门禁与状态说明见 [docs/README.md](../README.md)。
-> 活跃状态见 [STATUS.md](STATUS.md)。
+> 权威工作流、门禁与状态说明见 [docs/README.md](../../README.md)。
+> 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
 >
 > 文档路径：未拆分时 Spec 为 `docs/features/ggtest-cli-report/spec.md`（无子目录）。
 
@@ -16,7 +16,7 @@
 
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
-| ggtest-cli-report | [spec.md](../archive/2026/ggtest-cli-report/spec.md) | required（通过；增量已回写） | **approved**（本轮增量用户已拍板） | skipped | required | **done**（已合入 `main`；已归档） | none |
+| ggtest-cli-report | [spec.md](./spec.md) | required（通过；增量已回写） | **approved**（本轮增量用户已拍板） | skipped | required | **done**（已合入 `main`；已归档） | none |
 
 阻塞原因: none
 恢复条件: none

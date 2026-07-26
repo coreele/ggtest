@@ -7,14 +7,14 @@
 目标分支: main
 文档影响: docs/features/fix-cli-credential-redaction/spec.md（短 Spec）；审计登记册 CA-002
 
-> 权威工作流、门禁与状态说明见 [docs/README.md](../README.md)。
-> 活跃状态见 [STATUS.md](STATUS.md)。
+> 权威工作流、门禁与状态说明见 [docs/README.md](../../README.md)。
+> 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
 
 ## 切片（未拆分时仅一行，sub-feature-id = feature-id）
 
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
-| fix-cli-credential-redaction | [spec.md](../features/fix-cli-credential-redaction/spec.md) | required（敏感信息输出合同） | approved（用户授权 Manager 自行决断 Spec/方案） | skipped（控制点明确，无分层选型争议） | required | **done** | none |
+| fix-cli-credential-redaction | [spec.md](./spec.md) | required（敏感信息输出合同） | approved（用户授权 Manager 自行决断 Spec/方案） | skipped（控制点明确，无分层选型争议） | required | **done** | none |
 
 阻塞原因: none
 恢复条件: none
