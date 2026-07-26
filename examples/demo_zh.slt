@@ -1,0 +1,184 @@
+# GGTEST 功能展示（sqllogictest 格式）
+#
+# 覆盖公开记录类型与期望形态。优先使用本文件与 examples/demo.slt；
+# examples/demo2.slt 仅为分隔符小样（可选）。
+#
+# SQLite（若当前目录 .env 指定了其他引擎，请显式传 --engine）：
+#   ./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo_zh.slt
+#   ./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo.slt examples/demo_zh.slt
+#
+# PostgreSQL（需要 CREATE/DROP SCHEMA）：
+#   ./bin/ggtest --engine postgres \
+#     --url 'jdbc:postgresql://localhost:5432/postgres' \
+#     --user postgres [--password ...] \
+#     examples/demo_zh.slt
+#
+# 默认 hash-threshold 为 8；文件内 hash-threshold 记录可中途覆盖。
+# 文件级 TOTAL 按文件计数（passed=1）。文件内：断言 + 条件/halt 跳过。
+
+# --- 准备 ---
+statement ok
+DROP TABLE IF EXISTS items;
+
+statement ok
+CREATE TABLE items(id INTEGER, name TEXT, price REAL)
+
+statement ok
+INSERT INTO items VALUES
+  (2, 'banana', 0.5),
+  (1, 'apple', 1.25),
+  (3, 'cherry', 3.0),
+  (4, '', 9.0),
+  (5, NULL, NULL)
+
+# --- 类型串 I / T / R + 排序模式 ---
+
+# T + rowsort：引擎返回顺序会按字典序重排
+query T rowsort
+SELECT name FROM items WHERE id <= 3
+----
+apple
+banana
+cherry
+
+# I + nosort：顺序必须与 ORDER BY 一致
+query I nosort
+SELECT id FROM items WHERE id <= 3 ORDER BY id
+----
+1
+2
+3
+
+# R：REAL 格式化为 %.3f
+query R nosort
+SELECT price FROM items WHERE id <= 3 ORDER BY id
+----
+1.250
+0.500
+3.000
+
+# valuesort：展开全部单元格后再按字符串排序
+query II valuesort
+SELECT id, CAST(price AS INTEGER) FROM items WHERE id IN (1, 2) ORDER BY id
+----
+0
+1
+1
+2
+
+# --- NULL 与 (empty) ---
+
+query T nosort
+SELECT name FROM items WHERE id = 4
+----
+(empty)
+
+query T nosort
+SELECT name FROM items WHERE id = 5
+----
+NULL
+
+query R nosort
+SELECT price FROM items WHERE id = 5
+----
+NULL
+
+# --- 每值一行（恰 ----）与行式（query 头 separator） ---
+
+# 恰 ---- 永远每值一行（每个物理行 = 一个单元格）
+query IIT nosort
+SELECT id, 1, name FROM items WHERE id = 1
+----
+1
+1
+apple
+
+# TEXT 含空格时整行保留为一个单元格（不会按空格拆列）
+query IIT nosort
+SELECT 1, 1, 'hello world'
+----
+1
+1
+hello world
+
+# 行式：在 query 头声明 separator；token 两侧 trim
+query IIT nosort separator |
+SELECT 1, 1, 'hello world'
+----
+1 | 1 | hello world
+
+# 另一种分隔符（逗号）；不继承上一条的 |
+query IIT nosort separator ,
+SELECT 1, 1, 'hello world'
+----
+1,1,hello world
+
+# SQL 字面量转义：'' 在单元格中变为单个 '
+query IIT nosort separator |
+SELECT 1, 1, 'hello ''world'
+----
+1 | 1 | hello 'world
+
+# 恰 ---- 对多列整数行仍是每值一行
+query III nosort
+SELECT 4, 5, 6
+----
+4
+5
+6
+
+# --- 仅执行（无 ---- 块）：跑 SQL，不做结果比对 ---
+query I nosort
+SELECT id FROM items WHERE id = 1
+
+# --- label：相同 label 必须得到相同结果视图 ---
+query I nosort same_id
+SELECT id FROM items WHERE id = 1
+----
+1
+
+query I nosort same_id
+SELECT id FROM items WHERE name = 'apple'
+----
+1
+
+# --- statement error：执行必须失败 ---
+statement error
+SELECT * FROM missing_table
+
+# --- skipif / onlyif（引擎名大小写不敏感） ---
+# sqlite：第一条跳过，第二条执行，第三条跳过。
+# postgres：第一条执行（须合法），第二条跳过，第三条执行。
+skipif sqlite
+statement ok
+SELECT 1
+
+onlyif sqlite
+statement ok
+SELECT 1
+
+onlyif postgres
+statement ok
+SELECT 1
+
+# --- hash-threshold：值个数超过 N 时改用 MD5 期望 ---
+hash-threshold 1
+
+query I nosort
+SELECT id FROM items WHERE id IN (1, 2) ORDER BY id
+----
+2 values hashing to 6ddb4095eb719e2a9f0a3f95677d24e0
+
+statement ok
+DROP TABLE IF EXISTS items;
+
+# --- halt：之后的记录一律跳过（不得执行） ---
+halt
+
+statement ok
+INSERT INTO absent_after_halt VALUES (1)
+
+query I nosort
+SELECT id FROM absent_after_halt
+----
+1

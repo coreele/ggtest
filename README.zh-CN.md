@@ -16,6 +16,8 @@
 
 ```bash
 mvn -q clean package
+# 功能展示（英文注释 demo.slt / 中文注释 demo_zh.slt，断言对等）
+./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo.slt examples/demo_zh.slt
 ./bin/ggtest --url jdbc:sqlite::memory: path/to/file.slt
 # 或：java -jar target/ggtest-*.jar --url jdbc:sqlite::memory: path/to/file.slt
 ```
@@ -119,7 +121,7 @@ delim 时换分隔符或改每值一行（无引号层）。
 
 ```text
 examples/demo.slt                                            .. [PASSED] in 5 ms
-examples/demo2.slt                                           .. [PASSED] in 6 ms
+examples/demo_zh.slt                                         .. [PASSED] in 6 ms
 
 TOTAL: passed=2 failed=0 skipped=0
 ```

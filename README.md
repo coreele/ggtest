@@ -29,6 +29,9 @@ PG tests are skipped and the default suite still passes. Gate variables are
 After packaging:
 
 ```bash
+# Feature showcase (English / Chinese comments; same assertions)
+./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo.slt examples/demo_zh.slt
+
 ./bin/ggtest --url jdbc:sqlite::memory: path/to/file.test
 ./bin/ggtest --url jdbc:postgresql://localhost:5432/dbname --engine postgres path/to/file.test
 # or
@@ -146,7 +149,7 @@ Counts in `TOTAL:` are **file counts** (not query counts).
 
 ```text
 examples/demo.slt                                            .. [PASSED] in 5 ms
-examples/demo2.slt                                           .. [PASSED] in 6 ms
+examples/demo_zh.slt                                         .. [PASSED] in 6 ms
 
 TOTAL: passed=2 failed=0 skipped=0
 ```
@@ -182,7 +185,7 @@ examples/demo.slt                                            .. [FAILED] in 18 m
     ...
     at examples/demo.slt:22
 
-examples/demo2.slt                                           .. [PASSED] in 6 ms
+examples/demo_zh.slt                                         .. [PASSED] in 6 ms
 examples/select1.test                                        .. [PASSED] in 142 ms
 
 Error: some test case failed:

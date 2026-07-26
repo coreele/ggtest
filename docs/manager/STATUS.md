@@ -18,6 +18,7 @@
 
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
+| fix-rowwise-value-per-line-compat | fix-rowwise-value-per-line-compat | 移除行式推断；行式改 query 头显式 `separator`；合入前补 demo/demo_zh/README | **done**（已 merge-auth；因禁止 commit **未合入 main**） | standard | required | 待用户自行提交后合入 main（见工作项阻塞说明） | [docs/features/fix-rowwise-value-per-line-compat/](../features/fix-rowwise-value-per-line-compat/) |
 | architecture-overview | architecture-overview | 项目介绍 + 既有系统架构设计文档与架构图（纯文档） | designing（Design 已完成） | standard | skipped | 待用户确认架构文档后关闭工作项（无代码合入） | [docs/features/architecture-overview/](../features/architecture-overview/) |
 | ggtest-pg | ggtest-pg | PostgreSQL + CLI `.env` 配置（多库扩展；隔离；凭据安全） | done | full | required | 已授权关闭；合入 main（不归档，用户未要求） | [docs/features/ggtest-pg/](../features/ggtest-pg/) |
 | fix-shared-defaults | fix-shared-defaults | 收敛 hash/separator 默认常量（Finding §4 Low + TD） | **done** | fast | skipped | 已授权关闭；已合入 main（未归档） | [docs/features/fix-shared-defaults/](../features/fix-shared-defaults/) |

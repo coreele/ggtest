@@ -1,0 +1,184 @@
+# GGTEST feature showcase (sqllogictest format)
+#
+# Covers public record types and expectation forms. Prefer this file (and
+# examples/demo_zh.slt) over the smaller separator-only examples/demo2.slt.
+#
+# SQLite (pass --engine when CWD .env sets another engine):
+#   ./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo.slt
+#   ./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo.slt examples/demo_zh.slt
+#
+# PostgreSQL (needs CREATE/DROP SCHEMA):
+#   ./bin/ggtest --engine postgres \
+#     --url 'jdbc:postgresql://localhost:5432/postgres' \
+#     --user postgres [--password ...] \
+#     examples/demo.slt
+#
+# Default hash-threshold is 8; an in-file hash-threshold record overrides mid-file.
+# File TOTAL is per-file (passed=1). Inside: asserts + condition/halt skips.
+
+# --- setup ---
+statement ok
+DROP TABLE IF EXISTS items;
+
+statement ok
+CREATE TABLE items(id INTEGER, name TEXT, price REAL)
+
+statement ok
+INSERT INTO items VALUES
+  (2, 'banana', 0.5),
+  (1, 'apple', 1.25),
+  (3, 'cherry', 3.0),
+  (4, '', 9.0),
+  (5, NULL, NULL)
+
+# --- I / T / R + sort modes ---
+
+# T + rowsort: engine order is re-sorted lexicographically
+query T rowsort
+SELECT name FROM items WHERE id <= 3
+----
+apple
+banana
+cherry
+
+# I + nosort: order must match ORDER BY
+query I nosort
+SELECT id FROM items WHERE id <= 3 ORDER BY id
+----
+1
+2
+3
+
+# R: REAL formatted as %.3f
+query R nosort
+SELECT price FROM items WHERE id <= 3 ORDER BY id
+----
+1.250
+0.500
+3.000
+
+# valuesort: flatten all cells then sort as strings
+query II valuesort
+SELECT id, CAST(price AS INTEGER) FROM items WHERE id IN (1, 2) ORDER BY id
+----
+0
+1
+1
+2
+
+# --- NULL and (empty) ---
+
+query T nosort
+SELECT name FROM items WHERE id = 4
+----
+(empty)
+
+query T nosort
+SELECT name FROM items WHERE id = 5
+----
+NULL
+
+query R nosort
+SELECT price FROM items WHERE id = 5
+----
+NULL
+
+# --- value-per-line (plain ----) vs row-wise (query-head separator) ---
+
+# Plain ---- is always value-per-line (one physical line = one cell)
+query IIT nosort
+SELECT id, 1, name FROM items WHERE id = 1
+----
+1
+1
+apple
+
+# Spaces in TEXT stay on one value-per-line cell (not split into columns)
+query IIT nosort
+SELECT 1, 1, 'hello world'
+----
+1
+1
+hello world
+
+# Row-wise: declare separator on the query header; tokens are trimmed
+query IIT nosort separator |
+SELECT 1, 1, 'hello world'
+----
+1 | 1 | hello world
+
+# Another delimiter (comma); does not inherit prior |
+query IIT nosort separator ,
+SELECT 1, 1, 'hello world'
+----
+1,1,hello world
+
+# SQL quote escaping: '' inside a literal becomes a single ' in the cell
+query IIT nosort separator |
+SELECT 1, 1, 'hello ''world'
+----
+1 | 1 | hello 'world
+
+# Plain ---- remains value-per-line even for multi-column integer rows
+query III nosort
+SELECT 4, 5, 6
+----
+4
+5
+6
+
+# --- execute-only (no ---- block): run SQL, do not compare ---
+query I nosort
+SELECT id FROM items WHERE id = 1
+
+# --- label: same label must yield the same result view ---
+query I nosort same_id
+SELECT id FROM items WHERE id = 1
+----
+1
+
+query I nosort same_id
+SELECT id FROM items WHERE name = 'apple'
+----
+1
+
+# --- statement error: execution MUST fail ---
+statement error
+SELECT * FROM missing_table
+
+# --- skipif / onlyif (engine name case-insensitive) ---
+# On sqlite: first skipped, second runs, third skipped.
+# On postgres: first runs (must be valid), second skipped, third runs.
+skipif sqlite
+statement ok
+SELECT 1
+
+onlyif sqlite
+statement ok
+SELECT 1
+
+onlyif postgres
+statement ok
+SELECT 1
+
+# --- hash-threshold: above N values → MD5 form ---
+hash-threshold 1
+
+query I nosort
+SELECT id FROM items WHERE id IN (1, 2) ORDER BY id
+----
+2 values hashing to 6ddb4095eb719e2a9f0a3f95677d24e0
+
+statement ok
+DROP TABLE IF EXISTS items;
+
+# --- halt: everything after is skipped (must not execute) ---
+halt
+
+statement ok
+INSERT INTO absent_after_halt VALUES (1)
+
+query I nosort
+SELECT id FROM absent_after_halt
+----
+1
