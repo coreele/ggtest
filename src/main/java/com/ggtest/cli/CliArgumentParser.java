@@ -18,7 +18,6 @@ import java.util.Optional;
 public final class CliArgumentParser {
 
     public static final String DEFAULT_ENGINE = "sqlite";
-    public static final int DEFAULT_HASH_THRESHOLD = 8;
 
     private CliArgumentParser() {}
 

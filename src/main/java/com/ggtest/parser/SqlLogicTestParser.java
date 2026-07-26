@@ -7,6 +7,7 @@ import com.ggtest.model.OnlyIfRecord;
 import com.ggtest.model.QueryRecord;
 import com.ggtest.model.SkipIfRecord;
 import com.ggtest.model.SortMode;
+import com.ggtest.model.SqlLogicDefaults;
 import com.ggtest.model.SourceLocation;
 import com.ggtest.model.SqlTestRecord;
 import com.ggtest.model.StatementExpectation;
@@ -29,8 +30,6 @@ import java.util.Optional;
  * extensionless path. Does not connect to a database or evaluate directives.
  */
 public final class SqlLogicTestParser {
-
-    private static final String DEFAULT_COLUMN_SEPARATOR = " ";
 
     /**
      * Reads {@code file} as UTF-8 and parses it. The source name used in
@@ -174,7 +173,7 @@ public final class SqlLogicTestParser {
         List<String> sqlLines = new ArrayList<>();
         boolean hasExpected = false;
         List<String> expected = List.of();
-        String columnSeparator = DEFAULT_COLUMN_SEPARATOR;
+        String columnSeparator = SqlLogicDefaults.DEFAULT_COLUMN_SEPARATOR;
         boolean explicitColumnSeparator = false;
 
         while (lines.hasNext()) {
@@ -226,7 +225,7 @@ public final class SqlLogicTestParser {
         }
         String trimmed = rawLine.trim();
         if (trimmed.equals("----")) {
-            return Optional.of(new ExpectationHeader(DEFAULT_COLUMN_SEPARATOR, false));
+            return Optional.of(new ExpectationHeader(SqlLogicDefaults.DEFAULT_COLUMN_SEPARATOR, false));
         }
         return Optional.of(parseSeparatorExpectationHeader(sourceName, lineNumber, leadingStripped));
     }

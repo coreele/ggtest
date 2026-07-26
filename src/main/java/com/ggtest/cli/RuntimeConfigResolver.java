@@ -1,5 +1,6 @@
 package com.ggtest.cli;
 
+import com.ggtest.normalize.ResultComparer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -162,7 +163,7 @@ public final class RuntimeConfigResolver {
         if (fromFile != null) {
             return parseHashThreshold(fromFile);
         }
-        return CliArgumentParser.DEFAULT_HASH_THRESHOLD;
+        return ResultComparer.DEFAULT_HASH_THRESHOLD;
     }
 
     private static int parseHashThreshold(String raw) {

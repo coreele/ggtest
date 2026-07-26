@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.ggtest.normalize.ResultComparer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -182,6 +183,13 @@ class RuntimeConfigResolverTest {
                 java.util.List.of("a.test"));
         assertFalse(options.toString().contains("super-secret-credential"));
         assertTrue(options.toString().contains("***"));
+    }
+
+    @Test
+    void defaultHashThresholdIsEight() {
+        CliOptions options = resolve(
+                parsed("--url", "jdbc:sqlite::memory:", "a.test"), key -> null);
+        assertEquals(ResultComparer.DEFAULT_HASH_THRESHOLD, options.hashThreshold());
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.ggtest.normalize;
 
 import com.ggtest.model.ColumnType;
 import com.ggtest.model.SortMode;
+import com.ggtest.model.SqlLogicDefaults;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +24,7 @@ public final class ResultComparer {
     public static final int DEFAULT_HASH_THRESHOLD = 8;
 
     /** Default column separator for row-wise expected lines (U+0020). */
-    public static final String DEFAULT_COLUMN_SEPARATOR = " ";
+    public static final String DEFAULT_COLUMN_SEPARATOR = SqlLogicDefaults.DEFAULT_COLUMN_SEPARATOR;
 
     private ResultComparer() {}
 
