@@ -1,7 +1,7 @@
 # GGTEST feature showcase (sqllogictest format)
 #
-# Covers public record types and expectation forms. Prefer this file (and
-# examples/demo_zh.slt) over the smaller separator-only examples/demo2.slt.
+# Covers public record types and expectation forms. Pair with
+# examples/demo_zh.slt for the Chinese commentary twin.
 #
 # SQLite (pass --engine when CWD .env sets another engine):
 #   ./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo.slt

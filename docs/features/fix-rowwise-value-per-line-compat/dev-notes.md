@@ -30,7 +30,7 @@
 - `src/test/java/com/ggtest/model/SqlLogicDefaultsTest.java`（删除）
 - `src/test/resources/fixtures/runner/value-per-line-spaced-text.test`（新）；`rowwise-pipe-separator.test` / `rowwise-mixed.test`（改）；`rowwise-default-space.test`（删）
 - `README.md` / `README.zh-CN.md`
-- `examples/demo.slt`（修订）；`examples/demo_zh.slt`（新增）；`examples/demo2.slt`（保留为分隔符小样）
+- `examples/demo.slt`（修订）；`examples/demo_zh.slt`（新增）；`examples/demo2.slt`（已删除，独特用例并入 demo）
 
 ## 验证证据
 
@@ -40,7 +40,6 @@
 | `grep -r 'mixed expected line shapes' src/main` | 零命中 |
 | `./bin/ggtest --engine sqlite --url 'jdbc:sqlite::memory:' examples/select4.test` | 退出码 0；`TOTAL: passed=1 failed=0 skipped=0` |
 | `./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo.slt examples/demo_zh.slt` | 退出码 0；`TOTAL: passed=2 failed=0 skipped=0` |
-| `./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo2.slt` | 退出码 0；`TOTAL: passed=1 failed=0 skipped=0` |
 
 关键用例：`queryHead_separatorPipe_noLabel_bindsDelim`、`p0_6_queryHead_trailingSeparatorToken_isLabelNotDeclaration`、`p0_7_expectationHeader_separatorRemoved_throwsReadableParseException`、`p0_3_defaultSpaceRowWiseAbolished_singleValueFails`、`p0_4_select4Shape_spacedTextValuePerLinePasses`、`p0_5_mixedTokenCounts_returnsFailedCompareNotThrow`、`p0_9_valuePerLineSpacedTextFixturePasses`。
 
@@ -48,7 +47,7 @@
 
 ## 合入前补充（2026-07-26；零 commit）
 
-- **demo2 决策：并入主 showcase + 保留小样** — `demo.slt` / `demo_zh.slt` 已覆盖 `|` / `,` 行式、含空格 TEXT 每值一行、SQL `''` → `'`；`demo2.slt` 仍保留为分隔符聚焦样例（可后续删除）。
+- **demo2 决策：并入主 showcase 后删除** — `demo.slt` / `demo_zh.slt` 已覆盖 `|` / `,` 行式、含空格 TEXT 每值一行、SQL `''` → `'`；`examples/demo2.slt` 已移除。
 - **demo 覆盖**：`statement ok/error`；`query` I/T/R、`nosort`/`rowsort`/`valuesort`、label、`separator`；纯 `----` 每值一行；NULL/`(empty)`；execute-only；`skipif`/`onlyif`；`hash-threshold` + MD5；`halt`；文件头 sqlite/postgres 命令。
 - **README**：运行示例与报告样例改为 `demo.slt` + `demo_zh.slt`；「Expected results / 期望结果」仍为 query 头 `separator`、勿宣传空格猜行式 / `---- separator`。
 - **未改** Java、`docs/manager/*`、`STATUS.md`、spec/plan、`architecture-overview`；未删 `examples/select*.test`。
@@ -66,7 +65,7 @@
 
 ## 建议复测范围（Reviewer / QA）
 
-- 冒烟：`./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo.slt examples/demo_zh.slt`（可选 `demo2.slt`）。
+- 冒烟：`./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo.slt examples/demo_zh.slt`。
 - 抽查 README 中英运行示例与报告样例文件名。
 - 原实现轮：`mvn -q clean test`；select4 sqlite；`src/main` 无 `mixed expected line shapes`（已 Approve/Pass，本轮未改 Java）。
 

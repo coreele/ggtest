@@ -1,7 +1,6 @@
 # GGTEST 功能展示（sqllogictest 格式）
 #
-# 覆盖公开记录类型与期望形态。优先使用本文件与 examples/demo.slt；
-# examples/demo2.slt 仅为分隔符小样（可选）。
+# 覆盖公开记录类型与期望形态。与 examples/demo.slt 对等（英文注释版）。
 #
 # SQLite（若当前目录 .env 指定了其他引擎，请显式传 --engine）：
 #   ./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo_zh.slt
