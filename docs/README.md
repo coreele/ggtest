@@ -298,7 +298,7 @@ Manager 仅在以下情况归档**整个**工作项（features 产物与 manager
 1. 从 `docs/manager/STATUS.md` 的活跃列表移除工作项；
 2. 确保 `docs/archive/YYYY/<feature-id>/` 存在：若存在 `docs/features/<feature-id>/`，将其**移动**到该归档目录；若无 features 目录（例如纯 cancelled、草稿已删），则创建空的归档目录；
 3. 将 `docs/manager/<feature-id>.md` **移动**为 `docs/archive/YYYY/<feature-id>/manager.md`，并修正文内相对链接（指向 `docs/README.md`、`STATUS.md`、同目录产物）；
-4. 在 STATUS 的归档区域记录工作项标识、最终状态和归档目录链接（目录列指向 `docs/archive/YYYY/<feature-id>/`，工作项记录为其中的 `manager.md`）；
+4. 在 STATUS 的归档区域记录工作项标识、最终状态和归档目录链接（目录列指向 `docs/archive/YYYY/<feature-id>/manager.md`）；
 5. 仓库可用时提交归档变更（可在目标分支或专门 chore 分支；与功能合入解耦）。
 
 归档完成后，`docs/manager/<feature-id>.md` 与 `docs/features/<feature-id>/` 均不得再残留。

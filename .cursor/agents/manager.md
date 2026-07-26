@@ -243,7 +243,7 @@ Developer 修复后必须更新 `dev-notes.md` 并给出建议复测范围。`st
 1. 从 `docs/manager/STATUS.md` 活跃列表移除工作项；
 2. 若存在 `docs/features/<feature-id>/`，将其移动到 `docs/archive/YYYY/<feature-id>/`；否则创建该归档目录；
 3. 将 `docs/manager/<feature-id>.md` 移动为 `docs/archive/YYYY/<feature-id>/manager.md`，并修正相对链接；归档后不得在 `docs/manager/` 残留该文件；
-4. 在 STATUS 归档区域记录工作项标识、最终状态和归档目录链接；
+4. 在 STATUS 归档区域记录工作项标识、最终状态和归档目录链接（目录列指向 `docs/archive/YYYY/<feature-id>/manager.md`）；
 5. 仓库可用时提交归档变更。
 
 ## 工程规范

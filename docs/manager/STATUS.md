@@ -25,18 +25,18 @@
 
 ## 已归档
 
-归档目录：[`docs/archive/YYYY/`](../archive/)。每个归档目录含原 `docs/features/<feature-id>/` 产物（若有）与工作项记录 [`manager.md`](../archive/2026/)。
+归档根目录：[`docs/archive/YYYY/`](../archive/)。「目录」列直接链接各工作项的 `docs/archive/YYYY/<feature-id>/manager.md`（同目录另含原 features 产物，若有）。
 
 | feature-id | sub-feature-id | 最终状态 | 目录 |
 |---|---|---|---|
-| architecture-overview | architecture-overview | cancelled（用户舍弃；草稿已删；工作项记录已归档） | [docs/archive/2026/architecture-overview/](../archive/2026/architecture-overview/) |
-| fix-rowwise-value-per-line-compat | fix-rowwise-value-per-line-compat | done（已合入 `main`；已归档） | [docs/archive/2026/fix-rowwise-value-per-line-compat/](../archive/2026/fix-rowwise-value-per-line-compat/) |
-| ggtest-pg | ggtest-pg | done（已合入 `main`；已归档） | [docs/archive/2026/ggtest-pg/](../archive/2026/ggtest-pg/) |
-| fix-shared-defaults | fix-shared-defaults | done（已合入 `main`；已归档） | [docs/archive/2026/fix-shared-defaults/](../archive/2026/fix-shared-defaults/) |
-| fix-jdbc-executor-dedup | fix-jdbc-executor-dedup | done（已合入 `main`；已归档） | [docs/archive/2026/fix-jdbc-executor-dedup/](../archive/2026/fix-jdbc-executor-dedup/) |
-| fix-cli-credential-redaction | fix-cli-credential-redaction | done（已合入 `main`；已归档） | [docs/archive/2026/fix-cli-credential-redaction/](../archive/2026/fix-cli-credential-redaction/) |
-| fix-pg-teardown-once | fix-pg-teardown-once | done（已合入 `main`；已归档） | [docs/archive/2026/fix-pg-teardown-once/](../archive/2026/fix-pg-teardown-once/) |
-| refactor-cli-session-boundaries | refactor-cli-session-boundaries | done（已合入 `main`；已归档） | [docs/archive/2026/refactor-cli-session-boundaries/](../archive/2026/refactor-cli-session-boundaries/) |
-| ggtest-core | ggtest-core（含 parser/normalize/runner-sqlite/cli-corpus 四切片） | done（父项归档；四切片均 done 且已合入 `main`） | [docs/archive/2026/ggtest-core/](../archive/2026/ggtest-core/) |
-| ggtest-cli-report | ggtest-cli-report | done（已合入 `main`；已归档） | [docs/archive/2026/ggtest-cli-report/](../archive/2026/ggtest-cli-report/) |
-| ggtest-rowwise-expected | ggtest-rowwise-expected | done（已合入 `main`；已归档） | [docs/archive/2026/ggtest-rowwise-expected/](../archive/2026/ggtest-rowwise-expected/) |
+| architecture-overview | architecture-overview | cancelled（用户舍弃；草稿已删；工作项记录已归档） | [docs/archive/2026/architecture-overview/manager.md](../archive/2026/architecture-overview/manager.md) |
+| fix-rowwise-value-per-line-compat | fix-rowwise-value-per-line-compat | done（已合入 `main`；已归档） | [docs/archive/2026/fix-rowwise-value-per-line-compat/manager.md](../archive/2026/fix-rowwise-value-per-line-compat/manager.md) |
+| ggtest-pg | ggtest-pg | done（已合入 `main`；已归档） | [docs/archive/2026/ggtest-pg/manager.md](../archive/2026/ggtest-pg/manager.md) |
+| fix-shared-defaults | fix-shared-defaults | done（已合入 `main`；已归档） | [docs/archive/2026/fix-shared-defaults/manager.md](../archive/2026/fix-shared-defaults/manager.md) |
+| fix-jdbc-executor-dedup | fix-jdbc-executor-dedup | done（已合入 `main`；已归档） | [docs/archive/2026/fix-jdbc-executor-dedup/manager.md](../archive/2026/fix-jdbc-executor-dedup/manager.md) |
+| fix-cli-credential-redaction | fix-cli-credential-redaction | done（已合入 `main`；已归档） | [docs/archive/2026/fix-cli-credential-redaction/manager.md](../archive/2026/fix-cli-credential-redaction/manager.md) |
+| fix-pg-teardown-once | fix-pg-teardown-once | done（已合入 `main`；已归档） | [docs/archive/2026/fix-pg-teardown-once/manager.md](../archive/2026/fix-pg-teardown-once/manager.md) |
+| refactor-cli-session-boundaries | refactor-cli-session-boundaries | done（已合入 `main`；已归档） | [docs/archive/2026/refactor-cli-session-boundaries/manager.md](../archive/2026/refactor-cli-session-boundaries/manager.md) |
+| ggtest-core | ggtest-core（含 parser/normalize/runner-sqlite/cli-corpus 四切片） | done（父项归档；四切片均 done 且已合入 `main`） | [docs/archive/2026/ggtest-core/manager.md](../archive/2026/ggtest-core/manager.md) |
+| ggtest-cli-report | ggtest-cli-report | done（已合入 `main`；已归档） | [docs/archive/2026/ggtest-cli-report/manager.md](../archive/2026/ggtest-cli-report/manager.md) |
+| ggtest-rowwise-expected | ggtest-rowwise-expected | done（已合入 `main`；已归档） | [docs/archive/2026/ggtest-rowwise-expected/manager.md](../archive/2026/ggtest-rowwise-expected/manager.md) |
