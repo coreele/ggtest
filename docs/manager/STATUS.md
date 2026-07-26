@@ -20,6 +20,11 @@
 |---|---|---|---|---|---|---|---|
 | architecture-overview | architecture-overview | 项目介绍 + 既有系统架构设计文档与架构图（纯文档） | designing（Design 已完成） | standard | skipped | 待用户确认架构文档后关闭工作项（无代码合入） | [docs/features/architecture-overview/](../features/architecture-overview/) |
 | ggtest-pg | ggtest-pg | PostgreSQL + CLI `.env` 配置（多库扩展；隔离；凭据安全） | done | full | required | 已授权关闭；合入 main（不归档，用户未要求） | [docs/features/ggtest-pg/](../features/ggtest-pg/) |
+| fix-shared-defaults | fix-shared-defaults | 收敛 hash/separator 默认常量（Finding §4 Low + TD） | **done** | fast | skipped | 已授权关闭；已合入 main（未归档） | [docs/features/fix-shared-defaults/](../features/fix-shared-defaults/) |
+| fix-jdbc-executor-dedup | fix-jdbc-executor-dedup | JDBC 执行器去重（审计 Finding §4 Medium） | **done** | standard | skipped | 已授权关闭；已合入 main（未归档） | [docs/features/fix-jdbc-executor-dedup/](../features/fix-jdbc-executor-dedup/) |
+| fix-cli-credential-redaction | fix-cli-credential-redaction | CLI 凭据脱敏（审计 Finding §7 Medium+Low） | **done** | standard | required | 已授权关闭；已合入 main（未归档） | [docs/features/fix-cli-credential-redaction/](../features/fix-cli-credential-redaction/) |
+| fix-pg-teardown-once | fix-pg-teardown-once | PG teardown 单次路径（Tech Debt Low） | **done** | fast | skipped | 已授权关闭；已合入 main（未归档） | [docs/features/fix-pg-teardown-once/](../features/fix-pg-teardown-once/) |
+| refactor-cli-session-boundaries | refactor-cli-session-boundaries | 拆分 CliSession 边界（Tech Debt Medium） | **done** | standard | skipped | 已授权关闭；已合入 main（未归档；rebase 去重 3+4） | [docs/features/refactor-cli-session-boundaries/](../features/refactor-cli-session-boundaries/) |
 
 ## 已归档
 

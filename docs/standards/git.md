@@ -100,15 +100,23 @@
 
 禁止在受保护分支上直接实施功能或缺陷修复；实现必须经工作分支合并进入。
 
-## 6. 无法 fast-forward 或合并策略不明确
+## 6. 合入目标分支的默认策略
+
+**默认优先：rebase 到最新目标分支后 fast-forward 合入**，避免无必要的 merge commit，保持主线线性历史。
+
+推荐流程（本地或 CI 等价操作）：
+
+1. 在源分支执行 `git fetch`（若使用远程）并 `git rebase <目标分支>`（通常为 `main`）；
+2. 解决冲突后，在目标分支上 `git merge --ff-only <源分支>`；
+3. 若源分支已包含另一些已合入（或即将合入）分支的提交，只 rebase/合入尚未在目标上的独有提交（例如 `git rebase --onto <目标> <已包含的公共祖先> <源分支>`），避免重复提交与多余 merge commit。
 
 出现以下情形时，须停止合并操作并返回 Manager 与用户决策：
 
-- 无法 fast-forward 且仓库未规定允许的合并策略（merge commit、rebase、squash 等）；
+- 无法 fast-forward，且 rebase 不可行或用户未授权改写源分支历史；
 - 存在未解决的合并冲突且无法在不破坏 Plan 范围的前提下安全解决；
 - 目标分支保护规则与当前合并请求冲突。
 
-不得自行假设合并策略或强制推进。
+不得自行假设允许 merge commit 或 force push；偏离「rebase + FF」须有用户明确授权。
 
 ## 7. 回滚
 

@@ -18,11 +18,11 @@
 
 | ID | 类型 | 状态 | 位置 | 简述 | 影响 / 接受理由 | 建议下一步 | 更新日期 |
 |---|---|---|---|---|---|---|---|
-| CA-001 | Tech Debt | open | `SqliteJdbcExecutor` / `PostgresJdbcExecutor` | 两引擎执行器近乎同构重复 | 致命判定/行读取易漂移 | 工作项 `fix-jdbc-executor-dedup` | 2026-07-26 |
-| CA-002 | Known Issue | open | `CliSession.sanitize` / `CliOptions.toString` | sanitize 仅 strip；url 可能含 userinfo | 诊断输出可能泄露凭据片段 | 工作项 `fix-cli-credential-redaction` | 2026-07-26 |
-| CA-003 | Tech Debt | open | `CliSession.java` | 会话过大（编排/连接/PG/报告/脱敏） | 改报告或换引擎牵动面大 | 工作项 `refactor-cli-session-boundaries`（等依赖） | 2026-07-26 |
-| CA-004 | Tech Debt | resolved | `ResultComparer` | `DEFAULT_HASH_THRESHOLD=8` 双定义 | 已收敛；唯一字面量在 `ResultComparer`；`RuntimeConfigResolver` 引用 | — | 2026-07-26 |
-| CA-005 | Tech Debt | resolved | `SqlLogicDefaults` / `ResultComparer` | `DEFAULT_COLUMN_SEPARATOR` 双定义 | 已收敛；唯一字面量在 `model.SqlLogicDefaults`；parser 与 `ResultComparer` 转发引用 | — | 2026-07-26 |
-| CA-006 | Tech Debt | open | `CliSession` PG teardown | try hardFailure 后 finally 可能二次 DROP | 错误日志可能重复 | 工作项 `fix-pg-teardown-once` | 2026-07-26 |
+| CA-001 | Tech Debt | resolved | `AbstractJdbcExecutor` + sqlite/postgres 子类 | 两引擎执行器同构重复已抽取 | 已合入 `main`（`fix-jdbc-executor-dedup`） | none | 2026-07-26 |
+| CA-002 | Known Issue | resolved | `CredentialRedaction` / 诊断输出控制点 | 诊断输出脱敏已落地 | 已合入 `main`（`fix-cli-credential-redaction`；refactor 保留） | none | 2026-07-26 |
+| CA-003 | Tech Debt | resolved | `CliSession` → `FileRunner` / `ReportWriter` | 会话过大已拆边界 | 已合入 `main`（`refactor-cli-session-boundaries`） | none | 2026-07-26 |
+| CA-004 | Tech Debt | resolved | `ResultComparer.DEFAULT_HASH_THRESHOLD` | hash 阈值单一权威 | 已合入 `main`（`fix-shared-defaults`） | none | 2026-07-26 |
+| CA-005 | Tech Debt | resolved | `SqlLogicDefaults` / `ResultComparer` 转发 | column separator 单一权威 | 已合入 `main`（`fix-shared-defaults`） | none | 2026-07-26 |
+| CA-006 | Tech Debt | resolved | `FileRunner` / 原 `CliSession.runPostgresFile` | PG teardown 仅 finally 一次 | 已合入 `main`（`fix-pg-teardown-once`；refactor 保留） | none | 2026-07-26 |
 | CA-007 | 优化 | accepted | `ResultComparer` LCS | 失败 diff `O(n*m)` | 超大失败集可能陡增；通过路径不受影响；本批不做大改 | backlog / 后续按需 | 2026-07-26 |
 | CA-008 | Accepted Risk | accepted | `ValueNormalizer` | 非法 I/R 归一为 0 / 0.000（对齐 sqllogictest） | 非缺陷；可补 Javadoc | 可选文档改进，本批不强制 | 2026-07-26 |
