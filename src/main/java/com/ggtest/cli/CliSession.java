@@ -390,8 +390,8 @@ final class CliSession {
     }
 
     /** Strips accidental credential echoes; never logs passwords. */
-    private static String sanitize(String message) {
-        return message == null ? "" : message.strip();
+    String sanitize(String message) {
+        return CredentialRedaction.redactMessage(message, options.password());
     }
 
     private enum FileBucket {

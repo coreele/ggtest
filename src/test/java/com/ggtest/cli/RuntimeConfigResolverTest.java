@@ -193,6 +193,24 @@ class RuntimeConfigResolverTest {
     }
 
     @Test
+    void cliOptionsToStringRedactsUrlUserInfo() {
+        CliOptions options = new CliOptions(
+                "jdbc:postgresql://alice:bob@localhost/mydb",
+                Optional.of("alice"),
+                Optional.of("plain-password-value"),
+                "postgres",
+                8,
+                ColorMode.AUTO,
+                java.util.List.of("a.test"));
+        String dump = options.toString();
+
+        assertFalse(dump.contains("bob"), "URL userinfo password must not appear");
+        assertFalse(dump.contains("plain-password-value"), "password field must not appear");
+        assertTrue(dump.contains("***"), "password field must be masked");
+        assertTrue(dump.contains("localhost"), "host remains readable");
+    }
+
+    @Test
     void colorDefaultsToAuto() {
         CliOptions options = resolve(
                 parsed("--url", "jdbc:sqlite::memory:", "a.test"), key -> null);

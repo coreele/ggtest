@@ -37,7 +37,7 @@ public record CliOptions(
     @Override
     public String toString() {
         return "CliOptions[url="
-                + url
+                + CredentialRedaction.redactUrlUserInfo(url)
                 + ", user="
                 + user
                 + ", password="
