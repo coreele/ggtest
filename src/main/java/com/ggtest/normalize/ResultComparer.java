@@ -2,19 +2,20 @@ package com.ggtest.normalize;
 
 import com.ggtest.model.ColumnType;
 import com.ggtest.model.SortMode;
-import com.ggtest.model.SqlLogicDefaults;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Compares expected sqllogictest result text against actual raw query rows
  * after I/T/R normalization, sorting, and optional MD5 hashing.
  *
- * <p>Supports value-per-line expectations (default) and row-wise expectations
- * inferred from column count and the current query's column separator. When the
- * expectation header used {@code ---- separator}, tokens are trimmed after split;
- * there is no quote shell on expected cells.
+ * <p>Supports value-per-line expectations (default when no separator is declared)
+ * and row-wise expectations when the query header declares {@code separator <delim>}.
+ * Declared separators trim tokens after split; there is no quote shell on expected cells.
+ * A row-wise line whose token count is not {@code C} yields a failed compare result
+ * (run continues), not a parse abort.
  *
  * <p>No JDBC dependency — callers supply already-fetched values.
  */
@@ -22,9 +23,6 @@ public final class ResultComparer {
 
     /** Default hash-threshold initial value (Q5). */
     public static final int DEFAULT_HASH_THRESHOLD = 8;
-
-    /** Default column separator for row-wise expected lines (U+0020). */
-    public static final String DEFAULT_COLUMN_SEPARATOR = SqlLogicDefaults.DEFAULT_COLUMN_SEPARATOR;
 
     private ResultComparer() {}
 
@@ -43,8 +41,8 @@ public final class ResultComparer {
             String diffSummary) {}
 
     /**
-     * Compares expected text to actual rows using {@link #DEFAULT_COLUMN_SEPARATOR}
-     * and a non-explicit separator (default space row-wise rules).
+     * Compares expected text to actual rows using value-per-line expectations
+     * (no declared column separator).
      *
      * @param typeSignature  column types
      * @param sortMode       sort mode applied before compare/hash
@@ -58,33 +56,24 @@ public final class ResultComparer {
             int hashThreshold,
             String expectedText,
             List<List<String>> actualRows) {
-        return compare(
-                typeSignature,
-                sortMode,
-                hashThreshold,
-                DEFAULT_COLUMN_SEPARATOR,
-                false,
-                expectedText,
-                actualRows);
+        return compare(typeSignature, sortMode, hashThreshold, Optional.empty(), expectedText, actualRows);
     }
 
     /**
-     * Compares expected text to actual rows with an explicit/non-explicit column separator.
+     * Compares expected text to actual rows with an optional declared column separator.
      *
-     * @param typeSignature              column types
-     * @param sortMode                   sort mode applied before compare/hash
-     * @param hashThreshold              current threshold; {@code <= 0} disables hashing
-     * @param columnSeparator            literal separator for inferring/splitting row-wise lines
-     * @param explicitColumnSeparator    whether the query expectation header used {@code ---- separator}
-     * @param expectedText               expected body after the expectation header
-     * @param actualRows                 raw result rows
+     * @param typeSignature    column types
+     * @param sortMode         sort mode applied before compare/hash
+     * @param hashThreshold    current threshold; {@code <= 0} disables hashing
+     * @param columnSeparator  declared row-wise delimiter; empty = value-per-line
+     * @param expectedText     expected body after the expectation header
+     * @param actualRows       raw result rows
      */
     public static CompareResult compare(
             List<ColumnType> typeSignature,
             SortMode sortMode,
             int hashThreshold,
-            String columnSeparator,
-            boolean explicitColumnSeparator,
+            Optional<String> columnSeparator,
             String expectedText,
             List<List<String>> actualRows) {
         Objects.requireNonNull(typeSignature, "typeSignature");
@@ -94,14 +83,26 @@ public final class ResultComparer {
         if (typeSignature.isEmpty()) {
             throw new IllegalArgumentException("typeSignature must not be empty");
         }
-        if (columnSeparator.isEmpty()) {
-            throw new IllegalArgumentException("columnSeparator must not be empty");
+        if (columnSeparator.isPresent()) {
+            String delim = columnSeparator.get();
+            if (delim.isEmpty()) {
+                throw new IllegalArgumentException("columnSeparator must not be empty when present");
+            }
+            if (delim.chars().anyMatch(Character::isWhitespace)) {
+                throw new IllegalArgumentException("columnSeparator must not contain whitespace");
+            }
         }
 
         List<String> normalized = ResultSorter.normalizeAndSort(typeSignature, sortMode, actualRows);
-        List<String> expectedLines = ExpectedResultExpander.expand(
-                typeSignature, sortMode, columnSeparator, explicitColumnSeparator, expectedText);
         List<String> actualLines = renderActual(normalized, hashThreshold);
+
+        List<String> expectedLines;
+        try {
+            expectedLines = ExpectedResultExpander.expand(
+                    typeSignature, sortMode, columnSeparator, expectedText);
+        } catch (IllegalArgumentException ex) {
+            return new CompareResult(false, List.of(), actualLines, ex.getMessage());
+        }
 
         if (expectedLines.equals(actualLines)) {
             return new CompareResult(true, expectedLines, actualLines, "");
@@ -110,22 +111,14 @@ public final class ResultComparer {
     }
 
     /**
-     * Convenience overload using {@link #DEFAULT_HASH_THRESHOLD} and
-     * {@link #DEFAULT_COLUMN_SEPARATOR} (non-explicit).
+     * Convenience overload using {@link #DEFAULT_HASH_THRESHOLD} and value-per-line.
      */
     public static CompareResult compare(
             List<ColumnType> typeSignature,
             SortMode sortMode,
             String expectedText,
             List<List<String>> actualRows) {
-        return compare(
-                typeSignature,
-                sortMode,
-                DEFAULT_HASH_THRESHOLD,
-                DEFAULT_COLUMN_SEPARATOR,
-                false,
-                expectedText,
-                actualRows);
+        return compare(typeSignature, sortMode, DEFAULT_HASH_THRESHOLD, Optional.empty(), expectedText, actualRows);
     }
 
     static List<String> renderActual(List<String> normalizedValues, int hashThreshold) {

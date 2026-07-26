@@ -121,15 +121,15 @@ class RunnerAcceptanceTest {
     }
 
     @Test
-    void p0_9_rowWiseDefaultSpaceFixturePasses() {
-        FileRunResult result = run("rowwise-default-space.test");
+    void p0_9_valuePerLineSpacedTextFixturePasses() {
+        FileRunResult result = run("value-per-line-spaced-text.test");
 
         assertEquals(0, result.failedCount(), () -> firstFailure(result));
         assertEquals(3, result.passedCount());
     }
 
     @Test
-    void p0_2_p0_9_rowWisePipeBareTextExpectationHeaderFixturePasses() {
+    void p0_2_p0_9_rowWisePipeBareTextQueryHeadFixturePasses() {
         FileRunResult result = run("rowwise-pipe-separator.test");
 
         assertEquals(0, result.failedCount(), () -> firstFailure(result));

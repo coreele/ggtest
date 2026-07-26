@@ -114,8 +114,7 @@ class ReportWriterTest {
                 sql,
                 true,
                 List.of("a"),
-                " ",
-                false,
+                Optional.empty(),
                 new SourceLocation("fail.test", line));
     }
 

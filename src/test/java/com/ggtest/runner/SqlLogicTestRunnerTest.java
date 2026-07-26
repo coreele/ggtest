@@ -225,7 +225,7 @@ class SqlLogicTestRunnerTest {
     }
 
     @Test
-    void defaultColumnSeparatorIsSpaceForRowWiseExpected() {
+    void valuePerLineExpected_passesWithoutDeclaredSeparator() {
         String sql = "SELECT 1, 2, 3";
         FakeDatabaseExecutor executor =
                 new FakeDatabaseExecutor().queryReturns(sql, List.of(row("1", "2", "3")));
@@ -237,13 +237,13 @@ class SqlLogicTestRunnerTest {
                         SortMode.NOSORT,
                         null,
                         sql,
-                        List.of("1 2 3")));
+                        List.of("1", "2", "3")));
 
         assertEquals(List.of(RecordOutcome.PASSED), outcomes(result));
     }
 
     @Test
-    void queryRecordExplicitPipeSeparator_passesRowWise() {
+    void queryRecordDeclaredPipeSeparator_passesRowWise() {
         String sql = "SELECT 1, 2, 3";
         FakeDatabaseExecutor executor =
                 new FakeDatabaseExecutor().queryReturns(sql, List.of(row("1", "2", "3")));
@@ -256,14 +256,13 @@ class SqlLogicTestRunnerTest {
                         null,
                         sql,
                         List.of("1 | 2 | 3"),
-                        "|",
-                        true));
+                        Optional.of("|")));
 
         assertEquals(List.of(RecordOutcome.PASSED), outcomes(result));
     }
 
     @Test
-    void p0_3_perQuerySeparatorScope_secondDefaultsToSpace() {
+    void p0_3_perQuerySeparatorScope_secondIsValuePerLine() {
         FakeDatabaseExecutor executor = new FakeDatabaseExecutor()
                 .queryReturns("SELECT pipe", List.of(row("1", "2", "3")))
                 .queryReturns("SELECT space", List.of(row("4", "5", "6")));
@@ -276,16 +275,13 @@ class SqlLogicTestRunnerTest {
                         null,
                         "SELECT pipe",
                         List.of("1|2|3"),
-                        "|",
-                        true),
+                        Optional.of("|")),
                 query(
                         List.of(ColumnType.INTEGER, ColumnType.INTEGER, ColumnType.INTEGER),
                         SortMode.NOSORT,
                         null,
                         "SELECT space",
-                        List.of("4 5 6"),
-                        " ",
-                        false));
+                        List.of("4", "5", "6")));
 
         assertEquals(List.of(RecordOutcome.PASSED, RecordOutcome.PASSED), outcomes(result));
     }
@@ -416,7 +412,7 @@ class SqlLogicTestRunnerTest {
             String label,
             String sql,
             List<String> expectedResults) {
-        return query(typeSignature, sortMode, label, sql, expectedResults, " ", false);
+        return query(typeSignature, sortMode, label, sql, expectedResults, Optional.empty());
     }
 
     private QueryRecord query(
@@ -425,8 +421,7 @@ class SqlLogicTestRunnerTest {
             String label,
             String sql,
             List<String> expectedResults,
-            String columnSeparator,
-            boolean explicitColumnSeparator) {
+            Optional<String> columnSeparator) {
         return new QueryRecord(
                 typeSignature,
                 sortMode,
@@ -435,7 +430,6 @@ class SqlLogicTestRunnerTest {
                 true,
                 expectedResults,
                 columnSeparator,
-                explicitColumnSeparator,
                 location());
     }
 
@@ -447,8 +441,7 @@ class SqlLogicTestRunnerTest {
                 sql,
                 false,
                 List.of(),
-                " ",
-                false,
+                Optional.empty(),
                 location());
     }
 

@@ -1,0 +1,14 @@
+# Value-per-line expectations with a TEXT cell that contains spaces (select4 shape).
+statement ok
+CREATE TABLE rw(a INTEGER, b TEXT, c INTEGER, d INTEGER)
+
+statement ok
+INSERT INTO rw VALUES(51732, 'table tn7 row 92', 511, 84280)
+
+query ITII nosort
+SELECT a, b, c, d FROM rw
+----
+51732
+table tn7 row 92
+511
+84280

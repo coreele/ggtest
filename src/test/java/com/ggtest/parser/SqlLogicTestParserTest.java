@@ -181,69 +181,185 @@ class SqlLogicTestParserTest {
         assertInstanceOf(HaltRecord.class, records.get(6));
     }
 
-    // --- query expectation-header ---- / ---- separator (R1) ---
+    // --- query-head separator <delim> + exact ---- expectation header ---
 
     @Test
-    void expectationHeader_pipeSeparator_bindsToThisQueryOnly() {
+    void queryHead_separatorPipe_noLabel_bindsDelim() {
         String content = """
-                query III
-                SELECT 1, 2, 3
-                ---- separator |
-                1|2|3
+                query IIT nosort separator |
+                SELECT 1, 1, 'hello world'
+                ----
+                1 | 1 | hello world
                 """;
 
-        List<SqlTestRecord> records = parser.parse("sep.test", content);
-
-        assertEquals(1, records.size());
-        QueryRecord query = assertInstanceOf(QueryRecord.class, records.get(0));
-        assertTrue(query.hasExpectedResults());
-        assertEquals("|", query.columnSeparator());
-        assertTrue(query.explicitColumnSeparator());
-        assertEquals(List.of("1|2|3"), query.expectedResults());
+        QueryRecord query = assertInstanceOf(QueryRecord.class, parser.parse("sep.test", content).get(0));
+        assertEquals(Optional.of("|"), query.columnSeparator());
+        assertEquals(Optional.empty(), query.label());
+        assertEquals(List.of("1 | 1 | hello world"), query.expectedResults());
     }
 
     @Test
-    void p0_3_nextQueryExactDashes_defaultsToSpaceNotInherited() {
+    void queryHead_multiCharDelim_allowed() {
         String content = """
-                query III
+                query I separator ::
+                SELECT 1
+                ----
+                1
+                """;
+        QueryRecord query = assertInstanceOf(QueryRecord.class, parser.parse("multi.test", content).get(0));
+        assertEquals(Optional.of("::"), query.columnSeparator());
+        assertEquals(Optional.empty(), query.label());
+    }
+
+    @Test
+    void queryHead_labelThenSeparator_bindsBoth() {
+        String content = """
+                query III nosort lbl separator |
                 SELECT 1, 2, 3
-                ---- separator |
+                ----
+                1|2|3
+                """;
+        QueryRecord query = assertInstanceOf(QueryRecord.class, parser.parse("lbl-sep.test", content).get(0));
+        assertEquals(Optional.of("lbl"), query.label());
+        assertEquals(Optional.of("|"), query.columnSeparator());
+    }
+
+    @Test
+    void p0_6_queryHead_trailingSeparatorToken_isLabelNotDeclaration() {
+        String content = """
+                query III nosort separator
+                SELECT 1, 2, 3
+                ----
+                1
+                2
+                3
+                """;
+        QueryRecord query = assertInstanceOf(QueryRecord.class, parser.parse("label.test", content).get(0));
+        assertEquals(Optional.of("separator"), query.label());
+        assertEquals(Optional.empty(), query.columnSeparator());
+    }
+
+    @Test
+    void p1_1_queryHead_separatorThenExtraToken_throwsReadableParseException() {
+        ParseException ex = assertThrows(
+                ParseException.class,
+                () -> parser.parse("extra.test", "query III separator | extra\nSELECT 1\n"));
+        assertFalse(ex.reason().isBlank());
+        String reason = ex.reason().toLowerCase();
+        assertTrue(
+                reason.contains("separator") || reason.contains("token") || reason.contains("unexpected"),
+                ex.reason());
+    }
+
+    @Test
+    void queryHead_misspelledSeperator_throwsAsLabelPlusExtraToken() {
+        ParseException ex = assertThrows(
+                ParseException.class,
+                () -> parser.parse("typo.test", "query III nosort seperator |\nSELECT 1\n"));
+        assertFalse(ex.reason().isBlank());
+    }
+
+    @Test
+    void p1_4_nextQueryExactDashes_doesNotInheritSeparator() {
+        String content = """
+                query III nosort separator |
+                SELECT 1, 2, 3
+                ----
                 1|2|3
 
                 query III
                 SELECT 4, 5, 6
                 ----
-                4 5 6
+                4
+                5
+                6
                 """;
 
         List<SqlTestRecord> records = parser.parse("scope.test", content);
         assertEquals(2, records.size());
 
         QueryRecord first = assertInstanceOf(QueryRecord.class, records.get(0));
-        assertEquals("|", first.columnSeparator());
-        assertTrue(first.explicitColumnSeparator());
+        assertEquals(Optional.of("|"), first.columnSeparator());
 
         QueryRecord second = assertInstanceOf(QueryRecord.class, records.get(1));
-        assertEquals(" ", second.columnSeparator());
-        assertFalse(second.explicitColumnSeparator());
-        assertEquals(List.of("4 5 6"), second.expectedResults());
+        assertEquals(Optional.empty(), second.columnSeparator());
+        assertEquals(List.of("4", "5", "6"), second.expectedResults());
     }
 
     @Test
-    void p0_2_targetWriting_iitPipeBareTextExpectationHeader() {
+    void p0_2_targetWriting_iitPipeBareTextQueryHead() {
         String content = """
-                query IIT nosort
+                query IIT nosort separator |
                 SELECT 1, 1, 'hello world'
-                ---- separator |
+                ----
                 1 | 1 | hello world
                 """;
 
-        List<SqlTestRecord> records = parser.parse("target.test", content);
-        QueryRecord query = assertInstanceOf(QueryRecord.class, records.get(0));
-        assertEquals("|", query.columnSeparator());
-        assertTrue(query.explicitColumnSeparator());
+        QueryRecord query = assertInstanceOf(QueryRecord.class, parser.parse("target.test", content).get(0));
+        assertEquals(Optional.of("|"), query.columnSeparator());
         assertEquals(List.of("1 | 1 | hello world"), query.expectedResults());
         assertEquals(3, query.typeSignature().size());
+    }
+
+    @Test
+    void p0_7_expectationHeader_separatorRemoved_throwsReadableParseException() {
+        String content = """
+                query III
+                SELECT 1, 2, 3
+                ---- separator |
+                1|2|3
+                """;
+
+        ParseException ex = assertThrows(
+                ParseException.class, () -> parser.parse("removed.test", content));
+        assertEquals("removed.test", ex.sourceName());
+        assertFalse(ex.reason().isBlank());
+        String reason = ex.reason().toLowerCase();
+        assertTrue(
+                reason.contains("separator") && (reason.contains("removed") || reason.contains("query")),
+                ex.reason());
+    }
+
+    @Test
+    void expectationHeader_emptySeparatorKeyword_throwsReadableParseException() {
+        String content = """
+                query I
+                SELECT 1
+                ---- separator
+                1
+                """;
+
+        ParseException ex = assertThrows(
+                ParseException.class, () -> parser.parse("empty-delim.test", content));
+        assertFalse(ex.reason().isBlank());
+        String reason = ex.reason().toLowerCase();
+        assertTrue(reason.contains("separator"), ex.reason());
+    }
+
+    @Test
+    void expectationHeader_trailingSpaceOnlyAfterKeyword_throws() {
+        String content = "query I\nSELECT 1\n---- separator \n1\n";
+        ParseException ex = assertThrows(
+                ParseException.class, () -> parser.parse("trail.test", content));
+        assertFalse(ex.reason().isBlank());
+    }
+
+    @Test
+    void expectationHeader_spaceLiteralDelim_throwsAsRemovedSyntax() {
+        String content = "query I\nSELECT 1\n---- separator  \n1\n";
+        ParseException ex = assertThrows(
+                ParseException.class, () -> parser.parse("space-delim.test", content));
+        assertFalse(ex.reason().isBlank());
+        assertTrue(ex.reason().toLowerCase().contains("separator"), ex.reason());
+    }
+
+    @Test
+    void expectationHeader_multiCharDelim_throwsAsRemovedSyntax() {
+        String content = "query I\nSELECT 1\n---- separator ::\n1\n";
+        ParseException ex = assertThrows(
+                ParseException.class, () -> parser.parse("multi-old.test", content));
+        assertFalse(ex.reason().isBlank());
+        assertTrue(ex.reason().toLowerCase().contains("separator"), ex.reason());
     }
 
     @Test
@@ -254,7 +370,9 @@ class SqlLogicTestParserTest {
                 query III
                 SELECT 1, 2, 3
                 ----
-                1 2 3
+                1
+                2
+                3
                 """;
 
         ParseException ex = assertThrows(
@@ -269,35 +387,6 @@ class SqlLogicTestParserTest {
     }
 
     @Test
-    void expectationHeader_emptyDelim_throwsReadableParseException() {
-        String content = """
-                query I
-                SELECT 1
-                ---- separator
-                1
-                """;
-
-        ParseException ex = assertThrows(
-                ParseException.class, () -> parser.parse("empty-delim.test", content));
-        assertEquals("empty-delim.test", ex.sourceName());
-        assertFalse(ex.reason().isBlank());
-        assertTrue(
-                ex.reason().toLowerCase().contains("separator")
-                        || ex.reason().toLowerCase().contains("delim")
-                        || ex.reason().toLowerCase().contains("empty"),
-                ex.reason());
-    }
-
-    @Test
-    void expectationHeader_trailingSpaceOnlyAfterKeyword_throws() {
-        // keyword followed by one whitespace and nothing else → empty delim
-        String content = "query I\nSELECT 1\n---- separator \n1\n";
-        ParseException ex = assertThrows(
-                ParseException.class, () -> parser.parse("trail.test", content));
-        assertFalse(ex.reason().isBlank());
-    }
-
-    @Test
     void illegalDashDashDashDashLine_throwsReadableParseException() {
         ParseException ex = assertThrows(
                 ParseException.class, () -> parser.parse("bad.test", "---- foo\n"));
@@ -308,7 +397,7 @@ class SqlLogicTestParserTest {
     }
 
     @Test
-    void misspelledSeperator_throwsReadableParseException() {
+    void misspelledExpectationHeaderSeperator_throwsReadableParseException() {
         ParseException ex = assertThrows(
                 ParseException.class, () -> parser.parse("typo.test", "---- seperator |\n"));
         assertEquals(1, ex.lineNumber());
@@ -330,7 +419,7 @@ class SqlLogicTestParserTest {
     }
 
     @Test
-    void exactFourDashes_expectationHeader_defaultsSpaceNonExplicit() {
+    void exactFourDashes_expectationHeader_valuePerLineNoSeparator() {
         String content = """
                 query I
                 SELECT 1
@@ -342,27 +431,7 @@ class SqlLogicTestParserTest {
         QueryRecord query = assertInstanceOf(QueryRecord.class, records.get(0));
         assertTrue(query.hasExpectedResults());
         assertEquals(List.of("1"), query.expectedResults());
-        assertEquals(" ", query.columnSeparator());
-        assertFalse(query.explicitColumnSeparator());
-    }
-
-    @Test
-    void expectationHeader_spaceLiteralDelim_allowed() {
-        // keyword, one leading space consumed, remaining space is the delimiter literal
-        String content = "query I\nSELECT 1\n---- separator  \n1\n";
-        List<SqlTestRecord> records = parser.parse("space-delim.test", content);
-        QueryRecord query = assertInstanceOf(QueryRecord.class, records.get(0));
-        assertEquals(" ", query.columnSeparator());
-        assertTrue(query.explicitColumnSeparator());
-    }
-
-    @Test
-    void expectationHeader_multiCharDelim_allowed() {
-        String content = "query I\nSELECT 1\n---- separator ::\n1\n";
-        List<SqlTestRecord> records = parser.parse("multi.test", content);
-        QueryRecord query = assertInstanceOf(QueryRecord.class, records.get(0));
-        assertEquals("::", query.columnSeparator());
-        assertTrue(query.explicitColumnSeparator());
+        assertEquals(Optional.empty(), query.columnSeparator());
     }
 
     // --- P1-b: query without ---- ---
@@ -484,7 +553,9 @@ class SqlLogicTestParserTest {
                     + "|"
                     + q.hasExpectedResults()
                     + "|"
-                    + q.expectedResults();
+                    + q.expectedResults()
+                    + "|"
+                    + q.columnSeparator();
         }
         if (record instanceof SkipIfRecord s) {
             return "skipif|" + s.dbName();

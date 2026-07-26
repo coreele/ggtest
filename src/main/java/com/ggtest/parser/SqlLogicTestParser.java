@@ -7,7 +7,6 @@ import com.ggtest.model.OnlyIfRecord;
 import com.ggtest.model.QueryRecord;
 import com.ggtest.model.SkipIfRecord;
 import com.ggtest.model.SortMode;
-import com.ggtest.model.SqlLogicDefaults;
 import com.ggtest.model.SourceLocation;
 import com.ggtest.model.SqlTestRecord;
 import com.ggtest.model.StatementExpectation;
@@ -105,7 +104,7 @@ public final class SqlLogicTestParser {
     /**
      * Top-level lines beginning with {@code ----} are never records: exact
      * {@code ----} is an expected-results separator; {@code ---- separator …}
-     * belongs on a query expectation header (R1).
+     * is a removed expectation-header form (use query-head {@code separator}).
      */
     private static void throwTopLevelDashDash(String sourceName, int startLine, String header) {
         String trimmed = header.trim();
@@ -115,17 +114,17 @@ public final class SqlLogicTestParser {
                     startLine,
                     "---- is an expected-results separator, not a top-level record");
         }
-        if (looksLikeSeparatorExpectationHeader(stripLeadingWhitespace(header))) {
+        if (looksLikeRemovedSeparatorExpectationHeader(stripLeadingWhitespace(header))) {
             throw new ParseException(
                     sourceName,
                     startLine,
-                    "---- separator must be a query expectation header, not a top-level record");
+                    "---- separator was removed; declare separator <delim> on the query header,"
+                            + " not as a top-level record");
         }
         throw new ParseException(
                 sourceName,
                 startLine,
-                "invalid ---- directive (expected '----' or '---- separator <delim>' as a query"
-                        + " expectation header): "
+                "invalid ---- directive (expected exact '----' as a query expectation header): "
                         + trimmed);
     }
 
@@ -153,6 +152,7 @@ public final class SqlLogicTestParser {
         List<ColumnType> typeSignature = parseTypeSignature(sourceName, startLine, tokens[1]);
         SortMode sortMode = SortMode.NOSORT;
         Optional<String> label = Optional.empty();
+        Optional<String> columnSeparator = Optional.empty();
         int index = 2;
         if (index < tokens.length) {
             SortMode parsed = parseSortMode(tokens[index]);
@@ -161,32 +161,42 @@ public final class SqlLogicTestParser {
                 index++;
             }
         }
-        if (index < tokens.length) {
+        int remaining = tokens.length - index;
+        if (remaining == 1) {
             label = Optional.of(tokens[index]);
-            index++;
-        }
-        if (index < tokens.length) {
+        } else if (remaining == 2) {
+            if (!tokens[index].equals("separator")) {
+                throw new ParseException(
+                        sourceName, startLine, "unexpected tokens in query header after label");
+            }
+            columnSeparator = Optional.of(tokens[index + 1]);
+        } else if (remaining == 3) {
+            if (!tokens[index + 1].equals("separator")) {
+                throw new ParseException(
+                        sourceName, startLine, "unexpected tokens in query header after label");
+            }
+            label = Optional.of(tokens[index]);
+            columnSeparator = Optional.of(tokens[index + 2]);
+        } else if (remaining > 3) {
             throw new ParseException(
-                    sourceName, startLine, "unexpected tokens in query header after label");
+                    sourceName,
+                    startLine,
+                    "unexpected tokens in query header after separator <delim>");
         }
 
         List<String> sqlLines = new ArrayList<>();
         boolean hasExpected = false;
         List<String> expected = List.of();
-        String columnSeparator = SqlLogicDefaults.DEFAULT_COLUMN_SEPARATOR;
-        boolean explicitColumnSeparator = false;
 
         while (lines.hasNext()) {
             String line = lines.peek();
             if (line.isEmpty()) {
                 break;
             }
-            Optional<ExpectationHeader> header = tryParseExpectationHeader(sourceName, lines.peekLineNumber(), line);
-            if (header.isPresent()) {
+            if (isExpectationHeaderCandidate(line)) {
+                requireExactExpectationHeader(sourceName, lines.peekLineNumber(), line);
                 lines.next();
                 hasExpected = true;
-                columnSeparator = header.get().columnSeparator();
-                explicitColumnSeparator = header.get().explicit();
                 expected = readExpectedResults(lines);
                 break;
             }
@@ -209,59 +219,39 @@ public final class SqlLogicTestParser {
                 hasExpected,
                 expected,
                 columnSeparator,
-                explicitColumnSeparator,
                 new SourceLocation(sourceName, startLine));
     }
 
-    /**
-     * Parses a query expectation header line: exact {@code ----} (default space) or
-     * {@code ---- separator <delim>} (explicit). Other {@code ----…} lines fail.
-     */
-    private static Optional<ExpectationHeader> tryParseExpectationHeader(
-            String sourceName, int lineNumber, String rawLine) {
-        String leadingStripped = stripLeadingWhitespace(rawLine);
-        if (!leadingStripped.startsWith("----")) {
-            return Optional.empty();
-        }
-        String trimmed = rawLine.trim();
-        if (trimmed.equals("----")) {
-            return Optional.of(new ExpectationHeader(SqlLogicDefaults.DEFAULT_COLUMN_SEPARATOR, false));
-        }
-        return Optional.of(parseSeparatorExpectationHeader(sourceName, lineNumber, leadingStripped));
+    private static boolean isExpectationHeaderCandidate(String rawLine) {
+        return stripLeadingWhitespace(rawLine).startsWith("----");
     }
 
-    private static ExpectationHeader parseSeparatorExpectationHeader(
-            String sourceName, int lineNumber, String line) {
-        // line starts with ---- (caller stripped leading whitespace) but is not exactly ----
-        int i = 4;
-        while (i < line.length() && Character.isWhitespace(line.charAt(i))) {
-            i++;
+    /**
+     * Accepts only trim-exact {@code ----}. Removed {@code ---- separator …} and other
+     * {@code ----…} forms raise a readable {@link ParseException}.
+     */
+    private static void requireExactExpectationHeader(String sourceName, int lineNumber, String rawLine) {
+        String leadingStripped = stripLeadingWhitespace(rawLine);
+        String trimmed = rawLine.trim();
+        if (trimmed.equals("----")) {
+            return;
         }
-        final String keyword = "separator";
-        if (i + keyword.length() > line.length()
-                || !line.regionMatches(i, keyword, 0, keyword.length())) {
+        if (looksLikeRemovedSeparatorExpectationHeader(leadingStripped)) {
             throw new ParseException(
                     sourceName,
                     lineNumber,
-                    "invalid ---- directive (expected '----' or '---- separator <delim>'): "
-                            + line.trim());
+                    "---- separator was removed; declare separator <delim> on the query header"
+                            + " instead: "
+                            + trimmed);
         }
-        i += keyword.length();
-        // After keyword: optional one leading whitespace, then <delim> to end of line.
-        // Do not use splitTokens — delim is the literal remainder (may contain spaces).
-        if (i < line.length() && Character.isWhitespace(line.charAt(i))) {
-            i++;
-        }
-        String delim = line.substring(i);
-        if (delim.isEmpty()) {
-            throw new ParseException(
-                    sourceName, lineNumber, "---- separator requires a non-empty delimiter");
-        }
-        return new ExpectationHeader(delim, true);
+        throw new ParseException(
+                sourceName,
+                lineNumber,
+                "invalid ---- directive (expected exact '----'): " + trimmed);
     }
 
-    /** True when the line matches {@code ----} + optional blank + {@code separator}… (for messages). */
-    private static boolean looksLikeSeparatorExpectationHeader(String line) {
+    /** True when the line matches {@code ----} + optional blank + {@code separator}… (removed form). */
+    private static boolean looksLikeRemovedSeparatorExpectationHeader(String line) {
         if (!line.startsWith("----")) {
             return false;
         }
@@ -409,8 +399,6 @@ public final class SqlLogicTestParser {
         }
         return -1;
     }
-
-    private record ExpectationHeader(String columnSeparator, boolean explicit) {}
 
     /** Mutable cursor over source lines with 1-based line numbers. */
     private static final class LineBuffer {

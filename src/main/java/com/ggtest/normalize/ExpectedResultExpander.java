@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Infers row-wise vs value-per-line expected bodies and expands them to a value
- * sequence for comparison. Package-private helper for {@link ResultComparer}.
+ * Expands expected result bodies to a value sequence for comparison.
+ * Package-private helper for {@link ResultComparer}.
  */
 final class ExpectedResultExpander {
 
@@ -17,20 +17,18 @@ final class ExpectedResultExpander {
     /**
      * Expands expected text to value lines (same granularity as rendered actual values).
      *
-     * <p>Single-line hash expectations are returned unchanged (no row-wise expand).
-     * Otherwise each physical line is split on the literal {@code columnSeparator}
-     * without collapsing consecutive delimiters. When {@code explicitColumnSeparator}
-     * is true, each token is trimmed (R2); the trimmed token text is the cell as-is
-     * (no quote shell). If every line has exactly {@code typeSignature.size()} tokens,
-     * the segment is treated as row-wise and sorted/flattened per {@code sortMode};
-     * empty tokens become {@code (empty)} so they align with T-normalized empty cells.
-     * Mixed token counts throw {@link IllegalArgumentException}.
+     * <p>Single-line hash expectations are returned unchanged. Without a declared
+     * {@code columnSeparator}, each physical line is one cell (value-per-line).
+     * With a declared separator, each physical line is split on the literal delimiter
+     * (no collapsing of consecutive delimiters); tokens are trimmed; empty tokens become
+     * {@code (empty)}; each line must have exactly {@code typeSignature.size()} tokens
+     * or an {@link IllegalArgumentException} describes the mismatch. Matching rows are
+     * sorted/flattened per {@code sortMode}.
      */
     static List<String> expand(
             List<ColumnType> typeSignature,
             SortMode sortMode,
-            String columnSeparator,
-            boolean explicitColumnSeparator,
+            Optional<String> columnSeparator,
             String expectedText) {
         List<String> physicalLines = physicalLines(expectedText);
         Optional<ResultHasher.HashExpectation> hash =
@@ -42,51 +40,36 @@ final class ExpectedResultExpander {
             return List.of();
         }
 
+        if (columnSeparator.isEmpty()) {
+            return physicalLines;
+        }
+
+        String delim = columnSeparator.get();
         int columns = typeSignature.size();
-        List<List<String>> tokenRows = new ArrayList<>(physicalLines.size());
-        int rowWiseCount = 0;
+        List<List<String>> rows = new ArrayList<>(physicalLines.size());
         for (int i = 0; i < physicalLines.size(); i++) {
-            List<String> tokens =
-                    tokenize(physicalLines.get(i), columnSeparator, explicitColumnSeparator);
-            tokenRows.add(tokens);
-            if (tokens.size() == columns) {
-                rowWiseCount++;
+            List<String> raw = splitLiteral(physicalLines.get(i), delim);
+            List<String> tokens = new ArrayList<>(raw.size());
+            for (String token : raw) {
+                tokens.add(token.strip());
             }
-        }
-
-        if (rowWiseCount == physicalLines.size()) {
-            List<List<String>> rows = new ArrayList<>(tokenRows.size());
-            for (List<String> tokens : tokenRows) {
-                List<String> row = new ArrayList<>(tokens.size());
-                for (String token : tokens) {
-                    row.add(token.isEmpty() ? "(empty)" : token);
-                }
-                rows.add(row);
+            if (tokens.size() != columns) {
+                throw new IllegalArgumentException(
+                        "row-wise expected line "
+                                + (i + 1)
+                                + " has "
+                                + tokens.size()
+                                + " token(s) but type signature requires "
+                                + columns
+                                + " column(s)");
             }
-            return ResultSorter.sortAndFlatten(sortMode, rows);
-        }
-
-        if (rowWiseCount > 0) {
-            StringBuilder detail = new StringBuilder();
-            detail.append("mixed expected line shapes for ")
-                    .append(columns)
-                    .append(" column(s); row-wise requires every line to have ")
-                    .append(columns)
-                    .append(" token(s) when split on the column separator:");
-            for (int i = 0; i < tokenRows.size(); i++) {
-                detail.append(" line ")
-                        .append(i + 1)
-                        .append(" has ")
-                        .append(tokenRows.get(i).size())
-                        .append(" token(s)");
-                if (i + 1 < tokenRows.size()) {
-                    detail.append(';');
-                }
+            List<String> row = new ArrayList<>(tokens.size());
+            for (String token : tokens) {
+                row.add(token.isEmpty() ? "(empty)" : token);
             }
-            throw new IllegalArgumentException(detail.toString());
+            rows.add(row);
         }
-
-        return physicalLines;
+        return ResultSorter.sortAndFlatten(sortMode, rows);
     }
 
     static List<String> physicalLines(String expectedText) {
@@ -106,18 +89,6 @@ final class ExpectedResultExpander {
             lines.add(part);
         }
         return lines;
-    }
-
-    private static List<String> tokenize(String line, String delim, boolean explicit) {
-        List<String> raw = splitLiteral(line, delim);
-        if (!explicit) {
-            return raw;
-        }
-        List<String> tokens = new ArrayList<>(raw.size());
-        for (String token : raw) {
-            tokens.add(token.strip());
-        }
-        return tokens;
     }
 
     /** Splits {@code line} on literal {@code delim} without collapsing repeats. */
