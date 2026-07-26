@@ -11,3 +11,6 @@ target/
 .env
 .env.*
 !.env.example
+.worktrees/
+vs-slt/
+superpowers/
