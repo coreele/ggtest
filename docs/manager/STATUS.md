@@ -18,7 +18,6 @@
 
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
-| ggtest-rowwise-expected | ggtest-rowwise-expected | 行式期望；期望头 `---- separator`（单条）；显式 trim；废止引号层 | **done**（已授权合入） | full | required（approved） | 合入 main → 归档 | [docs/features/ggtest-rowwise-expected/](../features/ggtest-rowwise-expected/) |
 | architecture-overview | architecture-overview | 项目介绍 + 既有系统架构设计文档与架构图（纯文档） | designing（Design 已完成） | standard | skipped | 待用户确认架构文档后关闭工作项（无代码合入） | [docs/features/architecture-overview/](../features/architecture-overview/) |
 | ggtest-pg | ggtest-pg | PostgreSQL + CLI `.env` 配置（多库扩展；隔离；凭据安全） | done | full | required | 已授权关闭；合入 main（不归档，用户未要求） | [docs/features/ggtest-pg/](../features/ggtest-pg/) |
 
@@ -30,3 +29,4 @@
 |---|---|---|---|
 | ggtest-core | ggtest-core（含 parser/normalize/runner-sqlite/cli-corpus 四切片） | done（父项归档；四切片均 done 且已合入 `main`） | [docs/archive/2026/ggtest-core/](../archive/2026/ggtest-core/) |
 | ggtest-cli-report | ggtest-cli-report | done（已合入 `main`；用户授权关闭并归档） | [docs/archive/2026/ggtest-cli-report/](../archive/2026/ggtest-cli-report/) |
+| ggtest-rowwise-expected | ggtest-rowwise-expected | done（已合入 `main`；用户授权关闭并归档） | [docs/archive/2026/ggtest-rowwise-expected/](../archive/2026/ggtest-rowwise-expected/) |
