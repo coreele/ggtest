@@ -22,8 +22,6 @@
 |---|---|---|---|---|---|---|---|
 | chore-maven-compiler-release | chore-maven-compiler-release | pom.xml 显式 maven-compiler-plugin + release=17，修复 Maven 3.6.3 Source/Target 5 | done | fast | skipped | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [docs/features/chore-maven-compiler-release/](../features/chore-maven-compiler-release/) |
 | improve-multi-failure-report | improve-multi-failure-report | 单文件多失败 CLI 报告：块间空行 + 无缩进 at | done | standard | required | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [docs/features/improve-multi-failure-report/](../features/improve-multi-failure-report/) |
-| fix-aggfunc-sum-overflow | fix-aggfunc-sum-overflow | sum() 整数溢出：SQLite overflow vs ggtest 执行失败 / TBD 语料 | backlog | standard | required | WI-1 done；待用户指示再调度 Analyst | [docs/features/fix-aggfunc-sum-overflow/](../features/fix-aggfunc-sum-overflow/) |
-| fix-aggfunc-total-precision | fix-aggfunc-total-precision | total() 大浮点 %.3f 精度漂移（~491） | backlog | standard | required | WI-1 done；待用户指示再推进 | [docs/features/fix-aggfunc-total-precision/](../features/fix-aggfunc-total-precision/) |
 | chore-audit-tails | chore-audit-tails | 审计尾巴收口（CA-008 Javadoc；TTY color；PG 非空密码；select1–5 硬验收；排除 CA-007） | done | fast | skipped | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [docs/features/chore-audit-tails/](../features/chore-audit-tails/) |
 
 ## 已归档
@@ -35,6 +33,8 @@
 | fix-normalize-integer-float | fix-normalize-integer-float | done（已合入 `main`；已归档） | [docs/archive/2026/fix-normalize-integer-float/manager.md](../archive/2026/fix-normalize-integer-float/manager.md) |
 | fix-onlyif-skipif-hash-comments | fix-onlyif-skipif-hash-comments | done（已合入 `main`；已归档） | [docs/archive/2026/fix-onlyif-skipif-hash-comments/manager.md](../archive/2026/fix-onlyif-skipif-hash-comments/manager.md) |
 | architecture-overview | architecture-overview | cancelled（用户舍弃；草稿已删；工作项记录已归档） | [docs/archive/2026/architecture-overview/manager.md](../archive/2026/architecture-overview/manager.md) |
+| fix-aggfunc-sum-overflow | fix-aggfunc-sum-overflow | cancelled（非 harness 设计缺陷；SQLite sum 溢出语义 vs JDBC/引擎错误形态；无需修复；已归档） | [docs/archive/2026/fix-aggfunc-sum-overflow/manager.md](../archive/2026/fix-aggfunc-sum-overflow/manager.md) |
+| fix-aggfunc-total-precision | fix-aggfunc-total-precision | cancelled / wontfix（已知限制：极端量级 R 的 String.format vs sqlite3_snprintf；不移植 float printf、不改语料；已归档） | [docs/archive/2026/fix-aggfunc-total-precision/manager.md](../archive/2026/fix-aggfunc-total-precision/manager.md) |
 | fix-rowwise-value-per-line-compat | fix-rowwise-value-per-line-compat | done（已合入 `main`；已归档） | [docs/archive/2026/fix-rowwise-value-per-line-compat/manager.md](../archive/2026/fix-rowwise-value-per-line-compat/manager.md) |
 | ggtest-pg | ggtest-pg | done（已合入 `main`；已归档） | [docs/archive/2026/ggtest-pg/manager.md](../archive/2026/ggtest-pg/manager.md) |
 | fix-shared-defaults | fix-shared-defaults | done（已合入 `main`；已归档） | [docs/archive/2026/fix-shared-defaults/manager.md](../archive/2026/fix-shared-defaults/manager.md) |
