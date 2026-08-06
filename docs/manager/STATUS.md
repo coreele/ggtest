@@ -20,6 +20,7 @@
 
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
+| chore-maven-compiler-release | chore-maven-compiler-release | pom.xml 显式 maven-compiler-plugin + release=17，修复 Maven 3.6.3 Source/Target 5 | done | fast | skipped | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [docs/features/chore-maven-compiler-release/](../features/chore-maven-compiler-release/) |
 | improve-multi-failure-report | improve-multi-failure-report | 单文件多失败 CLI 报告：块间空行 + 无缩进 at | done | standard | required | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [docs/features/improve-multi-failure-report/](../features/improve-multi-failure-report/) |
 | fix-aggfunc-sum-overflow | fix-aggfunc-sum-overflow | sum() 整数溢出：SQLite overflow vs ggtest 执行失败 / TBD 语料 | backlog | standard | required | WI-1 done；待用户指示再调度 Analyst | [docs/features/fix-aggfunc-sum-overflow/](../features/fix-aggfunc-sum-overflow/) |
 | fix-aggfunc-total-precision | fix-aggfunc-total-precision | total() 大浮点 %.3f 精度漂移（~491） | backlog | standard | required | WI-1 done；待用户指示再推进 | [docs/features/fix-aggfunc-total-precision/](../features/fix-aggfunc-total-precision/) |
