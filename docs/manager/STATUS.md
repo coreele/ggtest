@@ -20,7 +20,6 @@
 
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
-| fix-onlyif-skipif-hash-comments | fix-onlyif-skipif-hash-comments | 修复 onlyif/skipif 行尾 `#` 注释导致 `onlyif requires a database name`（in1.test） | done | fast | skipped | 已授权合入 main（不 push）；归档进行中 | [docs/features/fix-onlyif-skipif-hash-comments/](../features/fix-onlyif-skipif-hash-comments/) |
 | chore-audit-tails | chore-audit-tails | 审计尾巴收口（CA-008 Javadoc；TTY color；PG 非空密码；select1–5 硬验收；排除 CA-007） | done | fast | skipped | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [docs/features/chore-audit-tails/](../features/chore-audit-tails/) |
 
 ## 已归档
@@ -29,6 +28,7 @@
 
 | feature-id | sub-feature-id | 最终状态 | 目录 |
 |---|---|---|---|
+| fix-onlyif-skipif-hash-comments | fix-onlyif-skipif-hash-comments | done（已合入 `main`；已归档） | [docs/archive/2026/fix-onlyif-skipif-hash-comments/manager.md](../archive/2026/fix-onlyif-skipif-hash-comments/manager.md) |
 | architecture-overview | architecture-overview | cancelled（用户舍弃；草稿已删；工作项记录已归档） | [docs/archive/2026/architecture-overview/manager.md](../archive/2026/architecture-overview/manager.md) |
 | fix-rowwise-value-per-line-compat | fix-rowwise-value-per-line-compat | done（已合入 `main`；已归档） | [docs/archive/2026/fix-rowwise-value-per-line-compat/manager.md](../archive/2026/fix-rowwise-value-per-line-compat/manager.md) |
 | ggtest-pg | ggtest-pg | done（已合入 `main`；已归档） | [docs/archive/2026/ggtest-pg/manager.md](../archive/2026/ggtest-pg/manager.md) |
