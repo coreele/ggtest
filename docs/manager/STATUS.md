@@ -23,6 +23,7 @@
 | chore-maven-compiler-release | chore-maven-compiler-release | pom.xml 显式 maven-compiler-plugin + release=17，修复 Maven 3.6.3 Source/Target 5 | done | fast | skipped | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [docs/features/chore-maven-compiler-release/](../features/chore-maven-compiler-release/) |
 | improve-multi-failure-report | improve-multi-failure-report | 单文件多失败 CLI 报告：块间空行 + 无缩进 at | done | standard | required | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [docs/features/improve-multi-failure-report/](../features/improve-multi-failure-report/) |
 | chore-audit-tails | chore-audit-tails | 审计尾巴收口（CA-008 Javadoc；TTY color；PG 非空密码；select1–5 硬验收；排除 CA-007） | done | fast | skipped | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [docs/features/chore-audit-tails/](../features/chore-audit-tails/) |
+| feat-cli-halt | feat-cli-halt | CLI `--halt`：首个错误即停止（对齐官方 sqllogictest） | planning | standard | required | Planner 编写 Plan | [docs/features/feat-cli-halt/](../features/feat-cli-halt/) |
 
 ## 已归档
 
