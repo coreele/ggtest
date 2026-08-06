@@ -92,8 +92,10 @@ public final class SqlLogicTestParser {
         return switch (kind) {
             case "statement" -> parseStatement(sourceName, startLine, tokens, lines);
             case "query" -> parseQuery(sourceName, startLine, tokens, lines);
-            case "skipif" -> parseSkipIf(sourceName, startLine, tokens);
-            case "onlyif" -> parseOnlyIf(sourceName, startLine, tokens);
+            case "skipif" -> parseSkipIf(
+                    sourceName, startLine, splitTokens(stripTrailingHashComment(header)));
+            case "onlyif" -> parseOnlyIf(
+                    sourceName, startLine, splitTokens(stripTrailingHashComment(header)));
             case "hash-threshold" -> parseHashThreshold(sourceName, startLine, tokens);
             case "halt" -> parseHalt(sourceName, startLine, tokens);
             default -> throw new ParseException(
@@ -284,6 +286,15 @@ public final class SqlLogicTestParser {
             throw new ParseException(sourceName, startLine, "onlyif requires a database name");
         }
         return new OnlyIfRecord(tokens[1], new SourceLocation(sourceName, startLine));
+    }
+
+    /** Strips a trailing {@code # …} comment from an {@code onlyif}/{@code skipif} header. */
+    private static String stripTrailingHashComment(String line) {
+        int hash = line.indexOf('#');
+        if (hash < 0) {
+            return line;
+        }
+        return line.substring(0, hash);
     }
 
     private static HashThresholdRecord parseHashThreshold(

@@ -181,6 +181,48 @@ class SqlLogicTestParserTest {
         assertInstanceOf(HaltRecord.class, records.get(6));
     }
 
+    @Test
+    void onlyif_trailingHashComment_parsesDbName() {
+        String content = """
+                onlyif sqlite # empty RHS
+                """;
+
+        List<SqlTestRecord> records = parser.parse("onlyif-hash.test", content);
+
+        assertEquals(1, records.size());
+        OnlyIfRecord only = assertInstanceOf(OnlyIfRecord.class, records.get(0));
+        assertEquals("sqlite", only.dbName());
+    }
+
+    @Test
+    void skipif_trailingHashComment_parsesDbName() {
+        String content = """
+                skipif mysql # not compatible
+                """;
+
+        List<SqlTestRecord> records = parser.parse("skipif-hash.test", content);
+
+        assertEquals(1, records.size());
+        SkipIfRecord skip = assertInstanceOf(SkipIfRecord.class, records.get(0));
+        assertEquals("mysql", skip.dbName());
+    }
+
+    @Test
+    void onlyifAndSkipif_withoutTrailingHash_stillParse() {
+        String content = """
+                skipif mysql
+                onlyif sqlite
+                """;
+
+        List<SqlTestRecord> records = parser.parse("cond-plain.test", content);
+
+        assertEquals(2, records.size());
+        SkipIfRecord skip = assertInstanceOf(SkipIfRecord.class, records.get(0));
+        assertEquals("mysql", skip.dbName());
+        OnlyIfRecord only = assertInstanceOf(OnlyIfRecord.class, records.get(1));
+        assertEquals("sqlite", only.dbName());
+    }
+
     // --- query-head separator <delim> + exact ---- expectation header ---
 
     @Test
