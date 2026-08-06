@@ -52,6 +52,18 @@ class ReportWriterTest {
         assertTrue(joined.contains("-   apple"));
         assertTrue(joined.contains("+   bananad"));
         assertTrue(joined.contains("at fail.test:7"));
+        assertBodyIndentAndFlushAt(lines);
+    }
+
+    @Test
+    void atLineHasNoLeadingIndentWithOrWithoutLineNumber() {
+        List<String> withLine = writer.detailLines("why", "SELECT 1", null, "f.test", 9);
+        List<String> withoutLine = writer.detailLines("why", null, null, "f.test", null);
+
+        assertBodyIndentAndFlushAt(withLine);
+        assertEquals("at f.test:9", stripAnsi(withLine.get(withLine.size() - 1)));
+        assertBodyIndentAndFlushAt(withoutLine);
+        assertEquals("at f.test", stripAnsi(withoutLine.get(withoutLine.size() - 1)));
     }
 
     @Test
@@ -79,6 +91,7 @@ class ReportWriterTest {
         assertFalse(joined.contains("[SQL]"));
         assertFalse(joined.contains("[Diff]"));
         assertTrue(joined.contains("at bad.test:1"));
+        assertBodyIndentAndFlushAt(lines);
     }
 
     @Test
@@ -120,6 +133,23 @@ class ReportWriterTest {
 
     private static StatementRecord statement(String sql, int line) {
         return new StatementRecord(sql, StatementExpectation.OK, new SourceLocation("stmt.test", line));
+    }
+
+    private static void assertBodyIndentAndFlushAt(List<String> lines) {
+        boolean sawAt = false;
+        for (String raw : lines) {
+            String line = stripAnsi(raw);
+            String trimmed = line.stripLeading();
+            if (trimmed.startsWith("at ")) {
+                assertFalse(
+                        !line.equals(trimmed),
+                        "at must have no leading whitespace: [" + raw + "]");
+                sawAt = true;
+            } else if (line.contains("[WHY]") || line.contains("[SQL]") || line.contains("[Diff]")) {
+                assertTrue(raw.startsWith("    "), "body labels keep four-space indent: [" + raw + "]");
+            }
+        }
+        assertTrue(sawAt, "expected an at line");
     }
 
     private static String stripAnsi(String text) {

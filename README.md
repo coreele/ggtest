@@ -166,11 +166,38 @@ examples/demo.slt                                            .. [FAILED] in 18 m
     -   bananad
     +   banana
         cherry
-    at examples/demo.slt:22
+at examples/demo.slt:22
 
 Error: some test case failed:
 [
     "examples/demo.slt",
+]
+
+TOTAL: passed=0 failed=1 skipped=0
+```
+
+**Multiple failures in one file** (adjacent blocks separated by exactly one blank line;
+`TOTAL.failed` stays a **file** count):
+
+```text
+examples/multi.slt                                           .. [FAILED] in 40 ms
+    [WHY] query execution failed: ... integer overflow ...
+    [SQL] ...
+at examples/multi.slt:480
+
+    [WHY] query execution failed: ... integer overflow ...
+    [SQL] ...
+at examples/multi.slt:484
+
+    [WHY] query result mismatch:
+    [SQL] ...
+    [Diff] (-expected|+actual)
+        ...
+at examples/multi.slt:491
+
+Error: some test case failed:
+[
+    "examples/multi.slt",
 ]
 
 TOTAL: passed=0 failed=1 skipped=0
@@ -183,7 +210,7 @@ between success/skip lines; `Error:` only failed paths):
 examples/demo.slt                                            .. [FAILED] in 18 ms
     [WHY] query result mismatch:
     ...
-    at examples/demo.slt:22
+at examples/demo.slt:22
 
 examples/demo_zh.slt                                         .. [PASSED] in 6 ms
 examples/select1.test                                        .. [PASSED] in 142 ms
@@ -195,7 +222,6 @@ Error: some test case failed:
 
 TOTAL: passed=2 failed=1 skipped=0
 ```
-
 Skipped files print `.. [SKIPPED]` **without** timing. Hard errors use the same
 visual system, count toward `TOTAL.failed`, and keep exit code `2`. Passwords are
 never printed.

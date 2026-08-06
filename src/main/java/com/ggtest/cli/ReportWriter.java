@@ -97,9 +97,9 @@ final class ReportWriter {
             }
         }
         if (line != null) {
-            lines.add("    at " + file + ":" + line);
+            lines.add("at " + file + ":" + line);
         } else if (file != null) {
-            lines.add("    at " + file);
+            lines.add("at " + file);
         }
         return lines;
     }

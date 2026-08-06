@@ -1,0 +1,20 @@
+statement ok
+CREATE TABLE items(name TEXT);
+
+statement ok
+INSERT INTO items VALUES ('apple'), ('banana'), ('cherry');
+
+query T nosort
+SELECT name FROM items WHERE name = 'apple'
+----
+wrong-apple
+
+query T nosort
+SELECT name FROM items WHERE name = 'banana'
+----
+wrong-banana
+
+query T nosort
+SELECT name FROM items WHERE name = 'cherry'
+----
+wrong-cherry

@@ -63,6 +63,66 @@ class FileRunnerTest {
         String joined = stripAnsi(String.join("\n", outcome.detailLines()));
         assertTrue(joined.contains("[WHY]"));
         assertFalse(joined.isBlank());
+        assertFlushAtLines(outcome.detailLines());
+    }
+
+    @Test
+    void multiFailureInsertsBlankLineBetweenBlocksAndFlushAt() throws Exception {
+        Path file = fixture("multi-fail.test");
+        FileOutcome outcome = runner.run(parser, file, "multi-fail.test");
+
+        assertEquals(FileBucket.FAILED, outcome.bucket());
+        assertFalse(outcome.hardError());
+        List<String> lines = outcome.detailLines();
+        assertFlushAtLines(lines);
+
+        long whyCount = lines.stream().filter(l -> stripAnsi(l).contains("[WHY]")).count();
+        assertEquals(3, whyCount, () -> String.join("\n", lines));
+
+        List<Integer> atIndexes = new java.util.ArrayList<>();
+        for (int i = 0; i < lines.size(); i++) {
+            if (stripAnsi(lines.get(i)).startsWith("at ")) {
+                atIndexes.add(i);
+            }
+        }
+        assertEquals(3, atIndexes.size(), () -> String.join("\n", lines));
+        for (int i = 0; i < atIndexes.size() - 1; i++) {
+            int afterAt = atIndexes.get(i) + 1;
+            assertTrue(afterAt < lines.size(), "expected blank separator after at");
+            assertEquals("", lines.get(afterAt), "exactly one blank line between failure blocks");
+            assertTrue(
+                    stripAnsi(lines.get(afterAt + 1)).contains("[WHY]"),
+                    "blank line must sit between at and next [WHY]");
+        }
+
+        String joined = stripAnsi(String.join("\n", lines));
+        assertFalse(joined.contains("[1/"), joined);
+        assertFalse(joined.contains("failures in file"), joined);
+        assertFalse(joined.contains("reason="), joined);
+    }
+
+    @Test
+    void hardErrorDetailSharesFlushAtLayout() throws Exception {
+        Path file = fixture("bad-parse.test");
+        FileOutcome outcome = runner.run(parser, file, "bad-parse.test");
+
+        assertTrue(outcome.hardError());
+        assertFlushAtLines(outcome.detailLines());
+    }
+
+    private static void assertFlushAtLines(List<String> lines) {
+        boolean sawAt = false;
+        for (String raw : lines) {
+            String line = stripAnsi(raw);
+            String trimmed = line.stripLeading();
+            if (trimmed.startsWith("at ")) {
+                assertFalse(!line.equals(trimmed), "at must be flush: [" + raw + "]");
+                sawAt = true;
+            } else if (line.contains("[WHY]") || line.contains("[SQL]") || line.contains("[Diff]")) {
+                assertTrue(raw.startsWith("    "), "body keeps four-space indent: [" + raw + "]");
+            }
+        }
+        assertTrue(sawAt, "expected at least one at line");
     }
 
     @Test

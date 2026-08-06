@@ -124,6 +124,9 @@ final class FileRunner {
         List<String> detailLines = new ArrayList<>();
         for (RecordResult recordResult : result.recordResults()) {
             if (recordResult.outcome() == RecordOutcome.FAILED) {
+                if (!detailLines.isEmpty()) {
+                    detailLines.add("");
+                }
                 detailLines.addAll(reportWriter.formatFailureDetailLines(display, recordResult));
             }
         }

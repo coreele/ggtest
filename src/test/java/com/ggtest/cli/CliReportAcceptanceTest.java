@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,11 +63,67 @@ class CliReportAcceptanceTest {
         assertFalse(out.matches("(?s).*\\[SQL\\] SELECT name FROM items.*"), out);
         assertTrue(out.contains("[Diff] (-expected|+actual)"));
         assertTrue(out.contains("at ") && out.contains("fail.test:"));
+        assertFlushAtAndBodyIndent(out);
+        assertFalse(out.contains("[1/"), out);
+        assertFalse(out.contains("failures in file"), out);
         assertTrue(out.contains("Error: some test case failed:"));
         assertTrue(out.contains("\"") && out.contains("fail.test"));
         assertFalse(out.contains("reason="));
         assertEquals(1, totalFailed(out));
         assertEquals(0, totalPassed(out));
+        // single failure: no blank line between blocks (only one at)
+        assertEquals(1, out.lines().filter(l -> l.startsWith("at ")).count());
+    }
+
+    @Test
+    void multiFailureLayoutUsesBlankSeparatorsAndFlushAt() {
+        Capture capture = run("--url", "jdbc:sqlite::memory:", fixture("multi-fail.test").toString());
+
+        assertEquals(1, capture.exitCode(), capture::dump);
+        String out = stripAnsi(capture.stdout());
+        assertTrue(STATUS_FAILED.matcher(out).find(), out);
+        assertEquals(1, totalFailed(out));
+        assertEquals(0, totalPassed(out));
+        assertFalse(out.contains("[1/"), out);
+        assertFalse(out.contains("[2/"), out);
+        assertFalse(out.contains("failures in file"), out);
+        assertFalse(out.contains("reason="), out);
+        assertFlushAtAndBodyIndent(out);
+
+        List<String> lines = out.lines().toList();
+        List<Integer> atIndexes = new java.util.ArrayList<>();
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).startsWith("at ")) {
+                atIndexes.add(i);
+            }
+        }
+        assertEquals(3, atIndexes.size(), out);
+        for (int i = 0; i < atIndexes.size() - 1; i++) {
+            int blank = atIndexes.get(i) + 1;
+            assertEquals("", lines.get(blank), out);
+            assertTrue(lines.get(blank + 1).contains("[WHY]"), out);
+        }
+        assertTrue(out.contains("Error: some test case failed:"));
+        String errorBlock = out.substring(out.indexOf("Error: some test case failed:"), out.indexOf("TOTAL:"));
+        assertTrue(errorBlock.contains("multi-fail.test"));
+        assertEquals(1, errorBlock.lines().filter(l -> l.contains("\"")).count());
+    }
+
+    @Test
+    void twoFailedFilesKeepFileLevelFailedCount() {
+        Capture capture = run(
+                "--url", "jdbc:sqlite::memory:",
+                fixture("multi-fail.test").toString(),
+                fixture("fail.test").toString());
+
+        assertEquals(1, capture.exitCode(), capture::dump);
+        String out = stripAnsi(capture.stdout());
+        assertEquals(2, totalFailed(out));
+        assertEquals(0, totalPassed(out));
+        String errorBlock = out.substring(out.indexOf("Error: some test case failed:"), out.indexOf("TOTAL:"));
+        assertTrue(errorBlock.contains("multi-fail.test"), out);
+        assertTrue(errorBlock.contains("fail.test"), out);
+        assertEquals(2, errorBlock.lines().filter(l -> l.contains("\"")).count(), errorBlock);
     }
 
     @Test
@@ -314,6 +371,21 @@ class CliReportAcceptanceTest {
 
     private static String stripAnsi(String text) {
         return ANSI.matcher(text).replaceAll("");
+    }
+
+    private static void assertFlushAtAndBodyIndent(String out) {
+        assertFalse(
+                out.lines().anyMatch(l -> l.matches("^\\s+at\\s+.*")),
+                "at must have no leading indent:\n" + out);
+        assertTrue(out.lines().anyMatch(l -> l.startsWith("at ")), out);
+        for (String line : out.lines().toList()) {
+            if (line.contains("[WHY]") || line.contains("[SQL]") || line.contains("[Diff]")) {
+                if (line.contains("Error:")) {
+                    continue;
+                }
+                assertTrue(line.startsWith("    "), "body labels keep four-space indent: [" + line + "]");
+            }
+        }
     }
 
     private static int totalPassed(String stdout) {

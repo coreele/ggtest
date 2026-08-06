@@ -135,11 +135,35 @@ examples/demo.slt                                            .. [FAILED] in 18 m
     -   bananad
     +   banana
         cherry
-    at examples/demo.slt:22
+at examples/demo.slt:22
 
 Error: some test case failed:
 [
     "examples/demo.slt",
+]
+
+TOTAL: passed=0 failed=1 skipped=0
+```
+
+```text
+examples/multi.slt                                           .. [FAILED] in 40 ms
+    [WHY] query execution failed: ... integer overflow ...
+    [SQL] ...
+at examples/multi.slt:480
+
+    [WHY] query execution failed: ... integer overflow ...
+    [SQL] ...
+at examples/multi.slt:484
+
+    [WHY] query result mismatch:
+    [SQL] ...
+    [Diff] (-expected|+actual)
+        ...
+at examples/multi.slt:491
+
+Error: some test case failed:
+[
+    "examples/multi.slt",
 ]
 
 TOTAL: passed=0 failed=1 skipped=0
