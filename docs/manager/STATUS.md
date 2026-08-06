@@ -20,6 +20,9 @@
 
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
+| fix-normalize-integer-float | fix-normalize-integer-float | query I：浮点样字符串按 %d 向零截断（修 parseLong→0） | done | fast | skipped | 已授权合入 main（不 push）；归档中 | [docs/features/fix-normalize-integer-float/](../features/fix-normalize-integer-float/) |
+| fix-aggfunc-sum-overflow | fix-aggfunc-sum-overflow | sum() 整数溢出：SQLite overflow vs ggtest 执行失败 / TBD 语料 | backlog | standard | required | WI-1 done；待用户指示再调度 Analyst | [docs/features/fix-aggfunc-sum-overflow/](../features/fix-aggfunc-sum-overflow/) |
+| fix-aggfunc-total-precision | fix-aggfunc-total-precision | total() 大浮点 %.3f 精度漂移（~491） | backlog | standard | required | WI-1 done；待用户指示再推进 | [docs/features/fix-aggfunc-total-precision/](../features/fix-aggfunc-total-precision/) |
 | chore-audit-tails | chore-audit-tails | 审计尾巴收口（CA-008 Javadoc；TTY color；PG 非空密码；select1–5 硬验收；排除 CA-007） | done | fast | skipped | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [docs/features/chore-audit-tails/](../features/chore-audit-tails/) |
 
 ## 已归档

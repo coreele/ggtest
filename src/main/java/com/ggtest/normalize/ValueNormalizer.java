@@ -7,9 +7,10 @@ import java.util.Locale;
  * Converts a single raw column value to sqllogictest-normalized text for the
  * given {@link ColumnType}.
  *
- * <p>Illegal integer / real inputs follow sqllogictest: unparsable {@code I}
- * becomes {@code "0"}; unparsable {@code R} becomes {@code "0.000"}. This is
- * intentional Spec alignment (CA-008), not error swallowing.
+ * <p>Illegal integer / real inputs follow sqllogictest: non-numeric {@code I}
+ * becomes {@code "0"}; unparsable {@code R} becomes {@code "0.000"}. Float-like
+ * numeric strings for {@code I} are truncated toward zero (official {@code %d}).
+ * This is intentional Spec alignment (CA-008), not error swallowing.
  */
 public final class ValueNormalizer {
 
@@ -19,8 +20,9 @@ public final class ValueNormalizer {
      * Normalizes {@code raw} according to Spec I/T/R rules.
      *
      * <p>For {@link ColumnType#INTEGER} / {@link ColumnType#REAL}, values that
-     * cannot be parsed are normalized to {@code "0"} / {@code "0.000"}
-     * respectively (sqllogictest-compatible; not a silent bug).
+     * cannot be interpreted as numbers are normalized to {@code "0"} /
+     * {@code "0.000"} respectively (sqllogictest-compatible; not a silent bug).
+     * Numeric float-like strings for {@code I} truncate toward zero.
      *
      * @param type column type from the query type signature
      * @param raw  raw value; {@code null} means SQL NULL
@@ -38,12 +40,17 @@ public final class ValueNormalizer {
     }
 
     /**
-     * Parses {@code raw} as a long; on {@link NumberFormatException} returns
-     * {@code "0"} (sqllogictest illegal-{@code I} rule).
+     * Interprets {@code raw} as a number and formats as integer text with
+     * toward-zero truncation (sqllogictest {@code %d}). Non-numeric input,
+     * NaN, and Infinity yield {@code "0"}.
      */
     private static String normalizeInteger(String raw) {
         try {
-            long value = Long.parseLong(raw);
+            double parsed = Double.parseDouble(raw);
+            if (Double.isNaN(parsed) || Double.isInfinite(parsed)) {
+                return "0";
+            }
+            long value = (long) parsed;
             return Long.toString(value);
         } catch (NumberFormatException ex) {
             return "0";

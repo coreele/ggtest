@@ -19,9 +19,17 @@ class ValueNormalizerTest {
     }
 
     @Test
+    void integerFloatLikeTruncatesTowardZero() {
+        assertEquals("1", ValueNormalizer.normalize(ColumnType.INTEGER, "1.0"));
+        assertEquals("5", ValueNormalizer.normalize(ColumnType.INTEGER, "5.0"));
+        assertEquals("1", ValueNormalizer.normalize(ColumnType.INTEGER, "1.25"));
+        assertEquals("-1", ValueNormalizer.normalize(ColumnType.INTEGER, "-1.9"));
+        assertEquals("1", ValueNormalizer.normalize(ColumnType.INTEGER, "1.5"));
+    }
+
+    @Test
     void integerUnparseableBecomesZero() {
         assertEquals("0", ValueNormalizer.normalize(ColumnType.INTEGER, "abc"));
-        assertEquals("0", ValueNormalizer.normalize(ColumnType.INTEGER, "1.5"));
     }
 
     @Test
