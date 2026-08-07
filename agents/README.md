@@ -1,8 +1,8 @@
 # Agent 工作流与文档索引
 
-本文档是工作流、角色、门禁、状态和文档结构的唯一权威说明。`agents/manager/STATUS.md`、工作项记录、模板和角色指令仅保存执行所需信息，不得另行定义或复制完整流程。
+本文档是工作流、角色、门禁、状态和文档结构的唯一权威说明。`agents/docs/manager/STATUS.md`、工作项记录、模板和角色指令仅保存执行所需信息，不得另行定义或复制完整流程。
 
-路径占位符统一使用小写短横线格式的 `<feature-id>`。调度主键为 `(feature-id, sub-feature-id)`：未拆分时二者相同，产物直接落在 `agents/features/<feature-id>/`（无需子目录）；已拆分为多个子工作项时，根目录仅保留总览 `spec.md`，每个子工作项使用独立子目录 `agents/features/<feature-id>/<feature-id>-<sub-feature-id>/`，其内使用标准文件名（`spec.md`、`design.md`、`plan.md` 等）。禁止另建平级 feature 目录；禁止使用扁平的 `agents/plans/`、`agents/qa/` 或 `agents/prd/` 作为新产出根目录。
+路径占位符统一使用小写短横线格式的 `<feature-id>`。调度主键为 `(feature-id, sub-feature-id)`：未拆分时二者相同，产物直接落在 `agents/docs/features/<feature-id>/`（无需子目录）；已拆分为多个子工作项时，根目录仅保留总览 `spec.md`，每个子工作项使用独立子目录 `agents/docs/features/<feature-id>/<feature-id>-<sub-feature-id>/`，其内使用标准文件名（`spec.md`、`design.md`、`plan.md` 等）。禁止另建平级 feature 目录；禁止使用扁平的 `agents/plans/`、`agents/qa/` 或 `agents/prd/` 作为新产出根目录。
 
 ## 权威工作流
 
@@ -40,7 +40,7 @@ Manager 登记工作项并判定路径与门禁
 
 | 角色 | 职责 | 主要产物 | 不负责 |
 |---|---|---|---|
-| Manager | 登记工作项、判定门禁、调度角色、维护状态、关闭和归档 | `agents/manager/STATUS.md`、工作项记录 | Spec、Design、Plan、代码、测试报告、合并 |
+| Manager | 登记工作项、判定门禁、调度角色、维护状态、关闭和归档 | `agents/docs/manager/STATUS.md`、工作项记录 | Spec、Design、Plan、代码、测试报告、合并 |
 | Analyst | 分析需求、定义行为合同和验收条件、编写 Spec | `spec.md` | 技术拆分、实现、状态维护 |
 | Planner | 按需完成技术设计，编写实施与验证计划 | `design.md`、`plan.md` | 需求决策、实现、状态维护 |
 | Developer | 依据已确认的 Plan 执行 TDD、实现、开发者验证和缺陷修复 | 代码、`dev-notes.md` | Spec、Plan、状态维护、合并 |
@@ -51,7 +51,7 @@ Manager 登记工作项并判定路径与门禁
 
 默认由 QA 兼任受控 Merge Executor，但不因此承担代码所有权。仓库已有 Code Owner、Release Manager、受保护分支或其他合并规则时，以仓库规则指定的执行者为准。
 
-仅 Manager 可以修改 `agents/manager/STATUS.md` 和工作项记录。其他角色只报告阶段结果，由 Manager 在调度后续角色前持久化状态。
+仅 Manager 可以修改 `agents/docs/manager/STATUS.md` 和工作项记录。其他角色只报告阶段结果，由 Manager 在调度后续角色前持久化状态。
 
 ## 路径等级
 
@@ -174,8 +174,8 @@ Manager、Analyst、Planner、Developer、Reviewer、QA 和 DevOps 在独立上�
 
 - 工作区变更；
 - Git 提交或 Pull Request（仓库可用时）；
-- `agents/features/<feature-id>/` 中的文档；
-- 工作项记录和 `agents/manager/STATUS.md`。
+- `agents/docs/features/<feature-id>/` 中的文档；
+- 工作项记录和 `agents/docs/manager/STATUS.md`。
 
 当前用户会话是唯一用户交互入口。Manager 必须从持久化文档恢复输入和状态，不得依赖其他角色的会话记忆，不得直接向用户请求确认，也不得越过用户确认门禁。
 
@@ -228,18 +228,18 @@ agents/
     review.md
     qa-report.md
   archive/YYYY/<feature-id>/
-    manager.md                       # 原 agents/manager/<feature-id>.md
-    spec.md / design.md / …          # 原 agents/features/<feature-id>/ 内容（若有）
+    manager.md                       # 原 agents/docs/manager/<feature-id>.md
+    spec.md / design.md / …          # 原 agents/docs/features/<feature-id>/ 内容（若有）
 ```
 
-Manager 登记工作项时创建 `agents/features/<feature-id>/` 与 `agents/manager/<feature-id>.md`。其他角色不得创建使用不同标识的工作项目录。`agents/manager/` 下除 `STATUS.md` 外仅保留**活跃**工作项记录；已 `done` / `cancelled` 且完成归档的记录不得留在 `agents/manager/`。
+Manager 登记工作项时创建 `agents/docs/features/<feature-id>/` 与 `agents/docs/manager/<feature-id>.md`。其他角色不得创建使用不同标识的工作项目录。`agents/docs/manager/` 下除 `STATUS.md` 外仅保留**活跃**工作项记录；已 `done` / `cancelled` 且完成归档的记录不得留在 `agents/docs/manager/`。
 
 ### feature-id 与 sub-feature-id
 
-- **feature-id**：工作项目录与归档单位。活跃时对应 `agents/features/<feature-id>/` 与 `agents/manager/<feature-id>.md`；归档后二者一并位于 `agents/archive/YYYY/<feature-id>/`（工作项记录文件名为 `manager.md`）。
-- **sub-feature-id**：可调度切片。不需要拆分时与 `feature-id` 相同，产物直接写在 `agents/features/<feature-id>/`（`spec.md` 等），**不**再建子目录。
-- 需要拆分时：根目录仅保留总览 `spec.md`（此时总览行的 `sub-feature-id` 可与 `feature-id` 相同）；每个子工作项一个目录 `agents/features/<feature-id>/<feature-id>-<sub-feature-id>/`，目录内使用标准文件名（`spec.md`、`design.md`、`plan.md` 等），STATUS 为同一 `feature-id` 下的多行。
-- `agents/manager/STATUS.md` 活跃表必须包含 `feature-id` 与 `sub-feature-id` 列。同一 `feature-id` 的后续行可省略重复的 `feature-id`；「目录」列在已拆分时应指向各子目录（不可省略为继承总览根目录）。空 `feature-id` 表示继承上一非空值。换 feature 时必须再写一次 `feature-id`。
+- **feature-id**：工作项目录与归档单位。活跃时对应 `agents/docs/features/<feature-id>/` 与 `agents/docs/manager/<feature-id>.md`；归档后二者一并位于 `agents/docs/archive/YYYY/<feature-id>/`（工作项记录文件名为 `manager.md`）。
+- **sub-feature-id**：可调度切片。不需要拆分时与 `feature-id` 相同，产物直接写在 `agents/docs/features/<feature-id>/`（`spec.md` 等），**不**再建子目录。
+- 需要拆分时：根目录仅保留总览 `spec.md`（此时总览行的 `sub-feature-id` 可与 `feature-id` 相同）；每个子工作项一个目录 `agents/docs/features/<feature-id>/<feature-id>-<sub-feature-id>/`，目录内使用标准文件名（`spec.md`、`design.md`、`plan.md` 等），STATUS 为同一 `feature-id` 下的多行。
+- `agents/docs/manager/STATUS.md` 活跃表必须包含 `feature-id` 与 `sub-feature-id` 列。同一 `feature-id` 的后续行可省略重复的 `feature-id`；「目录」列在已拆分时应指向各子目录（不可省略为继承总览根目录）。空 `feature-id` 表示继承上一非空值。换 feature 时必须再写一次 `feature-id`。
 
 ### 工程规范索引
 
@@ -247,16 +247,16 @@ Manager 登记工作项时创建 `agents/features/<feature-id>/` 与 `agents/man
 
 | 规范 | 文档 | 适用内容 |
 |---|---|---|
-| 文档工程 | [`agents/standards/documentation.md`](standards/documentation.md) | 文档分类、主责、质量、审阅和生命周期 |
-| Git 协作 | [`agents/standards/git.md`](standards/git.md) | 分支、提交、Pull Request、合并和回滚 |
-| 质量与验证 | [`agents/standards/quality.md`](standards/quality.md) | 开发者验证、测试层级、静态检查和完成定义 |
-| 安全 | [`agents/standards/security.md`](standards/security.md) | 敏感信息、依赖、认证授权和安全审阅触发条件 |
+| 文档工程 | [`agents/docs/standards/documentation.md`](standards/documentation.md) | 文档分类、主责、质量、审阅和生命周期 |
+| Git 协作 | [`agents/docs/standards/git.md`](standards/git.md) | 分支、提交、Pull Request、合并和回滚 |
+| 质量与验证 | [`agents/docs/standards/quality.md`](standards/quality.md) | 开发者验证、测试层级、静态检查和完成定义 |
+| 安全 | [`agents/docs/standards/security.md`](standards/security.md) | 敏感信息、依赖、认证授权和安全审阅触发条件 |
 
 每个 Plan 必须说明开发文档、用户文档和运维文档的影响及更新路径；不适用时必须标记 `N/A` 并说明理由。测试或检查无法执行时，必须记录原因、风险和恢复条件。
 
 ## 工作项记录
 
-`agents/manager/<feature-id>.md` 至少包含：
+`agents/docs/manager/<feature-id>.md` 至少包含：
 
 ```text
 工作项标识:
@@ -295,10 +295,10 @@ Manager 仅在以下情况归档**整个**工作项（features 产物与 manager
 
 归档步骤：
 
-1. 从 `agents/manager/STATUS.md` 的活跃列表移除工作项；
-2. 确保 `agents/archive/YYYY/<feature-id>/` 存在：若存在 `agents/features/<feature-id>/`，将其**移动**到该归档目录；若无 features 目录（例如纯 cancelled、草稿已删），则创建空的归档目录；
-3. 将 `agents/manager/<feature-id>.md` **移动**为 `agents/archive/YYYY/<feature-id>/manager.md`，并修正文内相对链接（指向 `agents/README.md`、`STATUS.md`、同目录产物）；
-4. 在 STATUS 的归档区域记录工作项标识、最终状态和归档目录链接（目录列指向 `agents/archive/YYYY/<feature-id>/manager.md`）；
+1. 从 `agents/docs/manager/STATUS.md` 的活跃列表移除工作项；
+2. 确保 `agents/docs/archive/YYYY/<feature-id>/` 存在：若存在 `agents/docs/features/<feature-id>/`，将其**移动**到该归档目录；若无 features 目录（例如纯 cancelled、草稿已删），则创建空的归档目录；
+3. 将 `agents/docs/manager/<feature-id>.md` **移动**为 `agents/docs/archive/YYYY/<feature-id>/manager.md`，并修正文内相对链接（指向 `agents/README.md`、`STATUS.md`、同目录产物）；
+4. 在 STATUS 的归档区域记录工作项标识、最终状态和归档目录链接（目录列指向 `agents/docs/archive/YYYY/<feature-id>/manager.md`）；
 5. 仓库可用时提交归档变更（可在目标分支或专门 chore 分支；与功能合入解耦）。
 
-归档完成后，`agents/manager/<feature-id>.md` 与 `agents/features/<feature-id>/` 均不得再残留。
+归档完成后，`agents/docs/manager/<feature-id>.md` 与 `agents/docs/features/<feature-id>/` 均不得再残留。

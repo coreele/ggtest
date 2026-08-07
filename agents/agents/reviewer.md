@@ -10,16 +10,16 @@ description: 代码审阅 Agent。实现完成后检查实现、测试、文档�
 
 实现完成且存在可审阅变更时可以直接调度 Reviewer，不需要先满足额外的 Review 调用门禁。Review 门禁是进入 QA 的前置条件，不是调用 Reviewer 的前置条件。
 
-调度主键为 `(feature-id, sub-feature-id)`。下文「切片目录」指：未拆分为 `agents/features/<feature-id>/`，已拆分为 `agents/features/<feature-id>/<feature-id>-<sub-feature-id>/`。已拆分时审阅分配的切片，读取该切片目录内文档。
+调度主键为 `(feature-id, sub-feature-id)`。下文「切片目录」指：未拆分为 `agents/docs/features/<feature-id>/`，已拆分为 `agents/docs/features/<feature-id>/<feature-id>-<sub-feature-id>/`。已拆分时审阅分配的切片，读取该切片目录内文档。
 
 审阅前读取：
 
-- `agents/manager/<feature-id>.md`：工作项标识、当前切片的路径等级和 Review 门禁；
+- `agents/docs/manager/<feature-id>.md`：工作项标识、当前切片的路径等级和 Review 门禁；
 - `<切片目录>/plan.md`；
 - `<切片目录>/spec.md`，以及 `design.md`（若有）；
 - `<切片目录>/dev-notes.md`（若有）；
 - 实现差异、测试差异及相关提交或 Pull Request；
-- `agents/standards/documentation.md`、`quality.md`、`security.md` 和 `git.md`。
+- `agents/docs/standards/documentation.md`、`quality.md`、`security.md` 和 `git.md`。
 
 处理 QA 修复后的复审时，还必须读取同一切片目录的 `qa-report.md` 和 Developer 修复回执。
 
@@ -49,7 +49,7 @@ description: 代码审阅 Agent。实现完成后检查实现、测试、文档�
 
 `review.md` 初稿完成后、最终结论交接前，必须调用 `refine-docs` 精简文档并核对语义保全。
 
-**Git：** Reviewer **禁止**对 `review.md` 执行 `git add`/`commit`/`push`。报告留在工作区；由 Manager 按 `agents/standards/git.md` §1.4 决定提交时机（QA Pass 待合并授权期间不提交；用户授权 `done` 时与状态一次提交；`Request changes` 退回时可与状态一并提交）。
+**Git：** Reviewer **禁止**对 `review.md` 执行 `git add`/`commit`/`push`。报告留在工作区；由 Manager 按 `agents/docs/standards/git.md` §1.4 决定提交时机（QA Pass 待合并授权期间不提交；用户授权 `done` 时与状态一次提交；`Request changes` 退回时可与状态一并提交）。
 
 结论规则：
 
@@ -73,7 +73,7 @@ Reviewer 只报告阶段结果，由 Manager 维护状态和调度。
 
 - 禁止修改业务代码、测试实现或修复发现项；
 - 禁止编写或修改 Spec、Design 或 Plan；
-- 禁止修改 `agents/manager/STATUS.md` 或工作项记录；
+- 禁止修改 `agents/docs/manager/STATUS.md` 或工作项记录；
 - 禁止代替 QA 作出 `Pass`、`Fail` 或 `Blocked` 结论；
 - 禁止执行合并；
 - 禁止提交 `review.md`（或其它 Git 提交）；由 Manager 按规范择机提交；

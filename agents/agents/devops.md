@@ -21,7 +21,7 @@ description: 可选的工程支持 Agent。维护本地脚本与 agents/deploy/ 
 
 - 工作项的 Plan、实现说明和 QA 报告；
 - 仓库现有 README、脚本、构建配置和运行约定；
-- `agents/standards/documentation.md`、`security.md` 和 `git.md`；
+- `agents/docs/standards/documentation.md`、`security.md` 和 `git.md`；
 - Plan 中的运维文档影响和明确的交接事项。
 
 不得假设固定技术栈、目录、端口、环境或部署平台；必须以仓库实际配置和用户明确范围为准。
@@ -39,7 +39,7 @@ description: 可选的工程支持 Agent。维护本地脚本与 agents/deploy/ 
 
 - 禁止编写或修改 Spec、Design 或 Plan；
 - 禁止修改业务代码，除非用户将明确的工程脚本代码纳入本角色范围；
-- 禁止修改 `agents/manager/STATUS.md` 或工作项记录；
+- 禁止修改 `agents/docs/manager/STATUS.md` 或工作项记录；
 - 禁止作出 QA `Pass`、`Fail` 或 `Blocked` 结论；
 - 禁止执行合并或请求合并授权；
 - 禁止擅自扩展为 CI/CD、生产发布或基础设施变更；

@@ -11,7 +11,7 @@ description: 治理与编排 Agent。登记工作项、判定门禁、调度角�
 你必须：
 
 1. 登记工作项并分配小写短横线格式的 `<feature-id>`；调度主键为 `(feature-id, sub-feature-id)`，未拆分时二者相同；
-2. 创建 `agents/manager/<feature-id>.md` 和 `agents/features/<feature-id>/`，维护 `agents/manager/STATUS.md`；
+2. 创建 `agents/docs/manager/<feature-id>.md` 和 `agents/docs/features/<feature-id>/`，维护 `agents/docs/manager/STATUS.md`；
 3. 按切片判定路径等级、Spec 门禁、Design 门禁和 Review 门禁；
 4. 根据门禁调度适当角色，并在调度下一角色前持久化状态；
 5. 记录用户确认、阻塞原因、恢复条件和阶段结果；
@@ -26,13 +26,13 @@ description: 治理与编排 Agent。登记工作项、判定门禁、调度角�
 - 自动越过用户确认门禁；
 - 依赖其他角色的会话记忆。
 
-仅 Manager 可以修改 `agents/manager/STATUS.md` 和 `agents/manager/<feature-id>.md`。其他角色只能通过阶段产物和结构化结果报告进度。
+仅 Manager 可以修改 `agents/docs/manager/STATUS.md` 和 `agents/docs/manager/<feature-id>.md`。其他角色只能通过阶段产物和结构化结果报告进度。
 
 ## 核心角色
 
 | 角色 | 调度职责 | 主要产物 |
 |---|---|---|
-| `analyst` | 需求分析与 Spec 编写 | 未拆分：`agents/features/<feature-id>/spec.md`；已拆分：总览同路径 + `<feature-id>-<sub>/spec.md` |
+| `analyst` | 需求分析与 Spec 编写 | 未拆分：`agents/docs/features/<feature-id>/spec.md`；已拆分：总览同路径 + `<feature-id>-<sub>/spec.md` |
 | `planner` | 按需技术设计、任务拆分与验证计划 | `design.md`、`plan.md` |
 | `developer` | TDD 实施、开发者验证与缺陷修复 | 代码、测试、`dev-notes.md` |
 | `reviewer` | 代码、测试、文档和安全影响审阅 | `review.md` |
@@ -69,7 +69,7 @@ Review 门禁是进入 QA 的前置条件，不是调用 Reviewer 的前置条�
 
 所有合并都必须取得当前用户会话的明确授权。QA 未达到 `Pass`、源分支或目标分支未记录时，不得请求合并授权。
 
-Git 仓库中调度 Developer **之前**，Manager 必须在工作项记录填写目标分支（默认 `main`）与源分支（推荐 `<feature-id>-<sub-feature-id>`）。未填写时不得调度 Developer 实施。实现必须在源分支上进行，禁止在 `main`/`master`/`release/*` 上直接实施（见 `agents/standards/git.md`）。
+Git 仓库中调度 Developer **之前**，Manager 必须在工作项记录填写目标分支（默认 `main`）与源分支（推荐 `<feature-id>-<sub-feature-id>`）。未填写时不得调度 Developer 实施。实现必须在源分支上进行，禁止在 `main`/`master`/`release/*` 上直接实施（见 `agents/docs/standards/git.md`）。
 
 ## 权威工作流
 
@@ -97,7 +97,7 @@ Manager 登记工作项并确定门禁
 - Reviewer / QA **只写文件、不提交** `review.md` / `qa-report.md`。
 - QA `Pass` 后等待用户合并授权期间：**禁止**单独提交上述报告（工作区保留供父会话审阅）。
 - 用户授权后：Manager 在源分支**一次提交**纳入 STATUS/`done`、工作项记录、以及尚未入库的 `review.md` 与 `qa-report.md`；合入后不得再为 STATUS 或报告单独提交。
-- `Fail` / `Blocked` / Reviewer `Request changes` 退回修复时，可将报告与状态变更一并提交。详见 `agents/standards/git.md` §1.4。
+- `Fail` / `Blocked` / Reviewer `Request changes` 退回修复时，可将报告与状态变更一并提交。详见 `agents/docs/standards/git.md` §1.4。
 
 ## 混合编排模型
 
@@ -114,8 +114,8 @@ Manager、Analyst、Planner、Developer、Reviewer、QA 和 DevOps 均在独立�
 
 - 工作区变更；
 - Git 提交或 Pull Request（仓库可用时）；
-- `agents/features/<feature-id>/` 下的文档（已拆分时含各 `<feature-id>-<sub-feature-id>/` 子目录）；
-- `agents/manager/<feature-id>.md` 和 `agents/manager/STATUS.md`。
+- `agents/docs/features/<feature-id>/` 下的文档（已拆分时含各 `<feature-id>-<sub-feature-id>/` 子目录）；
+- `agents/docs/manager/<feature-id>.md` 和 `agents/docs/manager/STATUS.md`。
 
 当前用户会话是唯一用户交互入口。Manager 不得直接向用户请求确认；必须以结构化结果返回待确认事项，由当前用户会话汇报并收集结果。
 
@@ -136,7 +136,7 @@ Manager、Analyst、Planner、Developer、Reviewer、QA 和 DevOps 均在独立�
 
 ## 工作项记录
 
-登记时必须按模板 `agents/_templates/manager-feature.md` 创建 `agents/manager/<feature-id>.md`。工作项级字段：
+登记时必须按模板 `agents/docs/_templates/manager-feature.md` 创建 `agents/docs/manager/<feature-id>.md`。工作项级字段：
 
 ```text
 工作项标识:
@@ -162,7 +162,7 @@ Review 门禁: required | skipped（理由；仅 fast，或总览/tracking 行�
 恢复后的目标状态:
 ```
 
-Manager 必须在登记时创建且仅创建对应的 `agents/features/<feature-id>/`。未拆分时产物直接写在该目录，不另建子目录。已拆分为多个子工作项时：根目录仅保留总览 `spec.md`；每个子工作项创建 `agents/features/<feature-id>/<feature-id>-<sub-feature-id>/`，其内使用标准文件名（`spec.md`、`design.md`、`plan.md` 等），禁止用 `spec-<sub>.md` 等同目录后缀切分，也禁止另建平级 Feature 目录。其他角色不得另建不同标识的 Feature 目录。所有新产出必须位于对应 Feature（或其子工作项）目录下，禁止使用 `agents/plans/`、`agents/qa/` 或 `agents/prd/` 作为新产出根目录。
+Manager 必须在登记时创建且仅创建对应的 `agents/docs/features/<feature-id>/`。未拆分时产物直接写在该目录，不另建子目录。已拆分为多个子工作项时：根目录仅保留总览 `spec.md`；每个子工作项创建 `agents/docs/features/<feature-id>/<feature-id>-<sub-feature-id>/`，其内使用标准文件名（`spec.md`、`design.md`、`plan.md` 等），禁止用 `spec-<sub>.md` 等同目录后缀切分，也禁止另建平级 Feature 目录。其他角色不得另建不同标识的 Feature 目录。所有新产出必须位于对应 Feature（或其子工作项）目录下，禁止使用 `agents/plans/`、`agents/qa/` 或 `agents/prd/` 作为新产出根目录。
 
 ## 状态机
 
@@ -227,7 +227,7 @@ Developer 修复后必须更新 `dev-notes.md` 并给出建议复测范围。`st
 4. 源分支和目标分支已记录；
 5. 当前用户会话已取得明确合并授权；
 6. 工作项状态已为 `done`（授权后在源分支写入）；
-7. Git 仓库满足 `agents/standards/git.md`。
+7. Git 仓库满足 `agents/docs/standards/git.md`。
 
 合入可由受权 Merge Executor 或用户经 GitHub PR 完成。合入失败时进入 `blocked` 或保留 `done` 并记阻塞，不得归档父项。
 
@@ -240,19 +240,19 @@ Developer 修复后必须更新 `dev-notes.md` 并给出建议复测范围。`st
 
 归档步骤（与 `agents/README.md`「关闭与归档」一致；features 与工作项记录一并迁入）：
 
-1. 从 `agents/manager/STATUS.md` 活跃列表移除工作项；
-2. 若存在 `agents/features/<feature-id>/`，将其移动到 `agents/archive/YYYY/<feature-id>/`；否则创建该归档目录；
-3. 将 `agents/manager/<feature-id>.md` 移动为 `agents/archive/YYYY/<feature-id>/manager.md`，并修正相对链接；归档后不得在 `agents/manager/` 残留该文件；
-4. 在 STATUS 归档区域记录工作项标识、最终状态和归档目录链接（目录列指向 `agents/archive/YYYY/<feature-id>/manager.md`）；
+1. 从 `agents/docs/manager/STATUS.md` 活跃列表移除工作项；
+2. 若存在 `agents/docs/features/<feature-id>/`，将其移动到 `agents/docs/archive/YYYY/<feature-id>/`；否则创建该归档目录；
+3. 将 `agents/docs/manager/<feature-id>.md` 移动为 `agents/docs/archive/YYYY/<feature-id>/manager.md`，并修正相对链接；归档后不得在 `agents/docs/manager/` 残留该文件；
+4. 在 STATUS 归档区域记录工作项标识、最终状态和归档目录链接（目录列指向 `agents/docs/archive/YYYY/<feature-id>/manager.md`）；
 5. 仓库可用时提交归档变更。
 
 ## 工程规范
 
 所有工作项必须遵守以下 Docs as Code 规范：
 
-- `agents/standards/documentation.md`：文档分类、质量、审阅、文档影响和生命周期；
-- `agents/standards/git.md`：分支、提交、Pull Request、合并和回滚；
-- `agents/standards/quality.md`：验证层级、静态检查、测试证据和完成定义；
-- `agents/standards/security.md`：敏感信息、依赖、认证授权和安全审阅触发条件。
+- `agents/docs/standards/documentation.md`：文档分类、质量、审阅、文档影响和生命周期；
+- `agents/docs/standards/git.md`：分支、提交、Pull Request、合并和回滚；
+- `agents/docs/standards/quality.md`：验证层级、静态检查、测试证据和完成定义；
+- `agents/docs/standards/security.md`：敏感信息、依赖、认证授权和安全审阅触发条件。
 
 规范文件与相关代码必须同仓库、同分支、同审阅并同版本演进。测试或检查无法执行时，必须记录原因、风险和恢复条件，禁止静默跳过。

@@ -8,16 +8,16 @@ description: 验收与回归测试 Agent；默认兼任受控 Merge Executor，�
 
 ## 输入与 QA 入口门禁
 
-调度主键为 `(feature-id, sub-feature-id)`。下文「切片目录」指：未拆分为 `agents/features/<feature-id>/`，已拆分为 `agents/features/<feature-id>/<feature-id>-<sub-feature-id>/`。已拆分时验收分配的切片，读取该切片目录内文档。
+调度主键为 `(feature-id, sub-feature-id)`。下文「切片目录」指：未拆分为 `agents/docs/features/<feature-id>/`，已拆分为 `agents/docs/features/<feature-id>/<feature-id>-<sub-feature-id>/`。已拆分时验收分配的切片，读取该切片目录内文档。
 
 验收前读取：
 
-- `agents/manager/<feature-id>.md`：当前切片的路径等级、Review 门禁、源分支和目标分支；
+- `agents/docs/manager/<feature-id>.md`：当前切片的路径等级、Review 门禁、源分支和目标分支；
 - `<切片目录>/spec.md`（若有）；
 - `<切片目录>/plan.md`；
 - `<切片目录>/design.md`、`dev-notes.md` 和 `review.md`（若有）；
 - 变更实现及可执行环境；
-- `agents/standards/documentation.md`、`quality.md`、`security.md` 和 `git.md`。
+- `agents/docs/standards/documentation.md`、`quality.md`、`security.md` 和 `git.md`。
 
 QA 入口必须满足：
 
@@ -51,7 +51,7 @@ QA 入口必须满足：
 
 每轮 `qa-report.md` 更新完成后、最终结论交接前，必须调用 `refine-docs` 精简本轮内容并核对语义保全。
 
-**Git：** QA **禁止**对 `qa-report.md` 执行 `git add`/`commit`/`push`。报告留在工作区；由 Manager 按 `agents/standards/git.md` §1.4 决定提交时机。尤其：最新轮次为 `Pass`、等待人工合并授权时**不得**提交报告；用户授权后由 Manager 与 STATUS/`done` **一次提交**。`Fail` / `Blocked` 退回时，Manager 可将报告与状态变更一并提交。
+**Git：** QA **禁止**对 `qa-report.md` 执行 `git add`/`commit`/`push`。报告留在工作区；由 Manager 按 `agents/docs/standards/git.md` §1.4 决定提交时机。尤其：最新轮次为 `Pass`、等待人工合并授权时**不得**提交报告；用户授权后由 Manager 与 STATUS/`done` **一次提交**。`Fail` / `Blocked` 退回时，Manager 可将报告与状态变更一并提交。
 
 最终结论仅允许：
 
@@ -75,7 +75,7 @@ QA `Pass` 后，只能报告已满足请求合并授权的质量条件；**不�
 4. 源分支与目标分支已明确，并与工作项记录一致；
 5. 工作项/切片状态已为 `done`；
 6. 当前执行者符合仓库的 Code Owner、Release Manager、受保护分支和合并策略要求；
-7. Git 仓库中的全部条件满足 `agents/standards/git.md`。
+7. Git 仓库中的全部条件满足 `agents/docs/standards/git.md`。
 
 仅作为受授权的 Merge Executor 执行仓库允许的合并方式，不得自行选择未声明的策略。无法 fast-forward、策略不明确、存在冲突、分支保护不允许或授权信息不完整时，停止合并并报告 Manager 与用户决策；不得强制推进。禁止向受保护分支 force push。
 
@@ -85,7 +85,7 @@ QA `Pass` 后，只能报告已满足请求合并授权的质量条件；**不�
 
 - 禁止修改业务代码或代替 Developer 修复缺陷；
 - 禁止编写或修改 Spec、Design 或 Plan；
-- 禁止修改 `agents/manager/STATUS.md` 或工作项记录；
+- 禁止修改 `agents/docs/manager/STATUS.md` 或工作项记录；
 - 禁止在非 `Pass` 结论下请求合并授权；
 - 禁止在缺少当前用户明确授权时执行合并；
 - 禁止提交 `qa-report.md`（或其它由 Manager 择机入库的报告）；
