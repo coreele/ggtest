@@ -2,8 +2,8 @@
 name: write-spec
 description: >-
   Writes requirements and behavioral specs to
-  docs/features/<feature-id>/spec.md (unsplit) or
-  docs/features/<feature-id>/<feature-id>-<sub-feature-id>/spec.md (split).
+  agents/features/<feature-id>/spec.md (unsplit) or
+  agents/features/<feature-id>/<feature-id>-<sub-feature-id>/spec.md (split).
   Invoked by Analyst when Spec gate requires it, scheduled by Manager after
   work item registration and before /planner. Use when Spec gate requires it,
   path is full/standard with unclear contracts, or user asks for 规格/spec.
@@ -18,9 +18,9 @@ description: >-
 - 调用条件：工作项记录中对应 `(feature-id, sub-feature-id)` 的 Spec 门禁为 `required`。
 - 执行时机：Manager 登记工作项后、Planner 开始 Design 或 Plan 前。
 - 产出：
-  - 未拆分：`docs/features/<feature-id>/spec.md`（此时 `sub-feature-id` = `feature-id`，无需子目录）；
-  - 已拆分：总览 `docs/features/<feature-id>/spec.md` 与/或切片 `docs/features/<feature-id>/<feature-id>-<sub-feature-id>/spec.md`；
-  - 模板：`docs/_templates/spec.md`。
+  - 未拆分：`agents/features/<feature-id>/spec.md`（此时 `sub-feature-id` = `feature-id`，无需子目录）；
+  - 已拆分：总览 `agents/features/<feature-id>/spec.md` 与/或切片 `agents/features/<feature-id>/<feature-id>-<sub-feature-id>/spec.md`；
+  - 模板：`agents/_templates/spec.md`。
 
 本 Skill 仅定义需求与规格。实施任务拆分属于 Planner 的 `plan.md`（写在同一切片目录）。
 
@@ -32,7 +32,7 @@ description: >-
 
 ## 调研
 
-必须读取用户表述、`docs/manager/<feature-id>.md`、`docs/README.md`、相关源码和现有文档。执行本 Skill 不要求 `plan.md` 已存在。
+必须读取用户表述、`agents/manager/<feature-id>.md`、`agents/README.md`、相关源码和现有文档。执行本 Skill 不要求 `plan.md` 已存在。
 
 ## 必含内容
 
@@ -44,13 +44,13 @@ description: >-
 
 ## 边界
 
-必须遵循 `docs/standards/documentation.md`。禁止编写 Plan、Design 或业务代码，禁止修改 `docs/manager/STATUS.md` 或工作项记录。
+必须遵循 `agents/standards/documentation.md`。禁止编写 Plan、Design 或业务代码，禁止修改 `agents/manager/STATUS.md` 或工作项记录。
 
 ## 执行与交接
 
 1. 确认 `<feature-id>`、`<sub-feature-id>` 与 Spec 门禁。
 2. 完成调研，编写对应 Spec 文件，并依据必含内容自检。
-3. Git 仓库中的提交操作必须遵循 `docs/standards/git.md`；非 Git 工作区跳过提交操作。
+3. Git 仓库中的提交操作必须遵循 `agents/standards/git.md`；非 Git 工作区跳过提交操作。
 4. 向 Manager 报告产出路径、验证结果和用户确认要求。状态建议为 `speccing`；需要确认时建议进入 `awaiting-spec-approval`。
 
 Manager 随后调度 Planner。Design 门禁为 `required` 时，Planner 可以调用 `design-architecture`；否则 Planner 直接进入 Plan 阶段。Manager 不得执行 `design-architecture`。

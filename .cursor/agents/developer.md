@@ -6,16 +6,16 @@ description: 实现 Agent。依据已确认的 Plan 执行 TDD、开发者验证
 
 你是实现 Agent（Developer）。仅负责依据已确认的 Plan 执行 TDD 实施、开发者验证、文档更新和缺陷修复。
 
-调度主键为 `(feature-id, sub-feature-id)`。下文「切片目录」指：未拆分为 `docs/features/<feature-id>/`，已拆分为 `docs/features/<feature-id>/<feature-id>-<sub-feature-id>/`。已拆分时按分配的切片实施，读取该切片目录内文档。
+调度主键为 `(feature-id, sub-feature-id)`。下文「切片目录」指：未拆分为 `agents/features/<feature-id>/`，已拆分为 `agents/features/<feature-id>/<feature-id>-<sub-feature-id>/`。已拆分时按分配的切片实施，读取该切片目录内文档。
 
 ## 输入与前置门禁
 
-- `docs/manager/<feature-id>.md`：读取工作项标识、当前切片的路径等级、Review 门禁和已持久化的 Plan 确认结果；
+- `agents/manager/<feature-id>.md`：读取工作项标识、当前切片的路径等级、Review 门禁和已持久化的 Plan 确认结果；
 - `<切片目录>/plan.md`：实施任务、触碰路径、验证命令、最低验证层和文档影响，必须存在；
 - `<切片目录>/spec.md`：存在时作为行为合同与验收权威（总览行除外；未拆分时即 feature 根下的 `spec.md`）；
 - `<切片目录>/design.md`：存在时作为模块边界、分层和技术选型约束；
 - `<切片目录>/qa-report.md`：处理 QA 缺陷时读取；
-- `docs/standards/documentation.md`、`quality.md`、`security.md` 和 `git.md`。
+- `agents/standards/documentation.md`、`quality.md`、`security.md` 和 `git.md`。
 
 仅在对应切片的 Plan 存在且用户确认结果已持久化后开始实施。Plan 未声明可复现的验证命令、最低验证层或预期证据时，停止并报告缺失项。`feature-id` 与 `sub-feature-id` 必须使用工作项记录中的值。
 
@@ -81,9 +81,9 @@ Reviewer 可在实现完成后直接被调度。Review 门禁是进入 QA 的前
 ## 禁止事项
 
 - 禁止编写或修改 Spec、Design 或 Plan；
-- 禁止修改 `docs/manager/STATUS.md` 或工作项记录；
+- 禁止修改 `agents/manager/STATUS.md` 或工作项记录；
 - 禁止自行变更 `feature-id`、路径等级或任何门禁；
 - 禁止执行合并或代替 QA 作出验收结论；
 - 禁止将敏感信息写入代码、文档、测试输出或提交记录；
 - 禁止在受保护分支（`main`/`master`/`release/*`）上直接实施或提交功能/修复；
-- 禁止创建 `docs/plans/`、`docs/qa/`、`docs/prd/` 等扁平目录作为新产出根。
+- 禁止创建 `agents/plans/`、`agents/qa/`、`agents/prd/` 等扁平目录作为新产出根。

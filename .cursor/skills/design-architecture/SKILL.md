@@ -10,9 +10,9 @@ description: Use when the Planner must resolve module boundaries, layering, or t
 - 调用者：Planner。
 - 调用条件：工作项记录中对应 `(feature-id, sub-feature-id)` 的 Design 门禁为 `required`。
 - 执行时机：Spec 门禁满足后、Plan 编写前。
-- 下文「切片目录」指：未拆分为 `docs/features/<feature-id>/`，已拆分为 `docs/features/<feature-id>/<feature-id>-<sub-feature-id>/`。
+- 下文「切片目录」指：未拆分为 `agents/features/<feature-id>/`，已拆分为 `agents/features/<feature-id>/<feature-id>-<sub-feature-id>/`。
 - 输入：
-  - `docs/manager/<feature-id>.md`；
+  - `agents/manager/<feature-id>.md`；
   - 对应切片的 Spec（Spec 门禁为 `required` 时）：`<切片目录>/spec.md`（必要时并读总览）。
 - 产出：`<切片目录>/design.md`。
 
