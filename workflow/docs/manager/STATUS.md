@@ -18,13 +18,7 @@
 
 ## 活跃工作项
 
-| feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
-|---|---|---|---|---|---|---|---|
-| chore-maven-compiler-release | chore-maven-compiler-release | pom.xml 显式 maven-compiler-plugin + release=17，修复 Maven 3.6.3 Source/Target 5 | done | fast | skipped | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [workflow/docs/features/chore-maven-compiler-release/](../features/chore-maven-compiler-release/) |
-| improve-multi-failure-report | improve-multi-failure-report | 单文件多失败 CLI 报告：块间空行 + 无缩进 at | done | standard | required | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [workflow/docs/features/improve-multi-failure-report/](../features/improve-multi-failure-report/) |
-| chore-audit-tails | chore-audit-tails | 审计尾巴收口（CA-008 Javadoc；TTY color；PG 非空密码；select1–5 硬验收；排除 CA-007） | done | fast | skipped | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [workflow/docs/features/chore-audit-tails/](../features/chore-audit-tails/) |
-| feat-cli-halt | feat-cli-halt | CLI `--halt`：首个错误即停止（对齐官方 sqllogictest） | done | standard | required | 已授权合入 main（rebase+FF；不 push）；归档待用户要求 | [workflow/docs/features/feat-cli-halt/](../features/feat-cli-halt/) |
-| improve-failure-output-format | improve-failure-output-format | 失败报告格式调整：移除标签、at+diff缩进、无空行分隔 | done | fast | skipped | 已合入 main（合入以 git 为准；不 push）；归档待用户要求 | [workflow/docs/features/improve-failure-output-format/](../features/improve-failure-output-format/) |
+（无）
 
 ## 已归档
 
@@ -47,3 +41,8 @@
 | ggtest-core | ggtest-core（含 parser/normalize/runner-sqlite/cli-corpus 四切片） | done（父项归档；四切片均 done 且已合入 `main`） | [workflow/docs/archive/2026/ggtest-core/manager.md](../archive/2026/ggtest-core/manager.md) |
 | ggtest-cli-report | ggtest-cli-report | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/ggtest-cli-report/manager.md](../archive/2026/ggtest-cli-report/manager.md) |
 | ggtest-rowwise-expected | ggtest-rowwise-expected | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/ggtest-rowwise-expected/manager.md](../archive/2026/ggtest-rowwise-expected/manager.md) |
+| chore-maven-compiler-release | chore-maven-compiler-release | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/chore-maven-compiler-release/manager.md](../archive/2026/chore-maven-compiler-release/manager.md) |
+| improve-multi-failure-report | improve-multi-failure-report | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/improve-multi-failure-report/manager.md](../archive/2026/improve-multi-failure-report/manager.md) |
+| chore-audit-tails | chore-audit-tails | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/chore-audit-tails/manager.md](../archive/2026/chore-audit-tails/manager.md) |
+| feat-cli-halt | feat-cli-halt | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/feat-cli-halt/manager.md](../archive/2026/feat-cli-halt/manager.md) |
+| improve-failure-output-format | improve-failure-output-format | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/improve-failure-output-format/manager.md](../archive/2026/improve-failure-output-format/manager.md) |

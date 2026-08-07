@@ -7,7 +7,7 @@
 目标分支: main
 文档影响: README.md / README.zh-CN.md（报告示例需同步更新）
 
-> 权威工作流、门禁与状态说明见 [workflow/README.md](../../README.md)。
+> 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](STATUS.md)。
 >
 > 归档后本文件迁至 `workflow/docs/archive/YYYY/improve-failure-output-format/manager.md`。

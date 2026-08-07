@@ -5,9 +5,9 @@
 路径等级: standard
 源分支: improve-multi-failure-report
 目标分支: main
-文档影响: `workflow/docs/features/improve-multi-failure-report/`（spec/plan 等）；可能增量修订归档 [`ggtest-cli-report`](../archive/2026/ggtest-cli-report/spec.md) 失败块呈现合同；必要时 README CLI 报告小节
+文档影响: `workflow/docs/archive/2026/improve-multi-failure-report/`（spec/plan 等）；可能增量修订归档 [`ggtest-cli-report`](../archive/2026/ggtest-cli-report/spec.md) 失败块呈现合同；必要时 README CLI 报告小节
 
-> 权威工作流、门禁与状态说明见 [workflow/README.md](../../README.md)。
+> 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](STATUS.md)。
 
 ## 切片（未拆分时仅一行，sub-feature-id = feature-id）
@@ -39,7 +39,7 @@
 
 ## Spec 确认
 
-- Spec 路径: [workflow/docs/features/improve-multi-failure-report/spec.md](../features/improve-multi-failure-report/spec.md)
+- Spec 路径: [workflow/docs/archive/2026/improve-multi-failure-report/spec.md](../features/improve-multi-failure-report/spec.md)
 - 确认结果: **approved**（2026-08-06）
 - 确认依据: 用户否决复杂 S1+S2+S3 推荐，贴出精确期望布局并列出冻结决策；Analyst 已按该样例重写 Spec；Manager 将此视为对该精确形态的 Spec 确认。
 
@@ -50,7 +50,7 @@
 
 ## Plan 确认
 
-- Plan 路径: [workflow/docs/features/improve-multi-failure-report/plan.md](../features/improve-multi-failure-report/plan.md)
+- Plan 路径: [workflow/docs/archive/2026/improve-multi-failure-report/plan.md](../features/improve-multi-failure-report/plan.md)
 - 确认结果: **approved**（2026-08-06）
 - 确认依据: 当前用户会话对 Plan 回复「ok」。
 

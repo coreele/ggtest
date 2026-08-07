@@ -5,12 +5,12 @@
 路径等级: fast
 源分支: chore-maven-compiler-release
 目标分支: main
-文档影响: `workflow/docs/features/chore-maven-compiler-release/`（plan/dev-notes/qa-report；无 Spec/Design/Review）
+文档影响: `workflow/docs/archive/2026/chore-maven-compiler-release/`（plan/dev-notes/qa-report；无 Spec/Design/Review）
 
-> 权威工作流、门禁与状态说明见 [workflow/README.md](../../README.md)。
+> 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](STATUS.md)。
 >
-> 文档路径：未拆分时 Spec 为 `workflow/docs/features/<feature-id>/spec.md`（无子目录）；已拆分时根目录仅总览 Spec，各切片为 `workflow/docs/features/<feature-id>/<feature-id>-<sub>/spec.md`。
+> 文档路径：未拆分时 Spec 为 `workflow/docs/archive/2026/<feature-id>/spec.md`（无子目录）；已拆分时根目录仅总览 Spec，各切片为 `workflow/docs/archive/2026/<feature-id>/<feature-id>-<sub>/spec.md`。
 > 归档后本文件迁至 `workflow/docs/archive/YYYY/<feature-id>/manager.md`，相对链接须同步修正；`workflow/docs/manager/` 仅保留活跃工作项记录与 `STATUS.md`。
 
 ## 切片（未拆分时仅一行，sub-feature-id = feature-id）
@@ -25,7 +25,7 @@
 
 ## Plan 确认
 
-- Plan 路径: [workflow/docs/features/chore-maven-compiler-release/plan.md](../features/chore-maven-compiler-release/plan.md)
+- Plan 路径: [workflow/docs/archive/2026/chore-maven-compiler-release/plan.md](../features/chore-maven-compiler-release/plan.md)
 - 确认结果: **approved**（2026-08-06）
 - 确认依据: 当前用户会话「pom.xml 允许合入」= 对该极简 Plan 的确认与合并授权（完整流程授权一并生效）
 
