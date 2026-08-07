@@ -11,8 +11,8 @@
 ## 元信息
 
 - 工作项标识: ggtest-core（sub-feature-id: parser）
-- 依据 Spec: [workflow/workflow/docs/features/ggtest-core/ggtest-core-parser/spec.md](./spec.md)
-- 依据 Design: [workflow/workflow/docs/features/ggtest-core/ggtest-core-parser/design.md](./design.md)
+- 依据 Spec: [workflow/docs/features/ggtest-core/ggtest-core-parser/spec.md](./spec.md)
+- 依据 Design: [workflow/docs/features/ggtest-core/ggtest-core-parser/design.md](./design.md)
 - 路径等级: full
 - Review 门禁: required（进入 QA 前须取得 Reviewer `Approve`）
 - 最低验证层: L2（单元测试 + 构建）

@@ -5,7 +5,7 @@
 路径等级: full
 源分支: ggtest-core-cli-corpus（cli-corpus 切片工作分支；历史：runner-sqlite=`ggtest-core-runner-sqlite`，normalize=`ggtest-core-normalize`，parser=`ggtest-core-parser`）
 目标分支: main
-文档影响: workflow/workflow/docs/features/ggtest-core/（总览 + 四子工作项目录）；实现阶段更新项目 README
+文档影响: workflow/docs/features/ggtest-core/（总览 + 四子工作项目录）；实现阶段更新项目 README
 
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
@@ -14,7 +14,7 @@
 
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
-| ggtest-core | [spec.md](./spec.md) | required（总览） | approved（总览化） | skipped（不对总览写 Design/Plan） | N/A（tracking，不调度 Review） | done（父项已归档） | 已关闭并归档至 `workflow/workflow/docs/archive/2026/ggtest-core/`（四切片均 done 且已合入 `main`） |
+| ggtest-core | [spec.md](./spec.md) | required（总览） | approved（总览化） | skipped（不对总览写 Design/Plan） | N/A（tracking，不调度 Review） | done（父项已归档） | 已关闭并归档至 `workflow/docs/archive/2026/ggtest-core/`（四切片均 done 且已合入 `main`） |
 | parser | [ggtest-core-parser/spec.md](./ggtest-core-parser/spec.md) | required | approved | required（模块边界、记录模型；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-parser → main（合入以 git 为准） |
 | normalize | [ggtest-core-normalize/spec.md](./ggtest-core-normalize/spec.md) | required | approved | skipped（算法已在 Spec 写死） | required | done | 工作流已关闭；源分支 ggtest-core-normalize → main（合入以 git 为准） |
 | runner-sqlite | [ggtest-core-runner-sqlite/spec.md](./ggtest-core-runner-sqlite/spec.md) | required | approved | required（执行器抽象、JDBC 分层；design.md 已产出） | required | done | 工作流已关闭；源分支 ggtest-core-runner-sqlite → main（合入以 git 为准） |
@@ -87,7 +87,7 @@
 - 2026-07-24 **Analyst 文风修订完成**：验收段恢复短标题 + 单条 GWT。**未**调度 Planner。
 - 2026-07-24 **用户确认推进拆分**：曾登记四平级子工作项；后改为同目录子 Spec。总览行 → **`blocked`（tracking）**。
 - 2026-07-24 **Analyst 完成**：总览 + 四子 Spec 产出（曾位于平级目录）。四切片 → `awaiting-spec-approval`。**未**调度 Planner。
-- 2026-07-24 **文档结构修正**：四子 Spec 迁入 `workflow/workflow/docs/features/ggtest-core/spec-*.md`；STATUS 增加 `sub-feature-id` 列并省略重复 feature-id；删除平级 feature 目录与独立 manager 记录。
+- 2026-07-24 **文档结构修正**：四子 Spec 迁入 `workflow/docs/features/ggtest-core/spec-*.md`；STATUS 增加 `sub-feature-id` 列并省略重复 feature-id；删除平级 feature 目录与独立 manager 记录。
 - 2026-07-24 **推进第一个子切片 `parser`（建议优先，依赖 `parser ∥ normalize` 之首）**：核验 `spec-parser.md` 已完成（含记录模型合同、解析错误定位、`.slt`/`.test` 等价语义；P0-7、P1-a/b/c）。门禁判定：Spec=required、Design=required、Review=required。`full` 路径 Spec 必须用户确认。状态维持 **`awaiting-spec-approval`**，到达 **Spec 用户确认门禁**，单步编排下停止；**未**调度 Planner（Design/Plan 待 Spec 确认后）。
 - 2026-07-24 **用户确认 parser Spec（回复「ok」，批准、无修改）**。Manager：`parser` 的 Spec 用户确认 → **`approved`**；状态 `awaiting-spec-approval` → **`designing`**（Design 门禁 required）。调度 **Planner** 编写 `design-parser.md`（模块边界、记录模型）→ `plan-parser.md`；到达 **Plan 用户确认门禁**停止。**未**推进 normalize 等其他切片。
 - 2026-07-24 **Planner 完成 Design + Plan**：产出 `design-parser.md`（`com.ggtest.model` 纯数据层 + `com.ggtest.parser` 单遍状态机；`sealed interface SqlTestRecord` + record 变体；`SourceLocation`；fail-fast `ParseException` 与 `IOException` 分离以支撑退出码 2）与 `plan-parser.md`（T1 Maven 骨架→T2 模型→T3/T4 TDD 解析与错误→T5 验收 fixtures→T6 文档；验证 `mvn -q clean test`；最低验证层 L2；Review 门禁 required；用户文档/运维 N/A）。Design 门禁 **通过**（design-parser.md 存在）。Manager：`designing` →（planning）→ **`awaiting-plan-approval`**。到达 **Plan 用户确认门禁**，单步编排停止；**未**调度 Developer。默认坐标 `com.ggtest:ggtest:0.1.0-SNAPSHOT`、包名 `com.ggtest`（可在 Plan 确认时调整）。
@@ -96,7 +96,7 @@
 - 2026-07-24 **Reviewer Approve**：`review.md` 结论 Approve，无阻塞项；独立 `mvn -q clean test`（JDK 17）10 tests 全过。状态 `reviewing` → **`qa`**。调度 **QA**。
 - 2026-07-24 **QA Pass（轮次 1）**：`qa-report.md` 结论 Pass；独立 `mvn -q clean test`（JDK 17）10/10；P0-7、P1-a/b/c 全过。状态 `qa` → **`awaiting-merge`**。非 Git 工作区：**合并不适用**；到达 **用户关闭/完成授权门禁**，单步编排停止。未关闭、未归档。
 - 2026-07-24 **用户授权关闭 parser（回复「ok」）**。Manager：曾按误标「非 Git」将状态置 `done`。
-- 2026-07-24 **纠正：本仓库为 Git；实现须独立工作分支**。规范已强化（`workflow/workflow/docs/standards/git.md`、Developer/Manager agent、README Merge 门禁）。工作项源分支改为 `ggtest-core-parser`、目标分支 `main`；检出工作分支承接未提交的 parser 实现；状态曾为 **`awaiting-merge`**。后续切片实施前须先建 `<feature-id>-<sub-feature-id>` 分支。
+- 2026-07-24 **纠正：本仓库为 Git；实现须独立工作分支**。规范已强化（`workflow/docs/standards/git.md`、Developer/Manager agent、README Merge 门禁）。工作项源分支改为 `ggtest-core-parser`、目标分支 `main`；检出工作分支承接未提交的 parser 实现；状态曾为 **`awaiting-merge`**。后续切片实施前须先建 `<feature-id>-<sub-feature-id>` 分支。
 - 2026-07-24 **流程修订：`done` = 待合入即可关闭工作流**（QA Pass + 合并授权；不等合入完成；废弃 `awaiting-merge`）。合入可在 GitHub/本地执行，合入后不再为 STATUS 单独提交。本切片状态 → **`done`**。
 - 2026-07-24 **文档结构再修正**：多子工作项改为「根目录仅总览 `spec.md` + 每切片一目录 `<feature-id>-<sub>/`（标准文件名）」；单工作项仍平铺在 feature 根下、无子目录。已迁移 `normalize` / `runner-sqlite` / `cli-corpus` Spec，并将 parser 目录内 `*-parser.md` 重命名为 `spec.md` / `design.md` / `plan.md`。工作流 README、agents、skills、standards 已同步。
 - 2026-07-24 **推进切片 `normalize`**：核验 `ggtest-core-normalize/spec.md` 已就绪（I/T/R、nosort/rowsort/valuesort、MD5 逐字节兼容、hash-threshold 默认 8；验收 P0-2/P0-4/P0-5、P1-3；待确认仅「整体 Spec」）。门禁：Spec=required、Design=skipped（算法已在 Spec 写死）、Review=required；Spec 用户确认仍为 **required**（未 approved）。状态维持 **`awaiting-spec-approval`**，到达 **Spec 用户确认门禁**，单步编排停止；**未**调度 Planner。
@@ -134,4 +134,4 @@
 - 2026-07-25 **Reviewer Approve（修复轮次）**：`review.md` 追加轮次，结论 Approve；独立 `mvn test` 111/0、`package` SUCCESS；P1-5 批量 exit 0、TOTAL failed=0。状态 `reviewing` → **`qa`**。调度 **QA** 追加回归轮次（P1-5 为主 + fixtures）。**未**请求合并授权。
 - 2026-07-25 **QA Pass（轮次 3，回归）**：`qa-report.md` 结论 Pass；`DEF-CLI-001` 已验证关闭；P0-1/P1-1/P1-5/P1-6 全过；`mvn test` 111/0、`package` SUCCESS；P1-5 批量 exit 0、TOTAL failed=0（passed=5413）。实现 `4b9604f`。状态保持 **`qa`**。到达 **合并/完成授权门禁**；**未**合并、**未**置 `done`。
 - 2026-07-25 **用户授权合并/关闭 cli-corpus（回复「ok 允许合并」）**：Plan approved、Review Approve（修复轮次）、QA Pass（轮次 3）、源分支 `ggtest-core-cli-corpus`、目标分支 `main`（merge-base = main HEAD `5a61e2d`，可 ff）均已核验。Manager：合并授权已持久化；状态 `qa` → **`done`**（源分支）。调度 Merge Executor 将 `ggtest-core-cli-corpus` 合入 `main`（ff-only + push）。工作区 untracked `examples/`（用户演示 demo.slt）**不纳入**本切片提交，保留未提交。四切片均 `done` 后父项达到可关闭条件，但用户未明确要求归档，**不**归档。
-- 2026-07-25 **用户授权归档父项（「归档 ggtest-core」）**：核验四切片 `parser`/`normalize`/`runner-sqlite`/`cli-corpus` 均 `done` 且实现均为 `main`（=`origin/main`=`b635c08`）祖先（`eaedcd0`/`07a8e51`/`5cf84fc`/`4b9604f`/`466c6f1` 均在 `main`）。归档执行：① tracking 行 `blocked（tracking）` → **`done`**；② 从 `STATUS.md` 活跃列表移除、归档区登记；③ `git mv workflow/workflow/docs/features/ggtest-core/` → **`workflow/workflow/docs/archive/2026/ggtest-core/`**；④ 本记录内失效 `../features/ggtest-core/` 链接改指归档路径。`examples/`（`demo.slt`、`select*.test`）为未跟踪演示/语料，**不纳入**提交、保持原样。在 `main` 提交并推送归档变更。父项工作流关闭。
+- 2026-07-25 **用户授权归档父项（「归档 ggtest-core」）**：核验四切片 `parser`/`normalize`/`runner-sqlite`/`cli-corpus` 均 `done` 且实现均为 `main`（=`origin/main`=`b635c08`）祖先（`eaedcd0`/`07a8e51`/`5cf84fc`/`4b9604f`/`466c6f1` 均在 `main`）。归档执行：① tracking 行 `blocked（tracking）` → **`done`**；② 从 `STATUS.md` 活跃列表移除、归档区登记；③ `git mv workflow/docs/features/ggtest-core/` → **`workflow/docs/archive/2026/ggtest-core/`**；④ 本记录内失效 `../features/ggtest-core/` 链接改指归档路径。`examples/`（`demo.slt`、`select*.test`）为未跟踪演示/语料，**不纳入**提交、保持原样。在 `main` 提交并推送归档变更。父项工作流关闭。

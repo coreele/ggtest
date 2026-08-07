@@ -8,17 +8,17 @@
 - **T3 done + §6 部分**：可控非空密码不回显 + 装配测 Pass；DEF-PG-003 无门控全绿 + 产品 CWD `.env` 错配 exit 2。门控真库实连未通（§6）。
 - **T4 done**：`.temp/select1..5` sqlite 冒烟 exit 0 / `failed=0`；`CorpusHardAcceptanceTest` 2/0/0。
 - **T5 done**：本文件。
-- **禁止项遵守**：未改 CA-007 / `ResultComparer`；未改 `workflow/workflow/docs/manager/*`（Developer）；无凭据入库；未强制入库 `.temp/select*.test`。
+- **禁止项遵守**：未改 CA-007 / `ResultComparer`；未改 `workflow/docs/manager/*`（Developer）；无凭据入库；未强制入库 `.temp/select*.test`。
 
 ### 变更路径
 
 | 任务 | 路径 |
 |---|---|
-| T1 | `ValueNormalizer.java`；`workflow/workflow/docs/standards/code-audit-register.md` |
+| T1 | `ValueNormalizer.java`；`workflow/docs/standards/code-audit-register.md` |
 | T2 | `Main.java`；`RuntimeConfigResolverTest`；`CliReportAcceptanceTest` |
 | T3 | `PostgresCliIntegrationTest`；`RuntimeConfigResolverTest` |
 | T4 | 命令 only |
-| T5 | `workflow/workflow/docs/features/chore-audit-tails/dev-notes.md` |
+| T5 | `workflow/docs/features/chore-audit-tails/dev-notes.md` |
 
 ### 验证
 

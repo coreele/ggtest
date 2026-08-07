@@ -6,7 +6,7 @@
 |---|---|
 | 工作项 | `ggtest-rowwise-expected`（未拆分） |
 | Review 门禁 | **required**（full）；**废止 R3 后复审**（此前含 R3 的 Approve **作废**） |
-| 依据 | 冻结 [`spec.md`](./spec.md)（保留 R1/R2，**已废止 R3**）；[`design.md`](./design.md) D1–D4；[`plan.md`](./plan.md) T1–T5；[`dev-notes.md`](./dev-notes.md)；`workflow/workflow/docs/standards/{documentation,quality,security,git}.md` |
+| 依据 | 冻结 [`spec.md`](./spec.md)（保留 R1/R2，**已废止 R3**）；[`design.md`](./design.md) D1–D4；[`plan.md`](./plan.md) T1–T5；[`dev-notes.md`](./dev-notes.md)；`workflow/docs/standards/{documentation,quality,security,git}.md` |
 | 实现版本 | 分支 `ggtest-rowwise-expected`；相对 `HEAD`=`95173b0` 的**工作区未 commit** 变更 |
 | 审阅重点 | 无引号层；显式仅 split+trim；目标书写无引号壳；R1/R2；`mvn -q clean test`；禁 demo2/`.env` |
 | 未纳入 | 不改实现/测试/Spec/Plan/manager；不作 QA 结论；**不 commit**；无关未跟踪 `architecture-overview` |

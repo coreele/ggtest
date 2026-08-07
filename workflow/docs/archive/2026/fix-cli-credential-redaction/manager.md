@@ -1,11 +1,11 @@
 # 工作项记录: fix-cli-credential-redaction
 
 工作项标识: fix-cli-credential-redaction
-描述: 审计 Finding Medium+Low §7 — `CliSession.sanitize` 真正脱敏（URL userinfo / password 字面量）；`CliOptions.toString` 对 url 做 userinfo 脱敏；补泄露证明测试。来源：`workflow/workflow/docs/audit/2026-07-26-src.md`。
+描述: 审计 Finding Medium+Low §7 — `CliSession.sanitize` 真正脱敏（URL userinfo / password 字面量）；`CliOptions.toString` 对 url 做 userinfo 脱敏；补泄露证明测试。来源：`workflow/docs/audit/2026-07-26-src.md`。
 路径等级: standard
 源分支: fix-cli-credential-redaction
 目标分支: main
-文档影响: workflow/workflow/docs/features/fix-cli-credential-redaction/spec.md（短 Spec）；审计登记册 CA-002
+文档影响: workflow/docs/features/fix-cli-credential-redaction/spec.md（短 Spec）；审计登记册 CA-002
 
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
@@ -22,7 +22,7 @@
 
 ## Plan 确认
 
-- **approved**（2026-07-26）：用户授权；依据 `workflow/workflow/docs/features/fix-cli-credential-redaction/plan.md`
+- **approved**（2026-07-26）：用户授权；依据 `workflow/docs/features/fix-cli-credential-redaction/plan.md`
 
 ## Manager 决策（用户 2026-07-26 授权自行决断）
 

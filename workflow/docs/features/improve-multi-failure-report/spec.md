@@ -4,7 +4,7 @@
 >
 > **feature-id**：`improve-multi-failure-report` · **sub-feature-id**：`improve-multi-failure-report`（未拆分）
 > **适用对象**：Planner、Developer、Reviewer、QA、Manager。
-> **前置条件**：工作项 `[workflow/workflow/docs/manager/improve-multi-failure-report.md](../../manager/improve-multi-failure-report.md)`；归档基线 `[workflow/workflow/docs/archive/2026/ggtest-cli-report/spec.md](../../archive/2026/ggtest-cli-report/spec.md)`（失败内联、`TOTAL` 文件级计数、退出码；**未**定义单文件多失败分隔）。
+> **前置条件**：工作项 `[workflow/docs/manager/improve-multi-failure-report.md](../../manager/improve-multi-failure-report.md)`；归档基线 `[workflow/docs/archive/2026/ggtest-cli-report/spec.md](../../archive/2026/ggtest-cli-report/spec.md)`（失败内联、`TOTAL` 文件级计数、退出码；**未**定义单文件多失败分隔）。
 > **阅读顺序**：背景与目标 → 非目标 → 范围与可见行为 → 合同 → 验收 → 开放问题。
 > **预期结果**：多失败呈现合同已冻结；可进入 Plan。
 > **失败处理**：偏离冻结合同须先修订本 Spec；不得改 TOTAL 文件级计数或退出码。
@@ -169,4 +169,4 @@ Then 块间空行与无缩进 `at` 与断言失败一致；计入 `TOTAL.failed`
 
 ---
 
-**交接**：`workflow/workflow/docs/features/improve-multi-failure-report/spec.md`。建议下一步：`Spec approved` → **planner**（Design skipped）。不启动 WI-2/WI-3。
+**交接**：`workflow/docs/features/improve-multi-failure-report/spec.md`。建议下一步：`Spec approved` → **planner**（Design skipped）。不启动 WI-2/WI-3。

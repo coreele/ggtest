@@ -39,7 +39,7 @@
 
 **分层说明：** 工作项希望 parser 引用 `ResultComparer`，但架构禁止 `parser`→`normalize`。故 column 字面量落在 `model`（二者均可依赖）；hash 仅 CLI/runner 使用，权威留在 `ResultComparer`。
 
-依据：`workflow/workflow/docs/manager/fix-shared-defaults.md`；`workflow/workflow/docs/audit/2026-07-26-src.md`。
+依据：`workflow/docs/manager/fix-shared-defaults.md`；`workflow/docs/audit/2026-07-26-src.md`。
 
 ## 任务拆解
 
@@ -73,7 +73,7 @@
 
 ### T5 — 登记册
 
-`workflow/workflow/docs/standards/code-audit-register.md`：CA-004、CA-005 → `resolved`，注明权威落点。  
+`workflow/docs/standards/code-audit-register.md`：CA-004、CA-005 → `resolved`，注明权威落点。  
 
 **完成条件：** 登记册与实现一致。
 
@@ -94,8 +94,8 @@ T2 ──┼──► T3 ──► T4 ──► T5
 | T1 | `src/main/java/com/ggtest/cli/CliArgumentParser.java`；`RuntimeConfigResolver.java` |
 | T2 | **新增** `src/main/java/com/ggtest/model/SqlLogicDefaults.java`；`ResultComparer.java`（转发）；`SqlLogicTestParser.java` |
 | T3 | `src/`（只读） |
-| T4 | Maven 套件；`workflow/workflow/docs/features/fix-shared-defaults/dev-notes.md` |
-| T5 | `workflow/workflow/docs/standards/code-audit-register.md` |
+| T4 | Maven 套件；`workflow/docs/features/fix-shared-defaults/dev-notes.md` |
+| T5 | `workflow/docs/standards/code-audit-register.md` |
 
 **不改行为合同：** `SqlLogicTestRunner`、既有测试期望值（除非仅因删除 `CliArgumentParser` 常量而改引用）。
 

@@ -12,7 +12,7 @@
 - **T2 GREEN**：`onlyif`/`skipif` 在 `splitTokens` 前经 `stripTrailingHashComment` 剥离行尾 `# …`；整行 `#` 跳过未改；未改 record 模型/runner。`mvn -q test -Dtest=SqlLogicTestParserTest` → Tests=**33** / 0 / 0 / 0。
 - **T3**：A4 必达 + L2 全量绿；`in1.test` 整文件 `failed=0`（nice-to-have）。
 - **T4**：本文件。
-- 禁止项：未改 Spec/Design/`workflow/workflow/docs/manager/*`/`STATUS.md`；范围仅 onlyif/skipif 行尾 `#`。
+- 禁止项：未改 Spec/Design/`workflow/docs/manager/*`/`STATUS.md`；范围仅 onlyif/skipif 行尾 `#`。
 
 ### 变更路径
 
@@ -22,7 +22,7 @@
 | T1 | `src/test/java/com/ggtest/parser/SqlLogicTestParserTest.java` |
 | T2 | `src/main/java/com/ggtest/parser/SqlLogicTestParser.java` |
 | T3 | 命令 only |
-| T4 | `workflow/workflow/docs/features/fix-onlyif-skipif-hash-comments/dev-notes.md` |
+| T4 | `workflow/docs/features/fix-onlyif-skipif-hash-comments/dev-notes.md` |
 
 ### 验收 A1–A5
 

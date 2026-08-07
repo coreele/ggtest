@@ -3,7 +3,7 @@
 ## 元信息
 
 - 工作项标识: ggtest-cli-report（未拆分，sub-feature-id = feature-id）
-- 依据 Spec: [workflow/workflow/docs/features/ggtest-cli-report/spec.md](./spec.md)（已批准；合入前增量：失败块 `[SQL]` 首行/` ...`；既有：状态行 `[PASSED]` / `[FAILED] in` / `[SKIPPED]`、文件级计数、`--color` / `ggtest.color` / `GGTEST_COLOR`）
+- 依据 Spec: [workflow/docs/features/ggtest-cli-report/spec.md](./spec.md)（已批准；合入前增量：失败块 `[SQL]` 首行/` ...`；既有：状态行 `[PASSED]` / `[FAILED] in` / `[SKIPPED]`、文件级计数、`--color` / `ggtest.color` / `GGTEST_COLOR`）
 - 依据 Design: N/A（Design 门禁 skipped；本轮仍不改 Design）
 - 路径等级: standard
 - Review 门禁: required（进入 QA 前须 Reviewer Approve；本轮合入前小修走短审）
@@ -103,7 +103,7 @@
 
 ### T8 dev-notes 记录
 
-- 写/追加 `workflow/workflow/docs/features/ggtest-cli-report/dev-notes.md`（验证命令、证据、缺口；quality.md §1、§6），完成后 refine-docs。
+- 写/追加 `workflow/docs/features/ggtest-cli-report/dev-notes.md`（验证命令、证据、缺口；quality.md §1、§6），完成后 refine-docs。
 - 本轮：记录 `[SQL]` 省略实现要点与多行/单行测试证据。
 - 完成条件：覆盖「验证层与预期证据」（含 P1-1、P1-4/P1-5、本轮 `[SQL]`；TTY `auto` 人工核对或缺口声明），可支撑短 Review/QA。
 
@@ -119,7 +119,7 @@
 
 - `src/main/java/com/ggtest/cli/CliSession.java`（`[SQL]` 首行/` ...` 呈现）
 - `src/test/java/com/ggtest/cli/`（报告/编排验收：多行带 ` ...`、单行不加）
-- `workflow/workflow/docs/features/ggtest-cli-report/dev-notes.md`（追加本轮证据）
+- `workflow/docs/features/ggtest-cli-report/dev-notes.md`（追加本轮证据）
 - `README.md`（仅当失败示例需对齐 `[SQL]` 省略时）
 
 **主线已触碰（基线，本轮不重开除非回归）：**
@@ -130,7 +130,7 @@
 - `src/test/java/com/ggtest/cli/{CorpusHardAcceptanceTest,MainOrchestrationTest,EnvConfigIntegrationTest,PostgresCliIntegrationTest}.java`
 - `src/test/java/com/ggtest/normalize/{ResultComparerTest,NormalizeAcceptanceTest}.java`
 
-**不触碰**：parser / runner / 执行器；`workflow/workflow/docs/manager/*`；`spec.md`（已由 Analyst 回写）；Design；`examples/` 未跟踪语料；`.env*`；本轮亦不改 Diff/计数/彩色/退出码/路径列宽实现。
+**不触碰**：parser / runner / 执行器；`workflow/docs/manager/*`；`spec.md`（已由 Analyst 回写）；Design；`examples/` 未跟踪语料；`.env*`；本轮亦不改 Diff/计数/彩色/退出码/路径列宽实现。
 
 ## 验收
 

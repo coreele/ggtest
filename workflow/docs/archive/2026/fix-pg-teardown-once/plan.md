@@ -20,7 +20,7 @@
 - 最低验证层: **L2**（构建 + 全量单元/集成套件；控制流整理，无新对外合同）
 - 验证命令: `mvn -q clean test`
 - 源分支 / 目标: `fix-pg-teardown-once` → `main`
-- 审计依据: `workflow/workflow/docs/audit/2026-07-26-src.md` Tech Debt Low；登记册 **CA-006**
+- 审计依据: `workflow/docs/audit/2026-07-26-src.md` Tech Debt Low；登记册 **CA-006**
 
 ## 适用工程规范
 
@@ -46,7 +46,7 @@
 2. **T2 — 回归验证与登记册**  
    - 执行 `mvn -q clean test`；有 `GGTEST_PG_*` 时既有 PG 门控测作回归证据（无门控则 skip，不得失败）。  
    - 写 `dev-notes.md`（命令与结果摘要）。  
-   - 将 `workflow/workflow/docs/standards/code-audit-register.md` **CA-006** 标为 `resolved`。  
+   - 将 `workflow/docs/standards/code-audit-register.md` **CA-006** 标为 `resolved`。  
    - **完成条件**：套件绿；CA-006 已更新。
 
 ## 依赖与顺序
@@ -62,8 +62,8 @@ T1 → T2
 | 路径 | 变更 |
 |---|---|
 | `src/main/java/com/ggtest/cli/CliSession.java` | **仅** `runPostgresFile`（约 187–226 行）控制流 |
-| `workflow/workflow/docs/features/fix-pg-teardown-once/dev-notes.md` | Developer 验证回执（新建） |
-| `workflow/workflow/docs/standards/code-audit-register.md` | CA-006 → `resolved` |
+| `workflow/docs/features/fix-pg-teardown-once/dev-notes.md` | Developer 验证回执（新建） |
+| `workflow/docs/standards/code-audit-register.md` | CA-006 → `resolved` |
 
 禁止触碰：`sanitize` / 报告格式 / `CliOptions` / 执行器 / 其它方法（留给脱敏项或边界重构）。
 
@@ -104,7 +104,7 @@ T1 → T2
 
 | 类别 | 更新路径或 N/A 理由 |
 |---|---|
-| 开发文档 | `workflow/workflow/docs/features/fix-pg-teardown-once/dev-notes.md`（验证回执）；`workflow/workflow/docs/standards/code-audit-register.md` CA-006 → `resolved` |
+| 开发文档 | `workflow/docs/features/fix-pg-teardown-once/dev-notes.md`（验证回执）；`workflow/docs/standards/code-audit-register.md` CA-006 → `resolved` |
 | 用户文档 | N/A — 无用户可见行为/用法变更 |
 | 运维文档 | N/A — 无部署/排障步骤变更 |
 

@@ -16,7 +16,7 @@
 | 文档 | Spec、Plan、Review、QA 报告中的真实令牌或连接字符串 |
 | 提交记录 | 提交 diff 中的密钥或 `.env` 内容 |
 | 测试输出 | CI 日志、测试 fixture 中的真实凭据 |
-| 工作项记录 | `workflow/workflow/docs/manager/<feature-id>.md` 中的敏感配置 |
+| 工作项记录 | `workflow/docs/manager/<feature-id>.md` 中的敏感配置 |
 
 须使用占位符、密钥管理服务或环境变量注入；本地开发使用 `.env`（已纳入 `.gitignore`）而非提交至仓库。
 

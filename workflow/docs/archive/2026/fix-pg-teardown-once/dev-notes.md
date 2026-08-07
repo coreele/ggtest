@@ -11,8 +11,8 @@
 | 路径 | 变更 |
 |---|---|
 | `src/main/java/com/ggtest/cli/CliSession.java` | 仅 `runPostgresFile` 控制流 |
-| `workflow/workflow/docs/standards/code-audit-register.md` | 新建；CA-006 → `resolved` |
-| `workflow/workflow/docs/features/fix-pg-teardown-once/dev-notes.md` | 本文件 |
+| `workflow/docs/standards/code-audit-register.md` | 新建；CA-006 → `resolved` |
+| `workflow/docs/features/fix-pg-teardown-once/dev-notes.md` | 本文件 |
 
 未触碰：`sanitize`、`CliOptions`、其它方法。
 

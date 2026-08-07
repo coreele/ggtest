@@ -5,9 +5,9 @@
 | 项 | 值 |
 |---|---|
 | 工作项 | `refactor-cli-session-boundaries`（standard，Review required） |
-| 切片 | 未拆分；`workflow/workflow/docs/features/refactor-cli-session-boundaries/` |
+| 切片 | 未拆分；`workflow/docs/features/refactor-cli-session-boundaries/` |
 | 实现版本 | `86d94d0`（refactor）；基线含 T0 merge `9e01654`、docs `3e14256` |
-| 审阅依据 | [design.md](./design.md)、[plan.md](./plan.md)、[dev-notes.md](./dev-notes.md)；`workflow/workflow/docs/standards/{documentation,quality,security,git}.md` |
+| 审阅依据 | [design.md](./design.md)、[plan.md](./plan.md)、[dev-notes.md](./dev-notes.md)；`workflow/docs/standards/{documentation,quality,security,git}.md` |
 | 代码范围 | worktree `/Users/zhougangjie/Space/ggtest/.worktrees/refactor-cli-session-boundaries` |
 | 独立验证 | Reviewer 执行 `mvn -q clean test` → **BUILD SUCCESS**（210 tests，0 failures，0 errors，18 skipped） |
 

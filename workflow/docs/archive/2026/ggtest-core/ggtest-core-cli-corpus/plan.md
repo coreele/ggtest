@@ -11,7 +11,7 @@
 ## 元信息
 
 - 工作项标识: ggtest-core（sub-feature-id: cli-corpus）
-- 依据 Spec: [workflow/workflow/docs/features/ggtest-core/ggtest-core-cli-corpus/spec.md](./spec.md)
+- 依据 Spec: [workflow/docs/features/ggtest-core/ggtest-core-cli-corpus/spec.md](./spec.md)
 - 依据 Design: N/A（Design 门禁 skipped）
 - 路径等级: full
 - Review 门禁: required（进入 QA 前须 Reviewer `Approve`）
@@ -77,7 +77,7 @@ TDD：先写失败测试，再实现至通过。CLI 形状对齐 Spec；行为�
 - `pom.xml`（可执行 JAR / 启动插件）
 - `bin/ggtest`（或等价启动脚本，若采用）
 - `src/main/java/com/ggtest/cli/`、`src/test/java/com/ggtest/cli/`、`src/test/resources/fixtures/cli/`（新增，仅自造小文件）
-- `README.md`；`workflow/workflow/docs/features/ggtest-core/ggtest-core-cli-corpus/dev-notes.md`（Developer 实施后）
+- `README.md`；`workflow/docs/features/ggtest-core/ggtest-core-cli-corpus/dev-notes.md`（Developer 实施后）
 - **禁止**：改 Spec；改上游行为；创建 `design.md`；官方大语料入库；日志/报告输出凭据
 
 ## 验证

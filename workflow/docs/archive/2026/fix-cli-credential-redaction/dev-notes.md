@@ -23,7 +23,7 @@
 | `src/test/java/com/ggtest/cli/CredentialRedactionTest.java` | **新建** — P0-1/2/4、P1-1 |
 | `src/test/java/com/ggtest/cli/RuntimeConfigResolverTest.java` | 扩展 P0-3 `cliOptionsToStringRedactsUrlUserInfo` |
 
-**未触碰**：`runPostgresFile` teardown、`workflow/workflow/docs/standards/code-audit-register.md`（worktree 内不存在，CA-002 由 Manager 在主仓更新）。
+**未触碰**：`runPostgresFile` teardown、`workflow/docs/standards/code-audit-register.md`（worktree 内不存在，CA-002 由 Manager 在主仓更新）。
 
 ## 验收对照
 

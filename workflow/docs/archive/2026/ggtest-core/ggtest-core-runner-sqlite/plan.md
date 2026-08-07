@@ -11,8 +11,8 @@
 ## 元信息
 
 - 工作项标识: ggtest-core（sub-feature-id: runner-sqlite）
-- 依据 Spec: [workflow/workflow/docs/features/ggtest-core/ggtest-core-runner-sqlite/spec.md](./spec.md)
-- 依据 Design: [workflow/workflow/docs/features/ggtest-core/ggtest-core-runner-sqlite/design.md](./design.md)
+- 依据 Spec: [workflow/docs/features/ggtest-core/ggtest-core-runner-sqlite/spec.md](./spec.md)
+- 依据 Design: [workflow/docs/features/ggtest-core/ggtest-core-runner-sqlite/design.md](./design.md)
 - 路径等级: full
 - Review 门禁: required（进入 QA 前须 Reviewer `Approve`）
 - 最低验证层: L3（单元/组件 + SQLite JDBC 内存库集成 + 构建）
@@ -64,7 +64,7 @@ TDD：先写失败测试，再实现至通过。签名对齐 Design；行为合�
 - `src/test/java/com/ggtest/runner/`、`src/test/java/com/ggtest/db/`（新增）
 - `src/test/resources/fixtures/runner/`（新增）
 - `README.md`（更新）
-- `workflow/workflow/docs/features/ggtest-core/ggtest-core-runner-sqlite/dev-notes.md`（Developer 实施后新增）
+- `workflow/docs/features/ggtest-core/ggtest-core-runner-sqlite/dev-notes.md`（Developer 实施后新增）
 - **禁止**：改 Spec；改 `parser`/`normalize` 行为；实现 CLI/退出码/目录收集；引入默示豁免逻辑；`runner` 包依赖 `db.sqlite` 或直接 `java.sql`
 
 ## 验证

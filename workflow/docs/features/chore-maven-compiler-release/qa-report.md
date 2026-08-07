@@ -33,10 +33,10 @@
 | 路径 | 状态 | 判定 |
 |---|---|---|
 | `pom.xml` | 已修改 | 允许：`maven-compiler-plugin` **3.13.0** + `<release>${maven.compiler.release}</release>` |
-| `workflow/workflow/docs/features/chore-maven-compiler-release/plan.md` | 未跟踪 | 允许 |
-| `workflow/workflow/docs/features/chore-maven-compiler-release/dev-notes.md` | 未跟踪 | 允许 |
-| `workflow/workflow/docs/features/chore-maven-compiler-release/qa-report.md` | 本报告（未跟踪） | 允许 |
-| `workflow/workflow/docs/manager/*` | 已改/未跟踪 | 非实现范围（可忽略） |
+| `workflow/docs/features/chore-maven-compiler-release/plan.md` | 未跟踪 | 允许 |
+| `workflow/docs/features/chore-maven-compiler-release/dev-notes.md` | 未跟踪 | 允许 |
+| `workflow/docs/features/chore-maven-compiler-release/qa-report.md` | 本报告（未跟踪） | 允许 |
+| `workflow/docs/manager/*` | 已改/未跟踪 | 非实现范围（可忽略） |
 | `src/**` | 无变更 | 符合禁止项 |
 | `sqllogictest/` | 未跟踪；`git ls-files` **0** | **无入库**；勿 `git add` |
 | `.env` | gitignore；未跟踪 | 符合禁止项 |

@@ -5,12 +5,12 @@
 路径等级: standard
 源分支: fix-rowwise-value-per-line-compat
 目标分支: main
-文档影响: workflow/workflow/docs/features/fix-rowwise-value-per-line-compat/；README.md / README.zh-CN.md（必要时）；**本轮用户改口**：入库/更新 `examples/demo.slt`、新增 `examples/demo_zh.slt`（公开功能 showcase）；`select*.test` 大语料仍不强制入库（本地保留勿删）；`demo2.slt` 由 Developer 决定并入 demo 或保留
+文档影响: workflow/docs/features/fix-rowwise-value-per-line-compat/；README.md / README.zh-CN.md（必要时）；**本轮用户改口**：入库/更新 `examples/demo.slt`、新增 `examples/demo_zh.slt`（公开功能 showcase）；`select*.test` 大语料仍不强制入库（本地保留勿删）；`demo2.slt` 由 Developer 决定并入 demo 或保留
 
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
 >
-> 文档路径：未拆分时 Spec 为 `workflow/workflow/docs/features/<feature-id>/spec.md`（无子目录）。
+> 文档路径：未拆分时 Spec 为 `workflow/docs/features/<feature-id>/spec.md`（无子目录）。
 
 ## 切片（未拆分时仅一行，sub-feature-id = feature-id）
 

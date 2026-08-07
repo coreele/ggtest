@@ -21,7 +21,7 @@
 | `fixtures/runner/rowwise-*.test` | 期望头；`rowwise-pipe-separator` 裸 `hello world` |
 | `README.md` | R1/R2；无引号壳书写；含 `S` 换分隔符或每值一行 |
 
-未触碰：`workflow/workflow/docs/manager/*`、冻结合同 `spec.md`/`design.md`/`plan.md`、`.env`、`examples/demo2.slt`、`ValueNormalizer` / MD5 算法。
+未触碰：`workflow/docs/manager/*`、冻结合同 `spec.md`/`design.md`/`plan.md`、`.env`、`examples/demo2.slt`、`ValueNormalizer` / MD5 算法。
 
 ### 行为摘要
 

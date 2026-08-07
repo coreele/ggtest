@@ -11,11 +11,11 @@
 
 - 工作项：`improve-multi-failure-report`（未拆分；standard；Review required）
 - 源分支：`improve-multi-failure-report`（相对 `main` / `10021b7`；实现未 commit）
-- 依据：`spec.md` / `plan.md`（均 approved）、`dev-notes.md`（含 R1 回执）、轮次 1 本报告；`workflow/workflow/docs/manager/improve-multi-failure-report.md`；`documentation.md` / `quality.md` / `security.md` / `git.md`
+- 依据：`spec.md` / `plan.md`（均 approved）、`dev-notes.md`（含 R1 回执）、轮次 1 本报告；`workflow/docs/manager/improve-multi-failure-report.md`；`documentation.md` / `quality.md` / `security.md` / `git.md`
 - Design：N/A（skipped）
 - 实现版本：工作区未提交 diff（2026-08-06 复审）
 - 本项改动：`ReportWriter.java`、`FileRunner.java`；`ReportWriterTest` / `FileRunnerTest` / `CliReportAcceptanceTest`；`fixtures/cli/multi-fail.test`；`README.md` / `README.zh-CN.md`；`dev-notes.md`
-- 排除：WI-2/WI-3；`workflow/workflow/docs/manager/*` 不计入实现验收
+- 排除：WI-2/WI-3；`workflow/docs/manager/*` 不计入实现验收
 
 ## 结论
 
@@ -108,7 +108,7 @@ P1-1 残差已按 `quality.md` §6 记入 notes，未缩减合同。
 
 ### Git 合规
 
-分支 `improve-multi-failure-report` 正确；未在 `main` 实施；未 commit/push；本报告不提交。无 `.env`/凭据/构建产物拟入库；`sqllogictest/` 未强行入库。`workflow/workflow/docs/manager/*` 属 Manager。
+分支 `improve-multi-failure-report` 正确；未在 `main` 实施；未 commit/push；本报告不提交。无 `.env`/凭据/构建产物拟入库；`sqllogictest/` 未强行入库。`workflow/docs/manager/*` 属 Manager。
 
 ### 发现项（轮次 1）
 

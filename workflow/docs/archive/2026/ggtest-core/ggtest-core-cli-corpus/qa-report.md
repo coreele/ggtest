@@ -17,7 +17,7 @@
 
 | 条件 | 证据 | 结果 |
 |---|---|---|
-| Plan 已用户确认并持久化 | Manager 调度；`workflow/workflow/docs/manager/ggtest-core.md` Plan approved | 满足 |
+| Plan 已用户确认并持久化 | Manager 调度；`workflow/docs/manager/ggtest-core.md` Plan approved | 满足 |
 | Spec 已用户确认 | 同记录；`spec.md` approved | 满足 |
 | Review required 且 Approve | `review.md` Approve；版本 `466c6f1`；无阻塞必修项 | 满足 |
 | 可验收实现与 Plan 验证 | `com.ggtest.cli` + `bin/ggtest` + fixtures；L4 可执行 | 满足（硬验收语料见阻塞） |

@@ -4,7 +4,7 @@
 >
 > **feature-id**：`ggtest-core` · **sub-feature-id**：`parser`
 > **适用对象**：Planner（Design/Plan 输入）、Developer（实现依据）、QA（验收依据）、用户（确认需求范围）。
-> **前置条件**：已阅读工作项记录 `workflow/workflow/docs/manager/ggtest-core.md` 与总览 [`spec.md`](../spec.md)；了解 sqllogictest 格式基本概念。
+> **前置条件**：已阅读工作项记录 `workflow/docs/manager/ggtest-core.md` 与总览 [`spec.md`](../spec.md)；了解 sqllogictest 格式基本概念。
 > **阅读顺序**：背景与目标 → 非目标 → 范围与可见行为 → 合同 → 验收 → 开放问题。
 > **预期结果**：读者能够判定解析器行为边界，并对开放问题作出决策。
 >

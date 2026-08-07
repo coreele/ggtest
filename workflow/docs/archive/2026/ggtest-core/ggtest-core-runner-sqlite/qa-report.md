@@ -15,7 +15,7 @@
 
 | 条件 | 证据 | 结果 |
 |---|---|---|
-| Plan 已用户确认并持久化 | Manager 调度声明；`workflow/workflow/docs/manager/ggtest-core.md` | 满足（Manager 已核验） |
+| Plan 已用户确认并持久化 | Manager 调度声明；`workflow/docs/manager/ggtest-core.md` | 满足（Manager 已核验） |
 | Spec 已用户确认 | 同记录；Spec approved | 满足 |
 | Review required 且 Approve | `review.md` 结论 Approve；无阻塞必修项 | 满足 |
 | 可验收实现与 Plan 验证 | `com.ggtest.db` / `db.sqlite` / `runner` + fixtures；L3：`mvn -q clean test` | 满足 |

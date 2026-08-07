@@ -10,11 +10,11 @@
 
 - 工作项：`feat-cli-halt`（未拆分；sub-feature-id = feature-id；standard；Review required）
 - 源分支：`feat-cli-halt` → 目标 `main`；实现已在该分支提交
-- 依据：`spec.md` / `plan.md`（均冻结）、`dev-notes.md`、`workflow/workflow/docs/manager/feat-cli-halt.md`；`documentation.md` / `quality.md` / `security.md` / `git.md`
+- 依据：`spec.md` / `plan.md`（均冻结）、`dev-notes.md`、`workflow/docs/manager/feat-cli-halt.md`；`documentation.md` / `quality.md` / `security.md` / `git.md`
 - Design：N/A（门禁 skipped）
 - 实现版本：4 commits（`7dce363` plan/status → `13a7713` feat 实现 → `dd5266b` README → `3bbf40d` dev-notes；基线 `main`）
 - 改动范围：主代码 7（cli 6 + `SqlLogicTestRunner`）/ 测试 6 + fixture `corpus-halt.test` / README 2 / 切片文档 3；逐文件 diff 见各核对节
-- 排除：`workflow/workflow/docs/manager/*`、`STATUS.md` 属 Manager，不计入实现验收
+- 排除：`workflow/docs/manager/*`、`STATUS.md` 属 Manager，不计入实现验收
 
 ## 结论
 

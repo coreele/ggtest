@@ -12,14 +12,14 @@
 ## 元信息
 
 - 工作项标识: fix-rowwise-value-per-line-compat（未拆分；sub-feature-id = feature-id）
-- 依据 Spec: [workflow/workflow/docs/features/fix-rowwise-value-per-line-compat/spec.md](./spec.md)（required，已满足；合同由用户 2026-07-26 逐条拍板）
+- 依据 Spec: [workflow/docs/features/fix-rowwise-value-per-line-compat/spec.md](./spec.md)（required，已满足；合同由用户 2026-07-26 逐条拍板）
 - 依据 Design: N/A（Design 门禁 skipped）；分层以 [architecture-overview/design.md](../architecture-overview/design.md) 为准（parser / model / normalize / runner 既有边界内实现）
 - 路径等级: standard
 - Review 门禁: **required**（进入 QA 前须 Reviewer `Approve`）
 - 最低验证层: **L2**（单元测试 + 全量构建）+ sqlite 语料冒烟
 - 验证命令: `mvn -q clean test`（必选）；`./bin/ggtest --engine sqlite --url 'jdbc:sqlite::memory:' examples/select4.test`（冒烟；QA 全量复验）
 - 源分支: `fix-rowwise-value-per-line-compat` → `main`
-- 关联工作项: [`workflow/workflow/docs/manager/fix-rowwise-value-per-line-compat.md`](../../manager/fix-rowwise-value-per-line-compat.md)
+- 关联工作项: [`workflow/docs/manager/fix-rowwise-value-per-line-compat.md`](../../manager/fix-rowwise-value-per-line-compat.md)
 
 ## 适用工程规范
 
@@ -146,10 +146,10 @@ T2（normalize 红）┼──► T3（model+parser）──► T4（normalize+r
 | T4 | `src/main/java/com/ggtest/normalize/ExpectedResultExpander.java`；`ResultComparer.java`；`src/main/java/com/ggtest/runner/SqlLogicTestRunner.java` |
 | T5 | `src/test/resources/fixtures/runner/rowwise-*.test`（迁移/更名）；`src/test/java/com/ggtest/runner/RunnerAcceptanceTest.java` |
 | T6 | `README.md`；`README.zh-CN.md` |
-| T7 | Maven 套件；`workflow/workflow/docs/features/fix-rowwise-value-per-line-compat/dev-notes.md` |
+| T7 | Maven 套件；`workflow/docs/features/fix-rowwise-value-per-line-compat/dev-notes.md` |
 
 **不改：** `ValueNormalizer`、`ResultHasher`、`ResultSorter`、CLI 层。  
-**禁止触碰：** `workflow/workflow/docs/manager/*`、`STATUS.md`、spec.md、归档、用户本地 `examples/`。
+**禁止触碰：** `workflow/docs/manager/*`、`STATUS.md`、spec.md、归档、用户本地 `examples/`。
 
 ## 验证
 

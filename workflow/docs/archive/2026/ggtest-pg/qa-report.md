@@ -79,7 +79,7 @@
 
 | 条件 | 证据 | 结果 |
 |---|---|---|
-| Plan `approved` | `workflow/workflow/docs/manager/ggtest-pg.md` | 满足 |
+| Plan `approved` | `workflow/docs/manager/ggtest-pg.md` | 满足 |
 | Reviewer **Approve** | `review.md` | 满足 |
 | `blocked`→`qa`；PG 可达 | Manager 恢复；localhost:5432 | 满足 |
 | 实现 | **`be38ad5`** | 满足 |
@@ -173,7 +173,7 @@ Surefire（有门控）：`PostgresJdbcExecutorTest` 8/0；`PostgresSchemaIsolat
 
 | 条件 | 证据 | 结果 |
 |---|---|---|
-| Plan `approved` | `workflow/workflow/docs/manager/ggtest-pg.md` | 满足 |
+| Plan `approved` | `workflow/docs/manager/ggtest-pg.md` | 满足 |
 | Reviewer **Approve**（修复后） | `review.md` 轮次 2；`e7e6249` | 满足 |
 | 实现 | `be38ad5` + **`e7e6249`**；分支 `ggtest-pg`；HEAD=`e7e6249` | 满足 |
 | 环境 | localhost postgres；JDK 17.0.20 | 满足 |
@@ -265,7 +265,7 @@ shaded JAR SPI：`org.sqlite.JDBC` + `org.postgresql.Driver`。
 
 | 条件 | 证据 | 结果 |
 |---|---|---|
-| Plan `approved` | `workflow/workflow/docs/manager/ggtest-pg.md` | 满足 |
+| Plan `approved` | `workflow/docs/manager/ggtest-pg.md` | 满足 |
 | Reviewer **Approve**（轮次 3） | `review.md`；`b6ea61f` | 满足 |
 | 实现 | HEAD=`b6ea61f`；分支 `ggtest-pg` | 满足 |
 | 环境 | localhost postgres；JDK 17.0.20；根本地 `.env`（`GGTEST_ENGINE=postgres` + `jdbc:postgresql://…`）**在场且未改写** | 满足 |

@@ -11,7 +11,7 @@
 ## 元信息
 
 - 工作项标识: ggtest-core（sub-feature-id: normalize）
-- 依据 Spec: [workflow/workflow/docs/features/ggtest-core/ggtest-core-normalize/spec.md](./spec.md)
+- 依据 Spec: [workflow/docs/features/ggtest-core/ggtest-core-normalize/spec.md](./spec.md)
 - 依据 Design: N/A（Design 门禁 skipped）
 - 路径等级: full
 - Review 门禁: required（进入 QA 前须 Reviewer `Approve`）
@@ -61,7 +61,7 @@ TDD：先写失败测试，再实现至通过。API 签名由本 Plan 约定（D
 - `src/test/java/com/ggtest/normalize/`（新增）
 - `src/test/resources/fixtures/normalize/`（新增）
 - `README.md`（更新）
-- `workflow/workflow/docs/features/ggtest-core/ggtest-core-normalize/dev-notes.md`（Developer 实施后新增）
+- `workflow/docs/features/ggtest-core/ggtest-core-normalize/dev-notes.md`（Developer 实施后新增）
 - 只读复用：`com.ggtest.model.ColumnType`、`SortMode`
 - **禁止**：改 Spec；改 `com.ggtest.parser` 行为；引入 JDBC；创建本切片 `design.md`
 

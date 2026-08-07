@@ -8,8 +8,8 @@
 - 变更路径:
   - `src/test/java/com/ggtest/normalize/ValueNormalizerTest.java`（T1）
   - `src/main/java/com/ggtest/normalize/ValueNormalizer.java`（T2 + Javadoc）
-  - `workflow/workflow/docs/features/fix-normalize-integer-float/dev-notes.md`（本文件）
-- 禁止未改: `workflow/workflow/docs/manager/*`、`STATUS.md`、本项无关 `pom.xml`、WI-2/WI-3 实现、`sqllogictest/` 入库
+  - `workflow/docs/features/fix-normalize-integer-float/dev-notes.md`（本文件）
+- 禁止未改: `workflow/docs/manager/*`、`STATUS.md`、本项无关 `pom.xml`、WI-2/WI-3 实现、`sqllogictest/` 入库
 - 文档影响: 开发文档（本文件 + Javadoc）；用户/运维 N/A
 - 开放问题 / §6: 无
 - 建议下一步: Reviewer → Approve 后 QA（不得因 WI-2/WI-3 位点否定本项）

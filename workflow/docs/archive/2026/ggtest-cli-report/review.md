@@ -20,7 +20,7 @@
 | 依据 | Spec/Plan 合入前增量：`[SQL]` = 首行；去除首行后仍有非空白 → `<首行> ...`；纯单行不加；范围外：diff / 计数 / 彩色 / 退出码 / 路径列宽；[`dev-notes.md`](./dev-notes.md) |
 | 实现版本 | 分支 `ggtest-cli-report`；**未 commit**；相对 `HEAD`=`00eaf54` |
 | 审阅内容 | `CliSession#sqlFirstLine`；P0-2/P1-2；fixture；README/`dev-notes`/Spec/Plan 一致；范围外不变；安全/Git 增量 |
-| 未纳入 | 不重开轮次 1–2；不改实现；不作 QA 结论；**不 commit**；不改 `workflow/workflow/docs/manager/*` |
+| 未纳入 | 不重开轮次 1–2；不改实现；不作 QA 结论；**不 commit**；不改 `workflow/docs/manager/*` |
 
 ### 结论
 
@@ -143,10 +143,10 @@
 | 项 | 内容 |
 |---|---|
 | 工作项 | `ggtest-cli-report`（未拆分；`standard`；Review **required**） |
-| 依据 | [`spec.md`](./spec.md)、[`plan.md`](./plan.md)（均已批准）、[`dev-notes.md`](./dev-notes.md)；`workflow/workflow/docs/manager/ggtest-cli-report.md`（只读）；`workflow/workflow/docs/standards/{documentation,quality,security,git}.md` |
+| 依据 | [`spec.md`](./spec.md)、[`plan.md`](./plan.md)（均已批准）、[`dev-notes.md`](./dev-notes.md)；`workflow/docs/manager/ggtest-cli-report.md`（只读）；`workflow/docs/standards/{documentation,quality,security,git}.md` |
 | 实现版本 | 分支 `ggtest-cli-report`；**未 commit**；相对 `HEAD`=`00eaf54` 工作区 diff + 未跟踪源/测 |
 | 审阅内容 | 报告布局与文件计数；git Diff；混合/`Error`/`TOTAL`；`--color`/`ggtest.color`/`GGTEST_COLOR`；T6；README/Javadoc/`dev-notes`；P0-3；Git 禁止项 |
-| 未纳入 | 不改业务/测试/`workflow/workflow/docs/manager/*`；不进 QA；不合并；**不 commit** 本报告；不审 `architecture-overview` 旁路 |
+| 未纳入 | 不改业务/测试/`workflow/docs/manager/*`；不进 QA；不合并；**不 commit** 本报告；不审 `architecture-overview` 旁路 |
 
 ### 结论
 
@@ -231,7 +231,7 @@
 | 工作分支 | `ggtest-cli-report`（非 `main`） |
 | 提交状态 | 实现**尚未 commit**（符合阶段指令）；审阅相对工作区 |
 | 禁止项 | 无真实 `.env`；`examples/` 未跟踪（**勿提交**）；本报告 Reviewer **不**提交 |
-| 旁路噪声 | `architecture-overview`、`workflow/workflow/docs/manager/STATUS.md` 等非本项实现；合并前由 Manager 区分边界 |
+| 旁路噪声 | `architecture-overview`、`workflow/docs/manager/STATUS.md` 等非本项实现；合并前由 Manager 区分边界 |
 
 ### 验证证据摘要（审阅者独立）
 

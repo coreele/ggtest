@@ -4,7 +4,7 @@
 >
 > **feature-id**：`fix-cli-credential-redaction` · **sub-feature-id**：`fix-cli-credential-redaction`（未拆分）
 > **适用对象**：Planner、Developer、Reviewer、QA、Manager。
-> **前置条件**：工作项 [`workflow/workflow/docs/manager/fix-cli-credential-redaction.md`](../../manager/fix-cli-credential-redaction.md)；审计 [`workflow/workflow/docs/audit/2026-07-26-src.md`](../../audit/2026-07-26-src.md) Finding §7 / CA-002。
+> **前置条件**：工作项 [`workflow/docs/manager/fix-cli-credential-redaction.md`](../../manager/fix-cli-credential-redaction.md)；审计 [`workflow/docs/audit/2026-07-26-src.md`](../../audit/2026-07-26-src.md) Finding §7 / CA-002。
 > **预期结果**：`CliSession` 脱敏控制点与 `CliOptions.toString()` 不泄露 URL userinfo / password 明文；测试证明修复前后差异。
 > **失败处理**：合同歧义不得进入 Plan。Spec 用户确认已 **approved**（Manager 授权）。
 

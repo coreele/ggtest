@@ -16,7 +16,7 @@
 
 ## 背景
 
-审计 **CA-003**（`workflow/workflow/docs/audit/2026-07-26-src.md`）：`CliSession.java`（约 420 行）同时承担多文件编排、JDBC 连接生命周期、PostgreSQL schema 隔离编排、`SqlLogicTestRunner` 调用、失败块/状态行/汇总报告渲染，以及错误消息脱敏。改报告或换引擎时牵动面大，单测需整条 CLI 编排。
+审计 **CA-003**（`workflow/docs/audit/2026-07-26-src.md`）：`CliSession.java`（约 420 行）同时承担多文件编排、JDBC 连接生命周期、PostgreSQL schema 隔离编排、`SqlLogicTestRunner` 调用、失败块/状态行/汇总报告渲染，以及错误消息脱敏。改报告或换引擎时牵动面大，单测需整条 CLI 编排。
 
 依赖项已落地（worktree 对照）：
 

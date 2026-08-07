@@ -15,7 +15,7 @@
 
 | 条件 | 证据 | 结果 |
 |---|---|---|
-| Plan 已用户确认并持久化 | `workflow/workflow/docs/manager/ggtest-core.md`：`/manager plan ok` → approved | 满足 |
+| Plan 已用户确认并持久化 | `workflow/docs/manager/ggtest-core.md`：`/manager plan ok` → approved | 满足 |
 | Spec 已用户确认 | 同记录：Spec「ok」→ approved | 满足 |
 | Review required 且 Approve | `review.md` 结论 Approve；无阻塞必修项 | 满足 |
 | 可验收实现与 Plan 验证 | `com.ggtest.normalize` + 测试/fixtures；L2：`mvn -q clean test` | 满足 |

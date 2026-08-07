@@ -30,7 +30,7 @@
 ### T0 — 分支
 
 - 做：从 `main` 创建或检出 `fix-onlyif-skipif-hash-comments`。
-- 完成条件：当前为源分支；未改 `workflow/workflow/docs/manager/*` / `STATUS.md`。
+- 完成条件：当前为源分支；未改 `workflow/docs/manager/*` / `STATUS.md`。
 
 ### T1 — Red：行尾 `#` 单测（先于改 parser）
 
@@ -70,8 +70,8 @@ T0 → T1（red）→ T2（green）→ T3 → T4 → Review → QA。禁止 T2 �
 | T1 | `src/test/java/com/ggtest/parser/SqlLogicTestParserTest.java`（优先内联字符串） |
 | T2 | `src/main/java/com/ggtest/parser/SqlLogicTestParser.java`（`parseOnlyIf`/`parseSkipIf`/`splitTokens` 或局部 strip） |
 | T3 | 命令 + notes；可选 `Path` → `sqllogictest/test/evidence/in1.test` |
-| T4 | `workflow/workflow/docs/features/fix-onlyif-skipif-hash-comments/dev-notes.md` |
-| 禁止 | Spec/Design；`workflow/workflow/docs/manager/*`；`STATUS.md`；无关模块；本轮 commit（除非用户授权） |
+| T4 | `workflow/docs/features/fix-onlyif-skipif-hash-comments/dev-notes.md` |
+| 禁止 | Spec/Design；`workflow/docs/manager/*`；`STATUS.md`；无关模块；本轮 commit（除非用户授权） |
 
 ## 验收
 

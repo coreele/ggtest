@@ -56,7 +56,7 @@
 - 主代码：`cli/{CliSession,Main,CliArgumentParser,ParsedArguments,CliOptions,RuntimeConfigResolver,ColorMode,ReportStyle}.java`；`normalize/ResultComparer.java`
 - 测试：`CliReportAcceptanceTest`；夹具 `fail.test`（多行）、`skip-all.test`、`statement-fail.test`；及 Plan 所列受影响测试
 - 文档：`README.md`；本文件
-- **禁止触碰已遵守**：`workflow/workflow/docs/manager/*`、`examples/` 未跟踪样例、`.env*`（Spec/Plan 由 Analyst/Planner 回写，本轮未改）
+- **禁止触碰已遵守**：`workflow/docs/manager/*`、`examples/` 未跟踪样例、`.env*`（Spec/Plan 由 Analyst/Planner 回写，本轮未改）
 
 ## 验证证据（L3 · quality.md §1）
 

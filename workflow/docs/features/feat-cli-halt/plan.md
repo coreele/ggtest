@@ -3,7 +3,7 @@
 ## 元信息
 
 - 工作项标识: feat-cli-halt
-- 依据 Spec: workflow/workflow/docs/features/feat-cli-halt/spec.md
+- 依据 Spec: workflow/docs/features/feat-cli-halt/spec.md
 - 依据 Design: N/A（Design 门禁为 skipped；沿用现有 CLI/runner 边界，无新模块选型）
 - 路径等级: standard
 - Review 门禁: required（standard）
@@ -23,7 +23,7 @@
 
 ## 目标摘要
 
-依据已冻结 Spec `workflow/workflow/docs/features/feat-cli-halt/spec.md`，为 `ggtest` CLI 增加与官方 `sqllogictest --halt` 对齐的布尔选项 **`--halt`**（默认关闭）。未传时现有「文件内继续、多文件跑完、退出码 0/1/2」语义**完全不变**。开启后：本进程**首次错误**（断言失败或硬错误）即停——文件内后续记录不执行且不得报假失败；尚未开始的后续文件不得打开/解析/执行，不得出现在状态行或 `TOTAL`。退出码优先级不变：曾有 hard error → `2`；否则有失败文件 → `1`；否则 `0`。选项解析沿用现有精确长选项机制：重复 `--halt` ≡ 单次（非 usage 错误）；`-halt`/`--hal` 等前缀或短形式 → usage，退出码 `2`，不连库。语料 `halt` 记录语义不变（仅中止当前文件后续并 skipped，**非错误**，不触发 CLI `--halt` 停跑）。凭据永不入报告。
+依据已冻结 Spec `workflow/docs/features/feat-cli-halt/spec.md`，为 `ggtest` CLI 增加与官方 `sqllogictest --halt` 对齐的布尔选项 **`--halt`**（默认关闭）。未传时现有「文件内继续、多文件跑完、退出码 0/1/2」语义**完全不变**。开启后：本进程**首次错误**（断言失败或硬错误）即停——文件内后续记录不执行且不得报假失败；尚未开始的后续文件不得打开/解析/执行，不得出现在状态行或 `TOTAL`。退出码优先级不变：曾有 hard error → `2`；否则有失败文件 → `1`；否则 `0`。选项解析沿用现有精确长选项机制：重复 `--halt` ≡ 单次（非 usage 错误）；`-halt`/`--hal` 等前缀或短形式 → usage，退出码 `2`，不连库。语料 `halt` 记录语义不变（仅中止当前文件后续并 skipped，**非错误**，不触发 CLI `--halt` 停跑）。凭据永不入报告。
 
 ## 任务拆解
 
@@ -96,7 +96,7 @@
 
 ## 验收
 
-> 合同权威：`workflow/workflow/docs/features/feat-cli-halt/spec.md` §验收（P0-1…P0-6、P1-1…P1-2）。下列映射把每条验收落到验证手段与预期证据。
+> 合同权威：`workflow/docs/features/feat-cli-halt/spec.md` §验收（P0-1…P0-6、P1-1…P1-2）。下列映射把每条验收落到验证手段与预期证据。
 
 - **P0-1 默认关闭**：不带 `--halt` 跑多失败 fixture → 全部失败均报告（既有 `multiFailureLayoutUsesBlankSeparatorsAndFlushAt` + T5 新增显式用例）；退出码 `1`。
 - **P0-2 单文件首错即停**：多失败 fixture + `--halt` → 仅 1 个失败详情块，其余记录不以 FAILED 出现；退出码 `1`。（T3 单元 + 集成用例）
@@ -107,7 +107,7 @@
 - **P1-1 文档**：README.md / README.zh-CN.md 选项表均含 `--halt` 且简述对齐官方 *Stop when first error is seen*。（T8，Reviewer/QA 文档验收）
 - **P1-2 重复 `--halt`**：`--halt --halt` 同单次，非 usage 错误。（T1 解析用例）
 
-预期证据：`mvn -q test` 全绿；`mvn -q clean package` 成功；README 选项表含 `--halt`（grep 可验证）。开发者验证结果记入 `workflow/workflow/docs/features/feat-cli-halt/dev-notes.md`。
+预期证据：`mvn -q test` 全绿；`mvn -q clean package` 成功；README 选项表含 `--halt`（grep 可验证）。开发者验证结果记入 `workflow/docs/features/feat-cli-halt/dev-notes.md`。
 
 ## 文档影响
 
@@ -120,8 +120,8 @@
 ## 进入 QA 的条件
 
 - Review 门禁为 `required`（standard）：进入 QA 前必须取得 Reviewer `Approve`。
-- Reviewer 须按 `workflow/workflow/docs/standards/quality.md` §3 检查：测试有效性（覆盖 P0/P1 关键路径、无恒真断言、含边界）、文档影响（与本 Plan「文档影响」一致）、安全影响（凭据不入报告——沿用既有脱敏，无新增泄露面）。
-- 取得 Approve 后，由 Manager 将状态推进至 QA 调度；QA 依据 Spec + 本 Plan 独立验收，结论写入 `workflow/workflow/docs/features/feat-cli-halt/qa-report.md`。
+- Reviewer 须按 `workflow/docs/standards/quality.md` §3 检查：测试有效性（覆盖 P0/P1 关键路径、无恒真断言、含边界）、文档影响（与本 Plan「文档影响」一致）、安全影响（凭据不入报告——沿用既有脱敏，无新增泄露面）。
+- 取得 Approve 后，由 Manager 将状态推进至 QA 调度；QA 依据 Spec + 本 Plan 独立验收，结论写入 `workflow/docs/features/feat-cli-halt/qa-report.md`。
 
 ## 验证风险与恢复
 
@@ -131,7 +131,7 @@
 
 ## 交接顺序
 
-1. **实施（Developer）**：按 T1→T2→T3→T4→T5/T6/T7→T8 顺序实现；执行 `mvn -q test` 与 `mvn -q clean package`；将验证结果与偏差记入 `workflow/workflow/docs/features/feat-cli-halt/dev-notes.md`。
+1. **实施（Developer）**：按 T1→T2→T3→T4→T5/T6/T7→T8 顺序实现；执行 `mvn -q test` 与 `mvn -q clean package`；将验证结果与偏差记入 `workflow/docs/features/feat-cli-halt/dev-notes.md`。
 2. **Review（Reviewer）**：依本 Plan「验收」「文档影响」「进入 QA 的条件」逐项核验，给出 Approve/Change-request；standard 路径 Approve 是 QA 前置。
 3. **QA**：Reviewer Approve 后由 Manager 调度；QA 依 Spec P0/P1 + 本 Plan 最低验证层独立验收，产出 `qa-report.md`（Pass/Fail/Blocked）。
 4. **合并**：QA Pass 后，依工作项记录「用户授权记录」等待用户合并授权；Planner/Developer/Reviewer/QA 均不擅自 merge。

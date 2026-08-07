@@ -1,11 +1,11 @@
 # 工作项记录: fix-jdbc-executor-dedup
 
 工作项标识: fix-jdbc-executor-dedup
-描述: 审计 Finding Medium §4 — 抽取 `SqliteJdbcExecutor` / `PostgresJdbcExecutor` 共享逻辑（基类或 package-private helper）；保留引擎专属 ENGINE_NAME / marker。来源：`workflow/workflow/docs/audit/2026-07-26-src.md`。
+描述: 审计 Finding Medium §4 — 抽取 `SqliteJdbcExecutor` / `PostgresJdbcExecutor` 共享逻辑（基类或 package-private helper）；保留引擎专属 ENGINE_NAME / marker。来源：`workflow/docs/audit/2026-07-26-src.md`。
 路径等级: standard
 源分支: fix-jdbc-executor-dedup
 目标分支: main
-文档影响: workflow/workflow/docs/features/fix-jdbc-executor-dedup/；可能更新审计登记册 CA-001
+文档影响: workflow/docs/features/fix-jdbc-executor-dedup/；可能更新审计登记册 CA-001
 
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
@@ -22,7 +22,7 @@
 
 ## Plan 确认
 
-- **approved**（2026-07-26）：用户授权 Manager 自行决断；依据 `workflow/workflow/docs/features/fix-jdbc-executor-dedup/plan.md`
+- **approved**（2026-07-26）：用户授权 Manager 自行决断；依据 `workflow/docs/features/fix-jdbc-executor-dedup/plan.md`
 
 ## Manager 决策（用户 2026-07-26 授权自行决断）
 

@@ -5,7 +5,7 @@
 | 项 | 内容 |
 |---|---|
 | 工作项 | `fix-jdbc-executor-dedup`（未拆分；`standard`；Review **required**） |
-| 依据 | [`plan.md`](./plan.md)、[`dev-notes.md`](./dev-notes.md)；`workflow/workflow/docs/manager/fix-jdbc-executor-dedup.md`；`workflow/workflow/docs/standards/{documentation,quality,security,git}.md` |
+| 依据 | [`plan.md`](./plan.md)、[`dev-notes.md`](./dev-notes.md)；`workflow/docs/manager/fix-jdbc-executor-dedup.md`；`workflow/docs/standards/{documentation,quality,security,git}.md` |
 | 实现版本 | 分支 `fix-jdbc-executor-dedup`；commit **`46fbb56`**（相对 `main`）；目标 `main` |
 | 审阅内容 | `AbstractJdbcExecutor` 抽取；`SqliteJdbcExecutor` / `PostgresJdbcExecutor` 迁移；`RunnerDependencyIsolationTest` 调整；Plan 验收 A1–A5；L2 测试有效性；文档与安全 |
 | 未纳入 | 不改业务代码/测试；不进 QA；不合并；不 commit 本报告 |
@@ -79,7 +79,7 @@ Plan 技术方案偏差（已文档化）：Plan 拟 `package-private` 抽象类
 | ID | 严重度 | 位置 | 说明 |
 |---|---|---|---|
 | N1 | low | `AbstractJdbcExecutor` 可见性 | Plan 写 package-private，实现为 public abstract；`dev-notes` 已说明 Java 包访问限制。合入后可在 Plan 或审计登记中同步措辞。 |
-| N2 | low | CA-001 登记 | `workflow/workflow/docs/standards/code-audit-register.md` 标 `resolved` 宜在 QA Pass 后由 Manager 执行（与 Plan 一致）。 |
+| N2 | low | CA-001 登记 | `workflow/docs/standards/code-audit-register.md` 标 `resolved` 宜在 QA Pass 后由 Manager 执行（与 Plan 一致）。 |
 
 ## 验证证据摘要（审阅者独立）
 

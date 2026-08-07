@@ -14,13 +14,13 @@
 
 - 工作项标识: refactor-cli-session-boundaries（未拆分；sub-feature-id = feature-id）
 - 依据 Spec: N/A（Spec 门禁 skipped；对外 CLI 行为以既有验收测与 `architecture-overview` 为准）
-- 依据 Design: [workflow/workflow/docs/features/refactor-cli-session-boundaries/design.md](./design.md)
+- 依据 Design: [workflow/docs/features/refactor-cli-session-boundaries/design.md](./design.md)
 - 路径等级: standard
 - Review 门禁: **required**（进入 QA 前须 Reviewer **Approve**）
 - 最低验证层: **L2**（新增 cli 层单测 + 全量 `mvn test` 回归；无新对外合同）
 - 验证命令: `mvn -q clean test`
 - 源分支 / 目标: `refactor-cli-session-boundaries` → `main`
-- 审计依据: `workflow/workflow/docs/audit/2026-07-26-src.md` Tech Debt Medium **CA-003**
+- 审计依据: `workflow/docs/audit/2026-07-26-src.md` Tech Debt Medium **CA-003**
 
 ## 适用工程规范
 
@@ -95,8 +95,8 @@ mvn -q clean test   # 绿后再 T1
 ### T6 — 回归、登记册与 dev-notes
 
 1. `mvn -q clean test` 全绿（含 `CliReportAcceptanceTest`、`MainOrchestrationTest`、`CredentialRedactionTest`、PG 门控测）。
-2. **新建** `workflow/workflow/docs/features/refactor-cli-session-boundaries/dev-notes.md`：T0 merge 摘要、验证命令与结果。
-3. `workflow/workflow/docs/standards/code-audit-register.md` **CA-003** → `resolved`。
+2. **新建** `workflow/docs/features/refactor-cli-session-boundaries/dev-notes.md`：T0 merge 摘要、验证命令与结果。
+3. `workflow/docs/standards/code-audit-register.md` **CA-003** → `resolved`。
 4. **完成条件**：L2 证据齐全；登记册已更新。
 
 ## 依赖与顺序
@@ -121,8 +121,8 @@ T1/T2 与 T3/T4 可在 T2 完成后由不同开发者并行，但 T5 依赖 T2+T
 | `src/main/java/com/ggtest/cli/FileOutcome.java`（或内嵌） | **新建**（package-private DTO） |
 | `src/test/java/com/ggtest/cli/ReportWriterTest.java` | **新建** |
 | `src/test/java/com/ggtest/cli/FileRunnerTest.java` | **新建** |
-| `workflow/workflow/docs/features/refactor-cli-session-boundaries/dev-notes.md` | Developer 验证回执 |
-| `workflow/workflow/docs/standards/code-audit-register.md` | CA-003 → `resolved` |
+| `workflow/docs/features/refactor-cli-session-boundaries/dev-notes.md` | Developer 验证回执 |
+| `workflow/docs/standards/code-audit-register.md` | CA-003 → `resolved` |
 
 **禁止触碰**：`com.ggtest.runner/**`、`com.ggtest.db/**`、`parser` / `normalize`（除非编译强制 import 调整，应无）。
 
