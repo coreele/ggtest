@@ -17,7 +17,7 @@
 
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
-| feat-cli-halt | [spec.md](../features/feat-cli-halt/spec.md) | required（新增公开 CLI 选项与首错停跑合同；含错误定义、报告与退出码） | not-required（官方语义明确；用户已要求对齐实现，无业务歧义） | skipped（沿用现有 CLI/runner 边界；无新模块选型） | required（standard） | planning | Planner 编写 Plan |
+| feat-cli-halt | [spec.md](../features/feat-cli-halt/spec.md) [plan.md](../features/feat-cli-halt/plan.md) | required（新增公开 CLI 选项与首错停跑合同；含错误定义、报告与退出码） | not-required（官方语义明确；用户已要求对齐实现，无业务歧义） | skipped（沿用现有 CLI/runner 边界；无新模块选型） | required（standard） | planned | Developer 实施 T1-T8（先切源分支 feat-cli-halt） |
 
 阻塞原因:
 恢复条件:
@@ -35,8 +35,11 @@
 ## 用户授权记录
 
 - 2026-08-06：用户要求完整工作流推进实现 `--halt`；先完成 cancelled 归档 commit；实现后待合并授权，不擅自 merge/push；勿归档 3 个 done 父项。
+- 2026-08-07：用户确认 Plan；授权完整流程推进（连续调度至合并授权门禁前）。
 
 ## 进度笔记
 
 - 2026-08-06：Manager 登记；状态 `speccing`；调度 Analyst。
 - 2026-08-06：Analyst Spec 完成（`docs/features/feat-cli-halt/spec.md`）；Spec 用户确认 not-required；Design skipped → 进入 `planning`；调度 Planner。
+- 2026-08-07：Planner Plan 完成（`docs/features/feat-cli-halt/plan.md`，已 refine-docs 自检；L2 验证层；触碰路径覆盖 cli/runner；与 Spec 无冲突）；进入 `awaiting-plan-approval`，待用户确认 Plan 后方可置 `planned` 并调度 Developer。
+- 2026-08-07：用户确认 Plan（已持久化）；状态 `planned`；调度 Developer（先切源分支 `feat-cli-halt`，按 T1→T8 实施）。
