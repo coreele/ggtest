@@ -166,4 +166,4 @@ mvn -q -DskipTests package
 
 | 日期 | 摘要 |
 |---|---|
-| 2026-08-06 | 初稿并 refine-docs：T0–T4 TDD；ValueNormalizer(+Test)；L2 + aggfunc WI-1；排除 WI-2/WI-3；Review required |
+| 2026-08-06 | 初稿并 documentation.md §B 自检：T0–T4 TDD；ValueNormalizer(+Test)；L2 + aggfunc WI-1；排除 WI-2/WI-3；Review required |

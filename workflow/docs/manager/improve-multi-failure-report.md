@@ -61,7 +61,7 @@
 ## 进度笔记
 
 - 2026-08-06：登记 → Analyst 初稿 Spec（复杂推荐）→ `awaiting-spec-approval`。
-- 2026-08-06：用户否决复杂方案并给出精确样例。Analyst 重写 Spec（refine-docs）。Spec **approved**；状态 → **`planning`**。
+- 2026-08-06：用户否决复杂方案并给出精确样例。Analyst 重写 Spec（documentation.md §B 自检）。Spec **approved**；状态 → **`planning`**。
 - 2026-08-06：Planner 产出 [plan.md](../features/improve-multi-failure-report/plan.md)（T0–T4；L3；开放问题 none）。状态 → **`awaiting-plan-approval`**。
 - 2026-08-06：用户确认 Plan（「ok」）。Plan **approved**；状态 → **`planned`** → **`developing`**。调度 **Developer**：自 `main` 创建/检出 `improve-multi-failure-report`，按 Plan T0–T4 TDD 实施；写 `dev-notes.md`；更新 README 报告样例；**不要** commit/push/merge；禁止改 `workflow/docs/manager/*`、WI-2/WI-3、`pom.xml` 无关改动、入库 `sqllogictest/`。
 - 2026-08-06：Developer 交接。T0–T4 **done**（分支 `improve-multi-failure-report`）。改动：`ReportWriter.java`、`FileRunner.java`、相关测 + `multi-fail.test`、README 中英、`dev-notes.md`。验证：定点 Failures=0；`mvn -q clean test` **233/0/0/18**；package SUCCESS。未 commit。§6：多段纯硬错误块间空行无独立 fixture（共享路径已覆盖）。状态 → **`reviewing`**。调度 **Reviewer**。

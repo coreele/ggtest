@@ -101,4 +101,4 @@ Developer（检出 `ggtest-core-normalize` → T1–T6 + `dev-notes.md`）→ Re
 
 | 日期 | 摘要 |
 |---|---|
-| 2026-07-24 | 初稿并 refine-docs：T1–T6、L2、P0-2/P0-4/P0-5/P1-3、Design skipped、Review required |
+| 2026-07-24 | 初稿并 documentation.md §B 自检：T1–T6、L2、P0-2/P0-4/P0-5/P1-3、Design skipped、Review required |

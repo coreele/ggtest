@@ -68,4 +68,4 @@
 
 | 日期 | 摘要 |
 |---|---|
-| 2026-08-06 | 轮次 1 Pass；P0-1～P0-3；无 option 5；范围合规；refine-docs |
+| 2026-08-06 | 轮次 1 Pass；P0-1～P0-3；无 option 5；范围合规；documentation.md §B 自检 |

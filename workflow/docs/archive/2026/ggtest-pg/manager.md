@@ -76,7 +76,7 @@
 ## 进度笔记
 
 - 2026-07-25 **登记**：用户指令 `/manager 开启下一工作项，支持 PG`。feature-id=`ggtest-pg`；路径 `full`；Spec/Design/Review 均为 required；未拆分。状态 `backlog` → **`speccing`**。调度 Analyst 编写 `workflow/docs/features/ggtest-pg/spec.md`。单步编排：Spec 完成后停在 `awaiting-spec-approval`；**不得**自行批准 Spec。
-- 2026-07-25 **Analyst 完成 Spec**：产出 `workflow/docs/features/ggtest-pg/spec.md`（合同、P0/P1、开放问题；已 refine-docs）。状态 `speccing` → **`awaiting-spec-approval`**。到达 Spec 用户确认门禁；单步停止；**未**自行批准 Spec、**未**调度 Planner。Analyst 建议拆分 `executor-pg` / `cli-engine`（仅建议，未执行）。
+- 2026-07-25 **Analyst 完成 Spec**：产出 `workflow/docs/features/ggtest-pg/spec.md`（合同、P0/P1、开放问题；已 documentation.md §B 自检）。状态 `speccing` → **`awaiting-spec-approval`**。到达 Spec 用户确认门禁；单步停止；**未**自行批准 Spec、**未**调度 Planner。Analyst 建议拆分 `executor-pg` / `cli-engine`（仅建议，未执行）。
 - 2026-07-25 **用户确认 Spec（整体 ok）并拍板开放问题**：engine=`postgres`；隔离=schema 级；engine↔URL 不一致=硬错误（退出码 2）；PG 官方语料硬验收失败=0=否。Manager：Spec 用户确认 → **`approved`**；决议已写入本记录。因 Spec 正文仍含候选 `postgresql` 等待确认表述，调度 **Analyst** 做最小修订对齐后再进入 Design。
 - 2026-07-25 **Analyst 最小修订 Spec 完成**：`spec.md` 已对齐 `postgres` / schema 隔离 / 硬错误 / P1-PG-4 非硬验收；待确认已清空。状态 `awaiting-spec-approval` → **`designing`**。调度 **Planner** 编写 `design.md` 然后 `plan.md`。运维：代理 `127.0.0.1:7890`；多次失败则停止；勿提交 `examples/`。**不得**自行批准 Plan。
 - 2026-07-25 **Planner 完成 Design + Plan**：产出 `design.md`（`db.postgres`、JDBC 42.7.13、schema 隔离由 CLI 编排、engine↔URL 硬校验、`GGTEST_PG_URL` 门控）与 `plan.md`（T1–T6；L3；建议源分支 `ggtest-pg`）。Design 门禁 **通过**（design.md 存在）。状态 `designing` →（planning）→ **`awaiting-plan-approval`**。到达 Plan 用户确认门禁；单步停止；**未**自行批准 Plan、**未**调度 Developer。

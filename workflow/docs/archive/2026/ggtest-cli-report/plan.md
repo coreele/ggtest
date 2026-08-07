@@ -103,7 +103,7 @@
 
 ### T8 dev-notes 记录
 
-- 写/追加 `workflow/docs/features/ggtest-cli-report/dev-notes.md`（验证命令、证据、缺口；quality.md §1、§6），完成后 refine-docs。
+- 写/追加 `workflow/docs/features/ggtest-cli-report/dev-notes.md`（验证命令、证据、缺口；quality.md §1、§6），完成后 documentation.md §B 自检。
 - 本轮：记录 `[SQL]` 省略实现要点与多行/单行测试证据。
 - 完成条件：覆盖「验证层与预期证据」（含 P1-1、P1-4/P1-5、本轮 `[SQL]`；TTY `auto` 人工核对或缺口声明），可支撑短 Review/QA。
 
@@ -170,10 +170,10 @@
 
 | 日期 | 摘要 |
 |---|---|
-| 2026-07-25 | 初稿：T1–T8（含 Q-R5=(B)）、L3、Review required；已 refine-docs |
-| 2026-07-25 | 修订：Q-R4 → `--color` + `CARGO_TERM_COLOR`（T4/T6/T7）；已 refine-docs |
-| 2026-07-25 | 修订（Plan 确认意见）：硬错误计入 `failed`、退出码独立；`CARGO_TERM_COLOR` → `GGTEST_TERM_COLOR`；确认事项 + 仍待整份批准；已 refine-docs |
-| 2026-07-25 | 修订（Q-R4 Java 生态）：`GGTEST_COLOR` + `ggtest.color`；优先级 CLI > 属性 > env > `auto`；弃用旧名；已 refine-docs |
-| 2026-07-25 | 修订（状态行标签 + 混合样例）：T1 → `[PASSED] in` / `[FAILED] in` / `[SKIPPED]`（废 `PASS in`/`after`）；T3 混合顺序、Error 仅失败、成功行间无空块；T6/T7 同步；确认事项第 4 项；仍待整份批准；已 refine-docs |
-| 2026-07-25 | 修订（成功标签）：T1、T6、T7、文档影响与确认事项第 4 项统一为 `[PASSED]`；禁止旧式成功标签；整份 Plan 仍待最终批准；已 refine-docs |
-| 2026-07-25 | 合入前增量（非新工作项）：T2 `[SQL]` = 首行；去除首行后仍有非空白 → `<首行> ...`；纯单行不加；T6 覆盖多行带 ` ...`、单行不带；范围外 diff/计数/彩色/退出码/路径列宽；Design 仍 skipped；**不另开 Plan 用户确认门禁**；已 refine-docs |
+| 2026-07-25 | 初稿：T1–T8（含 Q-R5=(B)）、L3、Review required；已 documentation.md §B 自检 |
+| 2026-07-25 | 修订：Q-R4 → `--color` + `CARGO_TERM_COLOR`（T4/T6/T7）；已 documentation.md §B 自检 |
+| 2026-07-25 | 修订（Plan 确认意见）：硬错误计入 `failed`、退出码独立；`CARGO_TERM_COLOR` → `GGTEST_TERM_COLOR`；确认事项 + 仍待整份批准；已 documentation.md §B 自检 |
+| 2026-07-25 | 修订（Q-R4 Java 生态）：`GGTEST_COLOR` + `ggtest.color`；优先级 CLI > 属性 > env > `auto`；弃用旧名；已 documentation.md §B 自检 |
+| 2026-07-25 | 修订（状态行标签 + 混合样例）：T1 → `[PASSED] in` / `[FAILED] in` / `[SKIPPED]`（废 `PASS in`/`after`）；T3 混合顺序、Error 仅失败、成功行间无空块；T6/T7 同步；确认事项第 4 项；仍待整份批准；已 documentation.md §B 自检 |
+| 2026-07-25 | 修订（成功标签）：T1、T6、T7、文档影响与确认事项第 4 项统一为 `[PASSED]`；禁止旧式成功标签；整份 Plan 仍待最终批准；已 documentation.md §B 自检 |
+| 2026-07-25 | 合入前增量（非新工作项）：T2 `[SQL]` = 首行；去除首行后仍有非空白 → `<首行> ...`；纯单行不加；T6 覆盖多行带 ` ...`、单行不带；范围外 diff/计数/彩色/退出码/路径列宽；Design 仍 skipped；**不另开 Plan 用户确认门禁**；已 documentation.md §B 自检 |
