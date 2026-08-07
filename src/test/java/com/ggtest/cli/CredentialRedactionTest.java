@@ -29,6 +29,7 @@ class CredentialRedactionTest {
                 "sqlite",
                 8,
                 ColorMode.AUTO,
+                false,
                 List.of("a.test"));
     }
 

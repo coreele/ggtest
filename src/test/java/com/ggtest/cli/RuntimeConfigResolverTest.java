@@ -210,9 +210,11 @@ class RuntimeConfigResolverTest {
                 "sqlite",
                 8,
                 ColorMode.AUTO,
+                false,
                 java.util.List.of("a.test"));
         assertFalse(options.toString().contains("super-secret-credential"));
         assertTrue(options.toString().contains("***"));
+        assertTrue(options.toString().contains("halt=false"));
     }
 
     @Test
@@ -231,6 +233,7 @@ class RuntimeConfigResolverTest {
                 "postgres",
                 8,
                 ColorMode.AUTO,
+                true,
                 java.util.List.of("a.test"));
         String dump = options.toString();
 
@@ -238,6 +241,33 @@ class RuntimeConfigResolverTest {
         assertFalse(dump.contains("plain-password-value"), "password field must not appear");
         assertTrue(dump.contains("***"), "password field must be masked");
         assertTrue(dump.contains("localhost"), "host remains readable");
+        assertTrue(dump.contains("halt=true"));
+    }
+
+    @Test
+    void haltDefaultsToFalseWhenCliFlagAbsent() {
+        CliOptions options = resolve(
+                parsed("--url", "jdbc:sqlite::memory:", "a.test"), key -> null);
+        assertFalse(options.halt());
+    }
+
+    @Test
+    void cliHaltFlagPropagatesToOptions() {
+        CliOptions options = resolve(
+                parsed("--url", "jdbc:sqlite::memory:", "--halt", "a.test"), key -> null);
+        assertTrue(options.halt());
+    }
+
+    @Test
+    void haltIsNotInferredFromProcessEnvOrDotEnv() throws IOException {
+        writeEnv("GGTEST_URL=jdbc:sqlite::memory:\nGGTEST_HALT=true\n");
+        Map<String, String> process = new HashMap<>();
+        process.put("GGTEST_URL", "jdbc:sqlite::memory:");
+        process.put("GGTEST_HALT", "true");
+
+        CliOptions options = resolve(parsed("a.test"), process::get);
+
+        assertFalse(options.halt(), "--halt must come from CLI only");
     }
 
     @Test

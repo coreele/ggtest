@@ -102,6 +102,29 @@ class FileRunnerTest {
     }
 
     @Test
+    void haltStopsAfterFirstFailureInOneFile() throws Exception {
+        errBuffer = new ByteArrayOutputStream();
+        PrintStream err = new PrintStream(errBuffer);
+        CliOptions haltOptions = sqliteOptionsWithHalt("jdbc:sqlite::memory:");
+        ReportWriter reportWriter = new ReportWriter(new PrintStream(new ByteArrayOutputStream()), new ReportStyle(false));
+        FileRunner haltRunner = new FileRunner(haltOptions, err, reportWriter);
+
+        Path file = fixture("multi-fail.test");
+        FileOutcome outcome = haltRunner.run(parser, file, "multi-fail.test");
+
+        assertEquals(FileBucket.FAILED, outcome.bucket());
+        assertFalse(outcome.hardError(), "--halt stops on first failure but is not itself a hard error");
+        List<String> lines = outcome.detailLines();
+        assertFlushAtLines(lines);
+
+        long whyCount = lines.stream().filter(l -> stripAnsi(l).contains("[WHY]")).count();
+        assertEquals(1, whyCount, () -> "only the first failure must be reported under --halt:\n" + String.join("\n", lines));
+
+        long atCount = lines.stream().filter(l -> stripAnsi(l).startsWith("at ")).count();
+        assertEquals(1, atCount, "exactly one failure detail block under --halt");
+    }
+
+    @Test
     void hardErrorDetailSharesFlushAtLayout() throws Exception {
         Path file = fixture("bad-parse.test");
         FileOutcome outcome = runner.run(parser, file, "bad-parse.test");
@@ -134,7 +157,7 @@ class FileRunnerTest {
         PrintStream err = new PrintStream(errBuffer);
         Optional<String> user = optionalEnv("GGTEST_PG_USER");
         Optional<String> password = optionalEnv("GGTEST_PG_PASSWORD");
-        CliOptions pgOptions = new CliOptions(url, user, password, "postgres", 8, ColorMode.AUTO, List.of("x.test"));
+        CliOptions pgOptions = new CliOptions(url, user, password, "postgres", 8, ColorMode.AUTO, false, List.of("x.test"));
         ReportWriter reportWriter =
                 new ReportWriter(new PrintStream(new ByteArrayOutputStream()), new ReportStyle(false));
         FileRunner pgRunner = new FileRunner(pgOptions, err, reportWriter);
@@ -163,7 +186,11 @@ class FileRunnerTest {
     }
 
     private static CliOptions sqliteOptions(String url) {
-        return new CliOptions(url, Optional.empty(), Optional.empty(), "sqlite", 8, ColorMode.AUTO, List.of("x.test"));
+        return new CliOptions(url, Optional.empty(), Optional.empty(), "sqlite", 8, ColorMode.AUTO, false, List.of("x.test"));
+    }
+
+    private static CliOptions sqliteOptionsWithHalt(String url) {
+        return new CliOptions(url, Optional.empty(), Optional.empty(), "sqlite", 8, ColorMode.AUTO, true, List.of("x.test"));
     }
 
     private static Optional<String> optionalEnv(String name) {

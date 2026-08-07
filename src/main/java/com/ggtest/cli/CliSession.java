@@ -13,6 +13,11 @@ import java.util.Objects;
  *
  * <p>Exit codes: hard errors → {@code 2}; assertion failures only → {@code 1};
  * otherwise {@code 0}. Hard-error files still increment {@code TOTAL.failed}.
+ *
+ * <p>When {@code --halt} is enabled ({@link CliOptions#halt()}), the file loop
+ * stops as soon as a file maps to the {@link FileBucket#FAILED} bucket (assertion
+ * failure or hard error): later files are not opened, parsed, executed, or counted.
+ * Exit-code priority is unchanged.
  */
 final class CliSession {
 
@@ -83,6 +88,10 @@ final class CliSession {
                     failedPaths.add(display);
                     totalFailed++;
                 }
+            }
+
+            if (options.halt() && outcome.bucket() == FileBucket.FAILED) {
+                break;
             }
         }
 

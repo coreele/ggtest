@@ -118,7 +118,7 @@ final class FileRunner {
 
     private FileOutcome runWithExecutor(
             com.ggtest.db.DatabaseExecutor executor, List<SqlTestRecord> records, String display) {
-        SqlLogicTestRunner runner = new SqlLogicTestRunner(executor, options.hashThreshold());
+        SqlLogicTestRunner runner = new SqlLogicTestRunner(executor, options.hashThreshold(), options.halt());
         FileRunResult result = runner.run(records);
 
         List<String> detailLines = new ArrayList<>();

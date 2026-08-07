@@ -1,6 +1,7 @@
 package com.ggtest.cli;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -36,6 +37,61 @@ class CliArgumentParserTest {
             "a.test"
         });
         assertEquals(Optional.of(ColorMode.NEVER), parsed.color());
+    }
+
+    @Test
+    void haltFlagDefaultsToFalseWhenAbsent() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {
+            "--url", "jdbc:sqlite::memory:",
+            "a.test"
+        });
+        assertFalse(parsed.halt());
+    }
+
+    @Test
+    void haltFlagIsSetWhenSupplied() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {
+            "--url", "jdbc:sqlite::memory:",
+            "--halt",
+            "a.test"
+        });
+        assertTrue(parsed.halt());
+    }
+
+    @Test
+    void repeatedHaltFlagIsEquivalentToSingle() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {
+            "--url", "jdbc:sqlite::memory:",
+            "--halt", "--halt", "--halt",
+            "a.test"
+        });
+        assertTrue(parsed.halt());
+    }
+
+    @Test
+    void singleDashHaltIsRejectedAsUnknownOption() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> CliArgumentParser.parse(new String[] {
+                    "--url", "jdbc:sqlite::memory:",
+                    "-halt",
+                    "a.test"
+                }));
+        assertTrue(ex.getMessage().toLowerCase().contains("unknown")
+                || ex.getMessage().contains("-halt"));
+    }
+
+    @Test
+    void haltPrefixLongOptionIsRejectedAsUnknownOption() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> CliArgumentParser.parse(new String[] {
+                    "--url", "jdbc:sqlite::memory:",
+                    "--hal",
+                    "a.test"
+                }));
+        assertTrue(ex.getMessage().toLowerCase().contains("unknown")
+                || ex.getMessage().contains("--hal"));
     }
 
     @Test

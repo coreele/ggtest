@@ -7,6 +7,9 @@ import java.util.Optional;
 /**
  * Argv-only parse result. Does not read files or process environment.
  * Field absence means the flag was not provided on the command line.
+ *
+ * @param halt whether {@code --halt} (stop on first error) was supplied;
+ *             repeated occurrences are equivalent to a single one
  */
 public record ParsedArguments(
         Optional<String> url,
@@ -16,6 +19,7 @@ public record ParsedArguments(
         Optional<Integer> hashThreshold,
         Optional<String> envFile,
         Optional<ColorMode> color,
+        boolean halt,
         List<String> inputs) {
 
     public ParsedArguments {

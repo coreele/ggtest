@@ -376,6 +376,82 @@ class SqlLogicTestRunnerTest {
     }
 
     @Test
+    void haltOnFirstFailureSkipsRemainingAssertablesAfterFirstFailure() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor().statementFails("BOOM", "syntax error");
+
+        FileRunResult result = run(
+                true,
+                executor,
+                statementOk("SELECT 'before'"),
+                statementOk("BOOM"),
+                statementOk("SELECT 'after1'"),
+                query(List.of(ColumnType.INTEGER), SortMode.NOSORT, null, "SELECT 2", List.of("2")));
+
+        assertEquals(
+                List.of(RecordOutcome.PASSED, RecordOutcome.FAILED, RecordOutcome.SKIPPED, RecordOutcome.SKIPPED),
+                outcomes(result));
+        assertEquals(2, result.skippedCount());
+        assertEquals(1, result.failedCount());
+        assertFalse(result.aborted(), "fatal path must be unaffected by --halt");
+        assertFalse(result.halted(), "corpus halt semantics must not be overloaded by CLI --halt");
+        assertEquals(List.of("SELECT 'before'", "BOOM"), executor.executedSql(),
+                "records after the first failure must not reach the executor");
+        String skipReason = result.recordResults().get(2).failureReason();
+        assertTrue(skipReason.contains("halt") || skipReason.contains("failure"),
+                "skip reason must indicate --halt / earlier failure: " + skipReason);
+    }
+
+    @Test
+    void haltOnFirstFailureFalseKeepsContinueBehavior() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor().statementFails("BOOM", "syntax error");
+
+        FileRunResult result = run(
+                false,
+                executor,
+                statementOk("BOOM"),
+                statementOk("SELECT 1"));
+
+        assertEquals(List.of(RecordOutcome.FAILED, RecordOutcome.PASSED), outcomes(result));
+        assertEquals(List.of("BOOM", "SELECT 1"), executor.executedSql());
+        assertFalse(result.aborted());
+    }
+
+    @Test
+    void haltOnFirstFailureFatalAbortPathIsUnchanged() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor().fatalOn("SELECT 'dies'");
+
+        FileRunResult result = run(
+                true,
+                executor,
+                statementOk("SELECT 'ok'"),
+                statementOk("SELECT 'dies'"),
+                statementOk("SELECT 'never runs'"));
+
+        assertEquals(List.of(RecordOutcome.PASSED, RecordOutcome.FAILED), outcomes(result));
+        assertTrue(result.aborted());
+        assertEquals(List.of("SELECT 'ok'", "SELECT 'dies'"), executor.executedSql());
+    }
+
+    @Test
+    void haltOnFirstFailureDoesNotStopOnCorpusHaltRecord() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor();
+
+        FileRunResult result = run(
+                true,
+                executor,
+                statementOk("SELECT 'before halt'"),
+                halt(),
+                statementOk("SELECT 'after halt'"));
+
+        assertEquals(
+                List.of(RecordOutcome.PASSED, RecordOutcome.SKIPPED),
+                outcomes(result));
+        assertTrue(result.halted(), "corpus halt record still sets halted");
+        assertFalse(result.aborted());
+        assertEquals(0, result.failedCount(), "corpus halt is not an error and must not be inflated by --halt");
+    }
+
+    @Test
     void recordResultsCarrySourceLocation() {
         StatementRecord record = statementOk("SELECT 1");
 
@@ -387,6 +463,11 @@ class SqlLogicTestRunnerTest {
 
     private FileRunResult run(FakeDatabaseExecutor executor, SqlTestRecord... records) {
         return new SqlLogicTestRunner(executor).run(List.of(records));
+    }
+
+    private FileRunResult run(boolean haltOnFirstFailure, FakeDatabaseExecutor executor, SqlTestRecord... records) {
+        return new SqlLogicTestRunner(executor, com.ggtest.normalize.ResultComparer.DEFAULT_HASH_THRESHOLD, haltOnFirstFailure)
+                .run(List.of(records));
     }
 
     private static List<RecordOutcome> outcomes(FileRunResult result) {

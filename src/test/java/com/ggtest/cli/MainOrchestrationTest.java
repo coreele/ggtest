@@ -165,6 +165,90 @@ class MainOrchestrationTest {
         assertFalse(capture.stderr().contains("super-secret"));
     }
 
+    @Test
+    void haltStopsAfterFirstFailingFileAndDoesNotStartLaterFiles() {
+        Capture capture = run(
+                "--url", "jdbc:sqlite::memory:",
+                "--halt",
+                fixture("multi-fail.test").toString(),
+                fixture("pass.test").toString());
+
+        assertEquals(1, capture.exitCode(), () -> "stdout:\n" + capture.stdout());
+        String out = capture.stdout();
+        assertTrue(out.contains("multi-fail.test"), out);
+        assertFalse(out.contains("pass.test"), "later file must not be started under --halt:\n" + out);
+        assertFalse(out.contains("[PASSED]"), "no later file may pass under --halt:\n" + out);
+        assertEquals(1, countFailures(out));
+        assertEquals(0, extractPassed(out), "TOTAL.passed must exclude unstarted files");
+    }
+
+    /**
+     * P0-1 default-off: without {@code --halt} a multi-failure file reports every
+     * failure and still runs later files. Exit code stays {@code 1}.
+     */
+    @Test
+    void defaultOffReportsAllFailuresAndRunsLaterFiles() {
+        Capture capture = run(
+                "--url", "jdbc:sqlite::memory:",
+                fixture("multi-fail.test").toString(),
+                fixture("pass.test").toString());
+
+        assertEquals(1, capture.exitCode(), () -> "stdout:\n" + capture.stdout());
+        String out = capture.stdout();
+        assertTrue(out.contains("multi-fail.test"), out);
+        assertTrue(out.contains("pass.test"), "later file must still run without --halt:\n" + out);
+        assertTrue(out.contains("[PASSED]"), out);
+        assertEquals(1, countFailures(out));
+        assertEquals(1, extractPassed(out));
+        long whyCount = out.lines().filter(l -> l.contains("[WHY]")).count();
+        assertEquals(3, whyCount, "all three failures must be reported without --halt:\n" + out);
+    }
+
+    /**
+     * P0-4: {@code --halt} + a hard-error file → later files are not started and
+     * the exit code is {@code 2}; the hard error is reported in the existing form.
+     */
+    @Test
+    void haltWithHardErrorExitsTwoAndDoesNotStartLaterFiles() {
+        Capture capture = run(
+                "--url", "jdbc:sqlite::memory:",
+                "--halt",
+                fixture("bad-parse.test").toString(),
+                fixture("pass.test").toString());
+
+        assertEquals(2, capture.exitCode(), () -> "stdout:\n" + capture.stdout());
+        String out = capture.stdout();
+        assertTrue(out.contains("bad-parse.test"), out);
+        assertFalse(out.contains("pass.test"), "later file must not be started under --halt:\n" + out);
+        assertFalse(out.contains("[PASSED]"), out);
+        assertTrue(out.contains("[FAILED]"), out);
+        assertTrue(out.contains("[WHY]"), out);
+        assertEquals(1, countFailures(out));
+        assertEquals(0, extractPassed(out));
+    }
+
+    /**
+     * P0-6: a corpus {@code halt} record stops only the current file (remaining
+     * records skipped, not an error). Under CLI {@code --halt} it must NOT trigger
+     * global stop, so later files still run and the exit code stays {@code 0}.
+     */
+    @Test
+    void corpusHaltRecordDoesNotTriggerCliHalt() {
+        Capture capture = run(
+                "--url", "jdbc:sqlite::memory:",
+                "--halt",
+                fixture("halt/corpus-halt.test").toString(),
+                fixture("pass.test").toString());
+
+        assertEquals(0, capture.exitCode(), () -> "stdout:\n" + capture.stdout());
+        String out = capture.stdout();
+        assertTrue(out.contains("corpus-halt.test"), out);
+        assertTrue(out.contains("pass.test"), "later file must still run after a corpus halt:\n" + out);
+        assertTrue(out.contains("[PASSED]"), out);
+        assertEquals(2, extractPassed(out));
+        assertEquals(0, countFailures(out));
+    }
+
     private Capture run(String... args) {
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();

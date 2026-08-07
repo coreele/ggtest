@@ -37,15 +37,22 @@ import java.util.Objects;
  *
  * <p>A failing record does not stop the file: only an executed {@code halt}
  * (remaining records become {@link RecordOutcome#SKIPPED}) or a
- * {@link FatalDatabaseException} stops it.
+ * {@link FatalDatabaseException} stops it. With {@code haltOnFirstFailure}
+ * enabled (CLI {@code --halt}), the first non-fatal
+ * {@link RecordOutcome#FAILED} record stops the file the same way: later
+ * assertable records become {@link RecordOutcome#SKIPPED} and never reach the
+ * executor. The fatal-abort path is unaffected.
  */
 public final class SqlLogicTestRunner {
 
     private static final String SKIPPED_BY_CONDITION = "not executed: skipif/onlyif condition";
     private static final String SKIPPED_AFTER_HALT = "not executed: halt earlier in this file";
+    private static final String SKIPPED_AFTER_FAILURE_HALT =
+            "not executed: --halt stopped after an earlier failure in this file";
 
     private final DatabaseExecutor executor;
     private final int initialHashThreshold;
+    private final boolean haltOnFirstFailure;
 
     /**
      * Uses {@link ResultComparer#DEFAULT_HASH_THRESHOLD} as the initial threshold.
@@ -62,8 +69,23 @@ public final class SqlLogicTestRunner {
      *                             {@code hash-threshold} record; {@code <= 0} disables hashing
      */
     public SqlLogicTestRunner(DatabaseExecutor executor, int initialHashThreshold) {
+        this(executor, initialHashThreshold, false);
+    }
+
+    /**
+     * @param executor             database executor; supplies the engine name for conditions
+     * @param initialHashThreshold threshold each run starts with, before any
+     *                             {@code hash-threshold} record; {@code <= 0} disables hashing
+     * @param haltOnFirstFailure   when {@code true}, the first non-fatal
+     *                             {@link RecordOutcome#FAILED} assertable record stops the file:
+     *                             later assertable records become {@link RecordOutcome#SKIPPED}
+     *                             and are not executed (CLI {@code --halt})
+     */
+    public SqlLogicTestRunner(
+            DatabaseExecutor executor, int initialHashThreshold, boolean haltOnFirstFailure) {
         this.executor = Objects.requireNonNull(executor, "executor");
         this.initialHashThreshold = initialHashThreshold;
+        this.haltOnFirstFailure = haltOnFirstFailure;
     }
 
     /**
@@ -77,6 +99,7 @@ public final class SqlLogicTestRunner {
         FileState state = new FileState(executor.engineName(), initialHashThreshold);
         List<RecordResult> results = new ArrayList<>();
         boolean halted = false;
+        boolean haltedOnFirstFailure = false;
         boolean aborted = false;
         String abortReason = "";
 
@@ -87,7 +110,14 @@ public final class SqlLogicTestRunner {
                 }
                 continue;
             }
+            if (haltedOnFirstFailure) {
+                if (isAssertable(record)) {
+                    results.add(RecordResult.skipped(record, SKIPPED_AFTER_FAILURE_HALT));
+                }
+                continue;
+            }
             try {
+                RecordResult produced = null;
                 if (record instanceof SkipIfRecord skipIf) {
                     state.addSkipIf(skipIf.dbName());
                 } else if (record instanceof OnlyIfRecord onlyIf) {
@@ -101,15 +131,22 @@ public final class SqlLogicTestRunner {
                         halted = true;
                     }
                 } else if (record instanceof StatementRecord statement) {
-                    results.add(state.consumePendingSkip()
+                    produced = state.consumePendingSkip()
                             ? RecordResult.skipped(statement, SKIPPED_BY_CONDITION)
-                            : runStatement(statement));
+                            : runStatement(statement);
+                    results.add(produced);
                 } else if (record instanceof QueryRecord query) {
-                    results.add(state.consumePendingSkip()
+                    produced = state.consumePendingSkip()
                             ? RecordResult.skipped(query, SKIPPED_BY_CONDITION)
-                            : runQuery(query, state));
+                            : runQuery(query, state);
+                    results.add(produced);
                 } else {
                     throw new IllegalStateException("unsupported record type: " + record.getClass().getName());
+                }
+                if (haltOnFirstFailure
+                        && produced != null
+                        && produced.outcome() == RecordOutcome.FAILED) {
+                    haltedOnFirstFailure = true;
                 }
             } catch (FatalDatabaseException ex) {
                 abortReason = describe("fatal database failure", ex.getMessage());

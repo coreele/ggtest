@@ -14,6 +14,10 @@ import java.util.Optional;
  * <p>Color: {@code --color <auto|always|never>} (default resolved later as
  * {@code auto}). Priority over system property {@code ggtest.color} and env
  * {@code GGTEST_COLOR} is applied in {@link RuntimeConfigResolver}.
+ *
+ * <p>Halt: {@code --halt} (no value; default off). Repeating it is equivalent
+ * to supplying it once. Short forms or prefixes ({@code -halt}, {@code --hal})
+ * are rejected as unknown options.
  */
 public final class CliArgumentParser {
 
@@ -38,6 +42,7 @@ public final class CliArgumentParser {
         Optional<Integer> hashThreshold = Optional.empty();
         Optional<String> envFile = Optional.empty();
         Optional<ColorMode> color = Optional.empty();
+        boolean halt = false;
         List<String> inputs = new ArrayList<>();
 
         for (int i = 0; i < args.length; i++) {
@@ -52,6 +57,7 @@ public final class CliArgumentParser {
                         hashThreshold = Optional.of(parseHashThreshold(requireValue(args, ++i, "--hash-threshold")));
                     case "--env-file" -> envFile = Optional.of(requireValue(args, ++i, "--env-file"));
                     case "--color" -> color = Optional.of(ColorMode.parse(requireValue(args, ++i, "--color"), "--color"));
+                    case "--halt" -> halt = true;
                     default -> throw new UsageException("unknown option: " + arg);
                 }
             } else {
@@ -59,7 +65,7 @@ public final class CliArgumentParser {
             }
         }
 
-        return new ParsedArguments(url, user, password, engine, hashThreshold, envFile, color, inputs);
+        return new ParsedArguments(url, user, password, engine, hashThreshold, envFile, color, halt, inputs);
     }
 
     private static String requireValue(String[] args, int index, String option) {

@@ -95,7 +95,7 @@ public final class RuntimeConfigResolver {
 
         validateEngineUrlPair(engine, url);
 
-        return new CliOptions(url, user, password, engine, hashThreshold, colorMode, parsed.inputs());
+        return new CliOptions(url, user, password, engine, hashThreshold, colorMode, parsed.halt(), parsed.inputs());
     }
 
     static ColorMode resolveColorMode(

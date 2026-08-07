@@ -13,6 +13,8 @@ import java.util.Optional;
  * @param engine        target engine name for skipif/onlyif (default {@code sqlite})
  * @param hashThreshold initial hash-threshold for each file run (default 8)
  * @param colorMode     report color mode ({@code auto}/{@code always}/{@code never})
+ * @param halt          whether {@code --halt} (stop on first error) is enabled;
+ *                      CLI-only; {@code false} when absent
  * @param inputs        positional file or directory paths (at least one)
  */
 public record CliOptions(
@@ -22,6 +24,7 @@ public record CliOptions(
         String engine,
         int hashThreshold,
         ColorMode colorMode,
+        boolean halt,
         List<String> inputs) {
 
     public CliOptions {
@@ -48,6 +51,8 @@ public record CliOptions(
                 + hashThreshold
                 + ", colorMode="
                 + colorMode
+                + ", halt="
+                + halt
                 + ", inputs="
                 + inputs
                 + "]";
