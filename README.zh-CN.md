@@ -31,7 +31,7 @@ mvn -q clean test   # 未设置 GGTEST_PG_URL 时跳过 PG 套件
 ```text
 ggtest [--url <jdbc>] [--user <u>] [--password <p>]
        [--engine sqlite|postgres] [--hash-threshold <N>]
-       [--env-file <path>] [--color auto|always|never]
+       [--env-file <path>] [--color auto|always|never] [--halt]
        <file-or-dir> ...
 ```
 
@@ -44,6 +44,7 @@ ggtest [--url <jdbc>] [--user <u>] [--password <p>]
 | `--hash-threshold`      | `8`         | 每文件初始阈值                |
 | `--env-file`            | `./.env`    | 指定后**替换**当前目录 `.env`   |
 | `--color`               | `auto`      | 按 TTY 探测；CI 常用 `never` |
+| `--halt`                | 关           | 见首个错误即停（断言失败或硬错误）：文件内后续记录跳过不执行、不报失败；尚未开始的文件不打开、不计入 `TOTAL`。退出码优先级不变。语料 `halt` 记录语义不变（仅中止当前文件后续并 skipped，非错误）。 |
 
 
 路径：任意文件（内容须是合法 sqllogictest），或递归收集 `*.test` / `*.slt` 的目录。

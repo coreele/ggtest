@@ -43,7 +43,7 @@ java -jar target/ggtest-0.1.0-SNAPSHOT.jar --url jdbc:sqlite::memory: path/to/fi
 ```text
 ggtest [--url <jdbc-url>] [--user <user>] [--password <password>]
        [--engine <name>=sqlite] [--hash-threshold <N>]
-       [--env-file <path>] [--color <auto|always|never>]
+       [--env-file <path>] [--color <auto|always|never>] [--halt]
        <file-or-dir> [<file-or-dir> ...]
 ```
 
@@ -55,6 +55,7 @@ ggtest [--url <jdbc-url>] [--user <user>] [--password <password>]
 | `--hash-threshold` | `8` | Initial hash threshold per file; file-level `hash-threshold` still applies |
 | `--env-file` | (CWD `.env`) | When set, **replaces** the default CWD `.env` (does not layer both) |
 | `--color` | `auto` | `auto` (TTY only), `always`, or `never`; see color priority below |
+| `--halt` | off | Stop when the first error is seen (assertion failure or hard error). Later records in the file are skipped (not executed, not reported as failures) and not-yet-started files are not opened or counted. Exit-code priority is unchanged. A corpus `halt` record is unaffected (it skips the rest of one file but is not an error). |
 
 Positional arguments: at least one file or directory.
 
