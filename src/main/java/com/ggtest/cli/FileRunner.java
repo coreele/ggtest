@@ -42,13 +42,11 @@ final class FileRunner {
             return FileOutcome.hardFailure(reportWriter.detailLines(
                     "parse error: " + sanitize(ex.reason()),
                     null,
-                    null,
                     display,
                     ex.lineNumber()));
         } catch (IOException ex) {
             return FileOutcome.hardFailure(reportWriter.detailLines(
                     "io error: " + sanitize(ex.getMessage()),
-                    null,
                     null,
                     display,
                     null));
@@ -63,7 +61,6 @@ final class FileRunner {
             err.println("connection failed: " + sanitize(ex.getMessage()));
             return FileOutcome.hardFailure(reportWriter.detailLines(
                     "connection failed: " + sanitize(ex.getMessage()),
-                    null,
                     null,
                     display,
                     null));
@@ -88,7 +85,6 @@ final class FileRunner {
             return FileOutcome.hardFailure(reportWriter.detailLines(
                     "schema isolation failed: " + sanitize(ex.getMessage()),
                     null,
-                    null,
                     display,
                     null));
         } finally {
@@ -107,7 +103,6 @@ final class FileRunner {
                 details = reportWriter.detailLines(
                         "schema teardown failed: " + sanitize(teardownException.getMessage()),
                         null,
-                        null,
                         display,
                         null);
             }
@@ -124,9 +119,6 @@ final class FileRunner {
         List<String> detailLines = new ArrayList<>();
         for (RecordResult recordResult : result.recordResults()) {
             if (recordResult.outcome() == RecordOutcome.FAILED) {
-                if (!detailLines.isEmpty()) {
-                    detailLines.add("");
-                }
                 detailLines.addAll(reportWriter.formatFailureDetailLines(display, recordResult));
             }
         }
@@ -135,7 +127,6 @@ final class FileRunner {
             if (detailLines.isEmpty()) {
                 detailLines = reportWriter.detailLines(
                         "aborted: " + sanitize(result.abortReason()),
-                        null,
                         null,
                         display,
                         null);

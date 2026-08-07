@@ -1,6 +1,6 @@
 # Manager Status
 
-> 工作流、角色、门禁和状态规则以 [`docs/README.md`](../README.md) 为唯一权威说明。本文件仅维护状态图例、活跃工作项和归档索引，且仅由 Manager 修改。
+> 工作流、角色、门禁和状态规则以 [`docs/README.md`](../AGENTS.md) 为唯一权威说明。本文件仅维护状态图例、活跃工作项和归档索引，且仅由 Manager 修改。
 >
 > `docs/manager/` 下除本文件外仅保留**活跃**工作项记录；已归档项的工作项记录位于 `docs/archive/YYYY/<feature-id>/manager.md`。
 
@@ -12,7 +12,7 @@
 
 旁支状态：`blocked`、`cancelled`。历史名 `awaiting-merge` 已废弃。
 
-`done` = 工作流关闭（QA Pass + 合并/完成授权）；是否已合入目标分支以 git/PR 为准。QA Pass 待授权期间不单独提交 `review.md`/`qa-report.md`；授权后与 `done` 一次提交。详见 [`docs/README.md`](../README.md#状态机与回退)、[`standards/git.md`](../standards/git.md)。
+`done` = 工作流关闭（QA Pass + 合并/完成授权）；是否已合入目标分支以 git/PR 为准。QA Pass 待授权期间不单独提交 `review.md`/`qa-report.md`；授权后与 `done` 一次提交。详见 [`docs/README.md`](../AGENTS.md#状态机与回退)、[`standards/git.md`](../standards/git.md)。
 
 调度主键为 `(feature-id, sub-feature-id)`。未拆分时二者相同。同一 `feature-id` 的后续行可省略重复的 `feature-id`；空 `feature-id` 表示继承上一非空值。已拆分时「目录」列须指向各子工作项目录，不得省略为继承总览根目录。
 
@@ -24,6 +24,7 @@
 | improve-multi-failure-report | improve-multi-failure-report | 单文件多失败 CLI 报告：块间空行 + 无缩进 at | done | standard | required | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [docs/features/improve-multi-failure-report/](../features/improve-multi-failure-report/) |
 | chore-audit-tails | chore-audit-tails | 审计尾巴收口（CA-008 Javadoc；TTY color；PG 非空密码；select1–5 硬验收；排除 CA-007） | done | fast | skipped | 已授权合入 main（合入以 git 为准；不 push）；归档待用户要求关闭父项 | [docs/features/chore-audit-tails/](../features/chore-audit-tails/) |
 | feat-cli-halt | feat-cli-halt | CLI `--halt`：首个错误即停止（对齐官方 sqllogictest） | done | standard | required | 已授权合入 main（rebase+FF；不 push）；归档待用户要求 | [docs/features/feat-cli-halt/](../features/feat-cli-halt/) |
+| improve-failure-output-format | improve-failure-output-format | 失败报告格式调整：移除标签、at+diff缩进、无空行分隔 | done | fast | skipped | 已合入 main（合入以 git 为准；不 push）；归档待用户要求 | [docs/features/improve-failure-output-format/](../features/improve-failure-output-format/) |
 
 ## 已归档
 

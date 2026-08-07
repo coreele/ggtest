@@ -51,19 +51,19 @@ class CliReportAcceptanceTest {
     }
 
     @Test
-    void p0_2_queryMismatchShowsWhySqlDiffAt() {
+    void p0_2_queryMismatchShowsAtAndDiff() {
         Capture capture = run("--url", "jdbc:sqlite::memory:", fixture("fail.test").toString());
 
         assertEquals(1, capture.exitCode(), capture::dump);
         String out = stripAnsi(capture.stdout());
         assertTrue(STATUS_FAILED.matcher(out).find(), out);
         assertFalse(out.contains(" after "));
-        assertTrue(out.contains("[WHY]"));
-        assertTrue(out.contains("[SQL] SELECT name ..."), out);
-        assertFalse(out.matches("(?s).*\\[SQL\\] SELECT name FROM items.*"), out);
-        assertTrue(out.contains("[Diff] (-expected|+actual)"));
-        assertTrue(out.contains("at ") && out.contains("fail.test:"));
-        assertFlushAtAndBodyIndent(out);
+        assertFalse(out.contains("[WHY]"), out);
+        assertFalse(out.contains("[SQL]"), out);
+        assertFalse(out.contains("[Diff]"), out);
+        assertTrue(out.contains("(-expected|+actual)"), out);
+        assertTrue(out.contains("query result mismatch"), out);
+        assertTrue(out.contains("fail.test"), out);
         assertFalse(out.contains("[1/"), out);
         assertFalse(out.contains("failures in file"), out);
         assertTrue(out.contains("Error: some test case failed:"));
@@ -71,12 +71,10 @@ class CliReportAcceptanceTest {
         assertFalse(out.contains("reason="));
         assertEquals(1, totalFailed(out));
         assertEquals(0, totalPassed(out));
-        // single failure: no blank line between blocks (only one at)
-        assertEquals(1, out.lines().filter(l -> l.startsWith("at ")).count());
     }
 
     @Test
-    void multiFailureLayoutUsesBlankSeparatorsAndFlushAt() {
+    void multiFailureLayoutNoBlankSeparator() {
         Capture capture = run("--url", "jdbc:sqlite::memory:", fixture("multi-fail.test").toString());
 
         assertEquals(1, capture.exitCode(), capture::dump);
@@ -88,21 +86,15 @@ class CliReportAcceptanceTest {
         assertFalse(out.contains("[2/"), out);
         assertFalse(out.contains("failures in file"), out);
         assertFalse(out.contains("reason="), out);
-        assertFlushAtAndBodyIndent(out);
 
         List<String> lines = out.lines().toList();
         List<Integer> atIndexes = new java.util.ArrayList<>();
         for (int i = 0; i < lines.size(); i++) {
-            if (lines.get(i).startsWith("at ")) {
+            if (lines.get(i).trim().startsWith("at ") && lines.get(i).contains("multi-fail.test")) {
                 atIndexes.add(i);
             }
         }
         assertEquals(3, atIndexes.size(), out);
-        for (int i = 0; i < atIndexes.size() - 1; i++) {
-            int blank = atIndexes.get(i) + 1;
-            assertEquals("", lines.get(blank), out);
-            assertTrue(lines.get(blank + 1).contains("[WHY]"), out);
-        }
         assertTrue(out.contains("Error: some test case failed:"));
         String errorBlock = out.substring(out.indexOf("Error: some test case failed:"), out.indexOf("TOTAL:"));
         assertTrue(errorBlock.contains("multi-fail.test"));
@@ -150,7 +142,6 @@ class CliReportAcceptanceTest {
         int failIdx = out.indexOf("[FAILED]");
         int passIdx = out.indexOf("[PASSED]");
         assertTrue(failIdx >= 0 && passIdx > failIdx, out);
-        assertTrue(out.indexOf("[WHY]") > failIdx && out.indexOf("[WHY]") < passIdx, out);
 
         int errorIdx = out.indexOf("Error: some test case failed:");
         assertTrue(errorIdx > passIdx, out);
@@ -161,14 +152,12 @@ class CliReportAcceptanceTest {
         assertEquals(1, totalPassed(out));
         assertEquals(1, totalFailed(out));
 
-        // Success/skip lines must not insert an extra blank block between them;
-        // failed→passed may have blank after the failure block only.
         assertFalse(out.contains("PASS in"));
         assertFalse(out.contains(" after "));
     }
 
     @Test
-    void p1_2_statementFailureUsesFailedIn() {
+    void p1_2_statementFailureUsesAtFormat() {
         Capture capture = run(
                 "--url", "jdbc:sqlite::memory:",
                 fixture("statement-fail.test").toString());
@@ -176,16 +165,9 @@ class CliReportAcceptanceTest {
         assertEquals(1, capture.exitCode(), capture::dump);
         String out = stripAnsi(capture.stdout());
         assertTrue(STATUS_FAILED.matcher(out).find(), out);
-        assertTrue(out.contains("[WHY]"));
-        String sqlLine = out.lines()
-                .filter(line -> line.contains("[SQL]"))
-                .findFirst()
-                .orElse("");
-        assertTrue(
-                sqlLine.contains("[SQL] INSERT INTO definitely_missing_ggtest_table VALUES (1)"),
-                out);
-        assertFalse(sqlLine.endsWith(" ..."), "single-line SQL must not append ellipsis: " + sqlLine);
-        assertTrue(out.contains("at ") && out.contains("statement-fail.test:"));
+        assertFalse(out.contains("[WHY]"), out);
+        assertFalse(out.contains("[SQL]"), out);
+        assertTrue(out.contains("statement-fail.test"), out);
         assertEquals(1, totalFailed(out));
     }
 
@@ -199,7 +181,6 @@ class CliReportAcceptanceTest {
         assertEquals(2, capture.exitCode(), capture::dump);
         String out = stripAnsi(capture.stdout());
         assertTrue(out.contains("[FAILED]"), out);
-        assertTrue(out.contains("[WHY]"), out);
         assertTrue(out.contains("bad-parse.test"), out);
         assertTrue(out.contains("[PASSED]"), out);
         assertEquals(1, totalFailed(out));
@@ -371,21 +352,6 @@ class CliReportAcceptanceTest {
 
     private static String stripAnsi(String text) {
         return ANSI.matcher(text).replaceAll("");
-    }
-
-    private static void assertFlushAtAndBodyIndent(String out) {
-        assertFalse(
-                out.lines().anyMatch(l -> l.matches("^\\s+at\\s+.*")),
-                "at must have no leading indent:\n" + out);
-        assertTrue(out.lines().anyMatch(l -> l.startsWith("at ")), out);
-        for (String line : out.lines().toList()) {
-            if (line.contains("[WHY]") || line.contains("[SQL]") || line.contains("[Diff]")) {
-                if (line.contains("Error:")) {
-                    continue;
-                }
-                assertTrue(line.startsWith("    "), "body labels keep four-space indent: [" + line + "]");
-            }
-        }
     }
 
     private static int totalPassed(String stdout) {

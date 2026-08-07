@@ -41,7 +41,7 @@ class MainOrchestrationTest {
     }
 
     @Test
-    void assertionFailureExitsOneAndPrintsFailureFourFields() {
+    void assertionFailureExitsOneAndPrintsFailure() {
         Capture capture = run(
                 "--url", "jdbc:sqlite::memory:",
                 fixture("fail.test").toString());
@@ -50,9 +50,9 @@ class MainOrchestrationTest {
         String out = capture.stdout();
         assertTrue(out.contains("fail.test"));
         assertTrue(out.contains("[FAILED]"));
-        assertTrue(out.contains("[WHY]"));
-        assertTrue(out.contains("[SQL]"));
-        assertTrue(out.contains("at ") && out.contains("fail.test:"));
+        assertFalse(out.contains("[WHY]"), out);
+        assertFalse(out.contains("[SQL]"), out);
+        assertTrue(out.contains("fail.test"), out);
         assertTrue(countFailures(out) >= 1);
         assertFalse(out.contains("reason="));
         assertFalse(out.contains(" after "));
@@ -200,8 +200,8 @@ class MainOrchestrationTest {
         assertTrue(out.contains("[PASSED]"), out);
         assertEquals(1, countFailures(out));
         assertEquals(1, extractPassed(out));
-        long whyCount = out.lines().filter(l -> l.contains("[WHY]")).count();
-        assertEquals(3, whyCount, "all three failures must be reported without --halt:\n" + out);
+        long atCount = out.lines().filter(l -> l.trim().startsWith("at ") && l.contains("multi-fail.test")).count();
+        assertEquals(3, atCount, "all three failures must be reported:\n" + out);
     }
 
     /**
@@ -222,7 +222,6 @@ class MainOrchestrationTest {
         assertFalse(out.contains("pass.test"), "later file must not be started under --halt:\n" + out);
         assertFalse(out.contains("[PASSED]"), out);
         assertTrue(out.contains("[FAILED]"), out);
-        assertTrue(out.contains("[WHY]"), out);
         assertEquals(1, countFailures(out));
         assertEquals(0, extractPassed(out));
     }

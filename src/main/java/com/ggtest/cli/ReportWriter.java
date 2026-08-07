@@ -1,8 +1,5 @@
 package com.ggtest.cli;
 
-import com.ggtest.model.QueryRecord;
-import com.ggtest.model.SqlTestRecord;
-import com.ggtest.model.StatementRecord;
 import com.ggtest.runner.RecordResult;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -63,7 +60,7 @@ final class ReportWriter {
         String why;
         String diffBody = null;
         if (reason.startsWith("result mismatch:")) {
-            why = "query result mismatch:";
+            why = "query result mismatch";
             String remainder = reason.substring("result mismatch:".length());
             if (remainder.startsWith("\n")) {
                 remainder = remainder.substring(1);
@@ -78,28 +75,24 @@ final class ReportWriter {
                 diffBody = rest;
             }
         }
-        return detailLines(why, sqlFirstLine(recordResult.record()), diffBody, file, recordResult.location().startLine());
+        return detailLines(why, diffBody, file, recordResult.location().startLine());
     }
 
-    List<String> detailLines(String why, String sql, String diffBody, String file, Integer line) {
+    List<String> detailLines(String why, String diffBody, String file, Integer line) {
         List<String> lines = new ArrayList<>();
-        lines.add("    " + style.label("[WHY]") + " " + why);
-        if (sql != null && !sql.isBlank()) {
-            lines.add("    " + style.label("[SQL]") + " " + sql);
+        if (line != null) {
+            lines.add("    at " + file + ":" + line + " : " + why);
+        } else {
+            lines.add("    at " + file + " : " + why);
         }
         if (diffBody != null && !diffBody.isBlank()) {
-            lines.add("    " + style.label("[Diff]") + " (-expected|+actual)");
+            lines.add("        (-expected|+actual)");
             for (String raw : diffBody.split("\\R", -1)) {
                 if (raw.isEmpty()) {
                     continue;
                 }
-                lines.add("    " + colorDiffLine(raw));
+                lines.add("        " + colorDiffLine(raw));
             }
-        }
-        if (line != null) {
-            lines.add("at " + file + ":" + line);
-        } else if (file != null) {
-            lines.add("at " + file);
         }
         return lines;
     }
@@ -126,30 +119,6 @@ final class ReportWriter {
             return style.diffPlus(raw);
         }
         return raw;
-    }
-
-    private static String sqlFirstLine(SqlTestRecord record) {
-        String sql;
-        if (record instanceof StatementRecord statement) {
-            sql = statement.sql();
-        } else if (record instanceof QueryRecord query) {
-            sql = query.sql();
-        } else {
-            sql = "";
-        }
-        if (sql == null || sql.isEmpty()) {
-            return "";
-        }
-        int newline = sql.indexOf('\n');
-        if (newline < 0) {
-            return sql.stripTrailing();
-        }
-        String first = sql.substring(0, newline).stripTrailing();
-        String remainder = sql.substring(newline + 1);
-        if (!remainder.isBlank()) {
-            return first + " ...";
-        }
-        return first;
     }
 
     private static String firstLine(String text) {

@@ -35,7 +35,7 @@ class ReportWriterTest {
     }
 
     @Test
-    void resultMismatchFormatsWhySqlDiffAndLocation() {
+    void resultMismatchFormatsAtAndDiff() {
         String diffBody = "-   apple\n+   bananad\n    cherry";
         RecordResult recordResult = new RecordResult(
                 query("SELECT name\nFROM items", 7),
@@ -45,29 +45,27 @@ class ReportWriterTest {
         List<String> lines = writer.formatFailureDetailLines("fail.test", recordResult);
         String joined = stripAnsi(String.join("\n", lines));
 
-        assertTrue(joined.contains("[WHY] query result mismatch:"));
-        assertTrue(joined.contains("[SQL] SELECT name ..."));
-        assertFalse(joined.matches("(?s).*\\[SQL\\] SELECT name\\nFROM items.*"));
-        assertTrue(joined.contains("[Diff] (-expected|+actual)"));
+        assertTrue(joined.contains("    at fail.test:7 : query result mismatch"), "first line: " + joined);
+        assertTrue(joined.contains("(-expected|+actual)"));
+        assertFalse(joined.contains("[WHY]"));
+        assertFalse(joined.contains("[SQL]"));
+        assertFalse(joined.contains("[Diff]"));
         assertTrue(joined.contains("-   apple"));
         assertTrue(joined.contains("+   bananad"));
-        assertTrue(joined.contains("at fail.test:7"));
-        assertBodyIndentAndFlushAt(lines);
+        assertBodyIndent(lines);
     }
 
     @Test
-    void atLineHasNoLeadingIndentWithOrWithoutLineNumber() {
-        List<String> withLine = writer.detailLines("why", "SELECT 1", null, "f.test", 9);
-        List<String> withoutLine = writer.detailLines("why", null, null, "f.test", null);
+    void atLineHasFourSpaceIndent() {
+        List<String> withLine = writer.detailLines("why", null, "f.test", 9);
+        List<String> withoutLine = writer.detailLines("why", null, "f.test", null);
 
-        assertBodyIndentAndFlushAt(withLine);
-        assertEquals("at f.test:9", stripAnsi(withLine.get(withLine.size() - 1)));
-        assertBodyIndentAndFlushAt(withoutLine);
-        assertEquals("at f.test", stripAnsi(withoutLine.get(withoutLine.size() - 1)));
+        assertEquals("    at f.test:9 : why", stripAnsi(withLine.get(0)));
+        assertEquals("    at f.test : why", stripAnsi(withoutLine.get(0)));
     }
 
     @Test
-    void gitDiffReasonUsesFirstLineAsWhy() {
+    void gitDiffReasonUsesAtWithDiff() {
         String reason = "statement failed\n-   expected\n+   actual";
         RecordResult recordResult = new RecordResult(
                 statement("INSERT INTO t VALUES (1)", 3),
@@ -77,21 +75,24 @@ class ReportWriterTest {
         List<String> lines = writer.formatFailureDetailLines("stmt.test", recordResult);
         String joined = stripAnsi(String.join("\n", lines));
 
-        assertTrue(joined.contains("[WHY] statement failed"));
-        assertTrue(joined.contains("[Diff] (-expected|+actual)"));
-        assertTrue(joined.contains("at stmt.test:3"));
+        assertTrue(joined.contains("    at stmt.test:3 : statement failed"), "first line: " + joined);
+        assertTrue(joined.contains("(-expected|+actual)"));
+        assertFalse(joined.contains("[WHY]"));
+        assertFalse(joined.contains("[SQL]"));
+        assertFalse(joined.contains("[Diff]"));
     }
 
     @Test
-    void hardErrorDetailLinesOmitSqlWhenAbsent() {
-        List<String> lines = writer.detailLines("parse error: bad token", null, null, "bad.test", 1);
+    void hardErrorDetailOmitDiff() {
+        List<String> lines = writer.detailLines("parse error: bad token", null, "bad.test", 1);
         String joined = stripAnsi(String.join("\n", lines));
 
-        assertTrue(joined.contains("[WHY] parse error: bad token"));
+        assertTrue(joined.contains("    at bad.test:1 : parse error: bad token"), "first line: " + joined);
+        assertFalse(joined.contains("[WHY]"));
         assertFalse(joined.contains("[SQL]"));
         assertFalse(joined.contains("[Diff]"));
-        assertTrue(joined.contains("at bad.test:1"));
-        assertBodyIndentAndFlushAt(lines);
+        assertFalse(joined.contains("(-expected|+actual)"));
+        assertEquals(1, lines.size(), "no diff so only at line");
     }
 
     @Test
@@ -135,21 +136,17 @@ class ReportWriterTest {
         return new StatementRecord(sql, StatementExpectation.OK, new SourceLocation("stmt.test", line));
     }
 
-    private static void assertBodyIndentAndFlushAt(List<String> lines) {
-        boolean sawAt = false;
-        for (String raw : lines) {
-            String line = stripAnsi(raw);
-            String trimmed = line.stripLeading();
-            if (trimmed.startsWith("at ")) {
-                assertFalse(
-                        !line.equals(trimmed),
-                        "at must have no leading whitespace: [" + raw + "]");
-                sawAt = true;
-            } else if (line.contains("[WHY]") || line.contains("[SQL]") || line.contains("[Diff]")) {
-                assertTrue(raw.startsWith("    "), "body labels keep four-space indent: [" + raw + "]");
+    private static void assertBodyIndent(List<String> lines) {
+        assertFalse(lines.isEmpty());
+        String first = stripAnsi(lines.get(0));
+        assertTrue(first.startsWith("    at "), "first line must be indented at: " + first);
+        for (int i = 1; i < lines.size(); i++) {
+            String line = stripAnsi(lines.get(i));
+            if (line.isEmpty()) {
+                continue;
             }
+            assertTrue(line.startsWith("        "), "diff lines must have eight-space indent: [" + line + "]");
         }
-        assertTrue(sawAt, "expected an at line");
     }
 
     private static String stripAnsi(String text) {
