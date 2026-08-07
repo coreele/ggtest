@@ -114,4 +114,4 @@ Planner 不将状态设为 `planned`，不调度 Developer。
 
 | 日期 | 摘要 |
 |---|---|
-| 2026-07-25 | 初稿并 documentation.md §B 自检：T1–T5、L3、Design required、Review required、分支 ggtest-core-runner-sqlite |
+| 2026-07-25 | 初稿并 refine-docs：T1–T5、L3、Design required、Review required、分支 ggtest-core-runner-sqlite |

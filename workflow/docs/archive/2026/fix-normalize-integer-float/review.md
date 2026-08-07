@@ -97,4 +97,4 @@
 
 | 日期 | 摘要 |
 |---|---|
-| 2026-08-06 | 初审 Approve；A1–A5；独立复跑单测/全量/aggfunc；documentation.md §B 自检 |
+| 2026-08-06 | 初审 Approve；A1–A5；独立复跑单测/全量/aggfunc；refine-docs |

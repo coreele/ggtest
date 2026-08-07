@@ -224,4 +224,4 @@ T2（normalize 红）┼──► T3（model+parser）──► T4（normalize+r
 
 | 日期 | 摘要 |
 |---|---|
-| 2026-07-26 | 按新 Spec 整体重写，取代混形回退小修 Plan；显式 `separator` 声明 + 移除推断与 `---- separator`；OQ-1 随 Plan 拍板；documentation.md §B 自检 精简 |
+| 2026-07-26 | 按新 Spec 整体重写，取代混形回退小修 Plan；显式 `separator` 声明 + 移除推断与 `---- separator`；OQ-1 随 Plan 拍板；refine-docs 精简 |

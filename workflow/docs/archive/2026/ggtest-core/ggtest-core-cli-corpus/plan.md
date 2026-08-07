@@ -128,4 +128,4 @@ Planner 不设状态为 `planned`，不调度 Developer，不自行批准 Plan�
 
 | 日期 | 摘要 |
 |---|---|
-| 2026-07-25 | 初稿并 documentation.md §B 自检：T1–T6、L4、Design skipped、Review required、分支 ggtest-core-cli-corpus |
+| 2026-07-25 | 初稿并 refine-docs：T1–T6、L4、Design skipped、Review required、分支 ggtest-core-cli-corpus |

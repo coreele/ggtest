@@ -157,4 +157,4 @@ mvn -q -DskipTests package
 
 | 日期 | 摘要 |
 |---|---|
-| 2026-08-06 | 初稿并 documentation.md §B 自检：T0–T4 TDD；SqlLogicTestParser(+Test)；L2 + in1 解析必达；Review required |
+| 2026-08-06 | 初稿并 refine-docs：T0–T4 TDD；SqlLogicTestParser(+Test)；L2 + in1 解析必达；Review required |

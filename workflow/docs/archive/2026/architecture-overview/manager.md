@@ -32,8 +32,8 @@ Plan 门禁: skipped（交付物即为架构文档，无实施任务拆分）
 
 ## 进度笔记
 
-- 2026-07-25：用户请求「介绍项目并画好项目架构设计文档和架构图」。登记本项；Spec/Plan/Review 跳过理由见上；调度 Planner + `design-architecture` + `documentation.md §B 自检`。
+- 2026-07-25：用户请求「介绍项目并画好项目架构设计文档和架构图」。登记本项；Spec/Plan/Review 跳过理由见上；调度 Planner + `design-architecture` + `refine-docs`。
 - 仓库现状：Java 17 / Maven CLI `ggtest`；包 `cli` / `parser` / `model` / `normalize` / `runner` / `db`（sqlite、postgres）；归档 `ggtest-core`，活跃 `ggtest-pg`（done）、`ggtest-cli-report`（awaiting-spec-approval）。
-- 2026-07-25：Planner 完成 `design.md`（含项目介绍、四幅 Mermaid、模块边界与执行流）并 documentation.md §B 自检；Design 门禁通过。待用户确认后关闭（无 Plan/实现/合入）。
+- 2026-07-25：Planner 完成 `design.md`（含项目介绍、四幅 Mermaid、模块边界与执行流）并 refine-docs；Design 门禁通过。待用户确认后关闭（无 Plan/实现/合入）。
 - 2026-07-26：用户对 `workflow/docs/features/architecture-overview/design.md` 不满意，明确舍弃本 feature、不再继续。Manager 将状态置 `cancelled`；物理删除未入库草稿目录 `workflow/docs/features/architecture-overview/`；无合入。
 - 2026-07-26：用户授权提交并归档；工作流约定更新为「features + manager 工作项记录一并迁入 `workflow/docs/archive/YYYY/<feature-id>/`」。本记录迁至 `workflow/docs/archive/2026/architecture-overview/manager.md`。
