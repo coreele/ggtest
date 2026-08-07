@@ -5,13 +5,13 @@
 路径等级: standard
 源分支: feat-cli-halt
 目标分支: main
-文档影响: `workflow/docs/features/feat-cli-halt/`（spec.md、plan.md；按需 design.md；实现后 review.md / qa-report.md / dev-notes.md）
+文档影响: `workflow/workflow/docs/features/feat-cli-halt/`（spec.md、plan.md；按需 design.md；实现后 review.md / qa-report.md / dev-notes.md）
 
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../README.md)。
 > 活跃状态见 [STATUS.md](STATUS.md)。
 >
-> 文档路径：未拆分时 Spec 为 `workflow/docs/features/<feature-id>/spec.md`（无子目录）；已拆分时根目录仅总览 Spec，各切片为 `workflow/docs/features/<feature-id>/<feature-id>-<sub>/spec.md`。
-> 归档后本文件迁至 `workflow/docs/archive/YYYY/<feature-id>/manager.md`，相对链接须同步修正；`workflow/docs/manager/` 仅保留活跃工作项记录与 `STATUS.md`。
+> 文档路径：未拆分时 Spec 为 `workflow/workflow/docs/features/<feature-id>/spec.md`（无子目录）；已拆分时根目录仅总览 Spec，各切片为 `workflow/workflow/docs/features/<feature-id>/<feature-id>-<sub>/spec.md`。
+> 归档后本文件迁至 `workflow/workflow/docs/archive/YYYY/<feature-id>/manager.md`，相对链接须同步修正；`workflow/workflow/docs/manager/` 仅保留活跃工作项记录与 `STATUS.md`。
 
 ## 切片（未拆分时仅一行，sub-feature-id = feature-id）
 
@@ -40,8 +40,8 @@
 ## 进度笔记
 
 - 2026-08-06：Manager 登记；状态 `speccing`；调度 Analyst。
-- 2026-08-06：Analyst Spec 完成（`workflow/docs/features/feat-cli-halt/spec.md`）；Spec 用户确认 not-required；Design skipped → 进入 `planning`；调度 Planner。
-- 2026-08-07：Planner Plan 完成（`workflow/docs/features/feat-cli-halt/plan.md`，已 refine-docs 自检；L2 验证层；触碰路径覆盖 cli/runner；与 Spec 无冲突）；进入 `awaiting-plan-approval`，待用户确认 Plan 后方可置 `planned` 并调度 Developer。
+- 2026-08-06：Analyst Spec 完成（`workflow/workflow/docs/features/feat-cli-halt/spec.md`）；Spec 用户确认 not-required；Design skipped → 进入 `planning`；调度 Planner。
+- 2026-08-07：Planner Plan 完成（`workflow/workflow/docs/features/feat-cli-halt/plan.md`，已 refine-docs 自检；L2 验证层；触碰路径覆盖 cli/runner；与 Spec 无冲突）；进入 `awaiting-plan-approval`，待用户确认 Plan 后方可置 `planned` 并调度 Developer。
 - 2026-08-07：用户确认 Plan（已持久化）；状态 `planned`；调度 Developer（先切源分支 `feat-cli-halt`，按 T1→T8 实施）。
 - 2026-08-07：Developer 实施完成（feat-cli-halt 分支 4 commits：plan/status → feat 实现 → README → dev-notes；定向 100 通过，打包 BUILD SUCCESS）。Manager 核验：改动范围仅 cli/runner，normalize/parser 零改动；全量 1 个 pre-existing Error（NormalizeAcceptanceTest，Windows CRLF，已证明与本工作项无关，建议独立 chore）。状态 `reviewing`；调度 Reviewer（standard 门禁 required）。
 - 2026-08-07：Reviewer 结论 `Approve`（合同 P0-1…P0-6/P1 逐项满足；测试非恒真达 L2，独立复跑 86 通过；NormalizeAcceptanceTest 判定 pre-existing 无关；安全/Git 合规；2 个非阻塞发现项）。standard Review 门禁满足。状态 `qa`；调度 QA 独立验收。

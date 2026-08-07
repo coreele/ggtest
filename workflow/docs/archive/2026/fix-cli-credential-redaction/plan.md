@@ -13,14 +13,14 @@
 ## 元信息
 
 - 工作项标识: fix-cli-credential-redaction（未拆分；sub-feature-id = feature-id）
-- 依据 Spec: [workflow/docs/features/fix-cli-credential-redaction/spec.md](./spec.md)（Spec 门禁 required；用户确认 **approved**）
+- 依据 Spec: [workflow/workflow/docs/features/fix-cli-credential-redaction/spec.md](./spec.md)（Spec 门禁 required；用户确认 **approved**）
 - 依据 Design: N/A（Design 门禁 skipped）
 - 路径等级: standard
 - Review 门禁: **required**（进入 QA 前须 Reviewer **Approve**）
 - 最低验证层: **L2**（新增单元测试覆盖脱敏控制点 + 全量 `mvn test` 回归；无新对外 CLI 合同）
 - 验证命令: `mvn -q clean test`
 - 源分支 / 目标: `fix-cli-credential-redaction` → `main`
-- 审计依据: `workflow/docs/audit/2026-07-26-src.md` Finding §7；登记册 **CA-002**
+- 审计依据: `workflow/workflow/docs/audit/2026-07-26-src.md` Finding §7；登记册 **CA-002**
 
 ## 适用工程规范
 
@@ -75,8 +75,8 @@
 
 ### T5 — 验证回执与登记册
 
-1. 新建 `workflow/docs/features/fix-cli-credential-redaction/dev-notes.md`：记录 TDD 红/绿证据、`mvn -q clean test` 摘要。
-2. 将 `workflow/docs/standards/code-audit-register.md` **CA-002** 标为 `resolved`。
+1. 新建 `workflow/workflow/docs/features/fix-cli-credential-redaction/dev-notes.md`：记录 TDD 红/绿证据、`mvn -q clean test` 摘要。
+2. 将 `workflow/workflow/docs/standards/code-audit-register.md` **CA-002** 标为 `resolved`。
 3. **完成条件**：dev-notes 与 CA-002 已更新；Ready for Review。
 
 ## 依赖与顺序
@@ -97,8 +97,8 @@ T1（红）→ T2 ∥ T3（可同 commit，T3 依赖 T2 的 userinfo 规则一�
 | `src/main/java/com/ggtest/cli/`（可选） | package-private 共享脱敏 helper（新建或内嵌） |
 | `src/test/java/com/ggtest/cli/CredentialRedactionTest.java` | **新建** P0-1/2/4 泄露证明 |
 | `src/test/java/com/ggtest/cli/RuntimeConfigResolverTest.java` | **扩展** P0-3（或并入上表测试类） |
-| `workflow/docs/features/fix-cli-credential-redaction/dev-notes.md` | Developer 验证回执（T5） |
-| `workflow/docs/standards/code-audit-register.md` | CA-002 → `resolved`（T5） |
+| `workflow/workflow/docs/features/fix-cli-credential-redaction/dev-notes.md` | Developer 验证回执（T5） |
+| `workflow/workflow/docs/standards/code-audit-register.md` | CA-002 → `resolved`（T5） |
 
 **禁止触碰**：`runPostgresFile` teardown 路径（留给 `fix-pg-teardown-once`）、JDBC 执行器、parser、normalize、runner、`examples/` 未跟踪语料、真实 `.env`。
 
@@ -148,7 +148,7 @@ T1（红）→ T2 ∥ T3（可同 commit，T3 依赖 T2 的 userinfo 规则一�
 
 | 类别 | 更新路径或 N/A 理由 |
 |---|---|
-| 开发文档 | `workflow/docs/features/fix-cli-credential-redaction/dev-notes.md`（TDD 与验证回执）；`workflow/docs/standards/code-audit-register.md` CA-002 → `resolved` |
+| 开发文档 | `workflow/workflow/docs/features/fix-cli-credential-redaction/dev-notes.md`（TDD 与验证回执）；`workflow/workflow/docs/standards/code-audit-register.md` CA-002 → `resolved` |
 | 用户文档 | N/A — CLI 参数、退出码、`.env` 键名与用法不变 |
 | 运维文档 | N/A — 无部署/排障步骤变更 |
 

@@ -50,13 +50,13 @@
 - **demo2 决策：并入主 showcase 后删除** — `demo.slt` / `demo_zh.slt` 已覆盖 `|` / `,` 行式、含空格 TEXT 每值一行、SQL `''` → `'`；`examples/demo2.slt` 已移除。
 - **demo 覆盖**：`statement ok/error`；`query` I/T/R、`nosort`/`rowsort`/`valuesort`、label、`separator`；纯 `----` 每值一行；NULL/`(empty)`；execute-only；`skipif`/`onlyif`；`hash-threshold` + MD5；`halt`；文件头 sqlite/postgres 命令。
 - **README**：运行示例与报告样例改为 `demo.slt` + `demo_zh.slt`；「Expected results / 期望结果」仍为 query 头 `separator`、勿宣传空格猜行式 / `---- separator`。
-- **未改** Java、`workflow/docs/manager/*`、`STATUS.md`、spec/plan、`architecture-overview`；未删 `examples/select*.test`。
+- **未改** Java、`workflow/workflow/docs/manager/*`、`STATUS.md`、spec/plan、`architecture-overview`；未删 `examples/select*.test`。
 
 ## 文档影响
 
 - 用户文档：README 中英期望结果 + 本轮运行/报告样例。
 - 开发文档：本文件；fixtures / Javadoc 随实现更新。
-- **未改** `workflow/docs/manager/*`、`STATUS.md`、spec.md、plan.md。
+- **未改** `workflow/workflow/docs/manager/*`、`STATUS.md`、spec.md、plan.md。
 
 ## 未解决风险
 

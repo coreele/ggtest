@@ -1,11 +1,11 @@
 # 工作项记录: fix-pg-teardown-once
 
 工作项标识: fix-pg-teardown-once
-描述: 审计 Tech Debt Low — PG teardown：try 内 hardFailure 时 finally 可能二次 DROP → 统一失败路径，避免双 teardown。来源：`workflow/docs/audit/2026-07-26-src.md`。
+描述: 审计 Tech Debt Low — PG teardown：try 内 hardFailure 时 finally 可能二次 DROP → 统一失败路径，避免双 teardown。来源：`workflow/workflow/docs/audit/2026-07-26-src.md`。
 路径等级: fast
 源分支: fix-pg-teardown-once
 目标分支: main
-文档影响: workflow/docs/features/fix-pg-teardown-once/；登记册 CA-006
+文档影响: workflow/workflow/docs/features/fix-pg-teardown-once/；登记册 CA-006
 
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
@@ -22,7 +22,7 @@
 
 ## Plan 确认
 
-- **approved**（2026-07-26）：用户授权；依据 `workflow/docs/features/fix-pg-teardown-once/plan.md`
+- **approved**（2026-07-26）：用户授权；依据 `workflow/workflow/docs/features/fix-pg-teardown-once/plan.md`
 
 ## Manager 决策（用户 2026-07-26 授权自行决断）
 

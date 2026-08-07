@@ -13,7 +13,7 @@
 
 | 条件 | 证据 | 结果 |
 |---|---|---|
-| Plan 已用户确认并持久化 | `workflow/docs/manager/ggtest-core.md`：用户确认 parser Plan（「ok」） | 满足 |
+| Plan 已用户确认并持久化 | `workflow/workflow/docs/manager/ggtest-core.md`：用户确认 parser Plan（「ok」） | 满足 |
 | Review 门禁 required 且 Reviewer Approve | 工作项门禁 `required`；`review.md` 结论 Approve | 满足 |
 | 可验收实现与 Plan 验证要求 | `pom.xml`、`model`/`parser`、fixtures、`SqlLogicTestParserTest`；L2：`mvn -q clean test` | 满足 |
 

@@ -10,7 +10,7 @@
 - 实现：`pom.xml`；`com.ggtest.model.*`；`SqlLogicTestParser`、`ParseException`
 - 测试：`SqlLogicTestParserTest`；`src/test/resources/fixtures/*`
 - 文档：`README.md`、公共 Javadoc、`dev-notes.md`
-- 禁止改动：Spec/Design/Plan、`workflow/docs/manager/*`、业务代码
+- 禁止改动：Spec/Design/Plan、`workflow/workflow/docs/manager/*`、业务代码
 - Git：工作项声明跳过提交与合并 → 不检查提交内容
 
 ## 结论

@@ -38,9 +38,9 @@
 | 任务 | 路径 |
 |---|---|
 | 1 | `pom.xml` |
-| 2 / 文档 | `workflow/docs/features/chore-maven-compiler-release/dev-notes.md`、`qa-report.md`（本 `plan.md`） |
+| 2 / 文档 | `workflow/workflow/docs/features/chore-maven-compiler-release/dev-notes.md`、`qa-report.md`（本 `plan.md`） |
 
-禁止：业务/测试源码、`sqllogictest/`、`.env`、`workflow/docs/manager/*`。
+禁止：业务/测试源码、`sqllogictest/`、`.env`、`workflow/workflow/docs/manager/*`。
 
 ## 验收
 

@@ -4,7 +4,7 @@
 
 - 工作项: chore-maven-compiler-release（未拆分）
 - 分支: `chore-maven-compiler-release` → `main`；**未** commit / push / merge
-- 禁止项: 未改业务/测试 Java、`workflow/docs/manager/*`；未入库 `sqllogictest/` / `.env`
+- 禁止项: 未改业务/测试 Java、`workflow/workflow/docs/manager/*`；未入库 `sqllogictest/` / `.env`
 - TDD: 无产品行为测试；以字面 Maven clean 构建验收
 
 ### 实现摘要
@@ -18,7 +18,7 @@
 | 路径 | 变更 |
 |---|---|
 | `pom.xml` | 增加 compiler 插件 3.13.0 + release 绑定 |
-| `workflow/docs/features/chore-maven-compiler-release/dev-notes.md` | 本文件 |
+| `workflow/workflow/docs/features/chore-maven-compiler-release/dev-notes.md` | 本文件 |
 
 ### 验证（L2；无 `-Dmaven.compiler.*` 覆盖）
 

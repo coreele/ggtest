@@ -8,7 +8,7 @@
 - Spec / Design：N/A（skipped）
 - 审阅改动：`ValueNormalizer.java`、`ValueNormalizerTest.java`、本目录 `dev-notes.md`
 - 排除：WI-2（~480/484）、WI-3（~491）；整文件 `failed≠0` 不阻塞本项
-- 工作区同在、不计入本项实现：`pom.xml`（compiler pin）、`workflow/docs/manager/*`、`STATUS.md`、未跟踪 `sqllogictest/`
+- 工作区同在、不计入本项实现：`pom.xml`（compiler pin）、`workflow/workflow/docs/manager/*`、`STATUS.md`、未跟踪 `sqllogictest/`
 
 ## 结论
 

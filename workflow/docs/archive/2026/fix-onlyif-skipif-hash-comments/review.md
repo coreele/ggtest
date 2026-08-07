@@ -3,14 +3,14 @@
 ## 审阅范围
 
 - 工作项: `fix-onlyif-skipif-hash-comments`（未拆分；路径 fast；Review 门禁 required）
-- 依据: `workflow/docs/manager/fix-onlyif-skipif-hash-comments.md`；`plan.md`（T0–T4，A1–A5）；`dev-notes.md`；`workflow/docs/standards/{documentation,quality,security,git}.md`
+- 依据: `workflow/workflow/docs/manager/fix-onlyif-skipif-hash-comments.md`；`plan.md`（T0–T4，A1–A5）；`dev-notes.md`；`workflow/workflow/docs/standards/{documentation,quality,security,git}.md`
 - Spec / Design: N/A（门禁 skipped）
 - 实现版本: 分支 `fix-onlyif-skipif-hash-comments`；基于 `main` HEAD `61225e247fc1f4a41eff56ce7709362bb73a631c`；实现未 commit（工作区 diff）
 - 审阅对象:
   - `src/main/java/com/ggtest/parser/SqlLogicTestParser.java`（`stripTrailingHashComment` + onlyif/skipif 再 tokenize）
   - `src/test/java/com/ggtest/parser/SqlLogicTestParserTest.java`（3 个新测）
-  - `workflow/docs/features/fix-onlyif-skipif-hash-comments/{plan,dev-notes}.md`
-- 工作区另有 `pom.xml`、`workflow/docs/manager/STATUS.md` 修改与未跟踪 `workflow/docs/manager/fix-onlyif-skipif-hash-comments.md`：不纳入本项实现交付（见非阻塞备注）
+  - `workflow/workflow/docs/features/fix-onlyif-skipif-hash-comments/{plan,dev-notes}.md`
+- 工作区另有 `pom.xml`、`workflow/workflow/docs/manager/STATUS.md` 修改与未跟踪 `workflow/workflow/docs/manager/fix-onlyif-skipif-hash-comments.md`：不纳入本项实现交付（见非阻塞备注）
 - 审阅人独立复跑: 是（见「独立验证」）
 
 ## 结论
@@ -90,7 +90,7 @@ Approve
 ## 非阻塞备注
 
 1. 工作区 `pom.xml` 新增 `maven-compiler-plugin` 不在 Plan 触碰路径；合入本项时须排除。
-2. `workflow/docs/manager/*` / `STATUS.md` 属 Manager，不计入 A5 实现 diff。
+2. `workflow/workflow/docs/manager/*` / `STATUS.md` 属 Manager，不计入 A5 实现 diff。
 3. 可选：为 `in1.test` 增加 `parser.parse(Path)` 冒烟单测（非必须）。
 
 ## 后续动作

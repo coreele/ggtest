@@ -35,7 +35,7 @@
 
 ### T1 — CA-008：ValueNormalizer 非法 I/R Javadoc + 登记册
 
-- 做：在 `ValueNormalizer`（必要时 `normalizeInteger`/`normalizeReal`）Javadoc 标明非法 I/R → `"0"` / `"0.000"`，对齐 sqllogictest，非吞错缺陷。更新 `workflow/docs/standards/code-audit-register.md` CA-008：状态可仍 `accepted`；「建议下一步」改为文档已补（如 `Javadoc done; monitor only`）；更新日期。
+- 做：在 `ValueNormalizer`（必要时 `normalizeInteger`/`normalizeReal`）Javadoc 标明非法 I/R → `"0"` / `"0.000"`，对齐 sqllogictest，非吞错缺陷。更新 `workflow/workflow/docs/standards/code-audit-register.md` CA-008：状态可仍 `accepted`；「建议下一步」改为文档已补（如 `Javadoc done; monitor only`）；更新日期。
 - 不做：改归一化行为或测试期望。
 - 完成条件：Javadoc 可读；登记册反映文档已补；`mvn -q test` 无回归。
 
@@ -67,7 +67,7 @@
 ### T5 — 开发产物
 
 - 写本目录 `dev-notes.md`（实现摘要、验证表、§6 缺口、建议复测）。
-- 完成条件：Reviewer/QA 可凭 plan + notes 复现；未改 `workflow/docs/manager/*` / `STATUS.md`。
+- 完成条件：Reviewer/QA 可凭 plan + notes 复现；未改 `workflow/workflow/docs/manager/*` / `STATUS.md`。
 
 ## 依赖与顺序
 
@@ -77,12 +77,12 @@ T1–T4 彼此独立，均可并行；全部完成后做 T5，再 Review → QA�
 
 | 任务 | 预期路径 |
 |---|---|
-| T1 | `src/main/java/com/ggtest/normalize/ValueNormalizer.java`；`workflow/docs/standards/code-audit-register.md` |
+| T1 | `src/main/java/com/ggtest/normalize/ValueNormalizer.java`；`workflow/workflow/docs/standards/code-audit-register.md` |
 | T2 | `cli/Main.java`（必要时 `RuntimeConfigResolver`）；`src/test/java/com/ggtest/cli/*`（color/TTY） |
 | T3 | `PostgresCliIntegrationTest` 等；仅缺陷时触碰 `Main`/`FileRunner`/PG 执行器（产品 `.env` 合同不变） |
 | T4 | 通常仅命令 + `dev-notes`；可选扩展 `CorpusHardAcceptanceTest` |
-| T5 | `workflow/docs/features/chore-audit-tails/dev-notes.md` |
-| 禁止 | ResultComparer LCS（CA-007）；`workflow/docs/manager/*`；`STATUS.md`；真实 `.env`；入库 `.temp/select*.test` |
+| T5 | `workflow/workflow/docs/features/chore-audit-tails/dev-notes.md` |
+| 禁止 | ResultComparer LCS（CA-007）；`workflow/workflow/docs/manager/*`；`STATUS.md`；真实 `.env`；入库 `.temp/select*.test` |
 
 ## 验收
 

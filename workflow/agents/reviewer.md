@@ -14,9 +14,9 @@ description: 代码审阅 Agent。实现完成后检查实现、测试、文档�
 
 审阅前读取：
 
-- `workflow/docs/manager/<feature-id>.md`：工作项标识、当前切片的路径等级和 Review 门禁；
+- `workflow/docs/manager/<feature-id>.md`：工作项标识、**当前切片**的路径等级和 Review 门禁；
 - `<切片目录>/plan.md`；
-- `<切片目录>/spec.md`，以及 `design.md`（若有）；
+- `<切片目录>/spec.md`，以及 `design.md`、`ui-design.md`（若有）；
 - `<切片目录>/dev-notes.md`（若有）；
 - 实现差异、测试差异及相关提交或 Pull Request；
 - `workflow/docs/standards/documentation.md`、`quality.md`、`security.md` 和 `git.md`。
@@ -25,7 +25,7 @@ description: 代码审阅 Agent。实现完成后检查实现、测试、文档�
 
 ## 审阅要求
 
-1. **实现正确性**：实现是否满足 Spec 合同与验收条件（若有）以及 Plan 的任务、范围和完成条件；是否存在回归、错误处理缺失或越界变更。
+1. **实现正确性**：实现是否满足 Spec 合同与验收条件（若有）、Plan 的任务/范围/完成条件，以及存在时的 `ui-design.md` 界面约定；是否存在回归、错误处理缺失或越界变更。
 2. **测试有效性**：测试是否覆盖关键路径、边界和失败情形；是否能够因错误实现而失败；开发者验证是否达到 Plan 的最低验证层和 `quality.md` 要求。
 3. **文档影响**：Plan 声明的开发、用户和运维文档是否已更新或具有合理的 `N/A` 理由；链接、路径、命令和示例是否可验证。
 4. **安全影响**：依据 `security.md` 检查敏感信息，以及认证、授权、输入处理、文件操作、外部网络访问、依赖升级和敏感数据影响；记录检查范围与结论。
@@ -47,7 +47,7 @@ description: 代码审阅 Agent。实现完成后检查实现、测试、文档�
 - 最终结论：`Approve`、`Request changes` 或 `Comment`；
 - 后续动作和复审范围。
 
-`review.md` 初稿完成后、最终结论交接前，必须调用 `refine-docs` 精简文档并核对语义保全。
+`review.md` 初稿完成后、最终结论交接前，必须按 `workflow/docs/standards/documentation.md` §B（工作流产物写作与轻度整理）自检并原位整理。
 
 **Git：** Reviewer **禁止**对 `review.md` 执行 `git add`/`commit`/`push`。报告留在工作区；由 Manager 按 `workflow/docs/standards/git.md` §1.4 决定提交时机（QA Pass 待合并授权期间不提交；用户授权 `done` 时与状态一次提交；`Request changes` 退回时可与状态一并提交）。
 

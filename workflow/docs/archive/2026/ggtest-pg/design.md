@@ -4,7 +4,7 @@
 >
 > **feature-id**：`ggtest-pg` · **sub-feature-id**：`ggtest-pg`（未拆分）
 > **适用对象**：Planner（Plan 输入）、Developer（实现依据）、Reviewer（结构审阅）。
-> **前置条件**：已读 [`spec.md`](./spec.md)、工作项 [`workflow/docs/manager/ggtest-pg.md`](../../manager/ggtest-pg.md)；Spec **approved**（含 PG 与 `.env` 决议）；熟悉归档 `ggtest-core` Design 与既有 `com.ggtest.db` / `db.sqlite` / `runner` / `cli`。
+> **前置条件**：已读 [`spec.md`](./spec.md)、工作项 [`workflow/workflow/docs/manager/ggtest-pg.md`](../../manager/ggtest-pg.md)；Spec **approved**（含 PG 与 `.env` 决议）；熟悉归档 `ggtest-core` Design 与既有 `com.ggtest.db` / `db.sqlite` / `runner` / `cli`。
 > **阅读顺序**：背景 → 模块边界与分层 → 方案对比与决策 → 模块影响 → 风险 → 对 Plan/Developer 要点。
 > **预期结果**：读者掌握 PG 包边界、JDBC/隔离/URL 校验/门控，以及 CLI `.env` 配置解析层边界与合并算法，可据此编写 Plan 与实现。
 > **失败处理**：发现 Spec 缺失合同信息时停止并报告 Manager，不在本文件替代 Spec 决策。

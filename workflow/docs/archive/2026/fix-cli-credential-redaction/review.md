@@ -6,7 +6,7 @@
 |---|---|
 | 工作项 | `fix-cli-credential-redaction`（standard；Review **required**） |
 | 实现版本 | 分支 `fix-cli-credential-redaction` @ `1ea25fc` |
-| 审阅依据 | [spec.md](./spec.md)、[plan.md](./plan.md)、[dev-notes.md](./dev-notes.md)；`workflow/docs/standards/quality.md`、`security.md`、`documentation.md`、`git.md` |
+| 审阅依据 | [spec.md](./spec.md)、[plan.md](./plan.md)、[dev-notes.md](./dev-notes.md)；`workflow/workflow/docs/standards/quality.md`、`security.md`、`documentation.md`、`git.md` |
 | 代码范围 | `CredentialRedaction.java`（新建）、`CliSession.sanitize`、`CliOptions.toString`、`CredentialRedactionTest.java`、`RuntimeConfigResolverTest.cliOptionsToStringRedactsUrlUserInfo` |
 | 独立验证 | `mvn -q clean test`（EXIT=0）；strip-only 模拟红态 3 Failures（P0-1/P0-2/P0-3 相关） |
 
@@ -63,7 +63,7 @@ CA-002 登记册更新属 Plan T5 行政项，不阻塞本项代码与安全合�
 | 严重度 | ID | 位置 | 问题 | 状态 |
 |---|---|---|---|---|
 | — | — | — | 无阻塞项 | — |
-| Info | R-1 | `workflow/docs/standards/code-audit-register.md` | CA-002 仍为 `open`；实现已在 `1ea25fc` | 待 Manager 更新 |
+| Info | R-1 | `workflow/workflow/docs/standards/code-audit-register.md` | CA-002 仍为 `open`；实现已在 `1ea25fc` | 待 Manager 更新 |
 | Info | R-2 | `CredentialRedaction.java` | 正则要求 `scheme://` 前缀才匹配 userinfo；非标准无 scheme 形式不在 spec 范围 | 可接受 |
 
 ## 结论

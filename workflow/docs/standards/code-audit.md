@@ -81,9 +81,9 @@
 
 | 扩展方式 | 约定 | 说明 |
 |---|---|---|
-| 专项标准 | `workflow/docs/standards/code-audit-<topic>.md` | 语言、模块、性能、并发等专项条款；与本文件一并加载（通配排除登记册） |
-| 关注项登记册 | `workflow/docs/standards/code-audit-register.md` | 持久化 Known Issue / Tech Debt / 已接受风险；存在则必读核对，**不**当作条款标准 |
-| 用户点名 | 任意其他 `workflow/docs/standards/*.md` | 仅当用户明确指定时追加；默认仍不加载 `quality.md` 等流程规范 |
+| 专项标准 | `workflow/workflow/docs/standards/code-audit-<topic>.md` | 语言、模块、性能、并发等专项条款；与本文件一并加载（通配排除登记册） |
+| 关注项登记册 | `workflow/workflow/docs/standards/code-audit-register.md` | 持久化 Known Issue / Tech Debt / 已接受风险；存在则必读核对，**不**当作条款标准 |
+| 用户点名 | 任意其他 `workflow/workflow/docs/standards/*.md` | 仅当用户明确指定时追加；默认仍不加载 `quality.md` 等流程规范 |
 
 **专项标准文件结构（建议）：**
 

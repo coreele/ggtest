@@ -1,187 +1,190 @@
 # Agent 工作流与文档索引
 
-本文档是工作流、角色、门禁、状态和文档结构的唯一权威说明。`workflow/docs/manager/STATUS.md`、工作项记录、模板和角色指令仅保存执行所需信息，不得另行定义或复制完整流程。
+本文档是工作流、角色、门禁、状态和文档结构的**唯一权威说明**。STATUS、工作项记录、模板和角色指令只保存执行信息，不得另写或复制完整流程。冲突时以本文为准。
 
-路径占位符统一使用小写短横线格式的 `<feature-id>`。调度主键为 `(feature-id, sub-feature-id)`：未拆分时二者相同，产物直接落在 `workflow/docs/features/<feature-id>/`（无需子目录）；已拆分为多个子工作项时，根目录仅保留总览 `spec.md`，每个子工作项使用独立子目录 `workflow/docs/features/<feature-id>/<feature-id>-<sub-feature-id>/`，其内使用标准文件名（`spec.md`、`design.md`、`plan.md` 等）。禁止另建平级 feature 目录；禁止使用扁平的 `workflow/plans/`、`workflow/qa/` 或 `workflow/prd/` 作为新产出根目录。
+**标识：** `<feature-id>` / `<sub-feature-id>` 均为小写短横线。调度主键为 `(feature-id, sub-feature-id)`；未拆分时二者相同。目录约定见「文档结构」。
 
 ## 权威工作流
 
 ```text
 Manager 登记工作项并判定路径与门禁
-→ [Spec 门禁=required] Analyst 编写 Spec
-→ [Spec 需要确认] 当前用户会话取得用户确认
-→ [Design 门禁=required] Planner 编写 Design
+→ [Spec=required] Analyst 编写 Spec
+→ [需确认 Spec] 用户会话确认
+→ [Design=required] Planner 编写 Design
 → Planner 编写 Plan
-→ 当前用户会话取得 Plan 确认
-→ Developer 实施并完成开发者验证
+→ 用户会话确认 Plan
+→ Developer 实施与开发者验证
 → Reviewer 审阅
-→ [Review 门禁=required] 取得 Approve 后进入 QA
+→ [Review=required] 取得 Approve 后进入 QA
 → QA 验收
-  ├─ Fail：Developer 修复 → [Reviewer 复审] → QA 复测
-  ├─ Blocked：记录原因和恢复条件并停止
-  └─ Pass：当前用户会话取得合并授权 → Manager 将状态置为 done，并将未入库的 `review.md` / `qa-report.md` 与 STATUS **一次提交**（源分支）
-→ 合入目标分支（本地 Merge Executor 或 GitHub PR 均可；不再为状态单独提交）
-→ [全部切片 done 且用户要求关闭父项时] Manager 归档
+  ├─ Fail → Developer 修复 → [需 Review] 复审 → QA 复测
+  ├─ Blocked → 记录原因与恢复条件并停止
+  └─ Pass → 用户授权合并 → Manager 置 done（源分支一次提交，见 Merge 门禁）
+→ 合入目标分支（Merge Executor 或 GitHub PR；合入不再改 STATUS）
+→ [适用切片均 done 且用户要求关闭父项] Manager 归档
 ```
 
-**`done` 的含义：** 切片工作流已关闭——质量门禁已过，且用户已授权合入（或非 Git 下已授权完成）。**不表示**变更已出现在目标分支 tip。是否已合入以 git / PR 为准。
+**`done`：** QA Pass + 用户已授权合入（或非 Git 下授权完成）。表示工作流关闭，**不表示**已出现在目标分支 tip；合入以 git / PR 为准。
 
-**Review / QA 报告提交时机（Git）：** QA `Pass` 后等待人工合并授权期间，**禁止**单独提交 `review.md` 与 `qa-report.md`（文件写在工作区即可，供父会话审阅）。用户授权后，Manager 在源分支**一次提交**中纳入：状态置 `done` 的 STATUS/工作项记录、以及尚未入库的 `review.md` 与 `qa-report.md`。合入后不得再为 STATUS 或报告单独提交。`Fail` / `Blocked` / Reviewer `Request changes` 退回修复时，可将报告与状态变更一并提交，以便修复链路有持久证据（见 [`standards/git.md`](standards/git.md)）。
+**非 Git：** 跳过提交与合并；适用的 Spec / Design / Plan / Review / QA / 归档门禁不得跳过。
 
-用户确认门禁不得自动越过：
+### 不得自动越过的用户确认
 
-1. `full` 路径的 Spec 必须确认；
-2. `standard` 路径中存在业务歧义的 Spec 必须确认；
-3. 所有路径的 Plan 必须确认；
-4. 所有路径的合并必须获得明确授权（授权后即可标 `done`，不必等合入完成）。
+| 事项 | 何时必须确认 |
+|---|---|
+| Spec | `full`；或 `standard` 且切片标注存在业务歧义 |
+| Plan | 所有路径 |
+| 合并 | 所有路径（授权后即可标 `done`，不必等合入完成） |
 
-非 Git 工作区跳过提交与合并操作，但不得跳过适用的 Spec、Design、Plan、Review、QA 和归档门禁。
 ## 角色与职责
 
 | 角色 | 职责 | 主要产物 | 不负责 |
 |---|---|---|---|
-| Manager | 登记工作项、判定门禁、调度角色、维护状态、关闭和归档 | `workflow/docs/manager/STATUS.md`、工作项记录 | Spec、Design、Plan、代码、测试报告、合并 |
-| Analyst | 分析需求、定义行为合同和验收条件、编写 Spec | `spec.md` | 技术拆分、实现、状态维护 |
-| Planner | 按需完成技术设计，编写实施与验证计划 | `design.md`、`plan.md` | 需求决策、实现、状态维护 |
-| Developer | 依据已确认的 Plan 执行 TDD、实现、开发者验证和缺陷修复 | 代码、`dev-notes.md` | Spec、Plan、状态维护、合并 |
-| Reviewer | 审阅实现、测试、文档和安全影响 | `review.md` | 实现、QA、状态维护、合并 |
-| QA | 依据 Spec 和 Plan 执行独立验收与回归测试 | `qa-report.md` | 业务实现、状态维护 |
-| Merge Executor | 在 QA Pass 且用户明确授权后执行合并 | 合并结果 | 质量验收、代码所有权、状态维护 |
-| DevOps | 按需维护本地脚本及部署排障文档 | 脚本、`workflow/deploy/` | CI/CD、Spec、Plan、状态维护、合并 |
+| Manager | 登记、门禁判定、调度、状态、关闭归档 | STATUS、工作项记录 | Spec / Design / Plan、代码、测试报告、合并 |
+| Analyst | 需求与行为合同 | `spec.md` | 技术拆分、实现、状态 |
+| Planner | 技术设计、按需 UI 设计与实施计划 | `design.md`、`ui-design.md`（按需）、`plan.md` | 需求决策、实现、状态 |
+| Developer | TDD、实现、开发者验证、缺陷修复 | 代码、`dev-notes.md` | Spec / Plan、状态、合并 |
+| Reviewer | 审阅实现、测试、文档、安全 | `review.md` | 实现、QA、状态、合并 |
+| QA | 独立验收与回归 | `qa-report.md` | 业务实现、状态 |
+| Merge Executor | STATUS 已为 `done` 后合入 | 合并结果 | 质量验收、代码所有权、状态 |
+| DevOps | 本地脚本与部署排障文档 | 脚本、`workflow/docs/deploy/` | CI/CD、Spec / Plan、状态、合并 |
 
-默认由 QA 兼任受控 Merge Executor，但不因此承担代码所有权。仓库已有 Code Owner、Release Manager、受保护分支或其他合并规则时，以仓库规则指定的执行者为准。
-
-仅 Manager 可以修改 `workflow/docs/manager/STATUS.md` 和工作项记录。其他角色只报告阶段结果，由 Manager 在调度后续角色前持久化状态。
+- 默认由 QA 兼任受控 Merge Executor，不因此获得代码所有权；仓库另有 Code Owner / Release Manager / 分支保护等规则时从其规则。
+- **仅 Manager** 可改 STATUS 与工作项记录；其他角色只报告结果，由 Manager 在调度下一步前持久化。
+- 产出角色在独立上下文结束后**立即返回**待确认 / 待调度事项，不得在子会话内阻塞等用户确认。确认由当前用户会话收集后，再调度 Manager 持久化。
 
 ## 路径等级
 
-`fast`、`standard` 和 `full` 是本工作流的风险等级，不是行业标准术语。
+`fast` / `standard` / `full` 是本工作流的风险等级（非行业标准术语）。**按切片判定并写入工作项记录**；同一 `feature-id` 下切片可不同等级。
 
 | 等级 | 适用范围 | Spec | 用户确认 | Review |
 |---|---|---|---|---|
-| `fast` | 范围明确的单点修复 | 默认跳过 | Plan、合并 | 可在工作项记录中明确跳过 |
-| `standard` | 常规功能、重构或接口变更 | 存在合同风险时必须 | Plan、合并；Spec 存在业务歧义时确认 | 必须 |
-| `full` | 新能力、跨模块变更或范围未明确 | 必须 | Spec、Plan、合并 | 必须 |
+| `fast` | 范围明确的单点修复 | 默认跳过 | Plan、合并 | 可在切片记录标 `skipped` |
+| `standard` | 常规功能、重构或接口变更 | 有合同风险时必须 | Plan、合并；有业务歧义时再确认 Spec | 必须 |
+| `full` | 新能力、跨模块或范围未明 | 必须 | Spec、Plan、合并 | 必须 |
 
-Manager 登记工作项时必须记录路径等级，并分别判定 Spec、Design 和 Review 门禁。
+总览 / tracking 行（只索引、不实施）：路径等级与 Spec / Design / Review 门禁均可为 `N/A`，不调度产出角色。
 
 ## 门禁
 
-### Spec 门禁
+### Spec
 
-- `full` 必须编写 Spec；
-- `standard` 在新增行为、公开接口、状态转换、错误约定或跨模块合同存在时必须编写 Spec；
-- `fast` 默认跳过 Spec；
-- Spec 必须由 Analyst 编写；
-- `full` 的 Spec 必须由用户确认；
-- `standard` 仅在工作项记录标注存在业务歧义时要求用户确认。
+| 约束 | 说明 |
+|---|---|
+| 必须编写 | `full`；`standard` 在新增行为、公开接口、状态转换、错误约定或跨模块合同时 |
+| 默认可跳过 | `fast` |
+| 作者 | 仅 Analyst |
+| 用户确认 | 见上文「不得自动越过的用户确认」 |
 
-### Design 门禁
+### Design
 
-- 仅在模块边界、分层或技术选型需要决策时设为 `required`；
-- API 形状、数据约束、错误约定和行为验收属于 Spec，不属于 Design；
-- Design 必须由 Planner 在 Plan 之前编写；
-- Design 门禁为 `required` 时，`design.md` 存在后才可进入 Plan 阶段。
+- **设为 `required`：** 仅当模块边界、分层或技术选型需要决策。
+- **不属于 Design：** API 形状、数据约束、错误约定、行为验收（属 Spec）；界面信息架构 / 交互 / 视觉（属按需 `ui-design.md`）。
+- **顺序：** Planner 在 Plan 之前编写；`required` 时须先有 `design.md` 再进 Plan。
 
-### Plan 门禁
+### UI Design（按需，非门禁）
 
-- Spec 门禁为 `required` 时，`spec.md` 必须存在；
-- Plan 必须包含任务拆分、依赖、涉及路径、验证命令、最低验证层、Review 门禁和文档影响；
-- 每个 Plan 均须用户确认；
-- 仅在确认结果已持久化后，状态可以进入 `planned`。
+- **何时：** 范围含用户可见界面、关键流程或交互表面，且存在布局 / 信息架构 / 交互决策时，Planner 调用 `design-ui`，产出切片目录 `ui-design.md`。
+- **跳过：** 纯后端 / API / 文档；或 `fast` 且仅文案 / 小样式、无 IA/布局决策。跳过时 Plan 元信息「依据 UI」标 `N/A`。
+- **不替代** Spec 行为合同，也不替代 `design.md` 的结构选型。
 
-### Review 门禁
+### Plan
 
-- 实现完成后可直接调度 Reviewer；
-- Review 门禁是进入 QA 的前置条件，不是调用 Reviewer 的前置条件；
-- `standard` 和 `full` 进入 QA 前必须取得 `Approve`；
-- `fast` 仅在工作项记录将 Review 门禁明确设为 `skipped` 时允许直接进入 QA；
-- `Request changes` 必须返回 Developer 修复并重新审阅；
-- `Comment` 不得包含阻塞项，否则必须使用 `Request changes`。
+- Spec 为 `required` 时，对应 `spec.md` 必须已存在。
+- Plan **必须包含：** 任务拆分（含完成条件）、依赖与顺序、触碰路径、可复现验证命令、最低验证层、每项验证的预期证据、Review 门禁与进入 QA 条件、文档影响、无法验证时的原因 / 风险 / 恢复条件、实施→Review→QA 交接顺序。
+- 每个 Plan 均须用户确认；确认结果持久化后才可进入 `planned`。
 
-### QA 门禁
+### Review
 
-- QA 必须逐项核对 Spec 验收条件（如有）和 Plan 验证要求；
-- 首次验收和回归测试必须按轮次追加到同一 `qa-report.md`；
-- QA 结论仅允许 `Pass`、`Fail` 或 `Blocked`；
-- `Fail` 必须登记缺陷，`Blocked` 必须登记原因和恢复条件；
-- 未取得 `Pass` 时不得请求合并授权。
+| 约束 | 说明 |
+|---|---|
+| 调用时机 | 实现完成后即可调度 Reviewer |
+| 进入 QA | Review 门禁是进 QA 的前置条件，**不是**调用 Reviewer 的前置条件 |
+| `standard` / `full` | 进 QA 前必须 `Approve` |
+| `fast` | 仅当切片将 Review 标为 `skipped` 时可直进 QA |
+| 总览行 | 可为 `N/A` |
+| `Request changes` | 回 Developer 修复并复审 |
+| `Comment` | 不得含阻塞项；否则必须改用 `Request changes` |
 
-### Merge 门禁
+### QA
 
-- QA 报告必须为 `Pass`；
-- 当前用户会话必须取得明确合并授权；
-- Git 工作区必须记录源分支和目标分支，并满足 [`standards/git.md`](standards/git.md)；
-- **实现必须发生在独立工作分支上**；禁止在 `main`/`master`/`release/*` 上直接实施后合并；
-- 用户授权后，Manager 在**源分支**将状态置为 `done`，并与未入库的 `review.md` / `qa-report.md` **一次提交**（随功能一并合入）；**禁止**在待合并授权期间单独提交上述报告；**禁止**为「合入后再改 STATUS」再开目标分支提交；
-- 合入可由受权 Merge Executor 本地执行，或由用户在 GitHub 上合并 PR；合入本身不再触发 STATUS 变更；
-- 合入失败时进入 `blocked`（可从 `done` 转入），记录原因与恢复条件；不得归档父项。
+- 逐项核对 Spec 验收条件（如有）与 Plan 验证要求。
+- 首次与回归均按轮次**追加**到同一 `qa-report.md`。
+- 结论仅允许：`Pass` | `Fail` | `Blocked`。
+- `Fail` 须登记缺陷；`Blocked` 须登记原因与恢复条件。
+- 非 `Pass` 不得请求合并授权。
+
+### Merge
+
+须同时满足：
+
+1. QA 最新结论为 `Pass`
+2. 用户会话已明确授权合并
+3. Git：切片源分支、工作项目标分支已记录，且符合 [`workflow/docs/standards/git.md`](workflow/docs/standards/git.md)
+4. 实现位于该切片独立工作分支；**禁止**在 `main` / `master` / `release/*` 上直接实施后合并
+
+授权后的关闭提交（Git）：
+
+- Manager 在**该切片源分支**将状态置 `done`，与未入库的 `review.md` / `qa-report.md` **一次提交**。
+- **禁止**在待合并授权期间单独提交上述报告。
+- **禁止**合入后再为目标分支单独改 STATUS / 补交报告。
+- 合入前 STATUS 对应切片须已为 `done`；合入可由 Merge Executor 或 GitHub PR 执行，合入本身不改 STATUS。
+- 合入失败：可 `done → blocked`（或保持 `done` 并记阻塞笔记，择一写清）；不得归档父项。
+
+报告提交时机细则见 [`workflow/docs/standards/git.md`](workflow/docs/standards/git.md) §1.4。
 
 ## 状态机与回退
 
-完整状态集：
-
 ```text
-backlog
-→ speccing
-→ awaiting-spec-approval
-→ designing
-→ planning
-→ awaiting-plan-approval
-→ planned
-→ developing
-→ reviewing
-→ qa
-→ done
+backlog → speccing → awaiting-spec-approval → designing → planning
+→ awaiting-plan-approval → planned → developing → reviewing → qa → done
 ```
 
-旁支状态：`blocked`、`cancelled`。历史状态名 `awaiting-merge` 已废弃；勿再写入新记录。
+旁支：`blocked`、`cancelled`。`done` 含义见上文。
 
-**`done`：** 工作流关闭（QA Pass + 合并/完成授权已持久化）。是否已在目标分支以 git/PR 判定，不以 STATUS 为准。
+| 场景 | 转换 |
+|---|---|
+| 跳过 Spec | `backlog → designing \| planning` |
+| Spec 无需确认 | `speccing → designing \| planning` |
+| Spec 需确认 | `speccing → awaiting-spec-approval` →（确认后）`designing \| planning` |
+| 跳过 Design | `backlog \| speccing \| awaiting-spec-approval → planning` |
+| 开始 Design / Plan | → `designing` / `planning`；Design 通过后 → `planning` |
+| Plan 写完 / 确认 | `planning → awaiting-plan-approval` →（持久化后）`planned` |
+| 开始实施 | `planned → developing` |
+| 调度 Reviewer | `developing → reviewing` |
+| `fast` 且 Review=`skipped` | `developing → qa` |
+| Reviewer `Approve` | `reviewing → qa` |
+| Reviewer `Request changes` | `reviewing → developing`（修复后复审） |
+| Reviewer `Comment` 含阻塞 | 按 `Request changes` 处理 |
+| 用户授权合并 | `qa → done`（源分支一次提交，见 Merge 门禁） |
+| 合入失败 | `done → blocked`（或保持 `done` + 笔记） |
+| 任意活动态阻塞 | → `blocked`；恢复后进入切片记录指定目标态 |
+| 用户取消 | → `cancelled` |
 
-状态转换规则：
-
-- 跳过 Spec：`backlog → designing | planning`；
-- Spec 无需用户确认：`speccing → designing | planning`；
-- Spec 需要用户确认：`speccing → awaiting-spec-approval`；
-- 用户确认 Spec：`awaiting-spec-approval → designing | planning`；
-- 跳过 Design：`backlog | speccing | awaiting-spec-approval → planning`；
-- Plan 编写完成：`planning → awaiting-plan-approval`；
-- Plan 确认并持久化：`awaiting-plan-approval → planned`；
-- `fast` 且 Review 门禁为 `skipped`：`developing → qa`；
-- QA `Pass` 后请求合并授权（此时不提交 `review.md` / `qa-report.md`）；用户授权并持久化后：`qa → done`（在源分支**一次提交**更新 STATUS/工作项并纳入未入库的报告）；
-- 合入失败：`done → blocked`（或保持 `done` 并记阻塞笔记，由 Manager 择一写清）；
-- 任一活动状态可进入 `blocked`，恢复后进入工作项记录指定的目标状态；
-- 用户取消工作项时进入 `cancelled`。
-
-QA 失败必须形成闭环：
+### QA Fail 闭环
 
 ```text
-QA Fail
-→ Manager: qa → developing
-→ Developer 修复并更新 dev-notes.md
-→ [Review 门禁=required] Reviewer 复审并取得 Approve
-→ Manager: reviewing 或 developing → qa
-→ QA 在 qa-report.md 追加回归轮次
-→ Pass | Fail | Blocked
+QA Fail → Manager: qa → developing → Developer 修复（更新 dev-notes.md）
+→ [Review=required] Reviewer 复审 Approve → Manager: → qa
+→ QA 追加回归轮次 → Pass | Fail | Blocked
 ```
 
-每个缺陷必须记录唯一标识、严重程度、状态、处理说明和验证证据。Developer 必须给出建议复测范围；`standard` 和 `full` 的修复必须重新取得 Reviewer `Approve`；QA 必须复测失败项和受影响的回归范围。循环持续至 `Pass`、`Blocked` 或用户取消。
+每个缺陷须有唯一标识、严重程度、状态、处理说明与验证证据。Developer 给出建议复测范围；`standard` / `full` 修复须重新 `Approve`；QA 复测失败项与受影响回归范围。循环至 `Pass`、`Blocked` 或用户取消。
 
 ## 独立上下文与用户汇报
 
-Manager、Analyst、Planner、Developer、Reviewer、QA 和 DevOps 在独立上下文中运行。角色之间仅通过以下持久化介质交接：
+产出角色在独立上下文中运行，仅通过以下介质交接：工作区变更、Git 提交 / PR（可用时）、`workflow/docs/features/<feature-id>/`（含切片子目录）、工作项记录与 STATUS。
 
-- 工作区变更；
-- Git 提交或 Pull Request（仓库可用时）；
-- `workflow/docs/features/<feature-id>/` 中的文档；
-- 工作项记录和 `workflow/docs/manager/STATUS.md`。
+当前用户会话是唯一用户交互入口。Manager 从持久化文档恢复状态，不得依赖其他角色会话记忆，不得直接向用户要确认，不得越过确认门禁。
 
-当前用户会话是唯一用户交互入口。Manager 必须从持久化文档恢复输入和状态，不得依赖其他角色的会话记忆，不得直接向用户请求确认，也不得越过用户确认门禁。
+| 编排模式 | 触发 | 行为 |
+|---|---|---|
+| 单步（默认） | — | 完成一个编排步骤后返回 |
+| 完整流程 | 用户显式授权 | 连续调度至完成、`blocked` / `cancelled` 或确认门禁 |
 
-默认采用单步编排：Manager 完成一个编排步骤后返回。用户明确授权完整流程时，Manager 可以连续调度，直到步骤完成、进入 `blocked` 或到达用户确认门禁。
+完整流程授权 ≠ Spec / Plan / 合并授权；碰到确认门禁必须回到用户会话。
 
-Manager 必须使用以下返回格式：
+Manager 返回格式：
 
 ```text
 工作项: <feature-id>
@@ -194,111 +197,116 @@ Manager 必须使用以下返回格式：
 后续步骤: <role/action>
 ```
 
-当前用户会话只向用户汇报可验证的操作、文件、状态、门禁、阻塞信息和待确认事项。
+只汇报可验证的操作、文件、状态、门禁、阻塞与待确认事项。
 
 ## 文档结构
 
 ```text
 workflow/
   README.md
-  standards/
-    documentation.md
-    git.md
-    quality.md
-    security.md
-  manager/
-    STATUS.md
-    <feature-id>.md
-  features/<feature-id>/
-    spec.md                              # 未拆分：完整 Spec；已拆分：仅总览索引
-    design.md / plan.md / …              # 仅未拆分时出现在根目录
-    <feature-id>-<sub-feature-id>/       # 已拆分：每个子工作项一个目录
-      spec.md
-      design.md                          # Design 门禁 required 时
-      plan.md
-      dev-notes.md
-      review.md
-      qa-report.md
-  _templates/
-    manager-feature.md
-    spec.md
-    design.md
-    plan.md
-    dev-notes.md
-    review.md
-    qa-report.md
-  archive/YYYY/<feature-id>/
-    manager.md                       # 原 workflow/docs/manager/<feature-id>.md
-    spec.md / design.md / …          # 原 workflow/docs/features/<feature-id>/ 内容（若有）
+  agents/             # 角色定义
+  skills/             # 技能定义
+  docs/
+    standards/        # documentation | git | quality | security
+    manager/
+      STATUS.md
+      <feature-id>.md   # 仅活跃工作项
+    features/<feature-id>/
+      spec.md         # 未拆分：完整 Spec；已拆分：仅总览索引
+      …               # 未拆分时 design / ui-design / plan / … 也在根目录
+      <feature-id>-<sub-feature-id>/   # 已拆分：每切片一目录，标准文件名
+    _templates/       # 含 ui-design.md 等
+    archive/YYYY/<feature-id>/
+      manager.md      # 原 manager/<feature-id>.md
+      …               # 原 features/<feature-id>/ 内容（若有）
 ```
 
-Manager 登记工作项时创建 `workflow/docs/features/<feature-id>/` 与 `workflow/docs/manager/<feature-id>.md`。其他角色不得创建使用不同标识的工作项目录。`workflow/docs/manager/` 下除 `STATUS.md` 外仅保留**活跃**工作项记录；已 `done` / `cancelled` 且完成归档的记录不得留在 `workflow/docs/manager/`。
+**必须 / 禁止：**
+
+- Manager 登记时创建 `workflow/docs/features/<feature-id>/` 与 `workflow/docs/manager/<feature-id>.md`。
+- 其他角色**不得**另建不同标识的工作项目录，**不得**使用 `workflow/docs/plans/`、`workflow/docs/qa/`、`workflow/docs/prd/` 等扁平产出根。
+- `workflow/docs/manager/` 除 STATUS 外仅保留活跃记录；归档后不得残留。
 
 ### feature-id 与 sub-feature-id
 
-- **feature-id**：工作项目录与归档单位。活跃时对应 `workflow/docs/features/<feature-id>/` 与 `workflow/docs/manager/<feature-id>.md`；归档后二者一并位于 `workflow/docs/archive/YYYY/<feature-id>/`（工作项记录文件名为 `manager.md`）。
-- **sub-feature-id**：可调度切片。不需要拆分时与 `feature-id` 相同，产物直接写在 `workflow/docs/features/<feature-id>/`（`spec.md` 等），**不**再建子目录。
-- 需要拆分时：根目录仅保留总览 `spec.md`（此时总览行的 `sub-feature-id` 可与 `feature-id` 相同）；每个子工作项一个目录 `workflow/docs/features/<feature-id>/<feature-id>-<sub-feature-id>/`，目录内使用标准文件名（`spec.md`、`design.md`、`plan.md` 等），STATUS 为同一 `feature-id` 下的多行。
-- `workflow/docs/manager/STATUS.md` 活跃表必须包含 `feature-id` 与 `sub-feature-id` 列。同一 `feature-id` 的后续行可省略重复的 `feature-id`；「目录」列在已拆分时应指向各子目录（不可省略为继承总览根目录）。空 `feature-id` 表示继承上一非空值。换 feature 时必须再写一次 `feature-id`。
+| | 含义 | 路径 |
+|---|---|---|
+| feature-id | 工作项与归档单位 | 活跃：`features/<id>/` + `manager/<id>.md`；归档：`archive/YYYY/<id>/`（记录改名为 `manager.md`） |
+| sub-feature-id | 可调度切片 | 未拆分：与 feature-id 相同，产物在 feature 根目录（**无**子目录）。已拆分：每切片目录 `<feature-id>-<sub-feature-id>/`，根目录仅总览 `spec.md` |
+
+STATUS 活跃表须有 `feature-id`、`sub-feature-id` 列。同一 feature 后续行可省略重复的 `feature-id`（空表示继承）；换 feature 须再写。已拆分时「目录」列须指向各切片子目录，不得继承总览根路径。
+
+### 何时拆分
+
+满足任一条件时宜拆分：
+
+1. 可独立验收（各自合同与验收集）
+2. 需要独立工作分支并行或错开合入
+3. 合同或风险等级明显不同（宜不同路径等级）
+4. 单一切片 Plan 过大，无法一次可审阅变更完成
+
+否则保持未拆分。拆分后**禁止**用 `spec-<sub>.md` 等同目录后缀切分，也**禁止**另建平级 Feature 目录。
 
 ### 工程规范索引
 
-工程规范采用 Docs as Code，与相关代码同仓库、同分支、同审阅并同步演进。所有工作项必须遵循以下规范：
+Docs as Code：与相关代码同仓库、同分支、同审阅演进。工作项须遵循：
 
-| 规范 | 文档 | 适用内容 |
+| 规范 | 文档 | 内容 |
 |---|---|---|
-| 文档工程 | [`workflow/docs/standards/documentation.md`](standards/documentation.md) | 文档分类、主责、质量、审阅和生命周期 |
-| Git 协作 | [`workflow/docs/standards/git.md`](standards/git.md) | 分支、提交、Pull Request、合并和回滚 |
-| 质量与验证 | [`workflow/docs/standards/quality.md`](standards/quality.md) | 开发者验证、测试层级、静态检查和完成定义 |
-| 安全 | [`workflow/docs/standards/security.md`](standards/security.md) | 敏感信息、依赖、认证授权和安全审阅触发条件 |
+| 文档工程 | [`workflow/docs/standards/documentation.md`](workflow/docs/standards/documentation.md) | 分类主责、文档影响、用户/运维要素；工作流产物整理（§B） |
+| Git | [`workflow/docs/standards/git.md`](workflow/docs/standards/git.md) | 分支、提交、PR、合并、回滚 |
+| 质量 | [`workflow/docs/standards/quality.md`](workflow/docs/standards/quality.md) | 验证层级、完成定义 |
+| 安全 | [`workflow/docs/standards/security.md`](workflow/docs/standards/security.md) | 敏感信息、依赖、认证授权、安全审阅触发 |
 
-每个 Plan 必须说明开发文档、用户文档和运维文档的影响及更新路径；不适用时必须标记 `N/A` 并说明理由。测试或检查无法执行时，必须记录原因、风险和恢复条件。
+Plan 须说明开发 / 用户 / 运维文档影响；不适用标 `N/A` 并写理由。验证无法执行时记录原因、风险与恢复条件。
+
+`code-audit`（`workflow/docs/standards/code-audit*.md`、产物 `workflow/docs/audit/`）在工作流外，不进入本状态机。
 
 ## 工作项记录
 
-`workflow/docs/manager/<feature-id>.md` 至少包含：
+按模板 [`workflow/docs/_templates/manager-feature.md`](workflow/docs/_templates/manager-feature.md) 创建 `workflow/docs/manager/<feature-id>.md`。
+
+**工作项级：** 工作项标识、描述、目标分支（Git 默认 `main`；非 Git 填「不适用」）、文档影响。
+
+**切片级**（模板拆为「切片门禁」「切片状态」两表；未拆分时各表一行且 `sub-feature-id` = `feature-id`）：
 
 ```text
-工作项标识:
-描述:
-路径等级: fast | standard | full
-源分支:
-目标分支:
-文档影响:
+# 门禁表
+路径等级: fast | standard | full | N/A
+源分支:                 # 推荐 <feature-id>-<sub-feature-id>；总览行可 N/A
+Spec 门禁: required | skipped | N/A
+Spec 用户确认: required | not-required | approved | rejected | N/A
+Design 门禁: required | skipped | N/A
+Review 门禁: required | skipped | N/A   # skipped 仅 fast
+
+# 状态表
+状态 / 后续步骤 / 阻塞原因 / 恢复条件 / 恢复后的目标状态
 ```
 
-未拆分时，同一文件还须包含该 `(feature-id, sub-feature-id)` 的门禁与状态字段（`sub-feature-id` 等于 `feature-id`）：
+- 表内只填枚举、短标签或链接；跳过理由、业务歧义、较长阻塞说明写入「进度笔记」（见 [`workflow/docs/standards/documentation.md`](workflow/docs/standards/documentation.md) §B）。
+- 已拆分时门禁与状态按切片维护，并与 STATUS 对齐；阻塞不得只写在脚注导致多切片无法区分。
 
-```text
-sub-feature-id: <与 feature-id 相同>
-Spec 门禁: required | skipped（理由）
-Spec 用户确认: required | not-required | approved | rejected
-Design 门禁: required | skipped（理由）
-Review 门禁: required | skipped（理由；仅 fast）
-状态:
-后续步骤:
-阻塞原因:
-恢复条件:
-恢复后的目标状态:
-```
+### Git：文档提交时机
 
-已拆分为多个 sub-feature 时，上述门禁与状态按切片维护（表格或分节均可），并与 `STATUS.md` 各行对齐。
+1. 登记时填目标分支；每个将进入产出的切片填源分支（宜在调度 Analyst / Planner 前；**最迟**调度 Developer 前）。
+2. 源分支已声明后：该切片的 Spec / Design / Plan / 实现与相关文档均提交到该源分支。
+3. 源分支未声明前：文件可留在工作区；声明并检出后按 [`workflow/docs/standards/git.md`](workflow/docs/standards/git.md) 提交，禁止在受保护分支直接提交。
 
 ## 关闭与归档
 
-切片级关闭：QA `Pass` 且用户明确授权合并（或非 Git 下授权完成）后，Manager 在源分支将状态置为 `done`，并与未入库的 `review.md` / `qa-report.md` **一次提交**。此后允许合入；**合入完成后不再改 STATUS 或补交报告**。
+**切片关闭：** QA Pass + 用户授权合并（或非 Git 授权完成）→ Manager 在源分支置 `done` 并一次提交未入库报告 → 允许合入。合入后不再改 STATUS / 补交报告。
 
-Manager 仅在以下情况归档**整个**工作项（features 产物与 manager 工作项记录**一并**迁入归档目录）：
+**父项归档**（features 与 manager 记录一并迁入 `workflow/docs/archive/YYYY/<feature-id>/`）仅当：
 
-1. 各适用切片均为 `done`，且用户明确要求关闭/归档父项（建议同时核验目标分支已包含各切片实现）；
-2. 用户明确取消并将状态更新为 `cancelled`（无 features 产物时仍须归档工作项记录）。
+1. 各适用切片（Review / 实施门禁非 `N/A`）均为 `done`，且用户明确要求关闭 / 归档（建议核验目标分支已含各切片实现）；或
+2. 用户明确取消为 `cancelled`（无 features 产物时仍须归档工作项记录）。
 
-归档步骤：
+步骤：
 
-1. 从 `workflow/docs/manager/STATUS.md` 的活跃列表移除工作项；
-2. 确保 `workflow/docs/archive/YYYY/<feature-id>/` 存在：若存在 `workflow/docs/features/<feature-id>/`，将其**移动**到该归档目录；若无 features 目录（例如纯 cancelled、草稿已删），则创建空的归档目录；
-3. 将 `workflow/docs/manager/<feature-id>.md` **移动**为 `workflow/docs/archive/YYYY/<feature-id>/manager.md`，并修正文内相对链接（指向 `workflow/README.md`、`STATUS.md`、同目录产物）；
-4. 在 STATUS 的归档区域记录工作项标识、最终状态和归档目录链接（目录列指向 `workflow/docs/archive/YYYY/<feature-id>/manager.md`）；
-5. 仓库可用时提交归档变更（可在目标分支或专门 chore 分支；与功能合入解耦）。
+1. 从 STATUS 活跃表移除该工作项
+2. 若有 `features/<feature-id>/`，**移动**到归档目录；否则创建空归档目录
+3. 将 `manager/<feature-id>.md` **移动**为 `archive/YYYY/<feature-id>/manager.md`，并修正相对链接
+4. 在 STATUS 归档区记录标识、最终状态与 `manager.md` 链接
+5. 仓库可用时提交归档变更（可与功能合入解耦）
 
-归档完成后，`workflow/docs/manager/<feature-id>.md` 与 `workflow/docs/features/<feature-id>/` 均不得再残留。
+完成后，`workflow/docs/manager/<feature-id>.md` 与 `workflow/docs/features/<feature-id>/` 均不得残留。

@@ -11,8 +11,8 @@
 ## 元信息
 
 - 工作项标识: ggtest-rowwise-expected（未拆分，sub-feature-id = feature-id）
-- 依据 Spec: [workflow/docs/features/ggtest-rowwise-expected/spec.md](./spec.md)
-- 依据 Design: [workflow/docs/features/ggtest-rowwise-expected/design.md](./design.md)
+- 依据 Spec: [workflow/workflow/docs/features/ggtest-rowwise-expected/spec.md](./spec.md)
+- 依据 Design: [workflow/workflow/docs/features/ggtest-rowwise-expected/design.md](./design.md)
 - 路径等级: full
 - Review 门禁: required（进入 QA 前须 Reviewer `Approve`；合入前修订后须**重新** Approve）
 - 最低验证层: L3（单元测试 + 构建 + 受控 fixture / runner 路径）
@@ -98,9 +98,9 @@ T1 (parser/model 期望头 + 移除 SeparatorRecord)
 | `src/test/java/com/ggtest/parser/**`、`normalize/**`、`runner/**` | 修改 |
 | `src/test/resources/fixtures/runner/rowwise-*.test` 等 | 修订/新增（期望头形式） |
 | `README.md` | 更新 |
-| `workflow/docs/features/ggtest-rowwise-expected/dev-notes.md` | Developer 更新 |
+| `workflow/workflow/docs/features/ggtest-rowwise-expected/dev-notes.md` | Developer 更新 |
 
-**禁止触碰**：`workflow/docs/manager/*`、`STATUS.md`、本切片 `spec.md`（合同已冻）、`.env`、`examples/demo2.slt`；不得改 MD5 拼接算法语义。
+**禁止触碰**：`workflow/workflow/docs/manager/*`、`STATUS.md`、本切片 `spec.md`（合同已冻）、`.env`、`examples/demo2.slt`；不得改 MD5 拼接算法语义。
 
 ## 验证
 
@@ -140,7 +140,7 @@ P1-1…P1-4：优先在 T1/T2/T4 覆盖（含非法顶层 separator；P1-4 期�
 | 用户文档 | `README.md` 同上（CLI 用户可见书写约定；无引号壳）；无独立用户手册 |
 | 运维文档 | N/A：无部署/监控/运维面变更 |
 
-可选（非阻塞）：若架构总览仍列举文件级 `SeparatorRecord`，可在同 PR 增量改 `workflow/docs/features/architecture-overview/design.md`——非本 Plan 必做。
+可选（非阻塞）：若架构总览仍列举文件级 `SeparatorRecord`，可在同 PR 增量改 `workflow/workflow/docs/features/architecture-overview/design.md`——非本 Plan 必做。
 
 ## Review 门禁与进入 QA
 

@@ -4,7 +4,7 @@
 >
 > **feature-id**：`ggtest-rowwise-expected` · **sub-feature-id**：`ggtest-rowwise-expected`（未拆分）
 > **适用对象**：Planner（Design/Plan）、Developer、QA、Manager
-> **前置条件**：工作项 [`workflow/docs/manager/ggtest-rowwise-expected.md`](../../manager/ggtest-rowwise-expected.md)；归档 [`workflow/docs/archive/2026/ggtest-core/ggtest-core-normalize/spec.md`](../../archive/2026/ggtest-core/ggtest-core-normalize/spec.md)；实现依据 `ResultSorter.normalizeAndSort` → `flatten`、`ResultComparer.splitExpectedLines`；失败 Diff 见归档 [`workflow/docs/archive/2026/ggtest-cli-report/spec.md`](../../archive/2026/ggtest-cli-report/spec.md)。
+> **前置条件**：工作项 [`workflow/workflow/docs/manager/ggtest-rowwise-expected.md`](../../manager/ggtest-rowwise-expected.md)；归档 [`workflow/workflow/docs/archive/2026/ggtest-core/ggtest-core-normalize/spec.md`](../../archive/2026/ggtest-core/ggtest-core-normalize/spec.md)；实现依据 `ResultSorter.normalizeAndSort` → `flatten`、`ResultComparer.splitExpectedLines`；失败 Diff 见归档 [`workflow/workflow/docs/archive/2026/ggtest-cli-report/spec.md`](../../archive/2026/ggtest-cli-report/spec.md)。
 > **阅读顺序**：背景与目标 → 非目标 → 范围与可见行为 → 合同 → 验收 → 已决议 / 开放问题。
 > **预期结果**：按已决议合同实现并验收行式期望、本条期望头 `---- separator`、显式 trim，以及「每值一行」兼容与哈希/Diff 硬约束；**无**行式期望单引号语法壳。
 > **失败处理**：偏离本 Spec 或归档 normalize / cli-report 合同时修回；不得破坏官方「每值一行」语料。

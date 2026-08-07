@@ -4,7 +4,7 @@
 
 - 工作项：`chore-audit-tails`（未拆分；fast；Review required）
 - 源分支：`chore-audit-tails`（工作区未提交）
-- 依据：`plan.md`（approved）、`dev-notes.md`、`workflow/docs/manager/chore-audit-tails.md`；`quality.md` §6、`security.md`、`git.md`
+- 依据：`plan.md`（approved）、`dev-notes.md`、`workflow/workflow/docs/manager/chore-audit-tails.md`；`quality.md` §6、`security.md`、`git.md`
 - Spec / Design：N/A（skipped）
 - 实现版本：相对 `HEAD`（`a11fd84`）未提交 diff；Manager 状态文件不计入实现验收
 - 审阅改动：`ValueNormalizer.java`；`code-audit-register.md`（CA-008）；`Main.java`（`BooleanSupplier isTty`）；`CliReportAcceptanceTest` / `RuntimeConfigResolverTest` / `PostgresCliIntegrationTest`；`dev-notes.md`
@@ -65,7 +65,7 @@ T2 编排 ANSI + `resolveAnsiEnabled` 可因错误实现失败。T3 合成密码
 
 ## Git 合规
 
-分支 `chore-audit-tails` 与工作项一致；未在 `main` 实施；实现未 commit；无真实 `.env`/凭据/强制入库 `.temp/select*.test`。`workflow/docs/manager/*` 属 Manager；本报告未提交。
+分支 `chore-audit-tails` 与工作项一致；未在 `main` 实施；实现未 commit；无真实 `.env`/凭据/强制入库 `.temp/select*.test`。`workflow/workflow/docs/manager/*` 属 Manager；本报告未提交。
 
 ## 发现项（按严重程度）
 

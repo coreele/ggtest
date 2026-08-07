@@ -4,7 +4,7 @@
 >
 > **feature-id**：`ggtest-cli-report` · **sub-feature-id**：`ggtest-cli-report`（未拆分）
 > **适用对象**：Planner、Developer、QA、Manager（合同已冻结；无需再向用户确认开放问题）。
-> **前置条件**：工作项 [`workflow/docs/manager/ggtest-cli-report.md`](../../manager/ggtest-cli-report.md)（权威决议 Q-R1…Q-R8）；归档 [`workflow/docs/archive/2026/ggtest-core/ggtest-core-cli-corpus/spec.md`](../../archive/2026/ggtest-core/ggtest-core-cli-corpus/spec.md)（纯文本；失败须含文件、行号、SQL 首行、失败原因）；基线 `CliSession`、`ResultComparer#buildDiffSummary`。
+> **前置条件**：工作项 [`workflow/workflow/docs/manager/ggtest-cli-report.md`](../../manager/ggtest-cli-report.md)（权威决议 Q-R1…Q-R8）；归档 [`workflow/workflow/docs/archive/2026/ggtest-core/ggtest-core-cli-corpus/spec.md`](../../archive/2026/ggtest-core/ggtest-core-cli-corpus/spec.md)（纯文本；失败须含文件、行号、SQL 首行、失败原因）；基线 `CliSession`、`ResultComparer#buildDiffSummary`。
 > **阅读顺序**：背景与目标 → 非目标 → 范围与可见行为 → 合同 → 验收 → 开放问题。
 > **预期结果**：人类可读成功/失败报告合同已冻结（含状态行 `[PASSED]`/`[FAILED] in`/`[SKIPPED]`、`[SQL]` 首行/` ...` 规则、混合样例、文件级计数、`--color` / `ggtest.color` / `GGTEST_COLOR`）；可进入 / 修订 Plan。
 > **失败处理**：实现或 Plan 偏离本 Spec 须回退 Spec/用户确认；不得静默改变退出码或计数语义。

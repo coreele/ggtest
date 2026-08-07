@@ -10,8 +10,8 @@
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
 >
-> 文档路径：未拆分时 Spec 为 `workflow/docs/features/<feature-id>/spec.md`（无子目录）。
-> 本文件已归档为 `workflow/docs/archive/2026/fix-normalize-integer-float/manager.md`；`workflow/docs/manager/` 仅保留活跃工作项记录与 `STATUS.md`。
+> 文档路径：未拆分时 Spec 为 `workflow/workflow/docs/features/<feature-id>/spec.md`（无子目录）。
+> 本文件已归档为 `workflow/workflow/docs/archive/2026/fix-normalize-integer-float/manager.md`；`workflow/workflow/docs/manager/` 仅保留活跃工作项记录与 `STATUS.md`。
 
 ## 切片（未拆分时仅一行，sub-feature-id = feature-id）
 

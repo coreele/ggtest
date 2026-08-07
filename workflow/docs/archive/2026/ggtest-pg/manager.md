@@ -5,18 +5,18 @@
 路径等级: full
 源分支: ggtest-pg
 目标分支: main
-文档影响: workflow/docs/features/ggtest-pg/；README / CLI 用法 / `.env.example`（见 Plan）
+文档影响: workflow/workflow/docs/features/ggtest-pg/；README / CLI 用法 / `.env.example`（见 Plan）
 
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
 >
-> 文档路径：未拆分时 Spec 为 `workflow/docs/features/ggtest-pg/spec.md`（无子目录）。
+> 文档路径：未拆分时 Spec 为 `workflow/workflow/docs/features/ggtest-pg/spec.md`（无子目录）。
 
 ## 切片（未拆分时仅一行，sub-feature-id = feature-id）
 
 | sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
 |---|---|---|---|---|---|---|---|
-| ggtest-pg | [spec.md](./spec.md) | required | approved | required（多库边界 + `.env` 配置解析/优先级） | required | done | 已授权关闭；合入 main；已归档至 `workflow/docs/archive/2026/ggtest-pg/` |
+| ggtest-pg | [spec.md](./spec.md) | required | approved | required（多库边界 + `.env` 配置解析/优先级） | required | done | 已授权关闭；合入 main；已归档至 `workflow/workflow/docs/archive/2026/ggtest-pg/` |
 
 阻塞原因: none
 恢复条件: none
@@ -75,8 +75,8 @@
 
 ## 进度笔记
 
-- 2026-07-25 **登记**：用户指令 `/manager 开启下一工作项，支持 PG`。feature-id=`ggtest-pg`；路径 `full`；Spec/Design/Review 均为 required；未拆分。状态 `backlog` → **`speccing`**。调度 Analyst 编写 `workflow/docs/features/ggtest-pg/spec.md`。单步编排：Spec 完成后停在 `awaiting-spec-approval`；**不得**自行批准 Spec。
-- 2026-07-25 **Analyst 完成 Spec**：产出 `workflow/docs/features/ggtest-pg/spec.md`（合同、P0/P1、开放问题；已 refine-docs）。状态 `speccing` → **`awaiting-spec-approval`**。到达 Spec 用户确认门禁；单步停止；**未**自行批准 Spec、**未**调度 Planner。Analyst 建议拆分 `executor-pg` / `cli-engine`（仅建议，未执行）。
+- 2026-07-25 **登记**：用户指令 `/manager 开启下一工作项，支持 PG`。feature-id=`ggtest-pg`；路径 `full`；Spec/Design/Review 均为 required；未拆分。状态 `backlog` → **`speccing`**。调度 Analyst 编写 `workflow/workflow/docs/features/ggtest-pg/spec.md`。单步编排：Spec 完成后停在 `awaiting-spec-approval`；**不得**自行批准 Spec。
+- 2026-07-25 **Analyst 完成 Spec**：产出 `workflow/workflow/docs/features/ggtest-pg/spec.md`（合同、P0/P1、开放问题；已 refine-docs）。状态 `speccing` → **`awaiting-spec-approval`**。到达 Spec 用户确认门禁；单步停止；**未**自行批准 Spec、**未**调度 Planner。Analyst 建议拆分 `executor-pg` / `cli-engine`（仅建议，未执行）。
 - 2026-07-25 **用户确认 Spec（整体 ok）并拍板开放问题**：engine=`postgres`；隔离=schema 级；engine↔URL 不一致=硬错误（退出码 2）；PG 官方语料硬验收失败=0=否。Manager：Spec 用户确认 → **`approved`**；决议已写入本记录。因 Spec 正文仍含候选 `postgresql` 等待确认表述，调度 **Analyst** 做最小修订对齐后再进入 Design。
 - 2026-07-25 **Analyst 最小修订 Spec 完成**：`spec.md` 已对齐 `postgres` / schema 隔离 / 硬错误 / P1-PG-4 非硬验收；待确认已清空。状态 `awaiting-spec-approval` → **`designing`**。调度 **Planner** 编写 `design.md` 然后 `plan.md`。运维：代理 `127.0.0.1:7890`；多次失败则停止；勿提交 `examples/`。**不得**自行批准 Plan。
 - 2026-07-25 **Planner 完成 Design + Plan**：产出 `design.md`（`db.postgres`、JDBC 42.7.13、schema 隔离由 CLI 编排、engine↔URL 硬校验、`GGTEST_PG_URL` 门控）与 `plan.md`（T1–T6；L3；建议源分支 `ggtest-pg`）。Design 门禁 **通过**（design.md 存在）。状态 `designing` →（planning）→ **`awaiting-plan-approval`**。到达 Plan 用户确认门禁；单步停止；**未**自行批准 Plan、**未**调度 Developer。
@@ -96,7 +96,7 @@
 - 2026-07-25 **QA 轮次 3 Pass**：有门控 148/0/5；package SUCCESS；CLI PG fixtures + select1 exit 0；DEF-PG-001/002 **closed**。`qa-report.md`/`review.md` **未** commit（待合并授权后与 STATUS/`done` 一次提交）。状态保持 **`qa`**。请求用户合并授权：源 `ggtest-pg` → 目标 `main`。**未**越过合并门禁。
 - 2026-07-25 **合并授权前重新打开测试策略门禁**：当前 `ggtest-pg` 分支 HEAD=`e7e6249`；父会话描述的 `Main.run(..., envLookup, workingDirectory)` / CLI 测试临时目录隔离修复既未提交，也不在当前工作树。根目录运行时 `.env`（`GGTEST_ENGINE=postgres` + PG URL）污染 `MainOrchestrationTest`，实测 `mvn test` 为 148 run / **9 fail** / 15 skip；其中显式 SQLite URL被 `.env` engine 造成硬错配，`missingUrl` 被 `.env` URL 补足。登记 **DEF-PG-003**。门禁判定：仅隔离测试输入并保留 `GGTEST_PG_*` 门控属于既有 Spec/Design 内工程修复；若改变默认 `mvn test` 的引擎选择、自动读取运行时 `.env` 加跑 PG 或要求双引擎矩阵，则属于 Spec/Design 变更。状态 `qa` → **`blocked`**，等待用户选择；A 恢复至 `developing`，B 恢复至 `speccing`。产品 CLI 读取 CWD `.env` 的既定合同不变。`review.md`/`qa-report.md` 继续未提交；禁止提交真实 `.env` 与 `examples/`。
 - 2026-07-25 **用户拍板方案 A**：确认「隔离运行时 `.env`，保留 SQLite 必跑及 `GGTEST_PG_*` 门控 PG 测试」。DEF-PG-003 处置为 **A**（工程修复，**无** Spec/Design 变更）：产品 CLI 读 CWD `.env` **不改**；测试通过注入 `envLookup` + 临时 `workingDirectory`（或等价）隔离运行时 `.env` / 进程 `GGTEST_*`；SQLite 基线必跑；`GGTEST_PG_*` 门控时同时跑 PG 套件（既有行为保留）。状态 `blocked` → **`developing`**。源分支 `ggtest-pg`（HEAD `e7e6249`）→ 目标 `main`（已记录）。调度 **Developer** 按 TDD 实现隔离修复（参考未入树思路 `Main.run(..., envLookup, workingDirectory)`；更新 `MainOrchestrationTest` / `CorpusHardAcceptanceTest` / `PostgresCliIntegrationTest` / `EnvConfigIntegrationTest` 等），并更新 `dev-notes.md`。验收关键：根目录**存在**本地 `.env`（postgres）时 `mvn -q clean test` 全绿（无门控 PG skip；有 `GGTEST_PG_*` 则 PG 亦跑）。full 修复须再经 Reviewer `Approve` → QA 回归（含 DEF-PG-003 关闭证据）。运维：代理 `127.0.0.1:7890`，多次失败停止；禁止提交真实 `.env` / `examples/`；`review.md`/`qa-report.md` Pass 待授权前不单独 commit。
-- 2026-07-25 **Developer 完成 DEF-PG-003（方案 A）**：源分支 `ggtest-pg` 新增 commit **`b6ea61f`**（未 amend `e7e6249`）。`Main.java` 增可注入重载 `run(args,out,err,envLookup,workingDirectory)`；三参 `run`/`main` 仍用 `System::getenv` + 进程 CWD（产品合同不变）。隔离测试（`key -> null` + `@TempDir`）：`MainOrchestrationTest` / `EnvConfigIntegrationTest` / `CorpusHardAcceptanceTest` / `PostgresCliIntegrationTest`。验证（根目录**存在**本地 `.env`：postgres + PG URL）：无门控 `mvn -q clean test` **148/0/17 skip**；有 `GGTEST_PG_*`（PASSWORD 空）**148/0/5 skip**；`package` SUCCESS；`./bin/ggtest --url jdbc:sqlite::memory: select1` 1031/0 exit 0。提交边界核验：不含 `.env`/`.env.pg`/`examples/`/`workflow/docs/manager/*`/`review.md`/`qa-report.md`，`.env` 仍被 `.gitignore` 忽略。`dev-notes.md` 已回执。状态 `developing` → **`reviewing`**。调度 **Reviewer** 复审 `b6ea61f`（DEF-PG-003 修复实现/测试隔离/产品合同不变/安全）。**未**提交 `review.md`。
+- 2026-07-25 **Developer 完成 DEF-PG-003（方案 A）**：源分支 `ggtest-pg` 新增 commit **`b6ea61f`**（未 amend `e7e6249`）。`Main.java` 增可注入重载 `run(args,out,err,envLookup,workingDirectory)`；三参 `run`/`main` 仍用 `System::getenv` + 进程 CWD（产品合同不变）。隔离测试（`key -> null` + `@TempDir`）：`MainOrchestrationTest` / `EnvConfigIntegrationTest` / `CorpusHardAcceptanceTest` / `PostgresCliIntegrationTest`。验证（根目录**存在**本地 `.env`：postgres + PG URL）：无门控 `mvn -q clean test` **148/0/17 skip**；有 `GGTEST_PG_*`（PASSWORD 空）**148/0/5 skip**；`package` SUCCESS；`./bin/ggtest --url jdbc:sqlite::memory: select1` 1031/0 exit 0。提交边界核验：不含 `.env`/`.env.pg`/`examples/`/`workflow/workflow/docs/manager/*`/`review.md`/`qa-report.md`，`.env` 仍被 `.gitignore` 忽略。`dev-notes.md` 已回执。状态 `developing` → **`reviewing`**。调度 **Reviewer** 复审 `b6ea61f`（DEF-PG-003 修复实现/测试隔离/产品合同不变/安全）。**未**提交 `review.md`。
 - 2026-07-25 **Reviewer 复审 Approve（轮次 3 / DEF-PG-003）**：`b6ea61f`；无阻塞项。独立验证（根 `.env` postgres 在场）：门控关 `mvn -q clean test` **148/0/17**；门控开（`GGTEST_PG_URL`/`USER`，PASSWORD 空）**148/0/5**，PG CLI/executor/schema 实跑；`package` exit 0；产品 CLI `./bin/ggtest --url jdbc:sqlite::memory:` 在根 `.env` 下硬错配 exit 2（产品合同不变）。要点：`main`/三参 `run` 仍 `System::getenv`+CWD；四类测 `key->null`+`@TempDir`；SQLite 必跑、PG 门控未削弱；无凭据/`.env`/`examples/` 入库。`review.md` 已更新、**未** commit。状态 `reviewing` → **`qa`**。调度 **QA** 回归关闭 DEF-PG-003。
 - 2026-07-25 **QA 轮次 4 Pass（DEF-PG-003 closed）**：被测 `b6ea61f`。根目录本地 `.env`（postgres）在场：门控**关** `mvn -q clean test` **148/0/17**；门控**开**（localhost postgres，PASSWORD 空）**148/0/5**，PG executor/schema/cli 实跑；`mvn -q clean package` exit 0；CLI 合同（默认/sqlite、postgres fixtures、未知 engine、错配均 exit 2）无回归；产品读 CWD `.env` 未削弱（根 `.env`+`--url jdbc:sqlite::memory:` → exit 2）；SQLite 硬验收 select1 1031/0 exit 0；ENV P0/P1（临时目录/`--env-file`）通过。**DEF-PG-003 closed**。未验证：非空 `GGTEST_PG_PASSWORD`（本机空密码，P1 由 ENV 临时密码不回显覆盖）；未回退 `e7e6249` 复现。`qa-report.md`/`review.md` 仍 **未 commit**（`??`），暂存区空，无 `.env`/`.env.pg`/`examples/` staged，用户根 `.env` 未改写/删除。状态保持 **`qa`**。**请求用户合并授权**：源 `ggtest-pg`（HEAD `b6ea61f`）→ 目标 `main`。授权后：在源分支置 `done` 并与 STATUS/工作项记录 + 未入库 `review.md`/`qa-report.md` **一次提交**，随后合入 `main`。**未**越过合并门禁。
 - 2026-07-25 **用户合并授权（ok）**：确认「授权合并 `ggtest-pg`（HEAD `b6ea61f`）→ `main`：先在源分支置 done 并一次提交 STATUS/工作项记录/`review.md`/`qa-report.md`，再合入 main」。前置核验：Plan `approved`；Reviewer Approve（轮次 3，`b6ea61f`）；QA 轮次 4 **Pass**（DEF-PG-001/002/003 **closed**）；源 `ggtest-pg` → 目标 `main`。状态 `qa` → **`done`**。在源分支**一次提交**纳入 STATUS/`done`、工作项记录、`review.md`、`qa-report.md`（禁止 `.env`/`.env.pg`/`examples/`）。随后调度 **Merge Executor**（QA 兼任）ff-only 合入 `main` 并 push；合入后不得再为 STATUS/报告单独提交。父项**不归档**（用户未要求）。

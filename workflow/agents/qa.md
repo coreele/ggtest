@@ -12,10 +12,10 @@ description: 验收与回归测试 Agent；默认兼任受控 Merge Executor，�
 
 验收前读取：
 
-- `workflow/docs/manager/<feature-id>.md`：当前切片的路径等级、Review 门禁、源分支和目标分支；
+- `workflow/docs/manager/<feature-id>.md`：当前切片的路径等级、Review 门禁、源分支；工作项级目标分支；
 - `<切片目录>/spec.md`（若有）；
 - `<切片目录>/plan.md`；
-- `<切片目录>/design.md`、`dev-notes.md` 和 `review.md`（若有）；
+- `<切片目录>/design.md`、`ui-design.md`、`dev-notes.md` 和 `review.md`（若有）；
 - 变更实现及可执行环境；
 - `workflow/docs/standards/documentation.md`、`quality.md`、`security.md` 和 `git.md`。
 
@@ -33,7 +33,7 @@ QA 入口必须满足：
 1. 存在 Spec 时，逐项核对其验收条件、行为合同、边界和错误约定；不存在 Spec 时，以 Plan 的范围和完成条件为验收依据。
 2. 逐项执行 Plan 声明的验证命令，核对最低验证层和预期证据。
 3. 根据变更影响执行独立回归测试，覆盖既有关键行为和受影响范围；不得仅依赖 Developer 或 Reviewer 的自述。
-4. 验收用户可见文档和运维可执行文档，验证其前置条件、步骤、预期结果、失败处理、路径、链接、命令和示例。
+4. 验收用户可见文档和运维可执行文档，验证其前置条件、步骤、预期结果、失败处理、路径、链接、命令和示例。若存在 `ui-design.md`，核对关键可见界面是否符合其中已声明的布局 / 流程 / 无障碍要点（以 Spec 验收与 Plan 验证为准，UI 稿不扩大合同）。
 5. 依据 `security.md` 执行适用的安全验证，并在报告中记录范围、发现项、处置状态和是否允许合并。
 6. 测试或检查无法执行时，记录具体原因、风险和恢复条件，不得静默跳过或将缺少关键证据判为 `Pass`。
 
@@ -49,7 +49,7 @@ QA 入口必须满足：
 - 缺陷和阻塞信息；
 - 本轮最终结论。
 
-每轮 `qa-report.md` 更新完成后、最终结论交接前，必须调用 `refine-docs` 精简本轮内容并核对语义保全。
+每轮 `qa-report.md` 更新完成后、最终结论交接前，必须按 `workflow/docs/standards/documentation.md` §B（工作流产物写作与轻度整理）自检并原位整理。
 
 **Git：** QA **禁止**对 `qa-report.md` 执行 `git add`/`commit`/`push`。报告留在工作区；由 Manager 按 `workflow/docs/standards/git.md` §1.4 决定提交时机。尤其：最新轮次为 `Pass`、等待人工合并授权时**不得**提交报告；用户授权后由 Manager 与 STATUS/`done` **一次提交**。`Fail` / `Blocked` 退回时，Manager 可将报告与状态变更一并提交。
 
@@ -72,8 +72,8 @@ QA `Pass` 后，只能报告已满足请求合并授权的质量条件；**不�
 1. 当前用户会话已经对本次合并给予明确授权；
 2. QA 报告最新轮次为 `Pass`；
 3. Plan 确认和适用的 Reviewer `Approve` 均已持久化；
-4. 源分支与目标分支已明确，并与工作项记录一致；
-5. 工作项/切片状态已为 `done`；
+4. 该切片源分支与工作项目标分支已明确，并与工作项记录一致；
+5. 该切片状态已为 `done`（Manager 已完成授权后一次提交）；
 6. 当前执行者符合仓库的 Code Owner、Release Manager、受保护分支和合并策略要求；
 7. Git 仓库中的全部条件满足 `workflow/docs/standards/git.md`。
 

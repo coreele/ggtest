@@ -12,7 +12,7 @@
 - 环境：Linux；OpenJDK 17.0.19；Maven 3.6.3
 - QA 入口：Plan **approved**；Review **Approve**（轮次 2；门禁 required）；路径 standard；状态 `qa`
 - 本项实现：`ReportWriter.java`、`FileRunner.java`；`ReportWriterTest` / `FileRunnerTest` / `CliReportAcceptanceTest`；`fixtures/cli/multi-fail.test`；`README.md` / `README.zh-CN.md`；本目录文档
-- 不计入本项 / 勿入库：`workflow/docs/manager/*`、未跟踪 `sqllogictest/`；**`pom.xml` ≡ `main`（本项无 diff）**
+- 不计入本项 / 勿入库：`workflow/workflow/docs/manager/*`、未跟踪 `sqllogictest/`；**`pom.xml` ≡ `main`（本项无 diff）**
 
 | 命令 | 结果 |
 |---|---|
@@ -60,5 +60,5 @@ Spec approved P0/P1 + Plan L3。合同：无缩进 `at`；N≥2 块间一空行�
 - 总体: **Pass**
 - 恢复条件: N/A
 - 合并: 待用户授权（本轮 **未** commit / push / merge；`qa-report.md` 留工作区；**停 merge-auth**）
-- 残余风险:（1）字面 clean 依赖基线 toolchain（§6）；（2）`workflow/docs/manager/*` 由 Manager 择机入库；（3）`sqllogictest/` 勿入库；（4）P1-1 残差不阻塞
+- 残余风险:（1）字面 clean 依赖基线 toolchain（§6）；（2）`workflow/workflow/docs/manager/*` 由 Manager 择机入库；（3）`sqllogictest/` 勿入库；（4）P1-1 残差不阻塞
 - 建议下一步: **merge-auth**（Manager 停授权；QA 不执行合并）；授权后 Manager 置 `done` 并与未入库报告/实现一次提交，再合入 `main`

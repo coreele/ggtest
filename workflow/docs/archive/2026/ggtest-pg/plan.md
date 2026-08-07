@@ -13,8 +13,8 @@
 ## 元信息
 
 - 工作项标识: ggtest-pg（sub-feature-id: ggtest-pg，未拆分）
-- 依据 Spec: [workflow/docs/features/ggtest-pg/spec.md](./spec.md)
-- 依据 Design: [workflow/docs/features/ggtest-pg/design.md](./design.md)
+- 依据 Spec: [workflow/workflow/docs/features/ggtest-pg/spec.md](./spec.md)
+- 依据 Design: [workflow/workflow/docs/features/ggtest-pg/design.md](./design.md)
 - 路径等级: full
 - Review 门禁: **required**（进入 QA 前须 Reviewer `Approve`）
 - 最低验证层: **L3**（单元 + 构建 + CLI/执行器集成；PG 门控；ENV 用临时目录；SQLite 硬验收回归必达，语料自备）
@@ -121,9 +121,9 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 | `src/test/resources/fixtures/` | PG/CLI 自造小文件 |
 | `.env.example` | 新增占位符模板（无真实凭据） |
 | `README.md` | CLI/PG/`.env`/门控说明 |
-| `workflow/docs/features/ggtest-pg/dev-notes.md` | Developer 实施后 |
+| `workflow/workflow/docs/features/ggtest-pg/dev-notes.md` | Developer 实施后 |
 
-**禁止**：改 Spec/本 Plan 外的 Design 决议；改 `workflow/docs/manager/*`；提交官方大语料、`examples/` 未跟踪文件、真实 `.env`；无关重构；日志/报告/toString 输出凭据。
+**禁止**：改 Spec/本 Plan 外的 Design 决议；改 `workflow/workflow/docs/manager/*`；提交官方大语料、`examples/` 未跟踪文件、真实 `.env`；无关重构；日志/报告/toString 输出凭据。
 
 ## 验证
 
@@ -183,7 +183,7 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 
 | 类别 | 更新路径或 N/A 理由 |
 |---|---|
-| 开发文档 | `README.md`；`workflow/docs/features/ggtest-pg/dev-notes.md`；相关 Javadoc；`.env.example` |
+| 开发文档 | `README.md`；`workflow/workflow/docs/features/ggtest-pg/dev-notes.md`；相关 Javadoc；`.env.example` |
 | 用户文档 | `README.md`：`--engine postgres`、URL/凭据、schema 隔离与权限、`.env`/`--env-file`/优先级、运行时 `GGTEST_*` vs 门控 `GGTEST_PG_*`；官方语料 PG 零失败非硬验收 |
 | 运维文档 | N/A——无独立部署拓扑；门控/权限/代理约定在 README 与 `dev-notes` 覆盖即可 |
 

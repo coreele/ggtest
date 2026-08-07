@@ -5,12 +5,12 @@
 路径等级: full
 源分支: ggtest-rowwise-expected
 目标分支: main
-文档影响: workflow/docs/archive/2026/ggtest-rowwise-expected/{spec,design,plan,dev-notes,review,qa-report}.md；README；fixtures 于 `src/test/resources/fixtures/`
+文档影响: workflow/workflow/docs/archive/2026/ggtest-rowwise-expected/{spec,design,plan,dev-notes,review,qa-report}.md；README；fixtures 于 `src/test/resources/fixtures/`
 
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
 >
-> 文档路径：已归档至 `workflow/docs/archive/2026/ggtest-rowwise-expected/`。
+> 文档路径：已归档至 `workflow/workflow/docs/archive/2026/ggtest-rowwise-expected/`。
 
 ## 切片（未拆分时仅一行，sub-feature-id = feature-id）
 
@@ -39,4 +39,4 @@
 
 - 2026-07-25…26：登记→实现→多轮合入前合同修订（含废止 R3）→ Review Approve → QA Pass 轮次3。
 - 2026-07-26：用户回复「ok」授权合入 main；Manager 置 `done` 并与 review/qa 一次提交。
-- 2026-07-26：fast-forward 合入 `main`（`95173b0`→`944e719`）；归档至 `workflow/docs/archive/2026/ggtest-rowwise-expected/`；用户授权 push `main`。
+- 2026-07-26：fast-forward 合入 `main`（`95173b0`→`944e719`）；归档至 `workflow/workflow/docs/archive/2026/ggtest-rowwise-expected/`；用户授权 push `main`。

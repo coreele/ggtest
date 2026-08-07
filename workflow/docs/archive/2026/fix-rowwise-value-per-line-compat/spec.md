@@ -4,7 +4,7 @@
 >
 > **feature-id**：`fix-rowwise-value-per-line-compat` · **sub-feature-id**：`fix-rowwise-value-per-line-compat`（未拆分）
 > **适用对象**：Planner、Developer、QA、Manager
-> **前置条件**：工作项 [`workflow/docs/manager/fix-rowwise-value-per-line-compat.md`](../../manager/fix-rowwise-value-per-line-compat.md)；只读参考归档 [`workflow/docs/archive/2026/ggtest-rowwise-expected/spec.md`](../../archive/2026/ggtest-rowwise-expected/spec.md)（本 Spec **有意取代**其合同）。
+> **前置条件**：工作项 [`workflow/workflow/docs/manager/fix-rowwise-value-per-line-compat.md`](../../manager/fix-rowwise-value-per-line-compat.md)；只读参考归档 [`workflow/workflow/docs/archive/2026/ggtest-rowwise-expected/spec.md`](../../archive/2026/ggtest-rowwise-expected/spec.md)（本 Spec **有意取代**其合同）。
 > **阅读顺序**：背景与目标 → 非目标 → 范围与可见行为 → 合同 → 验收 → 已决议 / 开放问题。
 > **预期结果**：纯 `----` 永远每值一行；行式仅经 query 头 `separator <delim>`；移除行式推断与 `---- separator` 期望头；select4 位点通过。
 > **失败处理**：偏离本 Spec 时修回；不得再引入空格猜行式或 `mixed expected line shapes`。

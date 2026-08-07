@@ -23,7 +23,7 @@
 | A4 | parser 默认列分隔符仍为 U+0020 | Pass | `SqlLogicTestParser` 引用 `SqlLogicDefaults.DEFAULT_COLUMN_SEPARATOR`；`SqlLogicDefaultsTest.defaultColumnSeparatorIsSpace` |
 | A5 | `SqlLogicTestParser` 无 `normalize` import | Pass | 源码无 `import com.ggtest.normalize` |
 | A6 | `mvn -q clean test` 退出码 0 | Pass | QA 独立执行；`EXIT_CODE=0`；全量 Pass |
-| A7 | CA-004/CA-005 为 `resolved` | Pass | `workflow/docs/standards/code-audit-register.md` L24–25 |
+| A7 | CA-004/CA-005 为 `resolved` | Pass | `workflow/workflow/docs/standards/code-audit-register.md` L24–25 |
 
 ## 回归
 

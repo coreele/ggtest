@@ -12,7 +12,7 @@
 
 ### 变更路径
 
-`pom.xml`；`src/main/java/com/ggtest/db/postgres/`；`src/main/java/com/ggtest/cli/`；对应测试与 `fixtures/pg/`；`.env.example`；`README.md`；`workflow/docs/features/ggtest-pg/`（含本文件）。
+`pom.xml`；`src/main/java/com/ggtest/db/postgres/`；`src/main/java/com/ggtest/cli/`；对应测试与 `fixtures/pg/`；`.env.example`；`README.md`；`workflow/workflow/docs/features/ggtest-pg/`（含本文件）。
 
 ### 首轮交付验证（无 PG 门控）
 

@@ -1,20 +1,17 @@
-# Review: <feature-id>
+# Review: <feature-id>[ / <sub-feature-id>]
 
 ## 审阅范围
 
+- 实现版本 / 提交:
+- 依据: plan.md；spec.md / design.md（若有）
+
+## 实现正确性
+
 -
 
-## 结论
+## 测试有效性
 
-Approve | Request changes | Comment
-
-## 必修项
-
-| ID | 位置 | 问题 | 状态 |
-|---|---|---|---|
-| | | | |
-
-> `Comment` 不得包含阻塞项；阻塞问题须使用 `Request changes`。
+-
 
 ## 文档影响核对
 
@@ -26,9 +23,25 @@ Approve | Request changes | Comment
 
 ## 安全影响核对
 
-| 检查项 | 结果 | 备注 |
-|---|---|---|
-| 敏感信息 | | |
-| 认证与授权 | | |
-| 输入与外部访问 | | |
-| 依赖变更 | | |
+| 检查项 | 结果 | 处置状态 | 备注 |
+|---|---|---|---|
+| 敏感信息 | | | |
+| 认证与授权 | | | |
+| 输入与外部访问 | | | |
+| 依赖变更 | | | |
+
+## 必修项
+
+| ID | 位置 | 问题 | 状态 |
+|---|---|---|---|
+| | | | |
+
+> `Comment` 不得包含阻塞项；阻塞问题须使用 `Request changes`。
+
+## 结论
+
+Approve | Request changes | Comment
+
+## 后续动作与复审范围
+
+-

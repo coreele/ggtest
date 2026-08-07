@@ -80,8 +80,8 @@ T0 → T1 → T2 → T3 → T4
 | `src/main/java/com/ggtest/db/AbstractJdbcExecutor.java` | **新增** |
 | `src/main/java/com/ggtest/db/sqlite/SqliteJdbcExecutor.java` | 改：继承共享抽象，删重复 |
 | `src/main/java/com/ggtest/db/postgres/PostgresJdbcExecutor.java` | 改：继承共享抽象，删重复 |
-| `workflow/docs/features/fix-jdbc-executor-dedup/dev-notes.md` | **新增**：Developer 验证记录 |
-| `workflow/docs/standards/code-audit-register.md` | 可选：CA-001 → `resolved`（QA Pass 后） |
+| `workflow/workflow/docs/features/fix-jdbc-executor-dedup/dev-notes.md` | **新增**：Developer 验证记录 |
+| `workflow/workflow/docs/standards/code-audit-register.md` | 可选：CA-001 → `resolved`（QA Pass 后） |
 
 **不触碰**：`DatabaseExecutor.java`、`CliSession.java`、parser/runner/normalize、用户 README（无行为变更）。
 
@@ -117,7 +117,7 @@ T0 → T1 → T2 → T3 → T4
 
 | 类别 | 更新路径或 N/A 理由 |
 |---|---|
-| 开发文档 | `workflow/docs/features/fix-jdbc-executor-dedup/dev-notes.md`（验证命令与结果）；共享类 Javadoc 简述职责 |
+| 开发文档 | `workflow/workflow/docs/features/fix-jdbc-executor-dedup/dev-notes.md`（验证命令与结果）；共享类 Javadoc 简述职责 |
 | 用户文档 | N/A（无 CLI/Runner 对外行为或用法变更） |
 | 运维文档 | N/A（无部署/配置变更） |
 

@@ -2,26 +2,32 @@
 
 工作项标识: <feature-id>
 描述:
-路径等级: fast | standard | full
-源分支:
-目标分支:
+目标分支: main
 文档影响:
 
-> 权威工作流、门禁与状态说明见 [workflow/README.md](../../README.md)。
-> 活跃状态见 [STATUS.md](STATUS.md)。
+> 权威流程见 [workflow/README.md](../../README.md)；活跃状态见 [STATUS.md](STATUS.md)。
 >
-> 文档路径：未拆分时 Spec 为 `workflow/docs/features/<feature-id>/spec.md`（无子目录）；已拆分时根目录仅总览 Spec，各切片为 `workflow/docs/features/<feature-id>/<feature-id>-<sub>/spec.md`。
-> 归档后本文件迁至 `workflow/docs/archive/YYYY/<feature-id>/manager.md`，相对链接须同步修正；`workflow/docs/manager/` 仅保留活跃工作项记录与 `STATUS.md`。
+> **切片级：** 路径等级、源分支、门禁、状态、阻塞。**工作项级：** 目标分支。
+> 未拆分：产物在 `workflow/docs/features/<feature-id>/`。已拆分：根目录仅总览 Spec；切片在 `<feature-id>-<sub>/`。
+> 归档后本文件迁至 `workflow/docs/archive/YYYY/<feature-id>/manager.md`（须修正相对链接）；`workflow/docs/manager/` 仅保留活跃项与 STATUS。
+>
+> 表内只填枚举、短标签或链接；较长理由写入「进度笔记」（见 `workflow/docs/standards/documentation.md` §B）。
 
-## 切片（未拆分时仅一行，sub-feature-id = feature-id）
+## 切片门禁（未拆分时一行，sub-feature-id = feature-id）
 
-| sub-feature-id | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 | 状态 | 后续步骤 |
+| sub-feature-id | 路径等级 | 源分支 | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 |
 |---|---|---|---|---|---|---|---|
-| <feature-id> | [spec.md](../features/<feature-id>/spec.md) | required \| skipped | required \| not-required \| approved \| rejected | required \| skipped | required \| skipped | backlog | |
+| <feature-id> | fast \| standard \| full | <feature-id> | [spec.md](./../features/%3Cfeature-id%3E/spec.md) | required \| skipped | required \| not-required \| approved \| rejected | required \| skipped | required \| skipped |
 
-阻塞原因:
-恢复条件:
-恢复后的目标状态:
+> 总览行：路径等级与门禁、源分支均可 `N/A`。`Review=skipped` 仅 `fast`；理由写进度笔记。
+
+## 切片状态
+
+| sub-feature-id | 状态 | 后续步骤 | 阻塞原因 | 恢复条件 | 恢复后目标 |
+|---|---|---|---|---|---|
+| <feature-id> | backlog | | | | |
+
+> 无阻塞则后三列留空。长说明优先进度笔记。
 
 ## 进度笔记
 

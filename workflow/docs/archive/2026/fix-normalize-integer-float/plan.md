@@ -38,7 +38,7 @@
 ### T0 — 分支
 
 - 做：从 `main` 创建或检出 `fix-normalize-integer-float`。
-- 完成条件：当前为源分支；未改 `workflow/docs/manager/*` / `STATUS.md`。
+- 完成条件：当前为源分支；未改 `workflow/workflow/docs/manager/*` / `STATUS.md`。
 
 ### T1 — Red：浮点样 I 单测（先于改实现）
 
@@ -85,8 +85,8 @@ T0 → T1（red）→ T2（green）→ T3 → T4 → Review → QA。禁止 T2 �
 | T1 | `src/test/java/com/ggtest/normalize/ValueNormalizerTest.java` |
 | T2 | `src/main/java/com/ggtest/normalize/ValueNormalizer.java` |
 | T3 | 命令 + notes；语料只读 `sqllogictest/test/evidence/slt_lang_aggfunc.test` |
-| T4 | `workflow/docs/features/fix-normalize-integer-float/dev-notes.md` |
-| 禁止 | Spec/Design；`workflow/docs/manager/*`；`STATUS.md`；WI-2/WI-3 实现；`pom.xml` 无关改动；`sqllogictest/` 入库；本轮 commit（除非用户授权） |
+| T4 | `workflow/workflow/docs/features/fix-normalize-integer-float/dev-notes.md` |
+| 禁止 | Spec/Design；`workflow/workflow/docs/manager/*`；`STATUS.md`；WI-2/WI-3 实现；`pom.xml` 无关改动；`sqllogictest/` 入库；本轮 commit（除非用户授权） |
 
 ## 验收
 

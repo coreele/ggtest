@@ -50,7 +50,7 @@ description: >-
 
 1. 确认 `<feature-id>`、`<sub-feature-id>` 与 Spec 门禁。
 2. 完成调研，编写对应 Spec 文件，并依据必含内容自检。
-3. Git 仓库中的提交操作必须遵循 `workflow/docs/standards/git.md`；非 Git 工作区跳过提交操作。
-4. 向 Manager 报告产出路径、验证结果和用户确认要求。状态建议为 `speccing`；需要确认时建议进入 `awaiting-spec-approval`。
+3. Git：若该切片源分支已声明，按 `workflow/docs/standards/git.md` 在源分支提交；尚未声明则可将文件留在工作区并报告 Manager。非 Git 跳过提交。
+4. 向 Manager 报告产出路径、验证结果和用户确认要求后**立即返回**（不得阻塞等待确认）。状态建议为 `speccing`；需要确认时建议进入 `awaiting-spec-approval`。
 
-Manager 随后调度 Planner。Design 门禁为 `required` 时，Planner 可以调用 `design-architecture`；否则 Planner 直接进入 Plan 阶段。Manager 不得执行 `design-architecture`。
+Manager 随后调度 Planner。Design 门禁为 `required` 时调用 `design-architecture`；范围含界面且需 UI/UX 决策时调用 `design-ui`；否则可直接进入 Plan。Manager 不得执行上述 Design skill。

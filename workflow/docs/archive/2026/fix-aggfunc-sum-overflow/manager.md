@@ -10,7 +10,7 @@
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
 >
-> 本文件已归档为 `workflow/docs/archive/2026/fix-aggfunc-sum-overflow/manager.md`；`workflow/docs/manager/` 仅保留活跃工作项记录与 `STATUS.md`。未产出 features 文档。
+> 本文件已归档为 `workflow/workflow/docs/archive/2026/fix-aggfunc-sum-overflow/manager.md`；`workflow/workflow/docs/manager/` 仅保留活跃工作项记录与 `STATUS.md`。未产出 features 文档。
 
 ## 切片（未拆分时仅一行，sub-feature-id = feature-id）
 
@@ -46,4 +46,4 @@ Review 门禁: required（standard；取消后不适用）
 
 - 2026-08-06：Manager 登记；状态保持 **`backlog`**；不调度 Analyst/Planner，直至恢复条件满足。
 - 2026-08-06：WI-1 `fix-normalize-integer-float` 已 `done` 并合入；本项仍 **`backlog`**（用户要求勿自动推进）。
-- 2026-08-06：用户确认 cancelled；状态 `backlog` → **`cancelled`**；空 `workflow/docs/features/fix-aggfunc-sum-overflow/` 与本工作项记录一并归档至 `workflow/docs/archive/2026/fix-aggfunc-sum-overflow/`；不改产品代码、不改 `slt_lang_aggfunc.test`；按用户指示不主动 commit。
+- 2026-08-06：用户确认 cancelled；状态 `backlog` → **`cancelled`**；空 `workflow/workflow/docs/features/fix-aggfunc-sum-overflow/` 与本工作项记录一并归档至 `workflow/workflow/docs/archive/2026/fix-aggfunc-sum-overflow/`；不改产品代码、不改 `slt_lang_aggfunc.test`；按用户指示不主动 commit。

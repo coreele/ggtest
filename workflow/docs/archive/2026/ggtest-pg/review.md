@@ -17,7 +17,7 @@
 | 项 | 内容 |
 |---|---|
 | 工作项 | `ggtest-pg`（未拆分；`full`；Review **required**） |
-| 依据 | [`spec.md`](./spec.md)、[`design.md`](./design.md)、[`plan.md`](./plan.md)、[`dev-notes.md`](./dev-notes.md)；`workflow/docs/manager/ggtest-pg.md`；`workflow/docs/standards/{documentation,quality,security,git}.md` |
+| 依据 | [`spec.md`](./spec.md)、[`design.md`](./design.md)、[`plan.md`](./plan.md)、[`dev-notes.md`](./dev-notes.md)；`workflow/workflow/docs/manager/ggtest-pg.md`；`workflow/workflow/docs/standards/{documentation,quality,security,git}.md` |
 | 实现版本 | 分支 `ggtest-pg`；commit **`be38ad5`**（相对 `main` `39caef8`）；目标 `main` |
 | 审阅内容 | T1–T7 实现/测试；README / `.env.example` / `dev-notes`；安全与 Git 禁止项；独立 `mvn clean test` / `package`、自备 SQLite `select1` |
 | 未纳入 | 不改业务代码；不进 QA；不合并；不 commit 本报告 |
@@ -129,7 +129,7 @@
 |---|---|
 | 工作项 | `ggtest-pg`（未拆分；`full`；Review **required**，须重新 Approve 才能进 QA） |
 | 实现版本 | 分支 `ggtest-pg`；commit **`e7e6249`**（相对 `be38ad5`） |
-| 依据 | [`qa-report.md`](./qa-report.md) 轮次 2（DEF-PG-001 / DEF-PG-002）；[`dev-notes.md`](./dev-notes.md) 修复回执；[`spec.md`](./spec.md)、[`plan.md`](./plan.md)；`workflow/docs/standards/{documentation,quality,security,git}.md` |
+| 依据 | [`qa-report.md`](./qa-report.md) 轮次 2（DEF-PG-001 / DEF-PG-002）；[`dev-notes.md`](./dev-notes.md) 修复回执；[`spec.md`](./spec.md)、[`plan.md`](./plan.md)；`workflow/workflow/docs/standards/{documentation,quality,security,git}.md` |
 | 差异 | `pom.xml`（shade `ServicesResourceTransformer`）；`src/test/resources/fixtures/pg/conditions.test`（+1 空行）；`ExecutableJarManifestTest`（SPI 断言）；`SqlLogicTestParserTest`（解析回归）；`dev-notes.md` |
 | 独立验证 | 有 PG 门控（localhost postgres）；命令与结果见「验证证据摘要」 |
 | 未纳入 | 不改业务代码/测试；不进 QA；不合并；不 commit 本报告 |
@@ -195,7 +195,7 @@
 | 工作分支 | `ggtest-pg`（未在 `main` 实施） |
 | 提交 `e7e6249` | 内容与缺陷范围一致；message 为 `fix(ggtest-pg): …` 并说明 DEF-PG-001/002 |
 | 禁止提交项 | 通过（无 `examples/`、无真实 `.env`、无构建产物） |
-| 工作区 | `workflow/docs/manager/*`、`review.md`、`qa-report.md`、`examples/` 未提交（符合 §1.4 与运维约定） |
+| 工作区 | `workflow/workflow/docs/manager/*`、`review.md`、`qa-report.md`、`examples/` 未提交（符合 §1.4 与运维约定） |
 
 ### 必修项
 
@@ -247,7 +247,7 @@
 |---|---|
 | 工作项 | `ggtest-pg`（未拆分；`full`；Review **required**） |
 | 实现版本 | 分支 `ggtest-pg`；commit **`b6ea61f`**（基于 `e7e6249`；未 amend） |
-| 依据 | `workflow/docs/manager/ggtest-pg.md`（DEF-PG-003 / 方案 A）；[`qa-report.md`](./qa-report.md)；[`dev-notes.md`](./dev-notes.md)；既有 Spec/Design/Plan（**无**合同变更）；`workflow/docs/standards/{documentation,quality,security,git}.md` |
+| 依据 | `workflow/workflow/docs/manager/ggtest-pg.md`（DEF-PG-003 / 方案 A）；[`qa-report.md`](./qa-report.md)；[`dev-notes.md`](./dev-notes.md)；既有 Spec/Design/Plan（**无**合同变更）；`workflow/workflow/docs/standards/{documentation,quality,security,git}.md` |
 | 差异 | `git show b6ea61f`：`Main.java`；`MainOrchestrationTest` / `EnvConfigIntegrationTest` / `CorpusHardAcceptanceTest` / `PostgresCliIntegrationTest`；`dev-notes.md` |
 | 焦点 | 方案 A 是否修复 DEF-PG-003；产品读 CWD `.env` 不变；SQLite 必跑；`GGTEST_PG_*` 门控保留；安全/提交边界 |
 | 未纳入 | 不重审 `be38ad5`/`e7e6249` 全量；不改代码；不进 QA；不合并；不 commit 本报告 |

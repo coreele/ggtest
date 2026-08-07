@@ -12,7 +12,7 @@
 - 环境：Linux；OpenJDK 17.0.19；Maven 3.6.3
 - QA 入口：Plan **approved**；Review **Approve**（门禁 required）；路径 fast；状态 `qa`
 - 实现：`ValueNormalizer.java`、`ValueNormalizerTest.java`、本目录文档
-- 不计入本项交付：工作区脏 `pom.xml`、`workflow/docs/manager/*`、未跟踪 `sqllogictest/`
+- 不计入本项交付：工作区脏 `pom.xml`、`workflow/workflow/docs/manager/*`、未跟踪 `sqllogictest/`
 
 | 命令 | 结果 |
 |---|---|
@@ -59,5 +59,5 @@ Spec：N/A（skipped）。依据 Plan A1–A5 / L2；对齐归档 I：`%d` 向�
 - 总体: **Pass**
 - 恢复条件: N/A
 - 合并: 待用户授权（本轮 **未** commit / push / merge；`qa-report.md` 留工作区）
-- 残余风险:（1）合入排除无关 `pom.xml`；（2）`workflow/docs/manager/*` / 并列 WI 记录由 Manager 择机入库；（3）未跟踪 `sqllogictest/` 勿入库；（4）整文件 `failed≠0` 属 WI-2/WI-3，不阻塞本项
+- 残余风险:（1）合入排除无关 `pom.xml`；（2）`workflow/workflow/docs/manager/*` / 并列 WI 记录由 Manager 择机入库；（3）未跟踪 `sqllogictest/` 勿入库；（4）整文件 `failed≠0` 属 WI-2/WI-3，不阻塞本项
 - 建议下一步: **merge-auth**（Manager 停授权；QA 不请求合并执行）；授权后 Manager 置 `done` 并与未入库报告/实现一次提交，再合入 `main`

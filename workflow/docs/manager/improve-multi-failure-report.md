@@ -5,7 +5,7 @@
 路径等级: standard
 源分支: improve-multi-failure-report
 目标分支: main
-文档影响: `workflow/docs/features/improve-multi-failure-report/`（spec/plan 等）；可能增量修订归档 [`ggtest-cli-report`](../archive/2026/ggtest-cli-report/spec.md) 失败块呈现合同；必要时 README CLI 报告小节
+文档影响: `workflow/workflow/docs/features/improve-multi-failure-report/`（spec/plan 等）；可能增量修订归档 [`ggtest-cli-report`](../archive/2026/ggtest-cli-report/spec.md) 失败块呈现合同；必要时 README CLI 报告小节
 
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../README.md)。
 > 活跃状态见 [STATUS.md](STATUS.md)。
@@ -39,7 +39,7 @@
 
 ## Spec 确认
 
-- Spec 路径: [workflow/docs/features/improve-multi-failure-report/spec.md](../features/improve-multi-failure-report/spec.md)
+- Spec 路径: [workflow/workflow/docs/features/improve-multi-failure-report/spec.md](../features/improve-multi-failure-report/spec.md)
 - 确认结果: **approved**（2026-08-06）
 - 确认依据: 用户否决复杂 S1+S2+S3 推荐，贴出精确期望布局并列出冻结决策；Analyst 已按该样例重写 Spec；Manager 将此视为对该精确形态的 Spec 确认。
 
@@ -50,7 +50,7 @@
 
 ## Plan 确认
 
-- Plan 路径: [workflow/docs/features/improve-multi-failure-report/plan.md](../features/improve-multi-failure-report/plan.md)
+- Plan 路径: [workflow/workflow/docs/features/improve-multi-failure-report/plan.md](../features/improve-multi-failure-report/plan.md)
 - 确认结果: **approved**（2026-08-06）
 - 确认依据: 当前用户会话对 Plan 回复「ok」。
 
@@ -63,7 +63,7 @@
 - 2026-08-06：登记 → Analyst 初稿 Spec（复杂推荐）→ `awaiting-spec-approval`。
 - 2026-08-06：用户否决复杂方案并给出精确样例。Analyst 重写 Spec（refine-docs）。Spec **approved**；状态 → **`planning`**。
 - 2026-08-06：Planner 产出 [plan.md](../features/improve-multi-failure-report/plan.md)（T0–T4；L3；开放问题 none）。状态 → **`awaiting-plan-approval`**。
-- 2026-08-06：用户确认 Plan（「ok」）。Plan **approved**；状态 → **`planned`** → **`developing`**。调度 **Developer**：自 `main` 创建/检出 `improve-multi-failure-report`，按 Plan T0–T4 TDD 实施；写 `dev-notes.md`；更新 README 报告样例；**不要** commit/push/merge；禁止改 `workflow/docs/manager/*`、WI-2/WI-3、`pom.xml` 无关改动、入库 `sqllogictest/`。
+- 2026-08-06：用户确认 Plan（「ok」）。Plan **approved**；状态 → **`planned`** → **`developing`**。调度 **Developer**：自 `main` 创建/检出 `improve-multi-failure-report`，按 Plan T0–T4 TDD 实施；写 `dev-notes.md`；更新 README 报告样例；**不要** commit/push/merge；禁止改 `workflow/workflow/docs/manager/*`、WI-2/WI-3、`pom.xml` 无关改动、入库 `sqllogictest/`。
 - 2026-08-06：Developer 交接。T0–T4 **done**（分支 `improve-multi-failure-report`）。改动：`ReportWriter.java`、`FileRunner.java`、相关测 + `multi-fail.test`、README 中英、`dev-notes.md`。验证：定点 Failures=0；`mvn -q clean test` **233/0/0/18**；package SUCCESS。未 commit。§6：多段纯硬错误块间空行无独立 fixture（共享路径已覆盖）。状态 → **`reviewing`**。调度 **Reviewer**。
 - 2026-08-06：Reviewer **Request changes**（阻塞 **R1**：工作区 `pom.xml` 含无关 `maven-compiler-plugin`，Plan 禁止纳入本项）。报告 `review.md`（未提交）。状态 `reviewing` → **`developing`**。调度 **Developer**：在源分支将 `pom.xml` 还原为与 `main`/`HEAD` 干净版本一致（`git checkout -- pom.xml` 或等价）；更新 `dev-notes.md` 说明 R1；勿 commit；然后复审。
 - 2026-08-06：Developer 修 R1：`pom.xml` 已还原，工作区 diff 不再含该文件；定点测 exit 0；notes 已记。状态 → **`reviewing`**。调度 **Reviewer** 复审。

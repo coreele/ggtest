@@ -1,11 +1,11 @@
 # 工作项记录: refactor-cli-session-boundaries
 
 工作项标识: refactor-cli-session-boundaries
-描述: 审计 Tech Debt Medium — 拆分过大的 `CliSession`：抽出 `FileRunner` / `ReportWriter`（或等价边界），保持 `DatabaseExecutor` 隔离。来源：`workflow/docs/audit/2026-07-26-src.md`。
+描述: 审计 Tech Debt Medium — 拆分过大的 `CliSession`：抽出 `FileRunner` / `ReportWriter`（或等价边界），保持 `DatabaseExecutor` 隔离。来源：`workflow/workflow/docs/audit/2026-07-26-src.md`。
 路径等级: standard
 源分支: refactor-cli-session-boundaries
 目标分支: main
-文档影响: workflow/docs/features/refactor-cli-session-boundaries/design.md、plan.md；登记册 CA-003
+文档影响: workflow/workflow/docs/features/refactor-cli-session-boundaries/design.md、plan.md；登记册 CA-003
 
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
@@ -22,8 +22,8 @@
 
 ## Design / Plan 确认
 
-- Design：**approved**（2026-07-26，用户授权自行决断）；`workflow/docs/features/refactor-cli-session-boundaries/design.md`
-- Plan：**approved**（同上）；`workflow/docs/features/refactor-cli-session-boundaries/plan.md`
+- Design：**approved**（2026-07-26，用户授权自行决断）；`workflow/workflow/docs/features/refactor-cli-session-boundaries/design.md`
+- Plan：**approved**（同上）；`workflow/workflow/docs/features/refactor-cli-session-boundaries/plan.md`
 - 依赖：`fix-cli-credential-redaction` + `fix-pg-teardown-once` 均 QA Pass；Developer T0 本地 merge 两分支，勿等 main。
 
 ## Manager 决策（用户 2026-07-26 授权自行决断）

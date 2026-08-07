@@ -1,11 +1,11 @@
 # 工作项记录: fix-shared-defaults
 
 工作项标识: fix-shared-defaults
-描述: 审计 Finding Low §4 + Tech Debt Low — 收敛 `DEFAULT_HASH_THRESHOLD` 与 `DEFAULT_COLUMN_SEPARATOR` 为单一权威常量（normalize 导出，CLI/parser 引用）。来源：`workflow/docs/audit/2026-07-26-src.md`。
+描述: 审计 Finding Low §4 + Tech Debt Low — 收敛 `DEFAULT_HASH_THRESHOLD` 与 `DEFAULT_COLUMN_SEPARATOR` 为单一权威常量（normalize 导出，CLI/parser 引用）。来源：`workflow/workflow/docs/audit/2026-07-26-src.md`。
 路径等级: fast
 源分支: fix-shared-defaults
 目标分支: main
-文档影响: workflow/docs/features/fix-shared-defaults/；登记册 CA-004 / CA-005
+文档影响: workflow/workflow/docs/features/fix-shared-defaults/；登记册 CA-004 / CA-005
 
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../../README.md)。
 > 活跃状态见 [STATUS.md](../../manager/STATUS.md)。
@@ -22,7 +22,7 @@
 
 ## Plan 确认
 
-- **approved**（2026-07-26）：用户授权；依据 `workflow/docs/features/fix-shared-defaults/plan.md`
+- **approved**（2026-07-26）：用户授权；依据 `workflow/workflow/docs/features/fix-shared-defaults/plan.md`
 
 ## Manager 决策（用户 2026-07-26 授权自行决断）
 

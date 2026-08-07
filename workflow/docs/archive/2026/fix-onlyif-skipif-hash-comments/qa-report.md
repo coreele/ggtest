@@ -30,7 +30,7 @@ Spec：N/A（skipped）。依据 Plan A1–A5 / L2。
 | A2 | `skipif <engine> # …` 同上 | Pass | `skipif_trailingHashComment_parsesDbName` |
 | A3 | 无尾注释 `onlyif`/`skipif` 不回归 | Pass | `onlyifAndSkipif_withoutTrailingHash_stillParse` + 既有 `p1_a_*`；全量 227/0/0/18 |
 | A4 | `in1.test` 无该 parse error | Pass | CLI 无该字符串、无 `parse error`；`passed=1 failed=0` |
-| A5 | 范围仅本缺陷 | Pass | 意图变更限 parser + 对应测试 + 本目录文档；无关 `pom.xml` / `workflow/docs/manager/*` 不计入交付 |
+| A5 | 范围仅本缺陷 | Pass | 意图变更限 parser + 对应测试 + 本目录文档；无关 `pom.xml` / `workflow/workflow/docs/manager/*` 不计入交付 |
 | L2 | Plan 最低验证层 | Pass | 定点单测 + `mvn -q clean test` 绿；A4 CLI 必达满足 |
 
 文档：`dev-notes.md` Pass（red→green、验证表、A1–A5）；用户/运维文档 N/A。
@@ -50,5 +50,5 @@ Spec：N/A（skipped）。依据 Plan A1–A5 / L2。
 - 总体: **Pass**
 - 恢复条件: N/A
 - 合并: 待用户授权（本轮 **未** commit / push / merge；`qa-report.md` 留工作区）
-- 残余风险:（1）合入须排除无关 `pom.xml`；（2）`workflow/docs/manager/*` 由 Manager 择机入库；（3）`stripTrailingHashComment` 自首个 `#` 剥离——引擎名不含 `#` 与合同一致；含 `#` 引擎名未单测（范围外）。
+- 残余风险:（1）合入须排除无关 `pom.xml`；（2）`workflow/workflow/docs/manager/*` 由 Manager 择机入库；（3）`stripTrailingHashComment` 自首个 `#` 剥离——引擎名不含 `#` 与合同一致；含 `#` 引擎名未单测（范围外）。
 - 建议下一步: 向用户请求 **merge-auth**；授权后 Manager 置 `done` 并与报告一次提交；合入限 parser + 测试 + 本目录文档。

@@ -36,7 +36,7 @@ merge 后 `mvn -q clean test`：**BUILD SUCCESS**（Failures/Errors = 0）。
 | `src/test/java/com/ggtest/cli/ReportWriterTest.java` | **新建** |
 | `src/test/java/com/ggtest/cli/FileRunnerTest.java` | **新建** |
 | `src/test/java/com/ggtest/cli/CredentialRedactionTest.java` | sanitize 入口改为 `FileRunner` |
-| `workflow/docs/standards/code-audit-register.md` | CA-003 → `resolved` |
+| `workflow/workflow/docs/standards/code-audit-register.md` | CA-003 → `resolved` |
 
 **未触碰**：`com.ggtest.runner/**`、`com.ggtest.db/**`、`parser` / `normalize`。
 
@@ -55,7 +55,7 @@ merge 后 `mvn -q clean test`：**BUILD SUCCESS**（Failures/Errors = 0）。
 
 ## 登记册
 
-- **CA-003** → `resolved`（`workflow/docs/standards/code-audit-register.md`）。
+- **CA-003** → `resolved`（`workflow/workflow/docs/standards/code-audit-register.md`）。
 
 ## 未验证 / 风险
 

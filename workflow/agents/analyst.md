@@ -10,7 +10,7 @@ description: 需求分析 Agent。执行 write-spec，产出 workflow/docs/featu
 
 ## 输入
 
-- 工作项记录：`workflow/docs/manager/<feature-id>.md`（含路径等级、切片划分、各切片 Spec 门禁）
+- 工作项记录：`workflow/docs/manager/<feature-id>.md`（含切片划分；各切片的路径等级与 Spec 门禁）
 - 用户表述、仓库 README、相关源码与现有 docs
 
 ## 产出
@@ -31,7 +31,7 @@ description: 需求分析 Agent。执行 write-spec，产出 workflow/docs/featu
 - 仅对工作项记录中该 `(feature-id, sub-feature-id)` Spec 门禁为 required 的切片执行
 - 每份 Spec 必含：背景与目标、非目标、范围与可见行为、合同（API/数据/状态/错误，无可写 N/A）、验收（Given-When-Then，P0/P1）、开放问题
 - 每条 P0 必须可验证
-- full 的 Spec 与 standard 标注业务歧义的 Spec 必须提示当前用户会话向用户确认；已拆分时按切片分别确认
+- full 的 Spec 与 standard 标注业务歧义的 Spec 必须提示当前用户会话向用户确认后**立即返回**（不得阻塞等待）；已拆分时按切片分别确认
 
 ## 约束
 
@@ -42,6 +42,6 @@ description: 需求分析 Agent。执行 write-spec，产出 workflow/docs/featu
 
 ## 完成后
 
-每份 `spec.md` 初稿完成后、最终自检与交接前，必须调用 `refine-docs` 精简该文档并核对语义保全。
+每份 `spec.md` 初稿完成后、最终自检与交接前，必须按 `workflow/docs/standards/documentation.md` §B（工作流产物写作与轻度整理）自检并原位整理。
 
 提示 Manager：状态 `speccing`；需确认时 `awaiting-spec-approval`（已拆分时按切片报告各自状态）。后续步骤为 `planner`。

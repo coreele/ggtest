@@ -27,7 +27,7 @@
 | `src/main/java/com/ggtest/parser/SqlLogicTestParser.java` | 删除私有常量；引用 `SqlLogicDefaults` |
 | `src/test/java/com/ggtest/model/SqlLogicDefaultsTest.java` | **新增** — 默认常量与转发 |
 | `src/test/java/com/ggtest/cli/RuntimeConfigResolverTest.java` | 新增 `defaultHashThresholdIsEight` |
-| `workflow/docs/standards/code-audit-register.md` | **新增**（worktree）；CA-004/005 resolved |
+| `workflow/workflow/docs/standards/code-audit-register.md` | **新增**（worktree）；CA-004/005 resolved |
 
 ## TDD
 
@@ -45,7 +45,7 @@
 ## 文档影响
 
 - `dev-notes.md`（本文件）
-- `workflow/docs/standards/code-audit-register.md` — CA-004、CA-005 resolved
+- `workflow/workflow/docs/standards/code-audit-register.md` — CA-004、CA-005 resolved
 - README / 用户文档 — N/A（无用户可见变更）
 
 ## 未解决风险

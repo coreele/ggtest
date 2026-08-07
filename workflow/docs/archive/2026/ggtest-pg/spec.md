@@ -4,7 +4,7 @@
 >
 > **feature-id**：`ggtest-pg` · **sub-feature-id**：`ggtest-pg`（未拆分）
 > **适用对象**：用户（确认范围）、Planner（Design/Plan）、Developer、QA、Manager。
-> **前置条件**：工作项 [`workflow/docs/manager/ggtest-pg.md`](../../manager/ggtest-pg.md)；归档 [`workflow/docs/archive/2026/ggtest-core/`](../../archive/2026/ggtest-core/)（runner-sqlite / cli-corpus）；`com.ggtest.db.DatabaseExecutor` 与 CLI `--engine`；[`workflow/docs/standards/security.md`](../../standards/security.md)。
+> **前置条件**：工作项 [`workflow/workflow/docs/manager/ggtest-pg.md`](../../manager/ggtest-pg.md)；归档 [`workflow/workflow/docs/archive/2026/ggtest-core/`](../../archive/2026/ggtest-core/)（runner-sqlite / cli-corpus）；`com.ggtest.db.DatabaseExecutor` 与 CLI `--engine`；[`workflow/workflow/docs/standards/security.md`](../../standards/security.md)。
 > **阅读顺序**：背景与目标 → 非目标 → 范围与可见行为 → 合同 → 验收 → 开放问题。
 > **预期结果**：PG 第二引擎边界、CLI `.env` 合同、与 SQLite 并存约束及验收口径；PG 与 `.env` 均已决议。
 > **失败处理**：合同/验收歧义未决时不得进入 Design/Plan。

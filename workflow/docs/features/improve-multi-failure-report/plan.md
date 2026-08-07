@@ -3,7 +3,7 @@
 ## 元信息
 
 - 工作项标识: improve-multi-failure-report（未拆分，sub-feature-id = feature-id）
-- 依据 Spec: [workflow/docs/features/improve-multi-failure-report/spec.md](./spec.md)（Spec approved）
+- 依据 Spec: [workflow/workflow/docs/features/improve-multi-failure-report/spec.md](./spec.md)（Spec approved）
 - 依据 Design: N/A（Design 门禁 skipped）
 - 路径等级: standard
 - Review 门禁: required（进入 QA 前须 Reviewer `Approve`）
@@ -38,7 +38,7 @@
 ### T0 — 分支与基线
 
 - 做：确认源分支 `improve-multi-failure-report`（相对 `main`）；记录 `mvn -q test` 基线（含已知无关 skip）。
-- 不做：改产品代码；改 `workflow/docs/manager/*`；启动 WI-2/WI-3。
+- 不做：改产品代码；改 `workflow/workflow/docs/manager/*`；启动 WI-2/WI-3。
 - 完成条件：分支正确；基线可写入 `dev-notes.md`。
 
 ### T1 — Red：布局契约测试
@@ -75,7 +75,7 @@ mvn -q -DskipTests package
 
 1. `README.md` / `README.zh-CN.md`「报告」：单失败样例 `at` 无前导缩进；建议补与 Spec 同构的多失败（块间空行）示意。
 2. 本目录 `dev-notes.md`：实现摘要、验证表、P0/P1 对照、§6 缺口。
-3. 不做：改 `workflow/docs/manager/*` / `STATUS.md`；不改 Spec（实现无法满足则停并回 Analyst）。
+3. 不做：改 `workflow/workflow/docs/manager/*` / `STATUS.md`；不改 Spec（实现无法满足则停并回 Analyst）。
 
 - 完成条件：README 与冻结合同一致；notes 可供 Reviewer/QA 复现。
 
@@ -95,8 +95,8 @@ T0 → T1(Red) → T2(Green) → T3(Verify) → T4(notes/README)
 | T1 | `ReportWriterTest.java`；`FileRunnerTest.java` 和/或 `CliReportAcceptanceTest.java`；`fixtures/cli/multi-fail.test`（名可微调）；必要时 `MainOrchestrationTest.java` |
 | T2 | `ReportWriter.java`（`detailLines` 的 `at`）；`FileRunner.java`（`runWithExecutor` 块间空行） |
 | T3 | 无新路径 |
-| T4 | `README.md`；`README.zh-CN.md`；`workflow/docs/features/improve-multi-failure-report/dev-notes.md` |
-| 禁止 | WI-2/WI-3；无关 `pom.xml`；`sqllogictest/` 入库；`workflow/docs/manager/*`；`design.md` |
+| T4 | `README.md`；`README.zh-CN.md`；`workflow/workflow/docs/features/improve-multi-failure-report/dev-notes.md` |
+| 禁止 | WI-2/WI-3；无关 `pom.xml`；`sqllogictest/` 入库；`workflow/workflow/docs/manager/*`；`design.md` |
 
 ## 验收
 

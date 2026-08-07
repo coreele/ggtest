@@ -4,7 +4,7 @@
 >
 > **feature-id**：`feat-cli-halt` · **sub-feature-id**：`feat-cli-halt`（未拆分）
 > **适用对象**：Planner、Developer、Reviewer、QA、Manager。
-> **前置条件**：工作项 [`workflow/docs/manager/feat-cli-halt.md`](../../manager/feat-cli-halt.md)；官方 `sqllogictest/src/sqllogictest.c`（`haltOnError`、`--halt`）；报告/退出码基线 [`workflow/docs/archive/2026/ggtest-cli-report/spec.md`](../../archive/2026/ggtest-cli-report/spec.md)、README Exit codes。
+> **前置条件**：工作项 [`workflow/workflow/docs/manager/feat-cli-halt.md`](../../manager/feat-cli-halt.md)；官方 `sqllogictest/src/sqllogictest.c`（`haltOnError`、`--halt`）；报告/退出码基线 [`workflow/workflow/docs/archive/2026/ggtest-cli-report/spec.md`](../../archive/2026/ggtest-cli-report/spec.md)、README Exit codes。
 > **阅读顺序**：背景与目标 → 非目标 → 范围与可见行为 → 合同 → 验收 → 开放问题。
 > **预期结果**：`--halt` 首错停跑合同已冻结；可进入 Plan（Design skipped）。
 > **失败处理**：偏离本 Spec 须先修订 Spec；不得静默改变未启用 `--halt` 时的继续执行语义或退出码 `0`/`1`/`2` 含义。

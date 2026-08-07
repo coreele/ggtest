@@ -10,7 +10,7 @@
 > 权威工作流、门禁与状态说明见 [workflow/README.md](../../README.md)。
 > 活跃状态见 [STATUS.md](STATUS.md)。
 >
-> 归档后本文件迁至 `workflow/docs/archive/YYYY/improve-failure-output-format/manager.md`。
+> 归档后本文件迁至 `workflow/workflow/docs/archive/YYYY/improve-failure-output-format/manager.md`。
 
 ## 切片（未拆分，sub-feature-id = feature-id）
 

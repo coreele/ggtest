@@ -5,7 +5,7 @@
 | 项 | 内容 |
 |---|---|
 | 工作项 | `fix-rowwise-value-per-line-compat`（未拆分；`standard`；Review **required**） |
-| 依据 | [`spec.md`](./spec.md)（OQ-1 = 移除）、[`plan.md`](./plan.md)、[`dev-notes.md`](./dev-notes.md)；`workflow/docs/manager/fix-rowwise-value-per-line-compat.md`；`workflow/docs/standards/{documentation,quality,security,git}.md` |
+| 依据 | [`spec.md`](./spec.md)（OQ-1 = 移除）、[`plan.md`](./plan.md)、[`dev-notes.md`](./dev-notes.md)；`workflow/workflow/docs/manager/fix-rowwise-value-per-line-compat.md`；`workflow/workflow/docs/standards/{documentation,quality,security,git}.md` |
 | 实现版本 | 分支 `fix-rowwise-value-per-line-compat`；commit **`8a0c236`**（相对 `main` 唯一实现提交）；目标 `main` |
 | 审阅内容 | parser / model / normalize / runner 合同变更；T1–T7 全部任务；fixtures 迁移；README 中英；Plan 验收 A1–A14；安全与 Git 合规 |
 | 未纳入 | 不改业务代码/测试；不作 QA 结论；不合并；不提交本报告 |
@@ -33,7 +33,7 @@
 | A12 / P1-4 | 声明仅本条 `QueryRecord`，不继承 | 无文件级状态；`p1_4_nextQueryExactDashes_doesNotInheritSeparator` + `rowwise-mixed.test` | 通过 |
 | A13 / P1-5 | 失败呈值行粒度 Diff | `buildDiffSummary` 未改；`p0_8_rowWiseRowsortPassesNosortFailsWithDiff` 断言 `-   ` / `+   ` 前缀 | 通过 |
 
-行为保全核对：每值一行路径返回物理行不经 sort/flatten，与旧实现的非行式路径一致（旧代码 `rowWiseCount == 0` 时同样直接返回），与 Plan T4 一致，无回归。`ResultSorter` / `ResultHasher` / `ValueNormalizer` / CLI 未触碰，符合 Plan「不改」清单。越界检查：diff 仅含 Plan 触碰路径 + 本切片文档；未改 `workflow/docs/manager/*`、`STATUS.md`、归档。
+行为保全核对：每值一行路径返回物理行不经 sort/flatten，与旧实现的非行式路径一致（旧代码 `rowWiseCount == 0` 时同样直接返回），与 Plan T4 一致，无回归。`ResultSorter` / `ResultHasher` / `ValueNormalizer` / CLI 未触碰，符合 Plan「不改」清单。越界检查：diff 仅含 Plan 触碰路径 + 本切片文档；未改 `workflow/workflow/docs/manager/*`、`STATUS.md`、归档。
 
 ## 测试有效性
 
@@ -69,7 +69,7 @@
 |---|---|
 | 工作分支 | `fix-rowwise-value-per-line-compat`（源）→ `main`（目标），与工作项记录一致 |
 | 提交 `8a0c236` | Conventional Commits（`fix(rowwise): …`）；21 文件 = 实现 + 测试 + fixtures + README + 本切片 spec/plan/dev-notes；单一逻辑变更 |
-| 禁止提交项 | 通过：无构建产物、无 `.env`；`examples/` 未入库；`workflow/docs/manager/*`、`STATUS.md` 未提交 |
+| 禁止提交项 | 通过：无构建产物、无 `.env`；`examples/` 未入库；`workflow/workflow/docs/manager/*`、`STATUS.md` 未提交 |
 
 ## 必修项
 

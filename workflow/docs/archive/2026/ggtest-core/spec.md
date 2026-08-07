@@ -4,7 +4,7 @@
 >
 > **feature-id**：`ggtest-core` · **sub-feature-id**：`ggtest-core`（与 feature-id 相同表示总览行）
 > **适用对象**：Manager（进度跟踪）、Planner/Developer/QA（定位子 Spec）、用户（确认产品边界与已决议）。
-> **前置条件**：已阅读工作项记录 `workflow/docs/manager/ggtest-core.md`；了解 sqllogictest 格式基本概念。
+> **前置条件**：已阅读工作项记录 `workflow/workflow/docs/manager/ggtest-core.md`；了解 sqllogictest 格式基本概念。
 > **阅读顺序**：背景与目标 → 非目标摘要 → 子 Spec 职责与依赖 → 已决议 → 开放问题。
 > **预期结果**：读者能把握产品边界与切片切分，并跳转到对应子目录下的 `spec.md` 查看合同与验收。
 >

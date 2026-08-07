@@ -20,7 +20,7 @@
 
 ## QA 入口门禁核对
 
-1. Plan 已用户确认且持久化 ✓（`workflow/docs/manager/feat-cli-halt.md` 进度笔记 2026-08-07）
+1. Plan 已用户确认且持久化 ✓（`workflow/workflow/docs/manager/feat-cli-halt.md` 进度笔记 2026-08-07）
 2. standard Review 门禁 required → Reviewer `Approve` 已取得 ✓（`review.md` 轮次 1）
 3. 存在可验收实现 ✓（4 commits 在 `feat-cli-halt` 分支）
 
