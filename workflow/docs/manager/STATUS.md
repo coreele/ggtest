@@ -20,7 +20,7 @@
 
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
-| add-ci-workflow | add-ci-workflow | GitHub Actions CI：build + test（Java 17） | backlog | fast | skipped | Planner | [workflow/docs/features/add-ci-workflow/](../features/add-ci-workflow/) |
+| add-ci-workflow | add-ci-workflow | GitHub Actions CI：build + test（Java 17） | done | fast | skipped | 合入 main | [workflow/docs/features/add-ci-workflow/](../features/add-ci-workflow/) |
 | add-jacoco-coverage | add-jacoco-coverage | pom.xml 添加 jacoco-maven-plugin | backlog | fast | skipped | Planner | [workflow/docs/features/add-jacoco-coverage/](../features/add-jacoco-coverage/) |
 | add-spotbugs-analysis | add-spotbugs-analysis | pom.xml 添加 spotbugs-maven-plugin | backlog | fast | skipped | Planner | [workflow/docs/features/add-spotbugs-analysis/](../features/add-spotbugs-analysis/) |
 | add-dependency-check | add-dependency-check | OWASP dependency-check 或 Dependabot | backlog | fast | skipped | Planner | [workflow/docs/features/add-dependency-check/](../features/add-dependency-check/) |

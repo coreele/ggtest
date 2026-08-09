@@ -19,7 +19,7 @@
 
 | sub-feature-id | 状态 | 后续步骤 |
 |---|---|---|
-| add-ci-workflow | backlog | Planner |
+| add-ci-workflow | done | 已授权，待合入 main |
 
 ## 进度笔记
 
