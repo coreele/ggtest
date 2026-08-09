@@ -155,19 +155,17 @@ examples/demo_zh.slt                                         .. [PASSED] in 6 ms
 TOTAL: passed=2 failed=0 skipped=0
 ```
 
-**Failure** (inline `[WHY]` / `[SQL]` / `[Diff]` git-style + `at file:line`; then
-`Error:` listing **only failed** files):
+**Failure** (each failure block starts with `    at file:line : reason`; diff
+shown only when mismatch; `Error:` listing **only failed** files):
 
 ```text
 examples/demo.slt                                            .. [FAILED] in 18 ms
-    [WHY] query result mismatch:
-    [SQL] SELECT name ...
-    [Diff] (-expected|+actual)
+    at examples/demo.slt:22 : query result mismatch
+        (-expected|+actual)
         apple
     -   bananad
     +   banana
         cherry
-at examples/demo.slt:22
 
 Error: some test case failed:
 [
@@ -177,24 +175,18 @@ Error: some test case failed:
 TOTAL: passed=0 failed=1 skipped=0
 ```
 
-**Multiple failures in one file** (adjacent blocks separated by exactly one blank line;
+**Multiple failures in one file** (blocks stack without blank lines;
 `TOTAL.failed` stays a **file** count):
 
 ```text
 examples/multi.slt                                           .. [FAILED] in 40 ms
-    [WHY] query execution failed: ... integer overflow ...
-    [SQL] ...
-at examples/multi.slt:480
-
-    [WHY] query execution failed: ... integer overflow ...
-    [SQL] ...
-at examples/multi.slt:484
-
-    [WHY] query result mismatch:
-    [SQL] ...
-    [Diff] (-expected|+actual)
-        ...
-at examples/multi.slt:491
+    at examples/multi.slt:480 : query execution failed: ... integer overflow ...
+    at examples/multi.slt:484 : query execution failed: ... integer overflow ...
+    at examples/multi.slt:491 : query result mismatch
+        (-expected|+actual)
+            ...
+    -   ...
+    +   ...
 
 Error: some test case failed:
 [
@@ -209,9 +201,11 @@ between success/skip lines; `Error:` only failed paths):
 
 ```text
 examples/demo.slt                                            .. [FAILED] in 18 ms
-    [WHY] query result mismatch:
-    ...
-at examples/demo.slt:22
+    at examples/demo.slt:22 : query result mismatch
+        (-expected|+actual)
+        ...
+
+examples/demo_zh.slt                                         .. [PASSED] in 6 ms
 
 examples/demo_zh.slt                                         .. [PASSED] in 6 ms
 examples/select1.test                                        .. [PASSED] in 142 ms

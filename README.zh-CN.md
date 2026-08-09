@@ -129,14 +129,12 @@ TOTAL: passed=2 failed=0 skipped=0
 
 ```text
 examples/demo.slt                                            .. [FAILED] in 18 ms
-    [WHY] query result mismatch:
-    [SQL] SELECT name ...
-    [Diff] (-expected|+actual)
+    at examples/demo.slt:22 : query result mismatch
+        (-expected|+actual)
         apple
     -   bananad
     +   banana
         cherry
-at examples/demo.slt:22
 
 Error: some test case failed:
 [
@@ -148,19 +146,13 @@ TOTAL: passed=0 failed=1 skipped=0
 
 ```text
 examples/multi.slt                                           .. [FAILED] in 40 ms
-    [WHY] query execution failed: ... integer overflow ...
-    [SQL] ...
-at examples/multi.slt:480
-
-    [WHY] query execution failed: ... integer overflow ...
-    [SQL] ...
-at examples/multi.slt:484
-
-    [WHY] query result mismatch:
-    [SQL] ...
-    [Diff] (-expected|+actual)
-        ...
-at examples/multi.slt:491
+    at examples/multi.slt:480 : query execution failed: ... integer overflow ...
+    at examples/multi.slt:484 : query execution failed: ... integer overflow ...
+    at examples/multi.slt:491 : query result mismatch
+        (-expected|+actual)
+            ...
+    -   ...
+    +   ...
 
 Error: some test case failed:
 [
