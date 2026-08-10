@@ -1,1 +1,8 @@
-@workflow/README.md
+# GGTEST 工作流
+
+本项目的工作流定义在 workflow/README.md 中。
+你必须严格按照其中定义的步骤执行，不得跳步。
+
+## 强制执行规则
+- 每次开始任务前，先复述 workflow 中的当前步骤
+- ...
