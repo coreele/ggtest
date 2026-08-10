@@ -9,8 +9,15 @@ package com.ggtest.model;
  * @param expectedErrorMsg optional expected error message for {@code statement error};
  *                         {@code null} when absent or for {@code statement ok}
  * @param location         source location of the record
+ * @param errorMsgStartColumn 0-based column in the de-CR header line where the message fragment
+ *                            after {@code error} begins; {@code -1} when no message is present
  */
 public record StatementRecord(
-        String sql, StatementExpectation expectation, String expectedErrorMsg, SourceLocation location)
-        implements SqlTestRecord {
+        String sql, StatementExpectation expectation, String expectedErrorMsg, SourceLocation location,
+        int errorMsgStartColumn) implements SqlTestRecord {
+
+    public StatementRecord(
+            String sql, StatementExpectation expectation, String expectedErrorMsg, SourceLocation location) {
+        this(sql, expectation, expectedErrorMsg, location, -1);
+    }
 }

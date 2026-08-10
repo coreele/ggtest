@@ -90,7 +90,7 @@ public final class SqlLogicTestParser {
 
         String kind = tokens[0];
         return switch (kind) {
-            case "statement" -> parseStatement(sourceName, startLine, tokens, trimmed, lines);
+            case "statement" -> parseStatement(sourceName, startLine, tokens, header, lines);
             case "query" -> parseQuery(sourceName, startLine, tokens, lines);
             case "skipif" -> parseSkipIf(
                     sourceName, startLine, splitTokens(stripTrailingHashComment(header)));
@@ -131,7 +131,7 @@ public final class SqlLogicTestParser {
     }
 
     private static StatementRecord parseStatement(
-            String sourceName, int startLine, String[] tokens, String trimmedHeader, LineBuffer lines) {
+            String sourceName, int startLine, String[] tokens, String headerLine, LineBuffer lines) {
         if (tokens.length < 2) {
             throw new ParseException(
                     sourceName, startLine, "statement requires at least one expectation token (ok|error)");
@@ -150,18 +150,29 @@ public final class SqlLogicTestParser {
                     sourceName, startLine, "unknown statement expectation: " + tokens[1]);
         };
         String expectedErrorMsg = null;
+        int errorMsgStartColumn = -1;
         if (expectation == StatementExpectation.ERROR && tokens.length > 2) {
             String keyword = "error";
-            int keywordEnd = indexOfToken(trimmedHeader, keyword, 0);
+            int keywordEnd = indexOfToken(headerLine, keyword, 0);
             if (keywordEnd >= 0) {
-                String raw = trimmedHeader.substring(keywordEnd).trim();
+                String raw = headerLine.substring(keywordEnd).trim();
                 if (!raw.isEmpty()) {
                     expectedErrorMsg = raw;
+                    errorMsgStartColumn = findMsgStartColumn(headerLine, keywordEnd);
                 }
             }
         }
         String sql = readSqlBody(sourceName, startLine, lines);
-        return new StatementRecord(sql, expectation, expectedErrorMsg, new SourceLocation(sourceName, startLine));
+        return new StatementRecord(
+                sql, expectation, expectedErrorMsg, new SourceLocation(sourceName, startLine), errorMsgStartColumn);
+    }
+
+    private static int findMsgStartColumn(String headerLine, int keywordEnd) {
+        int pos = keywordEnd;
+        while (pos < headerLine.length() && Character.isWhitespace(headerLine.charAt(pos))) {
+            pos++;
+        }
+        return pos;
     }
 
     private static QueryRecord parseQuery(
@@ -207,6 +218,7 @@ public final class SqlLogicTestParser {
         List<String> sqlLines = new ArrayList<>();
         boolean hasExpected = false;
         List<String> expected = List.of();
+        int expectedHeaderLine = 0;
 
         while (lines.hasNext()) {
             String line = lines.peek();
@@ -215,6 +227,7 @@ public final class SqlLogicTestParser {
             }
             if (isExpectationHeaderCandidate(line)) {
                 requireExactExpectationHeader(sourceName, lines.peekLineNumber(), line);
+                expectedHeaderLine = lines.peekLineNumber();
                 lines.next();
                 hasExpected = true;
                 expected = readExpectedResults(lines);
@@ -231,6 +244,8 @@ public final class SqlLogicTestParser {
             throw new ParseException(sourceName, startLine, "query is missing SQL body");
         }
 
+        int expectedBodyEndLine = hasExpected ? expectedHeaderLine + expected.size() : 0;
+
         return new QueryRecord(
                 typeSignature,
                 sortMode,
@@ -239,7 +254,9 @@ public final class SqlLogicTestParser {
                 hasExpected,
                 expected,
                 columnSeparator,
-                new SourceLocation(sourceName, startLine));
+                new SourceLocation(sourceName, startLine),
+                expectedHeaderLine,
+                expectedBodyEndLine);
     }
 
     private static boolean isExpectationHeaderCandidate(String rawLine) {

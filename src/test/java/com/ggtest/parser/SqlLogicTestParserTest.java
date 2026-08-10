@@ -646,6 +646,121 @@ class SqlLogicTestParserTest {
         assertTrue(ex.getMessage().contains("statement ok does not take additional operands"));
     }
 
+    // --- expected interval fields (override D1) ---
+
+    @Test
+    void queryExpectedInterval_recordsHeaderAndBodyEndLines() {
+        String content = """
+                statement ok
+                CREATE TABLE t(a INT)
+
+                query I nosort
+                SELECT a FROM t
+                ----
+                1
+                2
+
+                query T nosort
+                SELECT 'x'
+                ----
+                x
+                """;
+
+        List<SqlTestRecord> records = parser.parse("iv.test", content);
+
+        QueryRecord first = assertInstanceOf(QueryRecord.class, records.get(1));
+        assertTrue(first.hasExpectedResults());
+        assertEquals(6, first.expectedHeaderLine(), "---- is on line 6");
+        assertEquals(8, first.expectedBodyEndLine(), "last body line (2) is on line 8");
+
+        QueryRecord second = assertInstanceOf(QueryRecord.class, records.get(2));
+        assertTrue(second.hasExpectedResults());
+        assertEquals(12, second.expectedHeaderLine());
+        assertEquals(13, second.expectedBodyEndLine());
+    }
+
+    @Test
+    void executeOnlyQueryHasZeroInterval() {
+        String content = """
+                query I nosort
+                SELECT 1
+                """;
+
+        QueryRecord query = assertInstanceOf(QueryRecord.class, parser.parse("eo.test", content).get(0));
+
+        assertFalse(query.hasExpectedResults());
+        assertEquals(0, query.expectedHeaderLine());
+        assertEquals(0, query.expectedBodyEndLine());
+    }
+
+    @Test
+    void emptyExpectedBlockHasBodyStartExceedingEnd() {
+        String content = "query I nosort\nSELECT 1\n----\n\n";
+
+        QueryRecord query = assertInstanceOf(QueryRecord.class, parser.parse("empty.test", content).get(0));
+
+        assertTrue(query.hasExpectedResults());
+        assertTrue(query.expectedResults().isEmpty());
+        assertEquals(3, query.expectedHeaderLine());
+        assertEquals(3, query.expectedBodyEndLine(), "empty block: end == header line");
+        assertTrue(query.expectedHeaderLine() + 1 > query.expectedBodyEndLine());
+    }
+
+    @Test
+    void statementErrorMsgStartColumn_singleMessage() {
+        String content = """
+                statement error no such table
+                SELECT * FROM missing
+                """;
+
+        StatementRecord stmt = assertInstanceOf(
+                StatementRecord.class, parser.parse("msg.test", content).get(0));
+
+        assertEquals("no such table", stmt.expectedErrorMsg());
+        assertEquals(16, stmt.errorMsgStartColumn());
+    }
+
+    @Test
+    void statementErrorMsgStartColumn_leadingWhitespace() {
+        String content = """
+                  statement error   no such table
+                SELECT * FROM missing
+                """;
+
+        StatementRecord stmt = assertInstanceOf(
+                StatementRecord.class, parser.parse("ws.test", content).get(0));
+
+        assertEquals("no such table", stmt.expectedErrorMsg());
+        assertEquals("  statement error   ".length(), stmt.errorMsgStartColumn());
+    }
+
+    @Test
+    void statementErrorWithoutMessageHasMinusOneColumn() {
+        String content = """
+                statement error
+                SELECT * FROM missing
+                """;
+
+        StatementRecord stmt = assertInstanceOf(
+                StatementRecord.class, parser.parse("nomsg.test", content).get(0));
+
+        assertNull(stmt.expectedErrorMsg());
+        assertEquals(-1, stmt.errorMsgStartColumn());
+    }
+
+    @Test
+    void statementOkHasMinusOneColumn() {
+        String content = """
+                statement ok
+                SELECT 1
+                """;
+
+        StatementRecord stmt = assertInstanceOf(
+                StatementRecord.class, parser.parse("ok.test", content).get(0));
+
+        assertEquals(-1, stmt.errorMsgStartColumn());
+    }
+
     private static void assertRecordsSemanticallyEqual(
             List<SqlTestRecord> left, List<SqlTestRecord> right) {
         assertEquals(left.size(), right.size());

@@ -24,6 +24,9 @@ import java.util.Optional;
  * @param expectedResults    raw expected-result lines (empty when absent)
  * @param columnSeparator    explicit row-wise delimiter when declared; empty = value-per-line
  * @param location           source location of the record
+ * @param expectedHeaderLine 1-based line number of the {@code ----} header; {@code 0} when absent
+ * @param expectedBodyEndLine 1-based line number of the last expected-result line;
+ *                            equal to {@code expectedHeaderLine} when the block is empty
  */
 public record QueryRecord(
         List<ColumnType> typeSignature,
@@ -33,7 +36,9 @@ public record QueryRecord(
         boolean hasExpectedResults,
         List<String> expectedResults,
         Optional<String> columnSeparator,
-        SourceLocation location) implements SqlTestRecord {
+        SourceLocation location,
+        int expectedHeaderLine,
+        int expectedBodyEndLine) implements SqlTestRecord {
 
     public QueryRecord {
         typeSignature = List.copyOf(typeSignature);
@@ -48,5 +53,17 @@ public record QueryRecord(
                 throw new IllegalArgumentException("columnSeparator must not contain whitespace");
             }
         }
+    }
+
+    public QueryRecord(
+            List<ColumnType> typeSignature,
+            SortMode sortMode,
+            Optional<String> label,
+            String sql,
+            boolean hasExpectedResults,
+            List<String> expectedResults,
+            Optional<String> columnSeparator,
+            SourceLocation location) {
+        this(typeSignature, sortMode, label, sql, hasExpectedResults, expectedResults, columnSeparator, location, 0, 0);
     }
 }
