@@ -1,0 +1,40 @@
+{
+	"name": "sqllogictest",
+	"displayName": "SQL Logic Test",
+	"description": "Syntax highlighting for sqllogictest (.slt / .test) files",
+	"version": "0.0.3",
+	"publisher": "local",
+	"engines": {
+		"vscode": "^1.74.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"contributes": {
+		"languages": [
+			{
+				"id": "sqllogictest",
+				"aliases": [
+					"SQL Logic Test",
+					"sqllogictest",
+					"slt"
+				],
+				"extensions": [
+					".slt",
+					".test"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "sqllogictest",
+				"scopeName": "source.sqllogictest",
+				"path": "./syntaxes/sqllogictest.tmLanguage.json",
+				"embeddedLanguages": {
+					"meta.embedded.block.sql": "sql"
+				}
+			}
+		]
+	}
+}
