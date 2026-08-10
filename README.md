@@ -43,7 +43,7 @@ java -jar target/ggtest-0.1.0-SNAPSHOT.jar --url jdbc:sqlite::memory: path/to/fi
 ```text
 ggtest [--url <jdbc-url>] [--user <user>] [--password <password>]
        [--engine <name>=sqlite] [--hash-threshold <N>]
-       [--env-file <path>] [--color <auto|always|never>] [--halt]
+       [--env-file <path>] [--color <auto|always|never>] [--halt] [--override]
        <file-or-dir> [<file-or-dir> ...]
 ```
 
@@ -56,6 +56,7 @@ ggtest [--url <jdbc-url>] [--user <user>] [--password <password>]
 | `--env-file` | (CWD `.env`) | When set, **replaces** the default CWD `.env` (does not layer both) |
 | `--color` | `auto` | `auto` (TTY only), `always`, or `never`; see color priority below |
 | `--halt` | off | Stop when the first error is seen (assertion failure or hard error). Later records in the file are skipped (not executed, not reported as failures) and not-yet-started files are not opened or counted. Exit-code priority is unchanged. A corpus `halt` record is unaffected (it skips the rest of one file but is not an error). |
+| `--override` | off | Golden-update mode: rewrite the expected interval of in-scope mismatches (query result mismatch; `statement error` message mismatch) in the source `.slt` file using the actual output. Overridden records show `[OVERRIDDEN]` and do not count as failures; scope-out mismatches (label conflict, execution failure, type-signature error, polarity flip) still `FAILED`. The file is written at most once (atomic temp+rename); files without in-scope mismatch are not touched. Exit-code priority is unchanged. Does not change parser / comparison / normalization semantics. |
 
 Positional arguments: at least one file or directory.
 
