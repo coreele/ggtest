@@ -23,7 +23,7 @@
 
 | sub-feature-id | 状态 | 后续步骤 | 阻塞原因 | 恢复条件 | 恢复后目标 |
 |---|---|---|---|---|---|
-| feat-override-results | planned | Developer 实施 | | | |
+| feat-override-results | done | 已授权合并→合入 main | | | |
 
 ## 进度笔记
 
@@ -31,3 +31,7 @@
 - 用户已明确语义（重写测试文件中的期望结果）；覆盖范围（仅 query result mismatch / 含 statement error 消息 / label 冲突等）由 Analyst 调研 runner 与 parser 代码后决定。
 - 数据安全考量：改写源文件 → 需考虑原子写（temp + rename）/ 只改写需要变更的记录 / 保留原文件其余内容（注释、格式、statement 位置）；这些技术方案归 Design 决策。
 - 2026-08-10 Spec 已确认（approved）。开放问题决议：Q1 报告用 `[OVERRIDDEN]` tag + `overridden=N` 计数（退出码不变）；Q2 v1 不提供 CI 漂移信号（override-only 无 FAILED → 0）；Q3 statement error msg override 写完整 error summary。详见 spec.md。
+- 2026-08-10 Plan 已确认（approved）。Design/Plan 产出见 design.md / plan.md。
+- Developer 实施完成（8 提交，321 测试全绿，+59 新测试）。详见 dev-notes.md。
+- Review R1（subagent）：结论 `Approve`。全量 BUILD SUCCESS（321/0/16skip）。关键不变性全部核验通过，无 blocking。详见 review.md。
+- QA（subagent）：结论 `Pass`。P0/P1 15/15 验收点全通过，无缺陷。P1-6 集成测试缺口评估为可接受低风险。详见 qa-report.md。用户已授权合并。
