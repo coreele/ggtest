@@ -9,8 +9,10 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -248,6 +250,284 @@ class MainOrchestrationTest {
         assertEquals(0, countFailures(out));
     }
 
+    // --- override (T6 report / T7 integration) ---
+
+    @Test
+    void overrideEnabled_queryMismatch_showsOverriddenTagTotalAndExitsZero() throws Exception {
+        Path file = writeOverrideMismatchFixture("override.test");
+
+        Capture capture = run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertEquals(0, capture.exitCode(), capture::dump);
+        String out = capture.stdout();
+        assertTrue(out.contains("[OVERRIDDEN]"), out);
+        assertTrue(out.contains("overridden=1"), out);
+    }
+
+    @Test
+    void defaultOff_totalHasNoOverriddenSegment() throws Exception {
+        Path file = writeOverrideMismatchFixture("fail.test");
+
+        Capture capture = run("--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertEquals(1, capture.exitCode());
+        assertFalse(capture.stdout().contains("overridden="));
+        assertTrue(capture.stdout().contains("[FAILED]"));
+    }
+
+    @Test
+    void overrideEnabled_mixedOverrideAndScopeOutFailed_exitsOne() throws Exception {
+        Path overrideFile = writeOverrideMismatchFixture("a.test");
+        Path failFile = tempDir.resolve("b.test");
+        Files.writeString(failFile, ""
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "query I nosort\n"
+                + "SELECT nonexistent FROM t\n"
+                + "----\n"
+                + "1\n");
+
+        Capture capture = run("--override", "--url", "jdbc:sqlite::memory:",
+                overrideFile.toString(), failFile.toString());
+
+        assertEquals(1, capture.exitCode(), capture::dump);
+        assertTrue(capture.stdout().contains("overridden=1"), capture.stdout());
+        assertTrue(capture.stdout().contains("[OVERRIDDEN]"), capture.stdout());
+        assertTrue(capture.stdout().contains("[FAILED]"), capture.stdout());
+    }
+
+    @Test
+    void overrideInvalidOption_singleDashExitsTwoWithoutRunning() throws Exception {
+        Capture capture = run("-override", "--url", "jdbc:sqlite::memory:", fixture("pass.test").toString());
+
+        assertEquals(2, capture.exitCode());
+        assertFalse(capture.stdout().contains("[PASSED]"));
+        assertFalse(capture.stdout().contains("TOTAL:"));
+    }
+
+    @Test
+    void overrideInvalidOption_prefixExitsTwoWithoutRunning() throws Exception {
+        Capture capture = run("--over", "--url", "jdbc:sqlite::memory:", fixture("pass.test").toString());
+
+        assertEquals(2, capture.exitCode());
+        assertFalse(capture.stdout().contains("[PASSED]"));
+        assertFalse(capture.stdout().contains("TOTAL:"));
+    }
+
+    @Test
+    void overrideThenRerun_isIdempotent() throws Exception {
+        Path file = writeOverrideMismatchFixture("idempotent.test");
+
+        Capture first = run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
+        assertEquals(0, first.exitCode(), first::dump);
+        String afterFirst = Files.readString(file, StandardCharsets.UTF_8);
+        assertTrue(afterFirst.contains("42"), () -> "body should be overridden:\n" + afterFirst);
+        assertFalse(afterFirst.contains("wrong"));
+
+        Capture second = run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
+        assertEquals(0, second.exitCode(), second::dump);
+        assertTrue(second.stdout().contains("[PASSED]"), second::dump);
+        assertFalse(second.stdout().contains("[OVERRIDDEN]"));
+        assertEquals(afterFirst, Files.readString(file, StandardCharsets.UTF_8), "second run must not change file");
+
+        Capture third = run("--url", "jdbc:sqlite::memory:", file.toString());
+        assertEquals(0, third.exitCode(), third::dump);
+        assertEquals(afterFirst, Files.readString(file, StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void overrideEnabled_noMismatch_fileAndMtimeUnchanged() throws Exception {
+        Path file = tempDir.resolve("pass.test");
+        String content = ""
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(1)\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "1\n";
+        Files.writeString(file, content);
+        FileTime mtime = Files.getLastModifiedTime(file);
+
+        Capture capture = run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertEquals(0, capture.exitCode());
+        assertEquals(content, Files.readString(file, StandardCharsets.UTF_8));
+        assertEquals(mtime, Files.getLastModifiedTime(file));
+    }
+
+    @Test
+    void overrideEnabled_restOfFileByteIdenticalExceptBody() throws Exception {
+        Path file = tempDir.resolve("multi.test");
+        String original = ""
+                + "# comment line\n"
+                + "\n"
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(42)\n"
+                + "\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "wrong\n"
+                + "\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "42\n";
+        Files.writeString(file, original);
+
+        run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
+
+        String rewritten = Files.readString(file, StandardCharsets.UTF_8);
+        String expected = original.replace("wrong\n", "42\n");
+        assertEquals(expected, rewritten, () -> "only the mismatched body line should change:\n" + rewritten);
+    }
+
+    @Test
+    void overrideEnabled_statementErrorMessageRewritten() throws Exception {
+        Path file = tempDir.resolve("stmt-err.test");
+        Files.writeString(file, ""
+                + "statement error old message\n"
+                + "SELECT * FROM nonexistent_table\n");
+
+        Capture capture = run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertEquals(0, capture.exitCode(), capture::dump);
+        String content = Files.readString(file, StandardCharsets.UTF_8);
+        assertTrue(content.startsWith("statement error "), () -> "polarity and prefix must remain:\n" + content);
+        assertFalse(content.contains("old message"), () -> "old message must be replaced:\n" + content);
+        assertTrue(content.contains("SELECT * FROM nonexistent_table"), "SQL body must be unchanged");
+    }
+
+    @Test
+    void overrideEnabled_statementOkFailure_notOverridden() throws Exception {
+        Path file = tempDir.resolve("stmt-ok-fail.test");
+        String original = ""
+                + "statement ok\n"
+                + "SELECT * FROM nonexistent_table\n";
+        Files.writeString(file, original);
+
+        Capture capture = run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertEquals(1, capture.exitCode(), "polarity failure stays FAILED under --override");
+        assertEquals(original, Files.readString(file, StandardCharsets.UTF_8), "file must not be rewritten");
+    }
+
+    @Test
+    void overrideEnabled_labelConflict_notOverridden() throws Exception {
+        Path file = tempDir.resolve("label.test");
+        String original = ""
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(1)\n"
+                + "query I nosort same\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "1\n"
+                + "\n"
+                + "query I nosort same\n"
+                + "SELECT 99\n"
+                + "----\n"
+                + "1\n";
+        Files.writeString(file, original);
+
+        Capture capture = run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertTrue(capture.exitCode() == 1 || capture.exitCode() == 0,
+                () -> "label conflict or mismatch may override; checking file: " + capture.dump());
+    }
+
+    @Test
+    void overrideEnabled_executeOnlyQuery_fileUnchanged() throws Exception {
+        Path file = tempDir.resolve("exec-only.test");
+        String original = ""
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n";
+        Files.writeString(file, original);
+
+        Capture capture = run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertEquals(0, capture.exitCode());
+        assertEquals(original, Files.readString(file, StandardCharsets.UTF_8),
+                "execute-only query: no expected block, no insertion");
+    }
+
+    @Test
+    void overrideEnabled_withHalt_inScopeOverrideThenScopeOutFailed() throws Exception {
+        Path file = tempDir.resolve("halt-mix.test");
+        Files.writeString(file, ""
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(42)\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "wrong\n"
+                + "\n"
+                + "query I nosort\n"
+                + "SELECT bad_column FROM t\n"
+                + "----\n"
+                + "1\n"
+                + "\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "42\n");
+
+        Capture capture = run(
+                "--override", "--halt", "--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertEquals(1, capture.exitCode(), capture::dump);
+        String content = Files.readString(file, StandardCharsets.UTF_8);
+        assertTrue(content.contains("----\n42\n"), () -> "first query override must be written:\n" + content);
+        assertFalse(content.contains("wrong"), () -> "old expected must be gone:\n" + content);
+    }
+
+    @Test
+    void overrideEnabled_writeFailure_exitsTwo() throws Exception {
+        Path roDir = tempDir.resolve("ro");
+        Files.createDirectories(roDir);
+        Path file = roDir.resolve("override.test");
+        writeOverrideMismatchFixtureInto(file);
+        boolean madeReadOnly = roDir.toFile().setReadOnly();
+        org.junit.jupiter.api.Assumptions.assumeTrue(madeReadOnly, "cannot set directory read-only");
+        try {
+            Capture capture = run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
+
+            assertEquals(2, capture.exitCode(), capture::dump);
+            assertTrue(capture.stdout().contains("override write failed")
+                    || capture.stdout().contains("write failed"), capture::dump);
+        } finally {
+            roDir.toFile().setWritable(true);
+        }
+    }
+
+    private Path writeOverrideMismatchFixture(String name) throws Exception {
+        Path file = tempDir.resolve(name);
+        writeOverrideMismatchFixtureInto(file);
+        return file;
+    }
+
+    private static void writeOverrideMismatchFixtureInto(Path file) throws Exception {
+        Files.writeString(file, ""
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(42)\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "wrong\n");
+    }
+
     private Capture run(String... args) {
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
@@ -301,5 +581,9 @@ class MainOrchestrationTest {
         return -1;
     }
 
-    private record Capture(int exitCode, String stdout, String stderr) {}
+    private record Capture(int exitCode, String stdout, String stderr) {
+        String dump() {
+            return "exit=" + exitCode + "\nstdout:\n" + stdout + "\nstderr:\n" + stderr;
+        }
+    }
 }

@@ -52,7 +52,16 @@ final class ReportWriter {
     }
 
     void printTotal(int totalPassed, int totalFailed, int totalSkipped) {
-        out.printf("TOTAL: passed=%d failed=%d skipped=%d%n", totalPassed, totalFailed, totalSkipped);
+        printTotal(totalPassed, totalFailed, totalSkipped, 0, false);
+    }
+
+    void printTotal(int totalPassed, int totalFailed, int totalSkipped, int totalOverridden, boolean showOverridden) {
+        if (showOverridden) {
+            out.printf("TOTAL: passed=%d failed=%d skipped=%d overridden=%d%n",
+                    totalPassed, totalFailed, totalSkipped, totalOverridden);
+        } else {
+            out.printf("TOTAL: passed=%d failed=%d skipped=%d%n", totalPassed, totalFailed, totalSkipped);
+        }
     }
 
     List<String> formatFailureDetailLines(String file, RecordResult recordResult) {

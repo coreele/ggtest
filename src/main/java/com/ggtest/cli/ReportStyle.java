@@ -34,6 +34,10 @@ final class ReportStyle {
         return color(YELLOW, "[SKIPPED]");
     }
 
+    String overriddenTag() {
+        return color(CYAN, "[OVERRIDDEN]");
+    }
+
     String label(String bracketLabel) {
         return color(CYAN, bracketLabel);
     }

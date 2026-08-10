@@ -47,6 +47,7 @@ final class CliSession {
         int totalPassed = 0;
         int totalFailed = 0;
         int totalSkipped = 0;
+        int totalOverridden = 0;
         boolean hardError = false;
         List<String> failedPaths = new ArrayList<>();
 
@@ -79,6 +80,10 @@ final class CliSession {
                     reportWriter.printStatusLine(display, pathWidth, style.skippedTag(), elapsedMs, false);
                     totalSkipped++;
                 }
+                case OVERRIDDEN -> {
+                    reportWriter.printStatusLine(display, pathWidth, style.overriddenTag(), elapsedMs, true);
+                    totalOverridden++;
+                }
                 case FAILED -> {
                     reportWriter.printStatusLine(display, pathWidth, style.failedTag(), elapsedMs, true);
                     for (String blockLine : outcome.detailLines()) {
@@ -96,8 +101,8 @@ final class CliSession {
         }
 
         reportWriter.printErrorSection(failedPaths, lastBucket);
-        reportWriter.printTrailingBlankIfNeeded(failedPaths, totalPassed, totalSkipped);
-        reportWriter.printTotal(totalPassed, totalFailed, totalSkipped);
+        reportWriter.printTrailingBlankIfNeeded(failedPaths, totalPassed + totalOverridden, totalSkipped);
+        reportWriter.printTotal(totalPassed, totalFailed, totalSkipped, totalOverridden, options.override());
 
         if (hardError) {
             return 2;
