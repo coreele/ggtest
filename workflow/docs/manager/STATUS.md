@@ -20,7 +20,6 @@
 
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
-| add-ci-workflow | add-ci-workflow | GitHub Actions CI：build + test（Java 17） | done | fast | skipped | 合入 main | [workflow/docs/features/add-ci-workflow/](../features/add-ci-workflow/) |
 | add-jacoco-coverage | add-jacoco-coverage | pom.xml 添加 jacoco-maven-plugin | backlog | fast | skipped | Planner | [workflow/docs/features/add-jacoco-coverage/](../features/add-jacoco-coverage/) |
 | add-spotbugs-analysis | add-spotbugs-analysis | pom.xml 添加 spotbugs-maven-plugin | backlog | fast | skipped | Planner | [workflow/docs/features/add-spotbugs-analysis/](../features/add-spotbugs-analysis/) |
 | add-dependency-check | add-dependency-check | OWASP dependency-check 或 Dependabot | backlog | fast | skipped | Planner | [workflow/docs/features/add-dependency-check/](../features/add-dependency-check/) |
@@ -33,6 +32,7 @@
 
 | feature-id | sub-feature-id | 最终状态 | 目录 |
 |---|---|---|---|
+| add-ci-workflow | add-ci-workflow | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/add-ci-workflow/manager.md](../archive/2026/add-ci-workflow/manager.md) |
 | fix-normalize-integer-float | fix-normalize-integer-float | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-normalize-integer-float/manager.md](../archive/2026/fix-normalize-integer-float/manager.md) |
 | fix-onlyif-skipif-hash-comments | fix-onlyif-skipif-hash-comments | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-onlyif-skipif-hash-comments/manager.md](../archive/2026/fix-onlyif-skipif-hash-comments/manager.md) |
 | architecture-overview | architecture-overview | cancelled（用户舍弃；草稿已删；工作项记录已归档） | [workflow/docs/archive/2026/architecture-overview/manager.md](../archive/2026/architecture-overview/manager.md) |
