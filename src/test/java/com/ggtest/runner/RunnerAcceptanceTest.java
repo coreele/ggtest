@@ -145,6 +145,27 @@ class RunnerAcceptanceTest {
     }
 
     @Test
+    void p0_4_statementErrorWithOptionalMessageMatching() {
+        FileRunResult result = run("p0-4-statement-error-message.test");
+
+        assertEquals(
+                List.of(
+                        RecordOutcome.PASSED,  // statement ok CREATE TABLE
+                        RecordOutcome.PASSED,  // statement ok INSERT
+                        RecordOutcome.PASSED,  // statement error, no message: DROP TABLE missing fails
+                        RecordOutcome.PASSED,  // statement error "no such table": INSERT INTO missing fails with matching message
+                        RecordOutcome.FAILED,  // statement error "syntax error": fails but error is "no such table", mismatch
+                        RecordOutcome.FAILED), // statement error "duplicate key": SELECT 1 succeeds, expected to fail
+                outcomes(result));
+        assertEquals(2, result.failedCount());
+        assertEquals(4, result.passedCount());
+        String reason4 = result.recordResults().get(4).failureReason();
+        assertTrue(reason4.contains("message mismatch"), "record 4 must be a message mismatch: " + reason4);
+        String reason5 = result.recordResults().get(5).failureReason();
+        assertEquals("statement expected to fail but succeeded", reason5);
+    }
+
+    @Test
     void runnerDrivesAnyExecutorImplementation() {
         List<SqlTestRecord> records = parse("p0-6-conditions.test");
         FakeDatabaseExecutor otherEngine = new FakeDatabaseExecutor("duckdb");

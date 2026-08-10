@@ -461,6 +461,75 @@ class SqlLogicTestRunnerTest {
         assertEquals(SOURCE, result.recordResults().get(0).location().sourceName());
     }
 
+    // --- statement error message matching ---
+
+    @Test
+    void statementErrorWithMatchingMessagePasses() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor()
+                .statementFails("BOOM", "SQL error: no such table: missing");
+
+        FileRunResult result = run(executor, statementError("BOOM", "no such table"));
+
+        assertEquals(List.of(RecordOutcome.PASSED), outcomes(result));
+    }
+
+    @Test
+    void statementErrorWithNonMatchingMessageFails() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor()
+                .statementFails("BOOM", "syntax error near INSERT");
+
+        FileRunResult result = run(executor, statementError("BOOM", "no such table"));
+
+        assertEquals(List.of(RecordOutcome.FAILED), outcomes(result));
+        String reason = result.recordResults().get(0).failureReason();
+        assertTrue(reason.contains("message mismatch"),
+                "failure reason must indicate message mismatch: " + reason);
+        assertTrue(reason.contains("no such table"),
+                "failure reason must include expected message: " + reason);
+    }
+
+    @Test
+    void statementErrorMessageMatchingIsCaseInsensitive() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor()
+                .statementFails("BOOM", "SQL Error: NO SUCH TABLE: Missing");
+
+        FileRunResult result = run(executor, statementError("BOOM", "no such table"));
+
+        assertEquals(List.of(RecordOutcome.PASSED), outcomes(result));
+    }
+
+    @Test
+    void statementErrorWithMessageButExecutionSucceeds() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor();
+
+        FileRunResult result = run(executor, statementError("SELECT 1", "should fail"));
+
+        assertEquals(List.of(RecordOutcome.FAILED), outcomes(result));
+        assertEquals("statement expected to fail but succeeded",
+                result.recordResults().get(0).failureReason());
+    }
+
+    @Test
+    void statementErrorWithoutMessageBackwardCompatible_pass() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor()
+                .statementFails("BOOM", "syntax error");
+
+        FileRunResult result = run(executor, statementError("BOOM"));
+
+        assertEquals(List.of(RecordOutcome.PASSED), outcomes(result));
+    }
+
+    @Test
+    void statementErrorWithMessageContainsExpectedInErrorSummary() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor()
+                .statementFails("BOOM", "ERROR: duplicate key value violates unique constraint \"pk_users\"");
+
+        FileRunResult result = run(executor,
+                statementError("BOOM", "duplicate key value violates unique constraint"));
+
+        assertEquals(List.of(RecordOutcome.PASSED), outcomes(result));
+    }
+
     private FileRunResult run(FakeDatabaseExecutor executor, SqlTestRecord... records) {
         return new SqlLogicTestRunner(executor).run(List.of(records));
     }
@@ -480,11 +549,15 @@ class SqlLogicTestRunnerTest {
     }
 
     private StatementRecord statementOk(String sql) {
-        return new StatementRecord(sql, StatementExpectation.OK, location());
+        return new StatementRecord(sql, StatementExpectation.OK, null, location());
     }
 
     private StatementRecord statementError(String sql) {
-        return new StatementRecord(sql, StatementExpectation.ERROR, location());
+        return statementError(sql, null);
+    }
+
+    private StatementRecord statementError(String sql, String expectedErrorMsg) {
+        return new StatementRecord(sql, StatementExpectation.ERROR, expectedErrorMsg, location());
     }
 
     private QueryRecord query(

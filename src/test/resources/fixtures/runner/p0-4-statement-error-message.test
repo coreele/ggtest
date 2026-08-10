@@ -1,0 +1,28 @@
+# P0-4: statement error with optional message matching.
+# Records:
+#   1. statement error without message (backward-compat, must fail)
+#   2. statement error with matching message (must pass)
+#   3. statement error with non-matching message (must fail)
+#   4. statement error with message but SQL succeeds (must fail)
+
+statement ok
+CREATE TABLE t1(a INTEGER PRIMARY KEY)
+
+statement ok
+INSERT INTO t1 VALUES(1)
+
+# Backward-compat: statement error, no message
+statement error
+DROP TABLE missing
+
+# Matching message: case-insensitive sub-string
+statement error no such table
+INSERT INTO missing VALUES(1)
+
+# Non-matching message
+statement error syntax error
+INSERT INTO missing VALUES(2)
+
+# Has message but SQL succeeds
+statement error duplicate key
+SELECT 1

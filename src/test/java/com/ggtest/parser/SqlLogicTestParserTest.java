@@ -3,6 +3,7 @@ package com.ggtest.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -569,6 +570,80 @@ class SqlLogicTestParserTest {
         assertEquals("SELECT a\nFROM t", query.sql());
         assertTrue(query.hasExpectedResults());
         assertEquals(List.of("1"), query.expectedResults());
+    }
+
+    // --- statement error message parsing ---
+
+    @Test
+    void statementErrorWithSingleTokenMessage() {
+        String content = """
+                statement error no_such_table
+                DROP TABLE missing
+                """;
+
+        List<SqlTestRecord> records = parser.parse("test", content);
+        assertEquals(1, records.size());
+
+        StatementRecord stmt = assertInstanceOf(StatementRecord.class, records.get(0));
+        assertEquals(StatementExpectation.ERROR, stmt.expectation());
+        assertEquals("no_such_table", stmt.expectedErrorMsg());
+        assertEquals("DROP TABLE missing", stmt.sql());
+    }
+
+    @Test
+    void statementErrorWithMultiTokenMessage() {
+        String content = """
+                statement error no such table: missing
+                DROP TABLE missing
+                """;
+
+        List<SqlTestRecord> records = parser.parse("test", content);
+        assertEquals(1, records.size());
+
+        StatementRecord stmt = assertInstanceOf(StatementRecord.class, records.get(0));
+        assertEquals(StatementExpectation.ERROR, stmt.expectation());
+        assertEquals("no such table: missing", stmt.expectedErrorMsg());
+    }
+
+    @Test
+    void statementErrorWithHashInMessage() {
+        String content = """
+                statement error table#1 not found
+                DELETE FROM t1
+                """;
+
+        List<SqlTestRecord> records = parser.parse("test", content);
+        assertEquals(1, records.size());
+
+        StatementRecord stmt = assertInstanceOf(StatementRecord.class, records.get(0));
+        assertEquals(StatementExpectation.ERROR, stmt.expectation());
+        assertEquals("table#1 not found", stmt.expectedErrorMsg());
+    }
+
+    @Test
+    void statementErrorWithoutMessageBackwardCompatible() {
+        String content = """
+                statement error
+                DROP TABLE missing
+                """;
+
+        List<SqlTestRecord> records = parser.parse("test", content);
+        assertEquals(1, records.size());
+
+        StatementRecord stmt = assertInstanceOf(StatementRecord.class, records.get(0));
+        assertEquals(StatementExpectation.ERROR, stmt.expectation());
+        assertNull(stmt.expectedErrorMsg());
+    }
+
+    @Test
+    void statementOkRejectsExtraTokens() {
+        String content = """
+                statement ok extra
+                SELECT 1
+                """;
+
+        ParseException ex = assertThrows(ParseException.class, () -> parser.parse("test", content));
+        assertTrue(ex.getMessage().contains("statement ok does not take additional operands"));
     }
 
     private static void assertRecordsSemanticallyEqual(

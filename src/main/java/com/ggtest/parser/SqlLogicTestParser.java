@@ -90,7 +90,7 @@ public final class SqlLogicTestParser {
 
         String kind = tokens[0];
         return switch (kind) {
-            case "statement" -> parseStatement(sourceName, startLine, tokens, lines);
+            case "statement" -> parseStatement(sourceName, startLine, tokens, trimmed, lines);
             case "query" -> parseQuery(sourceName, startLine, tokens, lines);
             case "skipif" -> parseSkipIf(
                     sourceName, startLine, splitTokens(stripTrailingHashComment(header)));
@@ -131,19 +131,37 @@ public final class SqlLogicTestParser {
     }
 
     private static StatementRecord parseStatement(
-            String sourceName, int startLine, String[] tokens, LineBuffer lines) {
-        if (tokens.length != 2) {
+            String sourceName, int startLine, String[] tokens, String trimmedHeader, LineBuffer lines) {
+        if (tokens.length < 2) {
             throw new ParseException(
-                    sourceName, startLine, "statement requires exactly one expectation token (ok|error)");
+                    sourceName, startLine, "statement requires at least one expectation token (ok|error)");
         }
         StatementExpectation expectation = switch (tokens[1]) {
-            case "ok" -> StatementExpectation.OK;
+            case "ok" -> {
+                if (tokens.length > 2) {
+                    throw new ParseException(
+                            sourceName, startLine,
+                            "statement ok does not take additional operands");
+                }
+                yield StatementExpectation.OK;
+            }
             case "error" -> StatementExpectation.ERROR;
             default -> throw new ParseException(
                     sourceName, startLine, "unknown statement expectation: " + tokens[1]);
         };
+        String expectedErrorMsg = null;
+        if (expectation == StatementExpectation.ERROR && tokens.length > 2) {
+            String keyword = "error";
+            int keywordEnd = indexOfToken(trimmedHeader, keyword, 0);
+            if (keywordEnd >= 0) {
+                String raw = trimmedHeader.substring(keywordEnd).trim();
+                if (!raw.isEmpty()) {
+                    expectedErrorMsg = raw;
+                }
+            }
+        }
         String sql = readSqlBody(sourceName, startLine, lines);
-        return new StatementRecord(sql, expectation, new SourceLocation(sourceName, startLine));
+        return new StatementRecord(sql, expectation, expectedErrorMsg, new SourceLocation(sourceName, startLine));
     }
 
     private static QueryRecord parseQuery(
@@ -406,6 +424,36 @@ public final class SqlLogicTestParser {
         for (int i = 0; i < line.length(); i++) {
             if (Character.isWhitespace(line.charAt(i))) {
                 return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Finds the end index (past the last character) of the {@code n}th occurrence of
+     * {@code token} in {@code line}, where occurrences are separated by whitespace.
+     * Returns -1 if not found.
+     */
+    private static int indexOfToken(String line, String token, int n) {
+        int pos = 0;
+        int found = 0;
+        while (pos < line.length()) {
+            while (pos < line.length() && Character.isWhitespace(line.charAt(pos))) {
+                pos++;
+            }
+            if (pos >= line.length()) {
+                break;
+            }
+            int start = pos;
+            while (pos < line.length() && !Character.isWhitespace(line.charAt(pos))) {
+                pos++;
+            }
+            String tok = line.substring(start, pos);
+            if (tok.equals(token)) {
+                found++;
+                if (found == n + 1) {
+                    return pos;
+                }
             }
         }
         return -1;

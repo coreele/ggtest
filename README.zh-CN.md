@@ -104,6 +104,27 @@ delim 时换分隔符或改每值一行（无引号层）。
 
 哈希期望（`N values hashing to <md5>`）优先识别，口径不变。
 
+### 语句断言
+
+`statement ok` 断言 SQL 执行成功；`statement error` 断言执行失败。`statement error`
+后可选地跟一段预期错误消息——即 `error` 关键字之后的剩余文本（原样保留空白；`#` 视为
+字面字符，不按注释剥离）：
+
+```text
+statement error no such table
+SELECT * FROM missing_table
+```
+
+给出消息时，语句必须失败**且**返回的错误摘要（`errorSummary`）**包含**该预期消息，匹配为
+**大小写不敏感的子串包含**（纯子串包含——非正则、非精确相等）。消息为空或仅空格视为无消息。
+
+| `statement error` 形态 | 结果 |
+|---|---|
+| 无消息 | 仅验证执行失败（向后兼容，行为不变） |
+| `<message>`，但执行成功 | 失败：`statement expected to fail but succeeded` |
+| `<message>`，执行失败但错误摘要不含 `<message>` | 失败：`statement error message mismatch`（diff 风格展示预期 vs 实际） |
+| `<message>`，执行失败且错误摘要含 `<message>` | 通过 |
+
 ### 退出码
 
 

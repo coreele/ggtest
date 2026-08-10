@@ -130,6 +130,33 @@ value-per-line (no quote shell).
 Hash expectations (`N values hashing to <md5>`) are recognized first and unchanged.
 
 
+### Statement expectations
+
+A `statement ok` record asserts its SQL executes successfully; `statement error`
+asserts it fails. `statement error` may optionally be followed by an expected
+error message — the remaining text after the `error` keyword (whitespace
+preserved verbatim; `#` is treated as a literal character, not stripped as a
+comment):
+
+```text
+statement error no such table
+SELECT * FROM missing_table
+```
+
+When a message is present, the statement must fail **and** the returned error
+summary (`errorSummary`) must **contain** the expected message as a
+**case-insensitive sub-string** (plain substring containment — not a regex, not
+exact equality). A message that is empty or whitespace-only is treated as no
+message.
+
+| `statement error` form | Outcome |
+|---|---|
+| No message | Only verifies execution failure (backward compatible; behavior unchanged) |
+| `<message>`, but execution succeeds | Fail: `statement expected to fail but succeeded` |
+| `<message>`, execution fails but error summary does not contain `<message>` | Fail: `statement error message mismatch` (reported diff-style, expected vs actual) |
+| `<message>`, execution fails and error summary contains `<message>` | Pass |
+
+
 ### Exit codes
 
 | Code | Meaning |

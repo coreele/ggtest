@@ -133,7 +133,7 @@ class ReportWriterTest {
     }
 
     private static StatementRecord statement(String sql, int line) {
-        return new StatementRecord(sql, StatementExpectation.OK, new SourceLocation("stmt.test", line));
+        return new StatementRecord(sql, StatementExpectation.OK, null, new SourceLocation("stmt.test", line));
     }
 
     private static void assertBodyIndent(List<String> lines) {

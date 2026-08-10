@@ -166,9 +166,22 @@ public final class SqlLogicTestRunner {
                     ? RecordResult.passed(record)
                     : RecordResult.failed(
                             record, describe("statement expected to succeed but failed", result.errorSummary()));
-            case ERROR -> result.succeeded()
-                    ? RecordResult.failed(record, "statement expected to fail but succeeded")
-                    : RecordResult.passed(record);
+            case ERROR -> {
+                if (result.succeeded()) {
+                    yield RecordResult.failed(record, "statement expected to fail but succeeded");
+                }
+                String expectedMsg = record.expectedErrorMsg();
+                if (expectedMsg != null && !expectedMsg.isEmpty()) {
+                    String actual = result.errorSummary() == null ? "" : result.errorSummary();
+                    if (!actual.toLowerCase(Locale.ROOT).contains(expectedMsg.toLowerCase(Locale.ROOT))) {
+                        yield RecordResult.failed(record,
+                                "statement error message mismatch\n"
+                                        + "-   " + expectedMsg + "\n"
+                                        + "+   " + actual);
+                    }
+                }
+                yield RecordResult.passed(record);
+            }
         };
     }
 
