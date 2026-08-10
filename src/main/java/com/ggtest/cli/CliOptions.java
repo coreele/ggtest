@@ -15,6 +15,8 @@ import java.util.Optional;
  * @param colorMode     report color mode ({@code auto}/{@code always}/{@code never})
  * @param halt          whether {@code --halt} (stop on first error) is enabled;
  *                      CLI-only; {@code false} when absent
+ * @param override      whether {@code --override} (golden-update) is enabled;
+ *                      CLI-only; {@code false} when absent
  * @param inputs        positional file or directory paths (at least one)
  */
 public record CliOptions(
@@ -25,7 +27,20 @@ public record CliOptions(
         int hashThreshold,
         ColorMode colorMode,
         boolean halt,
+        boolean override,
         List<String> inputs) {
+
+    public CliOptions(
+            String url,
+            Optional<String> user,
+            Optional<String> password,
+            String engine,
+            int hashThreshold,
+            ColorMode colorMode,
+            boolean halt,
+            List<String> inputs) {
+        this(url, user, password, engine, hashThreshold, colorMode, halt, false, inputs);
+    }
 
     public CliOptions {
         Objects.requireNonNull(url, "url");
@@ -53,6 +68,8 @@ public record CliOptions(
                 + colorMode
                 + ", halt="
                 + halt
+                + ", override="
+                + override
                 + ", inputs="
                 + inputs
                 + "]";

@@ -271,6 +271,48 @@ class RuntimeConfigResolverTest {
     }
 
     @Test
+    void overrideDefaultsToFalseWhenCliFlagAbsent() {
+        CliOptions options = resolve(
+                parsed("--url", "jdbc:sqlite::memory:", "a.test"), key -> null);
+        assertFalse(options.override());
+    }
+
+    @Test
+    void cliOverrideFlagPropagatesToOptions() {
+        CliOptions options = resolve(
+                parsed("--url", "jdbc:sqlite::memory:", "--override", "a.test"), key -> null);
+        assertTrue(options.override());
+    }
+
+    @Test
+    void overrideIsNotInferredFromProcessEnvOrDotEnv() throws IOException {
+        writeEnv("GGTEST_URL=jdbc:sqlite::memory:\nGGTEST_OVERRIDE=true\n");
+        Map<String, String> process = new HashMap<>();
+        process.put("GGTEST_URL", "jdbc:sqlite::memory:");
+        process.put("GGTEST_OVERRIDE", "true");
+
+        CliOptions options = resolve(parsed("a.test"), process::get);
+
+        assertFalse(options.override(), "--override must come from CLI only");
+    }
+
+    @Test
+    void cliOptionsToStringIncludesOverride() {
+        CliOptions options = new CliOptions(
+                "jdbc:sqlite::memory:",
+                Optional.of("u"),
+                Optional.of("super-secret-credential"),
+                "sqlite",
+                8,
+                ColorMode.AUTO,
+                false,
+                true,
+                java.util.List.of("a.test"));
+        assertFalse(options.toString().contains("super-secret-credential"));
+        assertTrue(options.toString().contains("override=true"));
+    }
+
+    @Test
     void colorDefaultsToAuto() {
         CliOptions options = resolve(
                 parsed("--url", "jdbc:sqlite::memory:", "a.test"), key -> null);

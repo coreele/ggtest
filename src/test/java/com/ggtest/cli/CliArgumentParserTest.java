@@ -95,6 +95,61 @@ class CliArgumentParserTest {
     }
 
     @Test
+    void overrideFlagDefaultsToFalseWhenAbsent() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {
+            "--url", "jdbc:sqlite::memory:",
+            "a.test"
+        });
+        assertFalse(parsed.override());
+    }
+
+    @Test
+    void overrideFlagIsSetWhenSupplied() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {
+            "--url", "jdbc:sqlite::memory:",
+            "--override",
+            "a.test"
+        });
+        assertTrue(parsed.override());
+    }
+
+    @Test
+    void repeatedOverrideFlagIsEquivalentToSingle() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {
+            "--url", "jdbc:sqlite::memory:",
+            "--override", "--override",
+            "a.test"
+        });
+        assertTrue(parsed.override());
+    }
+
+    @Test
+    void singleDashOverrideIsRejectedAsUnknownOption() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> CliArgumentParser.parse(new String[] {
+                    "--url", "jdbc:sqlite::memory:",
+                    "-override",
+                    "a.test"
+                }));
+        assertTrue(ex.getMessage().toLowerCase().contains("unknown")
+                || ex.getMessage().contains("-override"));
+    }
+
+    @Test
+    void overridePrefixLongOptionIsRejectedAsUnknownOption() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> CliArgumentParser.parse(new String[] {
+                    "--url", "jdbc:sqlite::memory:",
+                    "--over",
+                    "a.test"
+                }));
+        assertTrue(ex.getMessage().toLowerCase().contains("unknown")
+                || ex.getMessage().contains("--over"));
+    }
+
+    @Test
     void parsesOptionalUserPasswordEngineHashThresholdAndEnvFile() {
         ParsedArguments parsed = CliArgumentParser.parse(new String[] {
             "--url", "jdbc:sqlite:file.db",

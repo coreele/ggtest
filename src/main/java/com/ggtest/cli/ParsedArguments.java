@@ -10,6 +10,8 @@ import java.util.Optional;
  *
  * @param halt whether {@code --halt} (stop on first error) was supplied;
  *             repeated occurrences are equivalent to a single one
+ * @param override whether {@code --override} (golden-update) was supplied;
+ *                 repeated occurrences are equivalent to a single one
  */
 public record ParsedArguments(
         Optional<String> url,
@@ -20,6 +22,7 @@ public record ParsedArguments(
         Optional<String> envFile,
         Optional<ColorMode> color,
         boolean halt,
+        boolean override,
         List<String> inputs) {
 
     public ParsedArguments {

@@ -43,6 +43,7 @@ public final class CliArgumentParser {
         Optional<String> envFile = Optional.empty();
         Optional<ColorMode> color = Optional.empty();
         boolean halt = false;
+        boolean override = false;
         List<String> inputs = new ArrayList<>();
 
         for (int i = 0; i < args.length; i++) {
@@ -58,6 +59,7 @@ public final class CliArgumentParser {
                     case "--env-file" -> envFile = Optional.of(requireValue(args, ++i, "--env-file"));
                     case "--color" -> color = Optional.of(ColorMode.parse(requireValue(args, ++i, "--color"), "--color"));
                     case "--halt" -> halt = true;
+                    case "--override" -> override = true;
                     default -> throw new UsageException("unknown option: " + arg);
                 }
             } else {
@@ -65,7 +67,7 @@ public final class CliArgumentParser {
             }
         }
 
-        return new ParsedArguments(url, user, password, engine, hashThreshold, envFile, color, halt, inputs);
+        return new ParsedArguments(url, user, password, engine, hashThreshold, envFile, color, halt, override, inputs);
     }
 
     private static String requireValue(String[] args, int index, String option) {
