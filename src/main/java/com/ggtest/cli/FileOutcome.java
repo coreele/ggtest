@@ -13,6 +13,10 @@ record FileOutcome(FileBucket bucket, boolean hardError, List<String> detailLine
         return new FileOutcome(FileBucket.SKIPPED, false, List.of());
     }
 
+    static FileOutcome overridden() {
+        return new FileOutcome(FileBucket.OVERRIDDEN, false, List.of());
+    }
+
     static FileOutcome assertionFailure(List<String> detailLines) {
         return new FileOutcome(FileBucket.FAILED, false, List.copyOf(detailLines));
     }
@@ -25,5 +29,6 @@ record FileOutcome(FileBucket bucket, boolean hardError, List<String> detailLine
 enum FileBucket {
     PASSED,
     FAILED,
-    SKIPPED
+    SKIPPED,
+    OVERRIDDEN
 }

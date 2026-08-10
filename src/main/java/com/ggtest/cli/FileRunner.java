@@ -12,6 +12,8 @@ import com.ggtest.runner.RecordResult;
 import com.ggtest.runner.SqlLogicTestRunner;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -54,9 +56,9 @@ final class FileRunner {
 
         try (Connection connection = openConnection()) {
             if (RuntimeConfigResolver.ENGINE_POSTGRES.equals(options.engine())) {
-                return runPostgresFile(connection, records, display);
+                return runPostgresFile(connection, records, display, file);
             }
-            return runSqliteFile(connection, records, display);
+            return runSqliteFile(connection, records, display, file);
         } catch (SQLException ex) {
             err.println("connection failed: " + sanitize(ex.getMessage()));
             return FileOutcome.hardFailure(reportWriter.detailLines(
@@ -67,19 +69,19 @@ final class FileRunner {
         }
     }
 
-    private FileOutcome runSqliteFile(Connection connection, List<SqlTestRecord> records, String display) {
+    private FileOutcome runSqliteFile(Connection connection, List<SqlTestRecord> records, String display, Path file) {
         SqliteJdbcExecutor executor = new SqliteJdbcExecutor(connection);
-        return runWithExecutor(executor, records, display);
+        return runWithExecutor(executor, records, display, file);
     }
 
-    private FileOutcome runPostgresFile(Connection connection, List<SqlTestRecord> records, String display) {
+    private FileOutcome runPostgresFile(Connection connection, List<SqlTestRecord> records, String display, Path file) {
         String schema = null;
         FileOutcome outcome = null;
         SQLException teardownException = null;
         try {
             schema = PostgresSchemaIsolation.prepare(connection);
             PostgresJdbcExecutor executor = new PostgresJdbcExecutor(connection);
-            outcome = runWithExecutor(executor, records, display);
+            outcome = runWithExecutor(executor, records, display, file);
         } catch (SQLException ex) {
             err.println("schema isolation failed: " + sanitize(ex.getMessage()));
             return FileOutcome.hardFailure(reportWriter.detailLines(
@@ -112,8 +114,9 @@ final class FileRunner {
     }
 
     private FileOutcome runWithExecutor(
-            com.ggtest.db.DatabaseExecutor executor, List<SqlTestRecord> records, String display) {
-        SqlLogicTestRunner runner = new SqlLogicTestRunner(executor, options.hashThreshold(), options.halt());
+            com.ggtest.db.DatabaseExecutor executor, List<SqlTestRecord> records, String display, Path file) {
+        SqlLogicTestRunner runner = new SqlLogicTestRunner(
+                executor, options.hashThreshold(), options.halt(), options.override());
         FileRunResult result = runner.run(records);
 
         List<String> detailLines = new ArrayList<>();
@@ -134,13 +137,61 @@ final class FileRunner {
             return FileOutcome.hardFailure(detailLines);
         }
 
+        if (options.override()) {
+            List<OverrideWriter.Override> overrides = collectOverrides(result);
+            if (!overrides.isEmpty()) {
+                FileOutcome writeOutcome = applyOverrideWriteBack(file, overrides, display);
+                if (writeOutcome != null) {
+                    return writeOutcome;
+                }
+            }
+        }
+
         if (result.failedCount() > 0) {
             return FileOutcome.assertionFailure(detailLines);
+        }
+        if (result.overriddenCount() > 0) {
+            return FileOutcome.overridden();
         }
         if (result.passedCount() == 0 && result.skippedCount() > 0) {
             return FileOutcome.skipped();
         }
         return FileOutcome.passed();
+    }
+
+    private static List<OverrideWriter.Override> collectOverrides(FileRunResult result) {
+        List<OverrideWriter.Override> overrides = new ArrayList<>();
+        for (RecordResult rr : result.recordResults()) {
+            if (rr.outcome() == RecordOutcome.OVERRIDDEN && rr.overrideText().isPresent()) {
+                overrides.add(new OverrideWriter.Override(rr.record(), rr.overrideText().orElseThrow()));
+            }
+        }
+        return overrides;
+    }
+
+    private FileOutcome applyOverrideWriteBack(
+            Path file, List<OverrideWriter.Override> overrides, String display) {
+        OverrideWriter overrideWriter = new OverrideWriter();
+        try {
+            String original = Files.readString(file, StandardCharsets.UTF_8);
+            String rewritten = overrideWriter.rewrite(original, overrides);
+            overrideWriter.writeAtomically(file, rewritten);
+        } catch (IOException ex) {
+            List<String> hardDetail = new ArrayList<>(reportWriter.detailLines(
+                    "override write failed: " + sanitize(ex.getMessage()),
+                    null,
+                    display,
+                    null));
+            for (OverrideWriter.Override ov : overrides) {
+                hardDetail.addAll(reportWriter.detailLines(
+                        "would have overridden record at line " + ov.record().location().startLine(),
+                        null,
+                        display,
+                        ov.record().location().startLine()));
+            }
+            return FileOutcome.hardFailure(hardDetail);
+        }
+        return null;
     }
 
     private Connection openConnection() throws SQLException {

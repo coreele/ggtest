@@ -10,13 +10,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Unit tests for {@link FileRunner} per-file execution mapping. */
 class FileRunnerTest {
@@ -154,6 +158,148 @@ class FileRunnerTest {
         assertEquals(FileBucket.PASSED, outcome.bucket());
     }
 
+    // --- override write-back (T4) ---
+
+    @TempDir
+    Path overrideTempDir;
+
+    @Test
+    void overrideEnabled_queryMismatch_fileRewrittenAndOverridden() throws Exception {
+        Path file = overrideTempDir.resolve("override.test");
+        Files.writeString(file, ""
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(42)\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "wrong\n");
+        CliOptions options = sqliteOptionsWithOverride("jdbc:sqlite::memory:");
+        ReportWriter rw = new ReportWriter(new PrintStream(new ByteArrayOutputStream()), new ReportStyle(false));
+        FileRunner overrideRunner = new FileRunner(options, new PrintStream(new ByteArrayOutputStream()), rw);
+
+        FileOutcome outcome = overrideRunner.run(parser, file, "override.test");
+
+        assertEquals(FileBucket.OVERRIDDEN, outcome.bucket());
+        assertFalse(outcome.hardError());
+        String content = Files.readString(file, StandardCharsets.UTF_8);
+        assertTrue(content.contains("----\n42\n"), () -> "file should contain overridden body:\n" + content);
+        assertFalse(content.contains("wrong"), () -> "old expected should be gone:\n" + content);
+    }
+
+    @Test
+    void overrideDisabled_queryMismatch_fileNotRewritten() throws Exception {
+        Path file = overrideTempDir.resolve("fail.test");
+        String original = ""
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(42)\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "wrong\n";
+        Files.writeString(file, original);
+        FileTime mtime = Files.getLastModifiedTime(file);
+
+        FileOutcome outcome = runner.run(parser, file, "fail.test");
+
+        assertEquals(FileBucket.FAILED, outcome.bucket());
+        assertEquals(original, Files.readString(file, StandardCharsets.UTF_8));
+        assertEquals(mtime, Files.getLastModifiedTime(file), "file mtime must not change without --override");
+    }
+
+    @Test
+    void overrideEnabled_allPassed_fileNotRewritten() throws Exception {
+        Path file = overrideTempDir.resolve("pass.test");
+        String original = ""
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(1)\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "1\n";
+        Files.writeString(file, original);
+        FileTime mtime = Files.getLastModifiedTime(file);
+        CliOptions options = sqliteOptionsWithOverride("jdbc:sqlite::memory:");
+        ReportWriter rw = new ReportWriter(new PrintStream(new ByteArrayOutputStream()), new ReportStyle(false));
+        FileRunner overrideRunner = new FileRunner(options, new PrintStream(new ByteArrayOutputStream()), rw);
+
+        FileOutcome outcome = overrideRunner.run(parser, file, "pass.test");
+
+        assertEquals(FileBucket.PASSED, outcome.bucket());
+        assertEquals(original, Files.readString(file, StandardCharsets.UTF_8));
+        assertEquals(mtime, Files.getLastModifiedTime(file), "no mismatch → no write, no mtime change");
+    }
+
+    @Test
+    void overrideEnabled_scopeOutFailedPlusInScopeMismatch_writesBackAndStaysFailed() throws Exception {
+        Path file = overrideTempDir.resolve("mixed.test");
+        Files.writeString(file, ""
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(42)\n"
+                + "query I nosort\n"
+                + "SELECT nonexistent FROM t\n"
+                + "----\n"
+                + "1\n"
+                + "\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "wrong\n");
+        CliOptions options = sqliteOptionsWithOverride("jdbc:sqlite::memory:");
+        ReportWriter rw = new ReportWriter(new PrintStream(new ByteArrayOutputStream()), new ReportStyle(false));
+        FileRunner overrideRunner = new FileRunner(options, new PrintStream(new ByteArrayOutputStream()), rw);
+
+        FileOutcome outcome = overrideRunner.run(parser, file, "mixed.test");
+
+        assertEquals(FileBucket.FAILED, outcome.bucket(), "scope-out execution failure keeps bucket FAILED");
+        assertFalse(outcome.hardError());
+        String content = Files.readString(file, StandardCharsets.UTF_8);
+        assertTrue(content.contains("----\n42\n"), () -> "in-scope override must still be written:\n" + content);
+        assertFalse(content.contains("wrong"), () -> "old expected should be gone:\n" + content);
+    }
+
+    @Test
+    void overrideEnabled_writeFailure_isHardErrorAndOriginalIntact() throws Exception {
+        Path roDir = overrideTempDir.resolve("ro");
+        Files.createDirectories(roDir);
+        Path file = roDir.resolve("override.test");
+        String original = ""
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(42)\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "wrong\n";
+        Files.writeString(file, original);
+        boolean madeReadOnly = roDir.toFile().setReadOnly();
+        assumeTrue(madeReadOnly, "cannot set directory read-only on this platform");
+        try {
+            CliOptions options = sqliteOptionsWithOverride("jdbc:sqlite::memory:");
+            ReportWriter rw = new ReportWriter(new PrintStream(new ByteArrayOutputStream()), new ReportStyle(false));
+            FileRunner overrideRunner = new FileRunner(options, new PrintStream(new ByteArrayOutputStream()), rw);
+
+            FileOutcome outcome = overrideRunner.run(parser, file, "override.test");
+
+            assertEquals(FileBucket.FAILED, outcome.bucket());
+            assertTrue(outcome.hardError(), "write failure is a hard error");
+            String joined = stripAnsi(String.join("\n", outcome.detailLines()));
+            assertTrue(joined.contains("override write failed"), () -> "detail should mention write failure: " + joined);
+            assertEquals(original, Files.readString(file, StandardCharsets.UTF_8),
+                    "original must be intact after write failure");
+        } finally {
+            roDir.toFile().setWritable(true);
+        }
+    }
+
     private static Path fixture(String name) throws URISyntaxException {
         URL url = FileRunnerTest.class.getResource("/fixtures/cli/" + name);
         if (url == null) {
@@ -176,6 +322,10 @@ class FileRunnerTest {
 
     private static CliOptions sqliteOptionsWithHalt(String url) {
         return new CliOptions(url, Optional.empty(), Optional.empty(), "sqlite", 8, ColorMode.AUTO, true, List.of("x.test"));
+    }
+
+    private static CliOptions sqliteOptionsWithOverride(String url) {
+        return new CliOptions(url, Optional.empty(), Optional.empty(), "sqlite", 8, ColorMode.AUTO, false, true, List.of("x.test"));
     }
 
     private static Optional<String> optionalEnv(String name) {
