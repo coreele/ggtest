@@ -5,10 +5,10 @@
 目标分支: main
 文档影响: README.md（新增 `--override` 说明）、workflow 产物
 
-> 权威流程见 [workflow/README.md](../../README.md)；活跃状态见 [STATUS.md](STATUS.md)。
+> 权威流程见 [workflow/README.md](../../../README.md)；活跃状态见 [STATUS.md](../../manager/STATUS.md)。
 >
 > **切片级：** 路径等级、源分支、门禁、状态、阻塞。**工作项级：** 目标分支。
-> 未拆分：产物在 `workflow/docs/features/feat-override-results/`。
+> 未拆分：产物同目录（`spec.md` / `design.md` / `plan.md` / `review.md` / `qa-report.md` / `dev-notes.md`）。
 > 归档后本文件迁至 `workflow/docs/archive/YYYY/feat-override-results/manager.md`（须修正相对链接）；`workflow/docs/manager/` 仅保留活跃项与 STATUS。
 >
 > 表内只填枚举、短标签或链接；较长理由写入「进度笔记」（见 `workflow/docs/standards/documentation.md` §B）。
@@ -17,7 +17,7 @@
 
 | sub-feature-id | 路径等级 | 源分支 | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 |
 |---|---|---|---|---|---|---|---|
-| feat-override-results | full | feat-override-results | [spec.md](./../features/feat-override-results/spec.md) | required | approved | required | required |
+| feat-override-results | full | feat-override-results | [spec.md](spec.md) | required | approved | required | required |
 
 ## 切片状态
 

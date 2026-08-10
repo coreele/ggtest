@@ -25,7 +25,6 @@
 | add-dependency-check | add-dependency-check | OWASP dependency-check 或 Dependabot | backlog | fast | skipped | Planner | [workflow/docs/features/add-dependency-check/](../features/add-dependency-check/) |
 | fix-sql-hash-comments | fix-sql-hash-comments | SQL 体内 `#` 注释裁剪 | backlog | fast | skipped | Planner | [workflow/docs/features/fix-sql-hash-comments/](../features/fix-sql-hash-comments/) |
 | add-lcs-diff-guard | add-lcs-diff-guard | LCS diff O(n*m) 加大小门限 | backlog | fast | skipped | Planner | [workflow/docs/features/add-lcs-diff-guard/](../features/add-lcs-diff-guard/) |
-| feat-override-results | feat-override-results | --override 重写测试文件 expected results（golden-update） | done | full | required | 已授权合并→合入 main | [workflow/docs/features/feat-override-results/](../features/feat-override-results/) |
 
 ## 已归档
 
@@ -49,6 +48,7 @@
 | ggtest-core | ggtest-core（含 parser/normalize/runner-sqlite/cli-corpus 四切片） | done（父项归档；四切片均 done 且已合入 `main`） | [workflow/docs/archive/2026/ggtest-core/manager.md](../archive/2026/ggtest-core/manager.md) |
 | ggtest-cli-report | ggtest-cli-report | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/ggtest-cli-report/manager.md](../archive/2026/ggtest-cli-report/manager.md) |
 | ggtest-rowwise-expected | ggtest-rowwise-expected | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/ggtest-rowwise-expected/manager.md](../archive/2026/ggtest-rowwise-expected/manager.md) |
+| feat-override-results | feat-override-results | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/feat-override-results/manager.md](../archive/2026/feat-override-results/manager.md) |
 | chore-maven-compiler-release | chore-maven-compiler-release | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/chore-maven-compiler-release/manager.md](../archive/2026/chore-maven-compiler-release/manager.md) |
 | improve-multi-failure-report | improve-multi-failure-report | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/improve-multi-failure-report/manager.md](../archive/2026/improve-multi-failure-report/manager.md) |
 | chore-audit-tails | chore-audit-tails | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/chore-audit-tails/manager.md](../archive/2026/chore-audit-tails/manager.md) |
