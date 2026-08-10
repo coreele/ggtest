@@ -25,7 +25,6 @@
 | add-dependency-check | add-dependency-check | OWASP dependency-check 或 Dependabot | backlog | fast | skipped | Planner | [workflow/docs/features/add-dependency-check/](../features/add-dependency-check/) |
 | fix-sql-hash-comments | fix-sql-hash-comments | SQL 体内 `#` 注释裁剪 | backlog | fast | skipped | Planner | [workflow/docs/features/fix-sql-hash-comments/](../features/fix-sql-hash-comments/) |
 | add-lcs-diff-guard | add-lcs-diff-guard | LCS diff O(n*m) 加大小门限 | backlog | fast | skipped | Planner | [workflow/docs/features/add-lcs-diff-guard/](../features/add-lcs-diff-guard/) |
-| feat-statement-error-msg | feat-statement-error-msg | statement error 支持可选错误消息匹配 | done | standard | required | 已授权合并→合入 main | [workflow/docs/features/feat-statement-error-msg/](../features/feat-statement-error-msg/) |
 
 ## 已归档
 
@@ -54,3 +53,4 @@
 | chore-audit-tails | chore-audit-tails | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/chore-audit-tails/manager.md](../archive/2026/chore-audit-tails/manager.md) |
 | feat-cli-halt | feat-cli-halt | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/feat-cli-halt/manager.md](../archive/2026/feat-cli-halt/manager.md) |
 | improve-failure-output-format | improve-failure-output-format | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/improve-failure-output-format/manager.md](../archive/2026/improve-failure-output-format/manager.md) |
+| feat-statement-error-msg | feat-statement-error-msg | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/feat-statement-error-msg/manager.md](../archive/2026/feat-statement-error-msg/manager.md) |
