@@ -530,6 +530,139 @@ class SqlLogicTestRunnerTest {
         assertEquals(List.of(RecordOutcome.PASSED), outcomes(result));
     }
 
+    // --- override (golden-update) in-scope judgment ---
+
+    @Test
+    void overrideEnabled_pureQueryMismatch_yieldsOverriddenWithActualView() {
+        String sql = "SELECT a FROM t1";
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor().queryReturns(sql, List.of(List.of("1")));
+
+        FileRunResult result = runWithOverride(executor,
+                query(List.of(ColumnType.INTEGER), SortMode.NOSORT, null, sql, List.of("9")));
+
+        assertEquals(List.of(RecordOutcome.OVERRIDDEN), outcomes(result));
+        assertEquals(1, result.overriddenCount());
+        assertEquals(0, result.failedCount());
+        RecordResult rr = result.recordResults().get(0);
+        assertTrue(rr.overrideText().isPresent());
+        assertEquals("1", rr.overrideText().get());
+    }
+
+    @Test
+    void overrideEnabled_queryMismatchWithLabelConflict_remainsFailed() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor()
+                .queryReturns("SELECT 1", List.of(List.of("1")))
+                .queryReturns("SELECT 2", List.of(List.of("2")));
+
+        FileRunResult result = runWithOverride(executor,
+                query(List.of(ColumnType.INTEGER), SortMode.NOSORT, "l1", "SELECT 1", List.of("9")),
+                query(List.of(ColumnType.INTEGER), SortMode.NOSORT, "l1", "SELECT 2", List.of("9")));
+
+        assertEquals(List.of(RecordOutcome.OVERRIDDEN, RecordOutcome.FAILED), outcomes(result));
+        assertTrue(result.recordResults().get(1).failureReason().contains("label"));
+    }
+
+    @Test
+    void overrideEnabled_queryExecutionFailure_remainsFailed() {
+        String sql = "SELECT a FROM t1";
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor().queryFails(sql, "no such column: a");
+
+        FileRunResult result = runWithOverride(executor,
+                query(List.of(ColumnType.INTEGER), SortMode.NOSORT, null, sql, List.of("1")));
+
+        assertEquals(List.of(RecordOutcome.FAILED), outcomes(result));
+        assertEquals(0, result.overriddenCount());
+    }
+
+    @Test
+    void overrideEnabled_statementErrorMessageMismatch_yieldsOverridden() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor()
+                .statementFails("BOOM", "syntax error near INSERT");
+
+        FileRunResult result = runWithOverride(executor, statementError("BOOM", "no such table"));
+
+        assertEquals(List.of(RecordOutcome.OVERRIDDEN), outcomes(result));
+        RecordResult rr = result.recordResults().get(0);
+        assertTrue(rr.overrideText().isPresent());
+        assertEquals("syntax error near INSERT", rr.overrideText().get());
+    }
+
+    @Test
+    void overrideEnabled_statementOkFailure_remainsFailed() {
+        FakeDatabaseExecutor executor =
+                new FakeDatabaseExecutor().statementFails("BOOM", "syntax error");
+
+        FileRunResult result = runWithOverride(executor, statementOk("BOOM"));
+
+        assertEquals(List.of(RecordOutcome.FAILED), outcomes(result));
+        assertEquals(0, result.overriddenCount());
+    }
+
+    @Test
+    void overrideEnabled_statementErrorButActuallySucceeds_remainsFailed() {
+        FileRunResult result = runWithOverride(new FakeDatabaseExecutor(),
+                statementError("SELECT 1", "should fail"));
+
+        assertEquals(List.of(RecordOutcome.FAILED), outcomes(result));
+    }
+
+    @Test
+    void overrideEnabled_executeOnlyQueryNotCompared() {
+        String sql = "SELECT a FROM t1";
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor().queryReturns(sql, List.of(List.of("7")));
+
+        FileRunResult result = runWithOverride(executor, executeOnlyQuery(sql));
+
+        assertEquals(List.of(RecordOutcome.PASSED), outcomes(result));
+        assertEquals(0, result.overriddenCount());
+    }
+
+    @Test
+    void overrideDisabled_queryMismatchRemainsFailed() {
+        String sql = "SELECT a FROM t1";
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor().queryReturns(sql, List.of(List.of("1")));
+
+        FileRunResult result = run(executor,
+                query(List.of(ColumnType.INTEGER), SortMode.NOSORT, null, sql, List.of("9")));
+
+        assertEquals(List.of(RecordOutcome.FAILED), outcomes(result));
+        assertEquals(0, result.overriddenCount());
+        assertFalse(result.recordResults().get(0).overrideText().isPresent());
+    }
+
+    @Test
+    void overrideDisabled_statementErrorMessageMismatchRemainsFailed() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor()
+                .statementFails("BOOM", "syntax error near INSERT");
+
+        FileRunResult result = run(executor, statementError("BOOM", "no such table"));
+
+        assertEquals(List.of(RecordOutcome.FAILED), outcomes(result));
+    }
+
+    @Test
+    void overrideEnabled_doesNotTriggerHalt() {
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor()
+                .queryReturns("SELECT bad", List.of(List.of("1")))
+                .queryReturns("SELECT good", List.of(List.of("2")));
+
+        FileRunResult result = new SqlLogicTestRunner(
+                executor, com.ggtest.normalize.ResultComparer.DEFAULT_HASH_THRESHOLD, true, true)
+                .run(List.of(
+                        query(List.of(ColumnType.INTEGER), SortMode.NOSORT, null, "SELECT bad", List.of("9")),
+                        query(List.of(ColumnType.INTEGER), SortMode.NOSORT, null, "SELECT good", List.of("2"))));
+
+        assertEquals(List.of(RecordOutcome.OVERRIDDEN, RecordOutcome.PASSED), outcomes(result));
+        assertFalse(result.aborted());
+        assertFalse(result.halted());
+    }
+
+    private FileRunResult runWithOverride(FakeDatabaseExecutor executor, SqlTestRecord... records) {
+        return new SqlLogicTestRunner(
+                executor, com.ggtest.normalize.ResultComparer.DEFAULT_HASH_THRESHOLD, false, true)
+                .run(List.of(records));
+    }
+
     private FileRunResult run(FakeDatabaseExecutor executor, SqlTestRecord... records) {
         return new SqlLogicTestRunner(executor).run(List.of(records));
     }

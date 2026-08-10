@@ -13,5 +13,12 @@ public enum RecordOutcome {
     FAILED,
 
     /** The record was not executed: a {@code skipif}/{@code onlyif} condition or an earlier {@code halt}. */
-    SKIPPED
+    SKIPPED,
+
+    /**
+     * The record had an in-scope mismatch whose expected interval was overridden by the
+     * actual output (golden-update mode). Not a failure: does not count toward failed
+     * counts and does not trigger {@code --halt}.
+     */
+    OVERRIDDEN
 }

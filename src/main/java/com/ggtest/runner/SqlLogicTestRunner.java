@@ -53,6 +53,7 @@ public final class SqlLogicTestRunner {
     private final DatabaseExecutor executor;
     private final int initialHashThreshold;
     private final boolean haltOnFirstFailure;
+    private final boolean overrideEnabled;
 
     /**
      * Uses {@link ResultComparer#DEFAULT_HASH_THRESHOLD} as the initial threshold.
@@ -83,9 +84,32 @@ public final class SqlLogicTestRunner {
      */
     public SqlLogicTestRunner(
             DatabaseExecutor executor, int initialHashThreshold, boolean haltOnFirstFailure) {
+        this(executor, initialHashThreshold, haltOnFirstFailure, false);
+    }
+
+    /**
+     * @param executor             database executor; supplies the engine name for conditions
+     * @param initialHashThreshold threshold each run starts with, before any
+     *                             {@code hash-threshold} record; {@code <= 0} disables hashing
+     * @param haltOnFirstFailure   when {@code true}, the first non-fatal
+     *                             {@link RecordOutcome#FAILED} assertable record stops the file:
+     *                             later assertable records become {@link RecordOutcome#SKIPPED}
+     *                             and are not executed (CLI {@code --halt})
+     * @param overrideEnabled      when {@code true}, in-scope mismatches (query result mismatch
+     *                             without label conflict / execution failure / type signature error;
+     *                             {@code statement error} message mismatch) yield
+     *                             {@link RecordOutcome#OVERRIDDEN} instead of
+     *                             {@link RecordOutcome#FAILED} (CLI {@code --override})
+     */
+    public SqlLogicTestRunner(
+            DatabaseExecutor executor,
+            int initialHashThreshold,
+            boolean haltOnFirstFailure,
+            boolean overrideEnabled) {
         this.executor = Objects.requireNonNull(executor, "executor");
         this.initialHashThreshold = initialHashThreshold;
         this.haltOnFirstFailure = haltOnFirstFailure;
+        this.overrideEnabled = overrideEnabled;
     }
 
     /**
@@ -174,6 +198,9 @@ public final class SqlLogicTestRunner {
                 if (expectedMsg != null && !expectedMsg.isEmpty()) {
                     String actual = result.errorSummary() == null ? "" : result.errorSummary();
                     if (!actual.toLowerCase(Locale.ROOT).contains(expectedMsg.toLowerCase(Locale.ROOT))) {
+                        if (overrideEnabled) {
+                            yield RecordResult.overridden(record, actual);
+                        }
                         yield RecordResult.failed(record,
                                 "statement error message mismatch\n"
                                         + "-   " + expectedMsg + "\n"
@@ -206,19 +233,27 @@ public final class SqlLogicTestRunner {
         }
 
         List<String> failures = new ArrayList<>();
+        boolean resultMismatch = false;
         if (record.hasExpectedResults() && !comparison.passed()) {
+            resultMismatch = true;
             failures.add("result mismatch:\n" + comparison.diffSummary());
         }
+        boolean labelConflict = false;
         if (record.label().isPresent()) {
             String label = record.label().get();
             List<String> firstView = state.rememberLabelView(label, comparison.actualView());
             if (firstView != null && !firstView.equals(comparison.actualView())) {
+                labelConflict = true;
                 failures.add(labelConflict(label, firstView, comparison.actualView()));
             }
         }
-        return failures.isEmpty()
-                ? RecordResult.passed(record)
-                : RecordResult.failed(record, String.join("\n", failures));
+        if (failures.isEmpty()) {
+            return RecordResult.passed(record);
+        }
+        if (overrideEnabled && resultMismatch && !labelConflict) {
+            return RecordResult.overridden(record, String.join("\n", comparison.actualView()));
+        }
+        return RecordResult.failed(record, String.join("\n", failures));
     }
 
     private static String expectedText(QueryRecord record) {

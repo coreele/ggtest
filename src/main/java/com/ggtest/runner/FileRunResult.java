@@ -41,6 +41,11 @@ public record FileRunResult(
         return count(RecordOutcome.SKIPPED);
     }
 
+    /** Number of records whose in-scope mismatch was overridden (golden-update mode). */
+    public int overriddenCount() {
+        return count(RecordOutcome.OVERRIDDEN);
+    }
+
     private int count(RecordOutcome outcome) {
         int total = 0;
         for (RecordResult result : recordResults) {
