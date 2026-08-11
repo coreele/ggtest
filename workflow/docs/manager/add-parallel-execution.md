@@ -17,7 +17,7 @@
 
 | sub-feature-id | 状态 | 后续步骤 | 阻塞原因 | 恢复条件 | 恢复后目标 |
 |---|---|---|---|---|---|
-| add-parallel-execution | reviewing | Reviewer | | | |
+| add-parallel-execution | qa | QA | | | |
 
 ## 进度笔记
 
@@ -27,3 +27,4 @@
 - Design 门禁 required：并发模型（ExecutorService/thread pool）、线程安全聚合、输出序列化。
 - 2026-08-11：用户会话确认 Plan；检查 `conn=<name>` 不受并行影响（per-file 机制天然隔离）。状态 → planned，调度 Developer。
 - 2026-08-11：Developer 实施完成（commit `04f8c72`）。12 文件修改 + 2 文件新建，444 行新增。T1-T9 全部完成，343 tests / 0 failures / 17 skipped。状态 → reviewing，调度 Reviewer。
+- 2026-08-11：Reviewer 审阅版本 `04f8c72`，结论 **Approve**（无阻塞项，review.md 保留工作区）。状态 → qa，调度 QA。

@@ -12,6 +12,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Worker result bundling an outcome with the per-file elapsed duration.
+ */
+record TimedFileOutcome(FileOutcome outcome, long elapsedMs) {}
+
+/**
  * Orchestrates multi-file CLI execution: path display, per-file timing,
  * {@link FileRunner} invocation, and {@link ReportWriter} output.
  *
@@ -138,18 +143,21 @@ final class CliSession {
 
         SqlLogicTestParser parser = new SqlLogicTestParser();
         ParallelExecutor executor = new ParallelExecutor(options.parallel());
-        List<Callable<FileOutcome>> tasks = new ArrayList<>(files.size());
+        List<Callable<TimedFileOutcome>> tasks = new ArrayList<>(files.size());
 
         for (int i = 0; i < files.size(); i++) {
             Path file = files.get(i);
             String display = displays.get(i);
             tasks.add(() -> {
                 FileRunner runner = new FileRunner(options, err, reportWriter);
-                return runner.run(parser, file, display);
+                long start = System.nanoTime();
+                FileOutcome outcome = runner.run(parser, file, display);
+                long ms = Math.max(0L, (System.nanoTime() - start) / 1_000_000L);
+                return new TimedFileOutcome(outcome, ms);
             });
         }
 
-        List<Future<FileOutcome>> futures = executor.submitAll(tasks);
+        List<Future<TimedFileOutcome>> futures = executor.submitAll(tasks);
         FileBucket lastBucket = null;
         boolean halted = false;
 
@@ -157,37 +165,39 @@ final class CliSession {
             if (halted && futures.get(i).isCancelled()) {
                 continue;
             }
-            FileOutcome outcome;
+            TimedFileOutcome timed;
             try {
-                outcome = futures.get(i).get();
+                timed = futures.get(i).get();
             } catch (ExecutionException e) {
                 String w = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
-                outcome = FileOutcome.hardFailure(reportWriter.detailLines(
-                        "unexpected error: " + w, null, displays.get(i), null));
+                timed = new TimedFileOutcome(FileOutcome.hardFailure(reportWriter.detailLines(
+                        "unexpected error: " + w, null, displays.get(i), null)), 0);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                outcome = FileOutcome.hardFailure(reportWriter.detailLines(
-                        "interrupted", null, displays.get(i), null));
+                timed = new TimedFileOutcome(FileOutcome.hardFailure(reportWriter.detailLines(
+                        "interrupted", null, displays.get(i), null)), 0);
             }
 
             String display = displays.get(i);
+            FileOutcome outcome = timed.outcome();
+            long elapsedMs = timed.elapsedMs();
             hardError = hardError || outcome.hardError();
             lastBucket = outcome.bucket();
 
             switch (outcome.bucket()) {
                 case PASSED -> {
-                    reportWriter.printStatusLine(display, pathWidth, style.passedTag(), 0, true);
+                    reportWriter.printStatusLine(display, pathWidth, style.passedTag(), elapsedMs, true);
                     totalPassed++;
                 }
                 case SKIPPED -> {
-                    reportWriter.printStatusLine(display, pathWidth, style.skippedTag(), 0, false);
+                    reportWriter.printStatusLine(display, pathWidth, style.skippedTag(), elapsedMs, false);
                     totalSkipped++;
                 }
                 case OVERRIDDEN -> {
-                    reportWriter.printStatusLine(display, pathWidth, style.overriddenTag(), 0, true);
+                    reportWriter.printStatusLine(display, pathWidth, style.overriddenTag(), elapsedMs, true);
                 }
                 case FAILED -> {
-                    reportWriter.printStatusLine(display, pathWidth, style.failedTag(), 0, true);
+                    reportWriter.printStatusLine(display, pathWidth, style.failedTag(), elapsedMs, true);
                     for (String blockLine : outcome.detailLines()) {
                         out.println(blockLine);
                     }

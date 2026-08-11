@@ -138,8 +138,6 @@ SELECT id FROM items WHERE id IN (1, 2) ORDER BY id
 statement ok
 DROP TABLE IF EXISTS items;
 
-
-
 # PostgreSQL PL/pgSQL — requires --engine postgres
 
 ### All records guarded with onlyif postgres; clean run on SQLite.
@@ -182,6 +180,8 @@ BEGIN
     RETURN;
 END
 $$ LANGUAGE plpgsql
+
+hash-threshold 10
 
 onlyif postgres
 query I nosort

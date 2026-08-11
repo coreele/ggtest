@@ -21,7 +21,7 @@
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
 | add-report-format | add-report-format | `--format junit-xml\|json` 测试报告输出 | blocked | standard | required | 恢复后 → Planner | [workflow/docs/features/add-report-format/](../features/add-report-format/) |
-| add-parallel-execution | add-parallel-execution | `--parallel <N>` 并行执行独立文件 | reviewing | standard | required | Reviewer | [workflow/docs/features/add-parallel-execution/](../features/add-parallel-execution/) |
+| add-parallel-execution | add-parallel-execution | `--parallel <N>` 并行执行独立文件 | qa | standard | required | QA | [workflow/docs/features/add-parallel-execution/](../features/add-parallel-execution/) |
 | fix-sql-hash-comments | fix-sql-hash-comments | SQL 体内 `#` 注释裁剪 | backlog | fast | skipped | Planner | [workflow/docs/features/fix-sql-hash-comments/](../features/fix-sql-hash-comments/) |
 | add-lcs-diff-guard | add-lcs-diff-guard | LCS diff O(n*m) 加大小门限 | backlog | fast | skipped | Planner | [workflow/docs/features/add-lcs-diff-guard/](../features/add-lcs-diff-guard/) |
 | ggtest-cli-help | ggtest-cli-help | --help / -h 用法信息 | done | fast | skipped | — | [workflow/docs/features/ggtest-cli-help/](../features/ggtest-cli-help/) |
