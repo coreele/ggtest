@@ -1,22 +1,18 @@
 # GGTEST feature showcase (sqllogictest format)
 #
-# Covers public record types and expectation forms. Pair with
-# examples/demo_zh.slt for the Chinese commentary twin.
-#
-# SQLite (pass --engine when CWD .env sets another engine):
-#   ./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo.slt
-#   ./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo.slt examples/demo_zh.slt
-#
-# PostgreSQL (needs CREATE/DROP SCHEMA):
-#   ./bin/ggtest --engine postgres \
-#     --url 'jdbc:postgresql://localhost:5432/postgres' \
-#     --user postgres [--password ...] \
-#     examples/demo.slt
-#
-# Default hash-threshold is 8; an in-file hash-threshold record overrides mid-file.
-# File TOTAL is per-file (passed=1). Inside: asserts + condition/halt skips.
+### Covers public record types, expectation forms, and PostgreSQL PL/pgSQL.
+### Pair with examples/demo_zh.slt for the Chinese commentary twin.
+###
+### SQLite (pass --engine when CWD .env sets another engine):
+###   ./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo.slt
+###
+### PostgreSQL (all sections including PL/pgSQL):
+###   ./bin/ggtest --engine postgres \
+###     --url 'jdbc:postgresql://localhost:5432/postgres' \
+###     --user postgres [--password ...] \
+###     examples/demo.slt
 
-# --- setup ---
+## --- setup ---
 statement ok
 DROP TABLE IF EXISTS items;
 
@@ -31,9 +27,9 @@ INSERT INTO items VALUES
   (4, '', 9.0),
   (5, NULL, NULL)
 
-# --- I / T / R + sort modes ---
+## --- I / T / R + sort modes ---
 
-# T + rowsort: engine order is re-sorted lexicographically
+### T + rowsort: engine order is re-sorted lexicographically
 query T rowsort
 SELECT name FROM items WHERE id <= 3
 ----
@@ -41,7 +37,7 @@ apple
 banana
 cherry
 
-# I + nosort: order must match ORDER BY
+### I + nosort: order must match ORDER BY
 query I nosort
 SELECT id FROM items WHERE id <= 3 ORDER BY id
 ----
@@ -49,7 +45,7 @@ SELECT id FROM items WHERE id <= 3 ORDER BY id
 2
 3
 
-# R: REAL formatted as %.3f
+### R: REAL formatted as %.3f
 query R nosort
 SELECT price FROM items WHERE id <= 3 ORDER BY id
 ----
@@ -57,7 +53,7 @@ SELECT price FROM items WHERE id <= 3 ORDER BY id
 0.500
 3.000
 
-# valuesort: flatten all cells then sort as strings
+### valuesort: flatten all cells then sort as strings
 query II valuesort
 SELECT id, CAST(price AS INTEGER) FROM items WHERE id IN (1, 2) ORDER BY id
 ----
@@ -66,7 +62,7 @@ SELECT id, CAST(price AS INTEGER) FROM items WHERE id IN (1, 2) ORDER BY id
 1
 2
 
-# --- NULL and (empty) ---
+## --- NULL and (empty) ---
 
 query T nosort
 SELECT name FROM items WHERE id = 4
@@ -83,9 +79,9 @@ SELECT price FROM items WHERE id = 5
 ----
 NULL
 
-# --- value-per-line (plain ----) vs row-wise (query-head separator) ---
+## --- value-per-line (plain ----) vs row-wise (query-head separator=<delim>) ---
 
-# Plain ---- is always value-per-line (one physical line = one cell)
+### Plain ---- is always value-per-line (one physical line = one cell)
 query IIT nosort
 SELECT id, 1, name FROM items WHERE id = 1
 ----
@@ -93,7 +89,7 @@ SELECT id, 1, name FROM items WHERE id = 1
 1
 apple
 
-# Spaces in TEXT stay on one value-per-line cell (not split into columns)
+### Spaces in TEXT stay on one value-per-line cell (not split into columns)
 query IIT nosort
 SELECT 1, 1, 'hello world'
 ----
@@ -101,19 +97,19 @@ SELECT 1, 1, 'hello world'
 1
 hello world
 
-# Row-wise: declare separator on the query header; tokens are trimmed
+### Row-wise: declare separator=<delim> on the query header; tokens are trimmed
 query IIT nosort separator=|
 SELECT 1, 1, 'hello world'
 ----
 1 | 1 | hello world
 
-# Another delimiter (comma); does not inherit prior |
+### Another delimiter (comma); does not inherit prior |
 query IIT nosort separator=,
 SELECT 1, 1, 'hello world'
 ----
 1, 1, hello world
 
-# SQL quote escaping: '' inside a literal becomes a single ' in the cell
+### SQL quote escaping: '' inside a literal becomes a single ' in the cell
 query IIT nosort separator=|
 SELECT 1, 1, 'hello ''world'
 ----
@@ -127,11 +123,11 @@ SELECT 4, 5, 6
 5
 6
 
-# --- execute-only (no ---- block): run SQL, do not compare ---
+## --- execute-only (no ---- block): run SQL, do not compare ---
 query I nosort
 SELECT id FROM items WHERE id = 1
 
-# --- label: same label must yield the same result view ---
+## --- label: same label must yield the same result view ---
 query I nosort same_id
 SELECT id FROM items WHERE id = 1
 ----
@@ -142,13 +138,15 @@ SELECT id FROM items WHERE name = 'apple'
 ----
 1
 
-# --- statement error: execution MUST fail ---
+## --- statement error: execution MUST fail ---
 statement error
 SELECT * FROM missing_table
 
-# --- skipif / onlyif (engine name case-insensitive) ---
-# On sqlite: first skipped, second runs, third skipped.
-# On postgres: first runs (must be valid), second skipped, third runs.
+## --- skipif / onlyif (engine name case-insensitive) ---
+
+### On sqlite: first skipped, second runs, third skipped.
+### On postgres: first runs (must be valid), second skipped, third runs.
+
 skipif sqlite
 statement ok
 SELECT 1
@@ -161,7 +159,7 @@ onlyif postgres
 statement ok
 SELECT 1
 
-# --- hash-threshold: above N values → MD5 form ---
+## --- hash-threshold: above N values → MD5 form ---
 hash-threshold 1
 
 query I nosort
@@ -169,10 +167,313 @@ SELECT id FROM items WHERE id IN (1, 2) ORDER BY id
 ----
 2 values hashing to 6ddb4095eb719e2a9f0a3f95677d24e0
 
+## --- teardown ---
 statement ok
 DROP TABLE IF EXISTS items;
 
-# --- halt: everything after is skipped (must not execute) ---
+# ==============================================================================
+#  PostgreSQL PL/pgSQL features — requires --engine postgres
+# ==============================================================================
+### The following sections demonstrate PL/pgSQL: scalar functions, control flow,
+### set-returning functions, exception handling, and more.  All records use
+### onlyif postgres guards so the file runs cleanly on SQLite as well.
+
+## --- Scalar function — parameters & return value ---
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS get_square(integer)
+
+onlyif postgres
+statement ok
+CREATE OR REPLACE FUNCTION get_square(num integer)
+RETURNS integer AS $$
+BEGIN
+    RETURN num * num;
+END
+$$ LANGUAGE plpgsql
+
+onlyif postgres
+query I
+SELECT get_square(5)
+----
+25
+
+onlyif postgres
+query I
+SELECT get_square(-3)
+----
+9
+
+## --- DECLARE local variables ---
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS calc_discount(numeric, numeric)
+
+onlyif postgres
+statement ok
+CREATE OR REPLACE FUNCTION calc_discount(price numeric, rate numeric)
+RETURNS numeric AS $$
+DECLARE
+    discounted numeric;
+BEGIN
+    discounted := price - (price * rate / 100);
+    RETURN discounted;
+END
+$$ LANGUAGE plpgsql
+
+onlyif postgres
+query RR nosort
+SELECT calc_discount(100, 10), calc_discount(50, 20)
+----
+90.000
+40.000
+
+## --- IF / ELSIF / ELSE conditional branching ---
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS grade_score(integer)
+
+onlyif postgres
+statement ok
+CREATE OR REPLACE FUNCTION grade_score(score integer)
+RETURNS text AS $$
+BEGIN
+    IF score >= 80 THEN
+        RETURN 'A';
+    ELSIF score >= 60 THEN
+        RETURN 'B';
+    ELSE
+        RETURN 'C';
+    END IF;
+END
+$$ LANGUAGE plpgsql
+
+onlyif postgres
+query T nosort
+SELECT grade_score(90)
+----
+A
+
+onlyif postgres
+query T nosort
+SELECT grade_score(65)
+----
+B
+
+onlyif postgres
+query T nosort
+SELECT grade_score(40)
+----
+C
+
+## --- RETURN QUERY / SETOF — returning result sets ---
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS fibonacci(integer)
+
+onlyif postgres
+statement ok
+CREATE OR REPLACE FUNCTION fibonacci(lim integer)
+RETURNS SETOF integer AS $$
+DECLARE
+    a integer := 0;
+    b integer := 1;
+    t integer;
+BEGIN
+    RETURN NEXT a;
+    WHILE b <= lim LOOP
+        RETURN NEXT b;
+        t := a + b;
+        a := b;
+        b := t;
+    END LOOP;
+    RETURN;
+END
+$$ LANGUAGE plpgsql
+
+onlyif postgres
+query I nosort
+SELECT * FROM fibonacci(13)
+----
+0
+1
+1
+2
+3
+5
+8
+13
+
+## --- LOOP + EXIT WHEN + CONTINUE ---
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS sum_evens(integer)
+
+onlyif postgres
+statement ok
+CREATE OR REPLACE FUNCTION sum_evens(n integer)
+RETURNS integer AS $$
+DECLARE
+    i     integer := 1;
+    total integer := 0;
+BEGIN
+    LOOP
+        EXIT WHEN i > n;
+        IF i % 2 <> 0 THEN
+            i := i + 1;
+            CONTINUE;
+        END IF;
+        total := total + i;
+        i := i + 1;
+    END LOOP;
+    RETURN total;
+END
+$$ LANGUAGE plpgsql
+
+onlyif postgres
+query I
+SELECT sum_evens(10)
+----
+30
+
+onlyif postgres
+query I
+SELECT sum_evens(5)
+----
+6
+
+## --- Default parameter values ---
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS greet(text, text)
+
+onlyif postgres
+statement ok
+CREATE OR REPLACE FUNCTION greet(who text, prefix text DEFAULT 'Hello')
+RETURNS text AS $$
+BEGIN
+    RETURN prefix || ', ' || who || '!';
+END
+$$ LANGUAGE plpgsql
+
+onlyif postgres
+query T nosort
+SELECT greet('World')
+----
+Hello, World!
+
+onlyif postgres
+query T nosort
+SELECT greet('GGTEST', 'Hi')
+----
+Hi, GGTEST!
+
+## --- RETURNS TABLE — row-structured returns ---
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS split_name(text)
+
+onlyif postgres
+statement ok
+CREATE OR REPLACE FUNCTION split_name(full_name text)
+RETURNS TABLE(first text, last text) AS $$
+BEGIN
+    first := split_part(full_name, ' ', 1);
+    last  := split_part(full_name, ' ', 2);
+    RETURN NEXT;
+END
+$$ LANGUAGE plpgsql
+
+onlyif postgres
+query TT nosort separator=|
+SELECT * FROM split_name('John Smith')
+----
+John | Smith
+
+## --- Exception handling — EXCEPTION WHEN ---
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS safe_divide(numeric, numeric)
+
+onlyif postgres
+statement ok
+CREATE OR REPLACE FUNCTION safe_divide(a numeric, b numeric)
+RETURNS numeric AS $$
+BEGIN
+    RETURN a / b;
+EXCEPTION
+    WHEN division_by_zero THEN
+        RETURN NULL;
+END
+$$ LANGUAGE plpgsql
+
+onlyif postgres
+query R
+SELECT safe_divide(10, 2)
+----
+5.000
+
+onlyif postgres
+query T
+SELECT CAST(safe_divide(10, 0) AS text)
+----
+NULL
+
+onlyif postgres
+query T
+SELECT safe_divide(10, 0) IS NULL
+----
+t
+
+## --- STATEMENT ERROR — uncaught exceptions propagate to client ---
+
+onlyif postgres
+statement error division by zero
+SELECT 1 / 0
+
+## --- PL/pgSQL cleanup ---
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS get_square(integer)
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS calc_discount(numeric, numeric)
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS grade_score(integer)
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS fibonacci(integer)
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS sum_evens(integer)
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS greet(text, text)
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS split_name(text)
+
+onlyif postgres
+statement ok
+DROP FUNCTION IF EXISTS safe_divide(numeric, numeric)
+
+## --- halt: everything after is skipped (must not execute) ---
 halt
 
 statement ok
