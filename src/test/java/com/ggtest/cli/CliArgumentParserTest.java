@@ -214,4 +214,86 @@ class CliArgumentParserTest {
                 }));
         assertTrue(!ex.getMessage().contains("super-secret-credential"));
     }
+
+    @Test
+    void parallelDefaultsToEmptyWhenAbsent() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {
+            "--url", "jdbc:sqlite::memory:",
+            "a.test"
+        });
+        assertTrue(parsed.parallel().isEmpty());
+    }
+
+    @Test
+    void parsesParallelPositiveInteger() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {
+            "--url", "jdbc:sqlite::memory:",
+            "--parallel", "2",
+            "a.test"
+        });
+        assertEquals(Optional.of(2), parsed.parallel());
+    }
+
+    @Test
+    void parallelZeroYieldsUsageError() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> CliArgumentParser.parse(new String[] {
+                    "--url", "jdbc:sqlite::memory:",
+                    "--parallel", "0",
+                    "a.test"
+                }));
+        assertTrue(ex.getMessage().toLowerCase().contains("parallel"));
+    }
+
+    @Test
+    void parallelNegativeYieldsUsageError() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> CliArgumentParser.parse(new String[] {
+                    "--url", "jdbc:sqlite::memory:",
+                    "--parallel", "-1",
+                    "a.test"
+                }));
+        assertTrue(ex.getMessage().toLowerCase().contains("parallel"));
+    }
+
+    @Test
+    void parallelNonIntegerYieldsUsageError() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> CliArgumentParser.parse(new String[] {
+                    "--url", "jdbc:sqlite::memory:",
+                    "--parallel", "abc",
+                    "a.test"
+                }));
+        assertTrue(ex.getMessage().toLowerCase().contains("parallel"));
+    }
+
+    @Test
+    void parallelMissingValueYieldsUsageError() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> CliArgumentParser.parse(new String[] {
+                    "--url", "jdbc:sqlite::memory:",
+                    "--parallel",
+                    "a.test"
+                }));
+        assertTrue(ex.getMessage().toLowerCase().contains("parallel")
+                || ex.getMessage().toLowerCase().contains("missing"));
+    }
+
+    @Test
+    void parallelWithOverrideYieldsUsageError() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> CliArgumentParser.parse(new String[] {
+                    "--url", "jdbc:sqlite::memory:",
+                    "--parallel", "2",
+                    "--override",
+                    "a.test"
+                }));
+        assertTrue(ex.getMessage().toLowerCase().contains("parallel")
+                && ex.getMessage().toLowerCase().contains("override"));
+    }
 }

@@ -45,6 +45,7 @@ public final class CliArgumentParser {
         boolean halt = false;
         boolean override = false;
         boolean help = false;
+        Optional<Integer> parallel = Optional.empty();
         List<String> inputs = new ArrayList<>();
 
         for (int i = 0; i < args.length; i++) {
@@ -59,6 +60,19 @@ public final class CliArgumentParser {
                         hashThreshold = Optional.of(parseHashThreshold(requireValue(args, ++i, "--hash-threshold")));
                     case "--env-file" -> envFile = Optional.of(requireValue(args, ++i, "--env-file"));
                     case "--color" -> color = Optional.of(ColorMode.parse(requireValue(args, ++i, "--color"), "--color"));
+                    case "--parallel" -> {
+                        String val = requireValue(args, ++i, "--parallel");
+                        int n;
+                        try {
+                            n = Integer.parseInt(val);
+                        } catch (NumberFormatException e) {
+                            throw new UsageException("invalid --parallel value: " + val);
+                        }
+                        if (n < 1) {
+                            throw new UsageException("--parallel must be >= 1, got: " + n);
+                        }
+                        parallel = Optional.of(n);
+                    }
                     case "--halt" -> halt = true;
                     case "--override" -> override = true;
                     case "--help", "-h" -> help = true;
@@ -69,7 +83,12 @@ public final class CliArgumentParser {
             }
         }
 
-        return new ParsedArguments(url, user, password, engine, hashThreshold, envFile, color, halt, override, help, inputs);
+        if (parallel.isPresent() && override) {
+            throw new UsageException("--parallel and --override cannot be used together");
+        }
+
+        return new ParsedArguments(url, user, password, engine, hashThreshold, envFile, color, halt, override, help,
+                parallel, inputs);
     }
 
     private static String requireValue(String[] args, int index, String option) {

@@ -13,6 +13,7 @@ import java.util.Optional;
  * @param override whether {@code --override} (golden-update) was supplied;
  *                 repeated occurrences are equivalent to a single one
  * @param help whether {@code --help} (or {@code -h}) was supplied
+ * @param parallel maximum concurrent files; empty when {@code --parallel} not supplied
  */
 public record ParsedArguments(
         Optional<String> url,
@@ -25,6 +26,7 @@ public record ParsedArguments(
         boolean halt,
         boolean override,
         boolean help,
+        Optional<Integer> parallel,
         List<String> inputs) {
 
     public ParsedArguments {
@@ -35,6 +37,7 @@ public record ParsedArguments(
         hashThreshold = hashThreshold == null ? Optional.empty() : hashThreshold;
         envFile = envFile == null ? Optional.empty() : envFile;
         color = color == null ? Optional.empty() : color;
+        parallel = parallel == null ? Optional.empty() : parallel;
         inputs = List.copyOf(Objects.requireNonNull(inputs, "inputs"));
     }
 }

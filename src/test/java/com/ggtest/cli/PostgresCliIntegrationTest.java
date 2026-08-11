@@ -106,13 +106,31 @@ class PostgresCliIntegrationTest {
         assertFalse(capture.stderr().contains(password), "password must not appear on stderr");
     }
 
+    @Test
+    void parallelPostgresSchemaIsolation() {
+        assumePg();
+        Capture capture = runPg(
+                "postgres",
+                "--parallel", "2",
+                fixture("cross-file/schema-a.test").toString(),
+                fixture("cross-file/schema-b.test").toString());
+
+        assertEquals(0, capture.exitCode(), () -> capture.stdout() + "\n" + capture.stderr());
+        assertEquals(0, countFailures(capture.stdout()));
+        assertTrue(capture.stdout().contains("schema-a.test"));
+        assertTrue(capture.stdout().contains("schema-b.test"));
+        assertFalse(capture.stdout().toLowerCase().contains("already exists"));
+        assertFalse(capture.stdout().toLowerCase().contains("conflict"));
+        assertFalse(capture.stderr().toLowerCase().contains("conflict"));
+    }
+
     private static void assumePg() {
         assumeTrue(
                 System.getenv("GGTEST_PG_URL") != null && !System.getenv("GGTEST_PG_URL").isBlank(),
                 "GGTEST_PG_URL not set; skipping PG CLI tests");
     }
 
-    private Capture runPg(String engine, String... files) {
+    private Capture runPg(String engine, String... trailing) {
         List<String> args = new ArrayList<>();
         args.add("--url");
         args.add(System.getenv("GGTEST_PG_URL"));
@@ -128,8 +146,8 @@ class PostgresCliIntegrationTest {
             args.add("--password");
             args.add(password);
         }
-        for (String file : files) {
-            args.add(file);
+        for (String item : trailing) {
+            args.add(item);
         }
         return runMain(args.toArray(String[]::new));
     }

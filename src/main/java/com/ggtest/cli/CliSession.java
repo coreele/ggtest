@@ -6,6 +6,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Orchestrates multi-file CLI execution: path display, per-file timing,
@@ -44,6 +48,10 @@ final class CliSession {
      * @return CLI exit code: 0 all passed, 1 assertion failures, 2 hard errors
      */
     int execute(List<Path> files) {
+        if (options.parallel() > 1) {
+            return executeParallel(files);
+        }
+
         int totalPassed = 0;
         int totalFailed = 0;
         int totalSkipped = 0;
@@ -103,6 +111,110 @@ final class CliSession {
         reportWriter.printErrorSection(failedPaths, lastBucket);
         reportWriter.printTrailingBlankIfNeeded(failedPaths, totalPassed + totalOverridden, totalSkipped);
         reportWriter.printTotal(totalPassed, totalFailed, totalSkipped, totalOverridden, options.override());
+
+        if (hardError) {
+            return 2;
+        }
+        if (totalFailed > 0) {
+            return 1;
+        }
+        return 0;
+    }
+
+    private int executeParallel(List<Path> files) {
+        int totalPassed = 0;
+        int totalFailed = 0;
+        int totalSkipped = 0;
+        boolean hardError = false;
+        List<String> failedPaths = new ArrayList<>();
+
+        int pathWidth = STATUS_PATH_COLUMN_WIDTH;
+        List<String> displays = new ArrayList<>(files.size());
+        for (Path file : files) {
+            String display = ReportWriter.relativePath(file);
+            displays.add(display);
+            pathWidth = Math.max(pathWidth, display.length());
+        }
+
+        SqlLogicTestParser parser = new SqlLogicTestParser();
+        ParallelExecutor executor = new ParallelExecutor(options.parallel());
+        List<Callable<FileOutcome>> tasks = new ArrayList<>(files.size());
+
+        for (int i = 0; i < files.size(); i++) {
+            Path file = files.get(i);
+            String display = displays.get(i);
+            tasks.add(() -> {
+                FileRunner runner = new FileRunner(options, err, reportWriter);
+                return runner.run(parser, file, display);
+            });
+        }
+
+        List<Future<FileOutcome>> futures = executor.submitAll(tasks);
+        FileBucket lastBucket = null;
+        boolean halted = false;
+
+        for (int i = 0; i < futures.size(); i++) {
+            if (halted && futures.get(i).isCancelled()) {
+                continue;
+            }
+            FileOutcome outcome;
+            try {
+                outcome = futures.get(i).get();
+            } catch (ExecutionException e) {
+                String w = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
+                outcome = FileOutcome.hardFailure(reportWriter.detailLines(
+                        "unexpected error: " + w, null, displays.get(i), null));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                outcome = FileOutcome.hardFailure(reportWriter.detailLines(
+                        "interrupted", null, displays.get(i), null));
+            }
+
+            String display = displays.get(i);
+            hardError = hardError || outcome.hardError();
+            lastBucket = outcome.bucket();
+
+            switch (outcome.bucket()) {
+                case PASSED -> {
+                    reportWriter.printStatusLine(display, pathWidth, style.passedTag(), 0, true);
+                    totalPassed++;
+                }
+                case SKIPPED -> {
+                    reportWriter.printStatusLine(display, pathWidth, style.skippedTag(), 0, false);
+                    totalSkipped++;
+                }
+                case OVERRIDDEN -> {
+                    reportWriter.printStatusLine(display, pathWidth, style.overriddenTag(), 0, true);
+                }
+                case FAILED -> {
+                    reportWriter.printStatusLine(display, pathWidth, style.failedTag(), 0, true);
+                    for (String blockLine : outcome.detailLines()) {
+                        out.println(blockLine);
+                    }
+                    out.println();
+                    failedPaths.add(display);
+                    totalFailed++;
+                }
+            }
+
+            if (!halted && options.halt() && outcome.bucket() == FileBucket.FAILED) {
+                for (int j = i + 1; j < futures.size(); j++) {
+                    futures.get(j).cancel(false);
+                }
+                halted = true;
+            }
+        }
+
+        reportWriter.printErrorSection(failedPaths, lastBucket);
+        reportWriter.printTrailingBlankIfNeeded(failedPaths, totalPassed, totalSkipped);
+        reportWriter.printTotal(totalPassed, totalFailed, totalSkipped, 0, options.override());
+
+        executor.shutdown();
+        try {
+            executor.awaitTermination(30, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 
         if (hardError) {
             return 2;

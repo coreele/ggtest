@@ -95,8 +95,11 @@ public final class RuntimeConfigResolver {
 
         validateEngineUrlPair(engine, url);
 
+        int parallelVal = parsed.parallel().orElse(0);
+
         return new CliOptions(
-                url, user, password, engine, hashThreshold, colorMode, parsed.halt(), parsed.override(), parsed.inputs());
+                url, user, password, engine, hashThreshold, colorMode, parsed.halt(), parsed.override(), parallelVal,
+                parsed.inputs());
     }
 
     static ColorMode resolveColorMode(

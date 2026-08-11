@@ -31,7 +31,7 @@ mvn -q clean test   # 未设置 GGTEST_PG_URL 时跳过 PG 套件
 ```text
 ggtest [--url <jdbc>] [--user <u>] [--password <p>]
        [--engine sqlite|postgres] [--hash-threshold <N>]
-       [--env-file <path>] [--color auto|always|never] [--halt] [--override]
+       [--env-file <path>] [--color auto|always|never] [--halt] [--parallel <N>] [--override]
        <file-or-dir> ...
 ```
 
@@ -45,7 +45,8 @@ ggtest [--url <jdbc>] [--user <u>] [--password <p>]
 | `--env-file`            | `./.env`    | 指定后**替换**当前目录 `.env`   |
 | `--color`               | `auto`      | 按 TTY 探测；CI 常用 `never` |
 | `--halt`                | 关           | 见首个错误即停（断言失败或硬错误）：文件内后续记录跳过不执行、不报失败；尚未开始的文件不打开、不计入 `TOTAL`。退出码优先级不变。语料 `halt` 记录语义不变（仅中止当前文件后续并 skipped，非错误）。 |
-| `--override`            | 关           | golden-update 模式：用实际输出重写源 `.slt` 文件中范围内 mismatch 的 expected 区间（query 结果失配、`statement error` 消息失配）。被 override 的记录显示 `[OVERRIDDEN]` 且不计为失败；范围外 mismatch（label 冲突、执行失败、类型签名错、极性翻转）仍 `FAILED`。每文件至多一次原子写回（temp+rename）；无 in-scope mismatch 的文件不被改写。退出码优先级不变。不改 parser / 比较 / 规范化语义。 |
+| `--parallel` <N>        | 关           | 最多 N 个文件并发执行（N ≥ 1）。`--parallel 1` 等价于顺序执行。报告结构与顺序模式一致：status line 按输入顺序输出，单文件 block 不交错。与 `--halt` 组合时，已开始执行的文件自然完成，排队任务被取消。不可与 `--override` 同时使用。 |
+| `--override`            | 关           | golden-update 模式：用实际输出重写源 `.slt` 文件中范围内 mismatch 的 expected 区间（query 结果失配、`statement error` 消息失配）。被 override 的记录显示 `[OVERRIDDEN]` 且不计为失败；范围外 mismatch（label 冲突、执行失败、类型签名错、极性翻转）仍 `FAILED`。每文件至多一次原子写回（temp+rename）；无 in-scope mismatch 的文件不被改写。退出码优先级不变。不改 parser / 比较 / 规范化语义。不可与 `--parallel` 同时使用。 |
 | `--help`、`-h`           | —           | 打印用法信息，退出码 `0`。 |
 
 

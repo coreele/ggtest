@@ -586,4 +586,139 @@ class MainOrchestrationTest {
             return "exit=" + exitCode + "\nstdout:\n" + stdout + "\nstderr:\n" + stderr;
         }
     }
+
+    @Test
+    void parallel1IsEquivalentToSequential() {
+        Capture seq = run(
+                "--url", "jdbc:sqlite::memory:",
+                fixture("pass.test").toString(),
+                fixture("fail.test").toString());
+
+        Capture par = run(
+                "--url", "jdbc:sqlite::memory:",
+                "--parallel", "1",
+                fixture("pass.test").toString(),
+                fixture("fail.test").toString());
+
+        assertEquals(seq.exitCode(), par.exitCode(), par::dump);
+        assertEquals(countFailures(seq.stdout()), countFailures(par.stdout()));
+        assertEquals(extractPassed(seq.stdout()), extractPassed(par.stdout()));
+    }
+
+    @Test
+    void parallel2MultiFileReportComplete() {
+        Capture capture = run(
+                "--url", "jdbc:sqlite::memory:",
+                "--parallel", "2",
+                fixture("pass.test").toString(),
+                fixture("multi-fail.test").toString(),
+                fixture("nested/a.test").toString());
+
+        assertEquals(1, capture.exitCode(), capture::dump);
+        String out = capture.stdout();
+        assertTrue(out.contains("pass.test"));
+        assertTrue(out.contains("[PASSED]"));
+        assertTrue(out.contains("multi-fail.test"));
+        assertTrue(out.contains("[FAILED]"));
+        assertTrue(out.contains("TOTAL:"));
+        assertTrue(countFailures(out) >= 1);
+        assertTrue(extractPassed(out) >= 2);
+    }
+
+    @Test
+    void parallelStatusLineOrderMatchesSorterOutput() {
+        Capture capture = run(
+                "--url", "jdbc:sqlite::memory:",
+                "--parallel", "2",
+                fixture("pass.test").toString(),
+                fixture("multi-fail.test").toString(),
+                fixture("nested/a.test").toString());
+
+        String out = capture.stdout();
+        int idxM = out.indexOf("multi-fail.test");
+        int idxA = out.indexOf("a.test");
+        int idxP = out.indexOf("pass.test");
+        assertTrue(idxM >= 0, out);
+        assertTrue(idxA >= 0, out);
+        assertTrue(idxP >= 0, out);
+        assertTrue(idxM < idxA, "multi-fail.test should come before a.test (collector sort order):\n" + out);
+        assertTrue(idxA < idxP, "a.test should come before pass.test (collector sort order):\n" + out);
+    }
+
+    @Test
+    void parallelHaltSkipsQueuedFilesReportsRunningFiles() {
+        Capture capture = run(
+                "--url", "jdbc:sqlite::memory:",
+                "--parallel", "2",
+                "--halt",
+                fixture("pass.test").toString(),
+                fixture("multi-fail.test").toString(),
+                fixture("nested/a.test").toString());
+
+        String out = capture.stdout();
+        assertTrue(out.contains("multi-fail.test"), out);
+        assertTrue(out.contains("[FAILED]"), out);
+        assertTrue(out.contains("a.test"), "already-running file must be reported:\n" + out);
+        assertEquals(1, countFailures(out));
+        assertEquals(1, extractPassed(out), out);
+        assertEquals(1, capture.exitCode(), capture::dump);
+    }
+
+    @Test
+    void parallelFaultIsolationSingleWorkerErrorDoesNotAffectOthers() {
+        Capture capture = run(
+                "--url", "jdbc:sqlite::memory:",
+                "--parallel", "3",
+                fixture("bad-parse.test").toString(),
+                fixture("multi-fail.test").toString(),
+                fixture("nested/a.test").toString());
+
+        assertEquals(2, capture.exitCode(), capture::dump);
+        String out = capture.stdout();
+        assertTrue(out.contains("bad-parse.test") || capture.stderr().contains("bad-parse.test"), capture::dump);
+        assertTrue(out.contains("multi-fail.test"), out);
+        assertTrue(out.contains("a.test"), out);
+        assertTrue(out.contains("[PASSED]"), out);
+        assertTrue(countFailures(out) >= 2);
+    }
+
+    @Test
+    void parallelPasswordNeverPrinted() {
+        Capture capture = run(
+                "--url", "jdbc:sqlite::memory:",
+                "--password", "super-secret-credential",
+                "--parallel", "2",
+                fixture("multi-fail.test").toString(),
+                fixture("pass.test").toString());
+
+        assertFalse(capture.stdout().contains("super-secret-credential"));
+        assertFalse(capture.stderr().contains("super-secret-credential"));
+    }
+
+    @Test
+    void parallel2SingleFileProducesReport() {
+        Capture capture = run(
+                "--url", "jdbc:sqlite::memory:",
+                "--parallel", "2",
+                fixture("pass.test").toString());
+
+        assertEquals(0, capture.exitCode(), capture::dump);
+        assertTrue(capture.stdout().contains("pass.test"), capture::dump);
+        assertTrue(capture.stdout().contains("[PASSED]"), capture::dump);
+        assertEquals(1, extractPassed(capture.stdout()), capture::dump);
+    }
+
+    @Test
+    void parallel2TwoPassingFiles() {
+        Capture capture = run(
+                "--url", "jdbc:sqlite::memory:",
+                "--parallel", "2",
+                fixture("pass.test").toString(),
+                fixture("nested/a.test").toString());
+
+        assertEquals(0, capture.exitCode(), capture::dump);
+        assertTrue(capture.stdout().contains("pass.test"), capture::dump);
+        assertTrue(capture.stdout().contains("a.test"), capture::dump);
+        assertEquals(2, extractPassed(capture.stdout()), capture::dump);
+    }
 }

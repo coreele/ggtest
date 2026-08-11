@@ -313,6 +313,48 @@ class RuntimeConfigResolverTest {
     }
 
     @Test
+    void parallelDefaultsToZeroWhenCliFlagAbsent() {
+        CliOptions options = resolve(
+                parsed("--url", "jdbc:sqlite::memory:", "a.test"), key -> null);
+        assertEquals(0, options.parallel());
+    }
+
+    @Test
+    void cliParallelFlagPropagatesToOptions() {
+        CliOptions options = resolve(
+                parsed("--url", "jdbc:sqlite::memory:", "--parallel", "2", "a.test"), key -> null);
+        assertEquals(2, options.parallel());
+    }
+
+    @Test
+    void parallelIsNotInferredFromProcessEnvOrDotEnv() throws IOException {
+        writeEnv("GGTEST_URL=jdbc:sqlite::memory:\nGGTEST_PARALLEL=4\n");
+        Map<String, String> process = new HashMap<>();
+        process.put("GGTEST_URL", "jdbc:sqlite::memory:");
+        process.put("GGTEST_PARALLEL", "4");
+
+        CliOptions options = resolve(parsed("a.test"), process::get);
+        assertEquals(0, options.parallel(), "--parallel must come from CLI only");
+    }
+
+    @Test
+    void cliOptionsToStringIncludesParallel() {
+        CliOptions options = new CliOptions(
+                "jdbc:sqlite::memory:",
+                Optional.of("u"),
+                Optional.of("super-secret-credential"),
+                "sqlite",
+                8,
+                ColorMode.AUTO,
+                false,
+                false,
+                2,
+                java.util.List.of("a.test"));
+        assertFalse(options.toString().contains("super-secret-credential"));
+        assertTrue(options.toString().contains("parallel=2"));
+    }
+
+    @Test
     void colorDefaultsToAuto() {
         CliOptions options = resolve(
                 parsed("--url", "jdbc:sqlite::memory:", "a.test"), key -> null);
