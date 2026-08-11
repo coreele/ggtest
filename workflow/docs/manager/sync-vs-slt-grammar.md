@@ -19,7 +19,7 @@
 
 | sub-feature-id | 状态 | 后续步骤 |
 |---|---|---|
-| sync-vs-slt-grammar | backlog | Planner |
+| sync-vs-slt-grammar | planning | Planner（进行中） |
 
 ## 进度笔记
 
