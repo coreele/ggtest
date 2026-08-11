@@ -20,7 +20,7 @@
 
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
-| sync-vs-slt-grammar | sync-vs-slt-grammar | vs-slt 插件高亮同步当前 SLT 语法 | qa | standard | skipped | QA | [workflow/docs/features/sync-vs-slt-grammar/](../features/sync-vs-slt-grammar/) |
+| sync-vs-slt-grammar | sync-vs-slt-grammar | vs-slt 插件高亮同步当前 SLT 语法 | qa | standard | skipped | QA（V6 待用户视觉确认） | [workflow/docs/features/sync-vs-slt-grammar/](../features/sync-vs-slt-grammar/) |
 | add-report-format | add-report-format | `--format junit-xml\|json` 测试报告输出 | blocked | standard | required | 恢复后 → Planner | [workflow/docs/features/add-report-format/](../features/add-report-format/) |
 | add-parallel-execution | add-parallel-execution | `--parallel <N>` 并行执行独立文件 | done | standard | required | — | [workflow/docs/features/add-parallel-execution/](../features/add-parallel-execution/) |
 | fix-sql-hash-comments | fix-sql-hash-comments | SQL 体内 `#` 注释裁剪 | backlog | fast | skipped | Planner | [workflow/docs/features/fix-sql-hash-comments/](../features/fix-sql-hash-comments/) |
