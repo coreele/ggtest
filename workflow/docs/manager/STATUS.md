@@ -30,6 +30,8 @@
 | fix-override-rowwise | fix-override-rowwise | --override row-wise 写入格式 bug + 拼写提示 | done | fast | skipped | — | [workflow/docs/features/fix-override-rowwise/](../features/fix-override-rowwise/) |
 | add-statement-query-timeout | add-statement-query-timeout | timeout=<ms> 属性 | done | standard | required | — | [workflow/docs/features/add-statement-query-timeout/](../features/add-statement-query-timeout/) |
 | add-conn-attribute | add-conn-attribute | conn=<name> 多连接并发 | done | standard | required | — | [workflow/docs/features/add-conn-attribute/](../features/add-conn-attribute/) |
+| fix-ca015-dead-adapters | fix-ca015-dead-adapters | 删除死代码适配器（CA-015） | done | fast | skipped | — | [workflow/docs/features/fix-ca015-dead-adapters/](../features/fix-ca015-dead-adapters/) |
+| fix-ca016-stmt-error-conn | fix-ca016-stmt-error-conn | statement error 消息提取遗漏 conn=（CA-016） | done | fast | skipped | — | [workflow/docs/features/fix-ca016-stmt-error-conn/](../features/fix-ca016-stmt-error-conn/) |
 | refactor-filerunner-responsibilities | refactor-filerunner-responsibilities | 拆分 FileRunner 职责（CA-010） | done | standard | skipped | — | [workflow/docs/features/refactor-filerunner-responsibilities/](../features/refactor-filerunner-responsibilities/) |
 
 ## 已归档

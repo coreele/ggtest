@@ -161,25 +161,17 @@ public final class SqlLogicTestParser {
                         sourceName, startLine, "statement ok does not take additional operands");
             }
             if (expectation == StatementExpectation.ERROR && msgEnd > 2) {
-                String keyword = "error";
-                int keywordEnd = indexOfToken(headerLine, keyword, 0);
-                if (keywordEnd >= 0) {
-                    String raw = headerLine.substring(keywordEnd).trim();
-                    if (!raw.isEmpty()) {
-                        int attrStart = raw.indexOf(" timeout=");
-                        if (attrStart < 0) {
-                            attrStart = raw.indexOf("\t");
-                        }
-                        if (attrStart >= 0) {
-                            expectedErrorMsg = raw.substring(0, attrStart).trim();
-                        } else {
-                            // No key=value tokens — entire text is error message
-                            expectedErrorMsg = raw;
-                        }
-                        if (!expectedErrorMsg.isEmpty()) {
-                            errorMsgStartColumn = findMsgStartColumn(headerLine, keywordEnd);
-                        }
+                StringBuilder msg = new StringBuilder();
+                for (int i = 2; i < msgEnd; i++) {
+                    if (!msg.isEmpty()) {
+                        msg.append(' ');
                     }
+                    msg.append(tokens[i]);
+                }
+                expectedErrorMsg = msg.toString();
+                int keywordEnd = indexOfToken(headerLine, "error", 0);
+                if (keywordEnd >= 0 && !expectedErrorMsg.isEmpty()) {
+                    errorMsgStartColumn = findMsgStartColumn(headerLine, keywordEnd);
                 }
             }
             if (firstAttrIndex >= 0) {

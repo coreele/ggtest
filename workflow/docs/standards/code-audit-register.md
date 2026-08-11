@@ -27,8 +27,10 @@
 | CA-007 | 优化 | accepted | `ResultComparer` LCS | 失败 diff `O(n*m)` | 超大失败集可能陡增；通过路径不受影响；本批不做大改 | backlog / 后续按需 | 2026-07-26 |
 | CA-008 | Accepted Risk | accepted | `ValueNormalizer` | 非法 I/R 归一为 0 / 0.000（对齐 sqllogictest） | 非缺陷；Javadoc 已标明语义 | Javadoc done; monitor only | 2026-07-26 |
 | CA-009 | Known Issue | open | `CredentialRedaction.redactUrlUserInfo` / `FileRunner.sanitize` | URL 脱敏仅覆盖 `://user:pass@host` 格式；查询参数凭据（`?password=secret`）或驱动异常回显中非 URL 形式凭据无法脱敏 | 若用户仅通过 URL 嵌凭据而不单独配置 `--password`/`GGTEST_PASSWORD`，错误输出可能泄露凭据 | 增加通用敏感参数名模式匹配（`password=`, `pwd=`），或文档明确告知凭据须单独提供 | 2026-08-11 |
-| CA-010 | Tech Debt | open | `FileRunner` | FileRunner 同时承担连接管理、引擎路由、PG schema 隔离、override 写回编排、parser 编排、sanitize（210 行） | 新增引擎或改 override 逻辑时牵动面大 | 进一步拆分为 ConnectionFactory / 引擎策略 / OverrideCoordinator | 2026-08-11 |
+| CA-010 | Tech Debt | resolved | `FileRunner` | FileRunner 已拆分为 ConnectionFactory + OverrideCoordinator，179 行（原 210） | 已合入 `main`（`refactor-filerunner-responsibilities` + multi-connection rewrite） | none | 2026-08-11 |
 | CA-011 | 优化 | open | `RuntimeConfigResolver.resolveHashThreshold` | hash-threshold 未验证非负范围；`<= 0` 语义为「禁用 hash」但负值不明确 | 配置错误时行为不直观 | 在解析处增加 `if (value < 0) throw UsageException` 或文档标明负值等价禁用 | 2026-08-11 |
 | CA-012 | Tech Debt | open | `ExpectedResultExpander.splitLiteral` vs `OverrideWriter.splitOnEol` | normalize 和 cli 包中的字符串分割工具功能同族但各自维护 | 少量重复（~10 行），维护成本低 | 低优先级：可抽取到共享工具类 | 2026-08-11 |
 | CA-013 | Tech Debt | open | `DotEnvLoader.WHITELIST` | 白名单硬编码 `Set.of(...)`；添加新配置键需修改源码 | 当前 5 个键可接受；新增配置需重新编译 | 按需改为外部配置或注解驱动 | 2026-08-11 |
 | CA-014 | Tech Debt | open | `SqlLogicTestParser.LineBuffer.splitPreserveAllLines` | 解析前将整个文件内容拷贝到 `ArrayList<String>` | 大文件（>100MB）可能 OOM；sqllogictest 文件通常很小 | 仅在文件极大时关注；可改为流式读取 | 2026-08-11 |
+| CA-015 | Tech Debt | resolved | `cli/EngineAdapter.java` / `cli/SqliteAdapter.java` / `cli/PostgresAdapter.java` | 死代码已删除 | 已合入 `main`（`fix-ca015-dead-adapters`） | none | 2026-08-11 |
+| CA-016 | Known Issue | resolved | `parser/SqlLogicTestParser.java:163-184` | statement error 消息提取改用 token 索引，conn= 不再污染 expectedErrorMsg | 已合入 `main`（`fix-ca016-stmt-error-conn`） | none | 2026-08-11 |

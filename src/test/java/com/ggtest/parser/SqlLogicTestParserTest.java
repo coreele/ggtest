@@ -641,6 +641,38 @@ class SqlLogicTestParserTest {
         assertTrue(ex.getMessage().contains("statement ok does not take additional operands"));
     }
 
+    @Test
+    void statementErrorMsgWithConnAttr_doesNotPolluteMessage() {
+        String content = """
+                statement error division by zero conn=c1
+                SELECT 1 / 0
+                """;
+
+        List<SqlTestRecord> records = parser.parse("test", content);
+        assertEquals(1, records.size());
+
+        StatementRecord stmt = assertInstanceOf(StatementRecord.class, records.get(0));
+        assertEquals("division by zero", stmt.expectedErrorMsg());
+        assertEquals("c1", stmt.conn());
+        assertTrue(stmt.errorMsgStartColumn() > 0);
+    }
+
+    @Test
+    void statementErrorMsgWithTimeoutAndConn_extractsMessageOnly() {
+        String content = """
+                statement error lock timeout conn=c2 timeout=2000
+                SELECT 1
+                """;
+
+        List<SqlTestRecord> records = parser.parse("test", content);
+        assertEquals(1, records.size());
+
+        StatementRecord stmt = assertInstanceOf(StatementRecord.class, records.get(0));
+        assertEquals("lock timeout", stmt.expectedErrorMsg());
+        assertEquals(2000, stmt.timeoutMs());
+        assertEquals("c2", stmt.conn());
+    }
+
     // --- expected interval fields (override D1) ---
 
     @Test
