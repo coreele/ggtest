@@ -12,6 +12,7 @@ import java.util.Optional;
  *             repeated occurrences are equivalent to a single one
  * @param override whether {@code --override} (golden-update) was supplied;
  *                 repeated occurrences are equivalent to a single one
+ * @param help whether {@code --help} (or {@code -h}) was supplied
  */
 public record ParsedArguments(
         Optional<String> url,
@@ -23,6 +24,7 @@ public record ParsedArguments(
         Optional<ColorMode> color,
         boolean halt,
         boolean override,
+        boolean help,
         List<String> inputs) {
 
     public ParsedArguments {

@@ -106,6 +106,10 @@ public final class Main {
             BooleanSupplier isTty) {
         try {
             ParsedArguments parsed = CliArgumentParser.parse(args);
+            if (parsed.help()) {
+                printHelp(out);
+                return 0;
+            }
             CliOptions options = RuntimeConfigResolver.resolve(parsed, envLookup, workingDirectory, propertyLookup);
             boolean ansi = RuntimeConfigResolver.resolveAnsiEnabled(
                     options.colorMode(), isTty.getAsBoolean());
@@ -121,5 +125,26 @@ public final class Main {
     static void printUsageError(PrintStream err, String message) {
         err.println("Error: usage");
         err.println("    [WHY] " + (message == null ? "" : message.strip()));
+    }
+
+    static void printHelp(PrintStream out) {
+        out.println("Usage: ggtest [options] <file-or-dir>...");
+        out.println();
+        out.println("Options:");
+        out.println("  --url <jdbc-url>           JDBC connection URL (or GGTEST_URL)");
+        out.println("  --user <name>              Database user (or GGTEST_USER)");
+        out.println("  --password <pass>          Database password (or GGTEST_PASSWORD)");
+        out.println("  --engine <sqlite|postgres> Target engine (default: sqlite; or GGTEST_ENGINE)");
+        out.println("  --hash-threshold <n>       Hash result sets larger than n rows (default: 8)");
+        out.println("  --color <auto|always|never> ANSI color mode (or GGTEST_COLOR / -Dggtest.color)");
+        out.println("  --halt                     Stop after first failure");
+        out.println("  --override                 Write actual output into expected-result blocks");
+        out.println("  --env-file <path>          Load config from a .env file (default: ./.env)");
+        out.println("  --help, -h                 Print this help and exit");
+        out.println();
+        out.println("Environment variables: GGTEST_URL, GGTEST_USER, GGTEST_PASSWORD,");
+        out.println("  GGTEST_ENGINE, GGTEST_HASH_THRESHOLD, GGTEST_COLOR");
+        out.println();
+        out.println("See README.md for sqllogictest format details.");
     }
 }
