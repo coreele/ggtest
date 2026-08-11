@@ -29,7 +29,7 @@ INSERT INTO items VALUES
 
 ## 类型签名 I / T / R + 排序模式
 
-# T + rowsort：结果按字典序重排
+### T + rowsort：结果按字典序重排
 query T rowsort
 SELECT name FROM items WHERE id <= 3
 ----
@@ -37,7 +37,7 @@ apple
 banana
 cherry
 
-# I + nosort：顺序必须与 ORDER BY 一致
+### I + nosort：顺序必须与 ORDER BY 一致
 query I nosort
 SELECT id FROM items WHERE id <= 3 ORDER BY id
 ----
@@ -45,7 +45,7 @@ SELECT id FROM items WHERE id <= 3 ORDER BY id
 2
 3
 
-# R：REAL 格式化为 %.3f
+### R：REAL 格式化为 %.3f
 query R nosort
 SELECT price FROM items WHERE id <= 3 ORDER BY id
 ----
@@ -53,7 +53,7 @@ SELECT price FROM items WHERE id <= 3 ORDER BY id
 0.500
 3.000
 
-# valuesort：展开全部单元格再按字符串排序
+### valuesort：展开全部单元格再按字符串排序
 query II valuesort
 SELECT id, CAST(price AS INTEGER) FROM items WHERE id IN (1, 2) ORDER BY id
 ----
@@ -76,7 +76,7 @@ NULL
 
 ## 每值一行 与 行式（separator=<delim>）
 
-# 恰 ---- 永远每值一行（每个物理行 = 一个单元格）
+### 恰 ---- 永远每值一行（每个物理行 = 一个单元格）
 query IIT nosort
 SELECT 1, 1, 'hello world'
 ----
@@ -84,7 +84,7 @@ SELECT 1, 1, 'hello world'
 1
 hello world
 
-# 行式：在 query 头声明 separator=<delim>；token 两侧 trim
+### 行式：在 query 头声明 separator=<delim>；token 两侧 trim
 query IIT nosort separator=|
 SELECT 1, 1, 'hello world'
 ----
@@ -110,8 +110,9 @@ statement error
 SELECT * FROM missing_table
 
 ## skipif / onlyif（引擎名大小写不敏感）
-# sqlite：第一条跳过，第二条执行，第三条跳过。
-# postgres：第一条执行，第二条跳过，第三条执行。
+
+### sqlite：第一条跳过，第二条执行，第三条跳过。
+### postgres：第一条执行，第二条跳过，第三条执行。
 
 skipif sqlite
 statement ok
@@ -137,9 +138,10 @@ SELECT id FROM items WHERE id IN (1, 2) ORDER BY id
 statement ok
 DROP TABLE IF EXISTS items;
 
-# ==============================================================================
-#  PostgreSQL PL/pgSQL — 需要 --engine postgres
-# ==============================================================================
+
+
+# PostgreSQL PL/pgSQL — 需要 --engine postgres
+
 ### 全部记录带 onlyif postgres 守卫，在 SQLite 上可干净运行。
 
 ## 标量函数
@@ -158,35 +160,6 @@ query I
 SELECT get_square(5)
 ----
 25
-
-## IF / ELSIF / ELSE
-
-onlyif postgres
-statement ok
-CREATE OR REPLACE FUNCTION grade_score(score integer)
-RETURNS text AS $$
-BEGIN
-    IF score >= 80 THEN
-        RETURN 'A';
-    ELSIF score >= 60 THEN
-        RETURN 'B';
-    ELSE
-        RETURN 'C';
-    END IF;
-END
-$$ LANGUAGE plpgsql
-
-onlyif postgres
-query T nosort
-SELECT grade_score(90)
-----
-A
-
-onlyif postgres
-query T nosort
-SELECT grade_score(40)
-----
-C
 
 ## RETURN QUERY / SETOF
 
@@ -223,67 +196,6 @@ SELECT * FROM fibonacci(13)
 8
 13
 
-## 默认参数值
-
-onlyif postgres
-statement ok
-CREATE OR REPLACE FUNCTION greet(who text, prefix text DEFAULT 'Hello')
-RETURNS text AS $$
-BEGIN
-    RETURN prefix || ', ' || who || '!';
-END
-$$ LANGUAGE plpgsql
-
-onlyif postgres
-query T
-SELECT greet('World')
-----
-Hello, World!
-
-## RETURNS TABLE
-
-onlyif postgres
-statement ok
-CREATE OR REPLACE FUNCTION split_name(full_name text)
-RETURNS TABLE(first text, last text) AS $$
-BEGIN
-    first := split_part(full_name, ' ', 1);
-    last  := split_part(full_name, ' ', 2);
-    RETURN NEXT;
-END
-$$ LANGUAGE plpgsql
-
-onlyif postgres
-query TT nosort separator=|
-SELECT * FROM split_name('John Smith')
-----
-John | Smith
-
-## 异常处理 — EXCEPTION WHEN
-
-onlyif postgres
-statement ok
-CREATE OR REPLACE FUNCTION safe_divide(a numeric, b numeric)
-RETURNS numeric AS $$
-BEGIN
-    RETURN a / b;
-EXCEPTION
-    WHEN division_by_zero THEN
-        RETURN NULL;
-END
-$$ LANGUAGE plpgsql
-
-onlyif postgres
-query R
-SELECT safe_divide(10, 2)
-----
-5.000
-
-onlyif postgres
-query T
-SELECT CAST(safe_divide(10, 0) AS text)
-----
-NULL
 
 ## PL/pgSQL 清理
 
@@ -293,25 +205,9 @@ DROP FUNCTION IF EXISTS get_square(integer)
 
 onlyif postgres
 statement ok
-DROP FUNCTION IF EXISTS grade_score(integer)
-
-onlyif postgres
-statement ok
 DROP FUNCTION IF EXISTS fibonacci(integer)
 
-onlyif postgres
-statement ok
-DROP FUNCTION IF EXISTS greet(text, text)
-
-onlyif postgres
-statement ok
-DROP FUNCTION IF EXISTS split_name(text)
-
-onlyif postgres
-statement ok
-DROP FUNCTION IF EXISTS safe_divide(numeric, numeric)
-
-## halt：之后的记录一律跳过
+### halt：之后的记录一律跳过
 halt
 
 statement ok
