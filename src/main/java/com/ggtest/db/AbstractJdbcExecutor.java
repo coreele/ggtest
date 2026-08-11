@@ -31,8 +31,14 @@ public abstract class AbstractJdbcExecutor implements DatabaseExecutor {
 
     @Override
     public StatementResult executeStatement(String sql) {
+        return executeStatement(sql, 0);
+    }
+
+    @Override
+    public StatementResult executeStatement(String sql, int timeoutMs) {
         requireUsableConnection();
         try (Statement statement = connection.createStatement()) {
+            applyTimeout(statement, timeoutMs);
             statement.execute(sql);
             return StatementResult.ok();
         } catch (SQLException ex) {
@@ -43,13 +49,25 @@ public abstract class AbstractJdbcExecutor implements DatabaseExecutor {
 
     @Override
     public QueryResult executeQuery(String sql) {
+        return executeQuery(sql, 0);
+    }
+
+    @Override
+    public QueryResult executeQuery(String sql, int timeoutMs) {
         requireUsableConnection();
-        try (Statement statement = connection.createStatement();
-                ResultSet resultSet = statement.executeQuery(sql)) {
+        try (Statement statement = connection.createStatement()) {
+            applyTimeout(statement, timeoutMs);
+            ResultSet resultSet = statement.executeQuery(sql);
             return QueryResult.succeeded(readRows(resultSet));
         } catch (SQLException ex) {
             throwIfFatal(ex);
             return QueryResult.failed(summarize(ex));
+        }
+    }
+
+    private static void applyTimeout(Statement statement, int timeoutMs) throws SQLException {
+        if (timeoutMs > 0) {
+            statement.setQueryTimeout((timeoutMs + 999) / 1000);
         }
     }
 

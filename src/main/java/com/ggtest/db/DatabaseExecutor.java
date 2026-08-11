@@ -45,4 +45,28 @@ public interface DatabaseExecutor {
      * @throws FatalDatabaseException when the connection is unusable
      */
     QueryResult executeQuery(String sql);
+
+    /**
+     * Executes a statement with a maximum execution time.
+     *
+     * @param sql       statement text
+     * @param timeoutMs timeout in milliseconds; 0 means no timeout
+     * @return success, or a business failure with an optional error summary
+     * @throws FatalDatabaseException when the connection is unusable
+     */
+    default StatementResult executeStatement(String sql, int timeoutMs) {
+        return executeStatement(sql);
+    }
+
+    /**
+     * Executes a query with a maximum execution time.
+     *
+     * @param sql       query text
+     * @param timeoutMs timeout in milliseconds; 0 means no timeout
+     * @return rows on success, or a business failure with an optional error summary
+     * @throws FatalDatabaseException when the connection is unusable
+     */
+    default QueryResult executeQuery(String sql, int timeoutMs) {
+        return executeQuery(sql);
+    }
 }

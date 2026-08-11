@@ -1,0 +1,56 @@
+# 并发事务与行锁测试
+
+### 演示 conn=<name> 多连接并发事务。
+### SQLite 须使用文件路径（内存数据库每连接独立）：
+###   ./bin/ggtest --url jdbc:sqlite:/tmp/ggtest_demo2.db --engine sqlite examples/demo2.slt
+###
+### PostgreSQL（所有连接共享同一数据库）：
+###   ./bin/ggtest --engine postgres \
+###     --url 'jdbc:postgresql://localhost:5432/postgres' \
+###     --user postgres [--password ...] \
+###     examples/demo2.slt
+
+## 初始化数据（默认连接）
+statement ok
+CREATE TABLE accounts (id INT PRIMARY KEY, balance INT);
+
+statement ok
+INSERT INTO accounts VALUES (1, 100), (2, 200);
+
+## 连接 c1 开启事务并获取行锁
+statement ok conn=c1
+BEGIN;
+
+statement ok conn=c1
+UPDATE accounts SET balance = balance - 10 WHERE id = 1;
+
+## 连接 c2 尝试修改同一行（被阻塞，timeout 后失败）
+statement error conn=c2 timeout=2000
+UPDATE accounts SET balance = balance + 50 WHERE id = 1;
+
+## 连接 c1 提交事务
+statement ok conn=c1
+COMMIT;
+
+## 连接 c2 重新开始事务
+statement ok conn=c2
+BEGIN;
+
+statement ok conn=c2
+UPDATE accounts SET balance = balance + 50 WHERE id = 1;
+
+statement ok conn=c2
+COMMIT;
+
+## 验证最终数据（c1 减 10 → 90，c2 加 50 → 140）
+query II nosort
+SELECT id, balance FROM accounts ORDER BY id;
+----
+1
+140
+2
+200
+
+## 清理
+statement ok
+DROP TABLE IF EXISTS accounts;

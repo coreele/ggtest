@@ -50,6 +50,20 @@ public final class PostgresSchemaIsolation {
         }
     }
 
+    /**
+     * Points an existing connection to an already-created isolation schema.
+     * Used for additional connections in multi-connection (conn=<name>) mode.
+     *
+     * @throws SQLException when SET search_path fails
+     */
+    public static void setSearchPath(Connection connection, String schema) throws SQLException {
+        Objects.requireNonNull(connection, "connection");
+        Objects.requireNonNull(schema, "schema");
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("SET search_path TO " + schema + ", pg_catalog");
+        }
+    }
+
     private static boolean isSafeIdentifier(String name) {
         return name.matches("[a-z][a-z0-9_]*");
     }

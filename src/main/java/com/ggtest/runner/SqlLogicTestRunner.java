@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Executes the records of one test file in order against a {@link DatabaseExecutor}.
@@ -50,7 +51,7 @@ public final class SqlLogicTestRunner {
     private static final String SKIPPED_AFTER_FAILURE_HALT =
             "not executed: --halt stopped after an earlier failure in this file";
 
-    private final DatabaseExecutor executor;
+    private final Function<String, DatabaseExecutor> executorFactory;
     private final int initialHashThreshold;
     private final boolean haltOnFirstFailure;
     private final boolean overrideEnabled;
@@ -106,7 +107,24 @@ public final class SqlLogicTestRunner {
             int initialHashThreshold,
             boolean haltOnFirstFailure,
             boolean overrideEnabled) {
-        this.executor = Objects.requireNonNull(executor, "executor");
+        this(name -> executor, initialHashThreshold, haltOnFirstFailure, overrideEnabled);
+    }
+
+    /**
+     * Multi-connection constructor: the factory is called lazily for each
+     * distinct conn name (empty string for the default connection).
+     *
+     * @param executorFactory      produces a {@link DatabaseExecutor} for a given conn name
+     * @param initialHashThreshold threshold each run starts with
+     * @param haltOnFirstFailure   stop after first failure (CLI {@code --halt})
+     * @param overrideEnabled      golden-update mode (CLI {@code --override})
+     */
+    public SqlLogicTestRunner(
+            Function<String, DatabaseExecutor> executorFactory,
+            int initialHashThreshold,
+            boolean haltOnFirstFailure,
+            boolean overrideEnabled) {
+        this.executorFactory = Objects.requireNonNull(executorFactory, "executorFactory");
         this.initialHashThreshold = initialHashThreshold;
         this.haltOnFirstFailure = haltOnFirstFailure;
         this.overrideEnabled = overrideEnabled;
@@ -120,7 +138,8 @@ public final class SqlLogicTestRunner {
      */
     public FileRunResult run(List<SqlTestRecord> records) {
         Objects.requireNonNull(records, "records");
-        FileState state = new FileState(executor.engineName(), initialHashThreshold);
+        Map<String, DatabaseExecutor> executors = new HashMap<>();
+        FileState state = new FileState(getDefaultExecutorName(executors), initialHashThreshold);
         List<RecordResult> results = new ArrayList<>();
         boolean halted = false;
         boolean haltedOnFirstFailure = false;
@@ -157,12 +176,12 @@ public final class SqlLogicTestRunner {
                 } else if (record instanceof StatementRecord statement) {
                     produced = state.consumePendingSkip()
                             ? RecordResult.skipped(statement, SKIPPED_BY_CONDITION)
-                            : runStatement(statement);
+                            : runStatement(statement, executors);
                     results.add(produced);
                 } else if (record instanceof QueryRecord query) {
                     produced = state.consumePendingSkip()
                             ? RecordResult.skipped(query, SKIPPED_BY_CONDITION)
-                            : runQuery(query, state);
+                            : runQuery(query, state, executors);
                     results.add(produced);
                 } else {
                     throw new IllegalStateException("unsupported record type: " + record.getClass().getName());
@@ -183,8 +202,9 @@ public final class SqlLogicTestRunner {
         return new FileRunResult(results, halted, aborted, abortReason);
     }
 
-    private RecordResult runStatement(StatementRecord record) {
-        StatementResult result = executor.executeStatement(record.sql());
+    private RecordResult runStatement(StatementRecord record, Map<String, DatabaseExecutor> executors) {
+        DatabaseExecutor exec = executorFor(record.conn(), executors);
+        StatementResult result = exec.executeStatement(record.sql(), record.timeoutMs());
         return switch (record.expectation()) {
             case OK -> result.succeeded()
                     ? RecordResult.passed(record)
@@ -212,8 +232,9 @@ public final class SqlLogicTestRunner {
         };
     }
 
-    private RecordResult runQuery(QueryRecord record, FileState state) {
-        QueryResult result = executor.executeQuery(record.sql());
+    private RecordResult runQuery(QueryRecord record, FileState state, Map<String, DatabaseExecutor> executors) {
+        DatabaseExecutor exec = executorFor(record.conn(), executors);
+        QueryResult result = exec.executeQuery(record.sql(), record.timeoutMs());
         if (!result.succeeded()) {
             return RecordResult.failed(record, describe("query execution failed", result.errorSummary()));
         }
@@ -362,5 +383,14 @@ public final class SqlLogicTestRunner {
         private boolean matchesEngine(String dbName) {
             return dbName != null && dbName.toLowerCase(Locale.ROOT).equals(engineName.toLowerCase(Locale.ROOT));
         }
+    }
+
+    private DatabaseExecutor executorFor(String conn, Map<String, DatabaseExecutor> executors) {
+        String key = conn != null ? conn : "";
+        return executors.computeIfAbsent(key, executorFactory);
+    }
+
+    private String getDefaultExecutorName(Map<String, DatabaseExecutor> executors) {
+        return executorFor(null, executors).engineName();
     }
 }

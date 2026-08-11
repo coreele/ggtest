@@ -1,6 +1,9 @@
 package com.ggtest.cli;
 
 import com.ggtest.db.DatabaseExecutor;
+import com.ggtest.db.postgres.PostgresJdbcExecutor;
+import com.ggtest.db.postgres.PostgresSchemaIsolation;
+import com.ggtest.db.sqlite.SqliteJdbcExecutor;
 import com.ggtest.model.SqlTestRecord;
 import com.ggtest.parser.ParseException;
 import com.ggtest.parser.SqlLogicTestParser;
@@ -14,8 +17,11 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 /** Runs a single test file: parse, JDBC lifecycle, runner invocation, outcome mapping. */
 final class FileRunner {
@@ -50,38 +56,83 @@ final class FileRunner {
                     null));
         }
 
-        try (Connection connection = ConnectionFactory.open(options)) {
-            EngineAdapter adapter = selectAdapter();
-            return adapter.run(
-                    connection,
-                    executor -> runWithExecutor(executor, records, display, file),
-                    display,
-                    err,
-                    reportWriter,
-                    this::sanitize);
-        } catch (SQLException ex) {
+        Map<String, Connection> connections = new HashMap<>();
+        String[] fileSchemaHolder = {null};
+        boolean isPostgres = RuntimeConfigResolver.ENGINE_POSTGRES.equals(options.engine());
+
+        if (isPostgres) {
+            try {
+                Connection first = ConnectionFactory.open(options);
+                connections.put("", first);
+                try {
+                    fileSchemaHolder[0] = PostgresSchemaIsolation.prepare(first);
+                } catch (SQLException ex) {
+                    err.println("schema isolation failed: " + sanitize(ex.getMessage()));
+                    return FileOutcome.hardFailure(reportWriter.detailLines(
+                            "schema isolation failed: " + sanitize(ex.getMessage()),
+                            null,
+                            display,
+                            null));
+                }
+            } catch (SQLException ex) {
+                err.println("connection failed: " + sanitize(ex.getMessage()));
+                return FileOutcome.hardFailure(reportWriter.detailLines(
+                        "connection failed: " + sanitize(ex.getMessage()),
+                        null,
+                        display,
+                        null));
+            }
+        }
+        String fileSchema = fileSchemaHolder[0];
+
+        Function<String, DatabaseExecutor> factory = connKey -> {
+            if (isPostgres && "".equals(connKey)) {
+                return new PostgresJdbcExecutor(connections.get(""));
+            }
+            try {
+                Connection c = ConnectionFactory.open(options);
+                connections.put(connKey, c);
+                if (isPostgres) {
+                    PostgresSchemaIsolation.setSearchPath(c, fileSchema);
+                    return new PostgresJdbcExecutor(c);
+                }
+                return new SqliteJdbcExecutor(c);
+            } catch (SQLException ex) {
+                throw new com.ggtest.db.FatalDatabaseException(
+                        "connection failed for conn '" + connKey + "': " + sanitize(ex.getMessage()), ex);
+            }
+        };
+
+        try {
+            SqlLogicTestRunner runner = new SqlLogicTestRunner(
+                    factory, options.hashThreshold(), options.halt(), options.override());
+            FileRunResult result = runner.run(records);
+            return processResult(result, display, file);
+        } catch (com.ggtest.db.FatalDatabaseException ex) {
             err.println("connection failed: " + sanitize(ex.getMessage()));
             return FileOutcome.hardFailure(reportWriter.detailLines(
                     "connection failed: " + sanitize(ex.getMessage()),
                     null,
                     display,
                     null));
+        } finally {
+            if (fileSchema != null && connections.containsKey("")) {
+                try {
+                    PostgresSchemaIsolation.teardown(connections.get(""), fileSchema);
+                } catch (SQLException ex) {
+                    err.println("schema teardown failed: " + sanitize(ex.getMessage()));
+                }
+            }
+            for (Connection c : connections.values()) {
+                try {
+                    c.close();
+                } catch (SQLException ignored) {
+                }
+            }
         }
     }
 
-    private EngineAdapter selectAdapter() {
-        if (RuntimeConfigResolver.ENGINE_POSTGRES.equals(options.engine())) {
-            return new PostgresAdapter();
-        }
-        return new SqliteAdapter();
-    }
-
-    private FileOutcome runWithExecutor(
-            DatabaseExecutor executor, List<SqlTestRecord> records, String display, Path file) {
-        SqlLogicTestRunner runner = new SqlLogicTestRunner(
-                executor, options.hashThreshold(), options.halt(), options.override());
-        FileRunResult result = runner.run(records);
-
+    private FileOutcome processResult(FileRunResult result, String display, Path file) {
         List<String> detailLines = new ArrayList<>();
         for (RecordResult recordResult : result.recordResults()) {
             if (recordResult.outcome() == RecordOutcome.FAILED) {

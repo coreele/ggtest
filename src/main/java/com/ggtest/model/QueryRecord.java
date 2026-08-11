@@ -5,7 +5,8 @@ import java.util.Optional;
 
 /**
  * A {@code query} record: a SQL query with a column type signature, sort mode,
- * optional label, and optionally an expected result block.
+ * optional label, optional connection name, optional timeout, and optionally
+ * an expected result block.
  *
  * <p>When the source omits the expectation header ({@code ----}),
  * {@code hasExpectedResults} is {@code false} and {@code expectedResults} is empty
@@ -27,6 +28,8 @@ import java.util.Optional;
  * @param expectedHeaderLine 1-based line number of the {@code ----} header; {@code 0} when absent
  * @param expectedBodyEndLine 1-based line number of the last expected-result line;
  *                            equal to {@code expectedHeaderLine} when the block is empty
+ * @param timeoutMs          execution timeout in milliseconds; 0 means no timeout
+ * @param conn               named connection identifier; {@code null} means default connection
  */
 public record QueryRecord(
         List<ColumnType> typeSignature,
@@ -38,7 +41,9 @@ public record QueryRecord(
         Optional<String> columnSeparator,
         SourceLocation location,
         int expectedHeaderLine,
-        int expectedBodyEndLine) implements SqlTestRecord {
+        int expectedBodyEndLine,
+        int timeoutMs,
+        String conn) implements SqlTestRecord {
 
     public QueryRecord {
         typeSignature = List.copyOf(typeSignature);
@@ -64,6 +69,38 @@ public record QueryRecord(
             List<String> expectedResults,
             Optional<String> columnSeparator,
             SourceLocation location) {
-        this(typeSignature, sortMode, label, sql, hasExpectedResults, expectedResults, columnSeparator, location, 0, 0);
+        this(typeSignature, sortMode, label, sql, hasExpectedResults, expectedResults, columnSeparator,
+                location, 0, 0, 0, null);
+    }
+
+    public QueryRecord(
+            List<ColumnType> typeSignature,
+            SortMode sortMode,
+            Optional<String> label,
+            String sql,
+            boolean hasExpectedResults,
+            List<String> expectedResults,
+            Optional<String> columnSeparator,
+            SourceLocation location,
+            int expectedHeaderLine,
+            int expectedBodyEndLine) {
+        this(typeSignature, sortMode, label, sql, hasExpectedResults, expectedResults, columnSeparator,
+                location, expectedHeaderLine, expectedBodyEndLine, 0, null);
+    }
+
+    public QueryRecord(
+            List<ColumnType> typeSignature,
+            SortMode sortMode,
+            Optional<String> label,
+            String sql,
+            boolean hasExpectedResults,
+            List<String> expectedResults,
+            Optional<String> columnSeparator,
+            SourceLocation location,
+            int expectedHeaderLine,
+            int expectedBodyEndLine,
+            int timeoutMs) {
+        this(typeSignature, sortMode, label, sql, hasExpectedResults, expectedResults, columnSeparator,
+                location, expectedHeaderLine, expectedBodyEndLine, timeoutMs, null);
     }
 }

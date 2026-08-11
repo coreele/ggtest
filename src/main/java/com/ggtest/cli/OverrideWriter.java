@@ -134,7 +134,14 @@ final class OverrideWriter {
         }
         String line = lines.get(lineIdx);
         int end = Math.min(col, line.length());
-        lines.set(lineIdx, line.substring(0, end) + newText);
+        String text = newText;
+        if (stmt.timeoutMs() > 0) {
+            text = text + " timeout=" + stmt.timeoutMs();
+        }
+        if (stmt.conn() != null) {
+            text = text + " conn=" + stmt.conn();
+        }
+        lines.set(lineIdx, line.substring(0, end) + text);
     }
 
     private static List<String> splitOnEol(String text, String eol) {

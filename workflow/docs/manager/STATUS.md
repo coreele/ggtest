@@ -28,6 +28,8 @@
 | ggtest-cli-help | ggtest-cli-help | --help / -h 用法信息 | done | fast | skipped | — | [workflow/docs/features/ggtest-cli-help/](../features/ggtest-cli-help/) |
 | query-header-kv-attrs | query-header-kv-attrs | separator 改为 key=value 形式 | done | standard | required | — | [workflow/docs/features/query-header-kv-attrs/](../features/query-header-kv-attrs/) |
 | fix-override-rowwise | fix-override-rowwise | --override row-wise 写入格式 bug + 拼写提示 | done | fast | skipped | — | [workflow/docs/features/fix-override-rowwise/](../features/fix-override-rowwise/) |
+| add-statement-query-timeout | add-statement-query-timeout | timeout=<ms> 属性 | done | standard | required | — | [workflow/docs/features/add-statement-query-timeout/](../features/add-statement-query-timeout/) |
+| add-conn-attribute | add-conn-attribute | conn=<name> 多连接并发 | done | standard | required | — | [workflow/docs/features/add-conn-attribute/](../features/add-conn-attribute/) |
 | refactor-filerunner-responsibilities | refactor-filerunner-responsibilities | 拆分 FileRunner 职责（CA-010） | done | standard | skipped | — | [workflow/docs/features/refactor-filerunner-responsibilities/](../features/refactor-filerunner-responsibilities/) |
 
 ## 已归档

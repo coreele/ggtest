@@ -137,34 +137,80 @@ public final class SqlLogicTestParser {
                     sourceName, startLine, "statement requires at least one expectation token (ok|error)");
         }
         StatementExpectation expectation = switch (tokens[1]) {
-            case "ok" -> {
-                if (tokens.length > 2) {
-                    throw new ParseException(
-                            sourceName, startLine,
-                            "statement ok does not take additional operands");
-                }
-                yield StatementExpectation.OK;
-            }
+            case "ok" -> StatementExpectation.OK;
             case "error" -> StatementExpectation.ERROR;
             default -> throw new ParseException(
                     sourceName, startLine, "unknown statement expectation: " + tokens[1]);
         };
         String expectedErrorMsg = null;
         int errorMsgStartColumn = -1;
-        if (expectation == StatementExpectation.ERROR && tokens.length > 2) {
-            String keyword = "error";
-            int keywordEnd = indexOfToken(headerLine, keyword, 0);
-            if (keywordEnd >= 0) {
-                String raw = headerLine.substring(keywordEnd).trim();
-                if (!raw.isEmpty()) {
-                    expectedErrorMsg = raw;
-                    errorMsgStartColumn = findMsgStartColumn(headerLine, keywordEnd);
+        int timeoutMs = 0;
+        String conn = null;
+        if (tokens.length > 2) {
+            java.util.Set<String> seenKeys = new java.util.HashSet<>();
+            int firstAttrIndex = -1;
+            for (int i = 2; i < tokens.length; i++) {
+                if (tokens[i].indexOf('=') >= 0) {
+                    firstAttrIndex = i;
+                    break;
+                }
+            }
+            int msgEnd = firstAttrIndex >= 0 ? firstAttrIndex : tokens.length;
+            if (expectation == StatementExpectation.OK && msgEnd > 2) {
+                throw new ParseException(
+                        sourceName, startLine, "statement ok does not take additional operands");
+            }
+            if (expectation == StatementExpectation.ERROR && msgEnd > 2) {
+                String keyword = "error";
+                int keywordEnd = indexOfToken(headerLine, keyword, 0);
+                if (keywordEnd >= 0) {
+                    String raw = headerLine.substring(keywordEnd).trim();
+                    if (!raw.isEmpty()) {
+                        int attrStart = raw.indexOf(" timeout=");
+                        if (attrStart < 0) {
+                            attrStart = raw.indexOf("\t");
+                        }
+                        if (attrStart >= 0) {
+                            expectedErrorMsg = raw.substring(0, attrStart).trim();
+                        } else {
+                            // No key=value tokens — entire text is error message
+                            expectedErrorMsg = raw;
+                        }
+                        if (!expectedErrorMsg.isEmpty()) {
+                            errorMsgStartColumn = findMsgStartColumn(headerLine, keywordEnd);
+                        }
+                    }
+                }
+            }
+            if (firstAttrIndex >= 0) {
+                for (int i = firstAttrIndex; i < tokens.length; i++) {
+                    String token = tokens[i];
+                    int eq = token.indexOf('=');
+                    if (eq < 0) {
+                        continue;
+                    }
+                    String key = token.substring(0, eq);
+                    String value = token.substring(eq + 1);
+                    if (!seenKeys.add(key)) {
+                        throw new ParseException(sourceName, startLine,
+                                "duplicate attribute key in statement header: " + key);
+                    }
+                    if ("timeout".equals(key)) {
+                        timeoutMs = parseTimeoutMs(sourceName, startLine, value);
+                    } else if ("conn".equals(key)) {
+                        conn = parseConnName(sourceName, startLine, value);
+                    } else {
+                        throw new ParseException(sourceName, startLine,
+                                "unknown attribute key in statement header: " + key
+                                        + " (supported: timeout, conn)");
+                    }
                 }
             }
         }
         String sql = readSqlBody(sourceName, startLine, lines);
         return new StatementRecord(
-                sql, expectation, expectedErrorMsg, new SourceLocation(sourceName, startLine), errorMsgStartColumn);
+                sql, expectation, expectedErrorMsg, new SourceLocation(sourceName, startLine),
+                errorMsgStartColumn, timeoutMs, conn);
     }
 
     private static int findMsgStartColumn(String headerLine, int keywordEnd) {
@@ -184,6 +230,8 @@ public final class SqlLogicTestParser {
         SortMode sortMode = SortMode.NOSORT;
         Optional<String> label = Optional.empty();
         Optional<String> columnSeparator = Optional.empty();
+        int timeoutMs = 0;
+        String conn = null;
         int index = 2;
         if (index < tokens.length) {
             SortMode parsed = parseSortMode(tokens[index]);
@@ -211,11 +259,15 @@ public final class SqlLogicTestParser {
                                     "separator value must not contain whitespace");
                         }
                         columnSeparator = value.isEmpty() ? Optional.empty() : Optional.of(value);
+                    } else if ("timeout".equals(key)) {
+                        timeoutMs = parseTimeoutMs(sourceName, startLine, value);
+                    } else if ("conn".equals(key)) {
+                        conn = parseConnName(sourceName, startLine, value);
                     } else {
                         String suggestion = suggestKey(key);
                         String hint = suggestion != null
                                 ? " (did you mean \"" + suggestion + "\"?)"
-                                : " (supported: separator)";
+                                : " (supported: separator, timeout)";
                         throw new ParseException(sourceName, startLine,
                                 "unknown attribute key in query header: " + key + hint);
                     }
@@ -281,18 +333,50 @@ public final class SqlLogicTestParser {
                 columnSeparator,
                 new SourceLocation(sourceName, startLine),
                 expectedHeaderLine,
-                expectedBodyEndLine);
+                expectedBodyEndLine,
+                timeoutMs,
+                conn);
     }
 
     private static boolean isKnownAttributeKey(String token) {
-        return "separator".equals(token);
+        return "separator".equals(token) || "timeout".equals(token) || "conn".equals(token);
     }
 
     private static String suggestKey(String token) {
         if (editDistance(token, "separator") <= 2) {
             return "separator";
         }
+        if (editDistance(token, "timeout") <= 2) {
+            return "timeout";
+        }
+        if (editDistance(token, "conn") <= 2) {
+            return "conn";
+        }
         return null;
+    }
+
+    private static int parseTimeoutMs(String sourceName, int startLine, String value) {
+        try {
+            int ms = Integer.parseInt(value);
+            if (ms <= 0) {
+                throw new ParseException(sourceName, startLine,
+                        "timeout value must be a positive integer, got: " + value);
+            }
+            return ms;
+        } catch (NumberFormatException ex) {
+            throw new ParseException(sourceName, startLine,
+                    "timeout value is not a valid integer: " + value);
+        }
+    }
+
+    private static String parseConnName(String sourceName, int startLine, String value) {
+        if (value.isEmpty()) {
+            throw new ParseException(sourceName, startLine, "conn value must not be empty");
+        }
+        if (value.indexOf(' ') >= 0 || value.indexOf('\t') >= 0) {
+            throw new ParseException(sourceName, startLine, "conn value must not contain whitespace");
+        }
+        return value;
     }
 
     private static int editDistance(String a, String b) {
