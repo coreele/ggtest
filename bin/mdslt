@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+import sys
+
+def convert_md_to_slt(md_content: str) -> str:
+    lines = md_content.splitlines()
+    output = []
+    in_code_block = False
+
+    for line in lines:
+        stripped = line.strip()
+
+        # 1. 检测代码块标记：```sql 或 ```
+        if stripped.startswith("```"):
+            # 遇到代码块起点或终点，只切换状态，不输出 ``` 这行
+            in_code_block = not in_code_block
+            continue
+
+        # 2. 如果在代码块内部，直接保留原始 SLT 测试内容
+        if in_code_block:
+            output.append(line)
+            continue
+
+        # 3. 处理代码块外部的引用块 ( > ... ) -> 恢复为 ### 注释
+        if line.startswith("> "):
+            output.append("### " + line[2:])
+            continue
+        elif line.startswith(">"):
+            output.append("###" + line[1:])
+            continue
+
+        # 4. 其他普通文本/标题（如 ## 标题、空行等），直接保留
+        output.append(line)
+
+    return "\n".join(output)
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        with open(sys.argv[1], 'r', encoding='utf-8') as f:
+            content = f.read()
+        print(convert_md_to_slt(content))
+    else:
+        # 支持管道方式调用: cat demo.md | python3 mdslt.py
+        print(convert_md_to_slt(sys.stdin.read()))

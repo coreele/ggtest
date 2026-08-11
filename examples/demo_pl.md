@@ -1,19 +1,20 @@
 # GGTEST PL/pgSQL 功能展示 (sqllogictest format)
 
-### 本文件演示 ggtest 对 PostgreSQL PL/pgSQL 的支持，涵盖函数创建、调用、
-### 控制流、集合返回等常见模式。仅适用于 PostgreSQL engine。
-###
-### 使用方式（.env 已配好 PostgreSQL 时直接运行）：
-### ./bin/ggtest examples/demo_pl.slt
-###
-### 显式指定 engine：
-### ./bin/ggtest --engine postgres \
-### --url 'jdbc:postgresql://localhost:5432/postgres' \
-### --user postgres [--password ...] \
-### examples/demo_pl.slt
+> 本文件演示 ggtest 对 PostgreSQL PL/pgSQL 的支持，涵盖函数创建、调用、
+> 控制流、集合返回等常见模式。仅适用于 PostgreSQL engine。
+>
+> 使用方式（.env 已配好 PostgreSQL 时直接运行）：
+> ./bin/ggtest examples/demo_pl.slt
+>
+> 显式指定 engine：
+> ./bin/ggtest --engine postgres \
+> --url 'jdbc:postgresql://localhost:5432/postgres' \
+> --user postgres [--password ...] \
+> examples/demo_pl.slt
 
 ## 标量函数 — 基本参数与返回值
 
+```sql
 statement ok
 DROP FUNCTION IF EXISTS get_square(integer)
 
@@ -34,9 +35,11 @@ query I
 SELECT get_square(-3)
 ----
 9
+```
 
 ## DECLARE 局部变量
 
+```sql
 statement ok
 DROP FUNCTION IF EXISTS calc_discount(numeric, numeric)
 
@@ -56,9 +59,11 @@ SELECT calc_discount(100, 10), calc_discount(50, 20)
 ----
 90.000
 40.000
+```
 
 ## IF / ELSIF / ELSE 条件分支
 
+```sql
 statement ok
 DROP FUNCTION IF EXISTS grade_score(integer)
 
@@ -90,9 +95,11 @@ query T nosort
 SELECT grade_score(40)
 ----
 C
+```
 
 ## RETURN QUERY / SETOF — 返回结果集
 
+```sql
 statement ok
 DROP FUNCTION IF EXISTS fibonacci(integer)
 
@@ -126,9 +133,11 @@ SELECT * FROM fibonacci(13)
 5
 8
 13
+```
 
 ## LOOP + EXIT WHEN + CONTINUE
 
+```sql
 statement ok
 DROP FUNCTION IF EXISTS sum_evens(integer)
 
@@ -161,9 +170,11 @@ query I
 SELECT sum_evens(5)
 ----
 6
+```
 
 ## 默认参数值
 
+```sql
 statement ok
 DROP FUNCTION IF EXISTS greet(text, text)
 
@@ -184,9 +195,11 @@ query T nosort
 SELECT greet('GGTEST', 'Hi')
 ----
 Hi, GGTEST!
+```
 
 ## RETURNS TABLE — 行结构返回
 
+```sql
 statement ok
 DROP FUNCTION IF EXISTS split_name(text)
 
@@ -204,9 +217,11 @@ query TT nosort separator |
 SELECT * FROM split_name('John Smith')
 ----
 John | Smith
+```
 
 ## 异常处理 — EXCEPTION WHEN
 
+```sql
 statement ok
 DROP FUNCTION IF EXISTS safe_divide(numeric, numeric)
 
@@ -230,21 +245,27 @@ query T
 SELECT CAST(safe_divide(10, 0) AS text)
 ----
 NULL
+```
 
 ## 验证 safe_divide 确实捕获了除零异常（返回 NULL 而非抛错）
 
+```sql
 query T
 SELECT safe_divide(10, 0) IS NULL
 ----
 t
+```
 
 ## STATEMENT ERROR — 不捕获的异常会向客户端抛错
 
+```sql
 statement error division by zero
 SELECT 1 / 0
+```
 
 ## 清理
 
+```sql
 statement ok
 DROP FUNCTION IF EXISTS get_square(integer)
 
@@ -268,3 +289,4 @@ DROP FUNCTION IF EXISTS split_name(text)
 
 statement ok
 DROP FUNCTION IF EXISTS safe_divide(numeric, numeric)
+```

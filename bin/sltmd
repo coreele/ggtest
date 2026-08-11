@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+import sys
+import re
+
+def convert_slt_to_md(slt_content: str) -> str:
+    lines = slt_content.splitlines()
+    output = []
+    code_buf = []
+    in_code_block = False
+
+    def flush_code_block():
+        nonlocal in_code_block, code_buf
+        if in_code_block:
+            # 剥离代码块末尾多余的空行
+            trailing_blanks = []
+            while code_buf and not code_buf[-1].strip():
+                trailing_blanks.append(code_buf.pop())
+
+            output.append("```sql")
+            output.extend(code_buf)
+            output.append("```")
+
+            # 将剥离出的空行放到代码块外面，保持原本的行间隔
+            output.extend(trailing_blanks)
+
+            code_buf = []
+            in_code_block = False
+
+    for line in lines:
+        stripped = line.strip()
+        
+        # 1. 处理 ### 标题注释
+        if line.startswith('### '):
+            flush_code_block()
+            output.append('> ' + line[4:])
+            continue
+        elif line.startswith('###'):
+            flush_code_block()
+            output.append('>' + line[3:])
+            continue
+
+        # 2. 处理 Markdown 标题
+        if re.match(r'^#{1,2}\s', line) or re.match(r'^#{4,}\s', line):
+            flush_code_block()
+            output.append(line)
+            continue
+
+        # 3. 暂存空行
+        if not stripped:
+            if in_code_block:
+                code_buf.append(line)
+            else:
+                output.append(line)
+            continue
+
+        # 4. 进入代码块
+        if not in_code_block:
+            in_code_block = True
+            
+        code_buf.append(line)
+
+    # 文件结尾收尾
+    flush_code_block()
+
+    return "\n".join(output)
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        with open(sys.argv[1], 'r', encoding='utf-8') as f:
+            content = f.read()
+        print(convert_slt_to_md(content))
+    else:
+        print(convert_slt_to_md(sys.stdin.read()))
