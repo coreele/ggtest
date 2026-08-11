@@ -212,9 +212,12 @@ public final class SqlLogicTestParser {
                         }
                         columnSeparator = value.isEmpty() ? Optional.empty() : Optional.of(value);
                     } else {
+                        String suggestion = suggestKey(key);
+                        String hint = suggestion != null
+                                ? " (did you mean \"" + suggestion + "\"?)"
+                                : " (supported: separator)";
                         throw new ParseException(sourceName, startLine,
-                                "unknown attribute key in query header: " + key
-                                        + " (supported: separator)");
+                                "unknown attribute key in query header: " + key + hint);
                     }
                 } else {
                     if (label.isPresent()) {
@@ -225,6 +228,12 @@ public final class SqlLogicTestParser {
                         throw new ParseException(sourceName, startLine,
                                 "use key=value form for attribute '" + token
                                         + "' (e.g. " + token + "=<value>)");
+                    }
+                    String suggestion = suggestKey(token);
+                    if (suggestion != null) {
+                        throw new ParseException(sourceName, startLine,
+                                "unexpected token in query header '" + token
+                                        + "'; did you mean " + suggestion + "=<value>?");
                     }
                     label = Optional.of(token);
                 }
@@ -277,6 +286,35 @@ public final class SqlLogicTestParser {
 
     private static boolean isKnownAttributeKey(String token) {
         return "separator".equals(token);
+    }
+
+    private static String suggestKey(String token) {
+        if (editDistance(token, "separator") <= 2) {
+            return "separator";
+        }
+        return null;
+    }
+
+    private static int editDistance(String a, String b) {
+        int n = a.length();
+        int m = b.length();
+        int[] prev = new int[m + 1];
+        int[] curr = new int[m + 1];
+        for (int j = 0; j <= m; j++) {
+            prev[j] = j;
+        }
+        for (int i = 1; i <= n; i++) {
+            curr[0] = i;
+            for (int j = 1; j <= m; j++) {
+                curr[j] = a.charAt(i - 1) == b.charAt(j - 1)
+                        ? prev[j - 1]
+                        : 1 + Math.min(Math.min(prev[j], curr[j - 1]), prev[j - 1]);
+            }
+            int[] tmp = prev;
+            prev = curr;
+            curr = tmp;
+        }
+        return prev[m];
     }
 
     private static boolean isExpectationHeaderCandidate(String rawLine) {

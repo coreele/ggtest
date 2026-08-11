@@ -251,9 +251,30 @@ public final class SqlLogicTestRunner {
             return RecordResult.passed(record);
         }
         if (overrideEnabled && resultMismatch && !labelConflict) {
-            return RecordResult.overridden(record, String.join("\n", comparison.actualView()));
+            String overrideText = formatOverrideText(record, comparison.actualView());
+            return RecordResult.overridden(record, overrideText);
         }
         return RecordResult.failed(record, String.join("\n", failures));
+    }
+
+    private static String formatOverrideText(QueryRecord record, List<String> actualView) {
+        if (record.columnSeparator().isEmpty() || actualView.size() == 1) {
+            return String.join("\n", actualView);
+        }
+        int columns = record.typeSignature().size();
+        if (columns <= 0) {
+            return String.join("\n", actualView);
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < actualView.size(); i++) {
+            if (i > 0 && i % columns == 0) {
+                sb.append('\n');
+            } else if (i > 0) {
+                sb.append(record.columnSeparator().orElseThrow());
+            }
+            sb.append(actualView.get(i));
+        }
+        return sb.toString();
     }
 
     private static String expectedText(QueryRecord record) {
