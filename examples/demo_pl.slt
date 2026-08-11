@@ -200,7 +200,7 @@ BEGIN
 END
 $$ LANGUAGE plpgsql
 
-query TT nosort separator |
+query TT nosort separator=|
 SELECT * FROM split_name('John Smith')
 ----
 John | Smith

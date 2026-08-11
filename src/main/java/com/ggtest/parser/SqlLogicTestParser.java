@@ -120,7 +120,7 @@ public final class SqlLogicTestParser {
             throw new ParseException(
                     sourceName,
                     startLine,
-                    "---- separator was removed; declare separator <delim> on the query header,"
+                    "---- separator was removed; declare separator=<delim> on the query header,"
                             + " not as a top-level record");
         }
         throw new ParseException(
@@ -193,26 +193,42 @@ public final class SqlLogicTestParser {
             }
         }
         int remaining = tokens.length - index;
-        if (remaining == 1) {
-            label = Optional.of(tokens[index]);
-        } else if (remaining == 2) {
-            if (!tokens[index].equals("separator")) {
-                throw new ParseException(
-                        sourceName, startLine, "unexpected tokens in query header after label");
+        if (remaining > 0) {
+            java.util.Set<String> seenKeys = new java.util.HashSet<>();
+            for (int i = index; i < tokens.length; i++) {
+                String token = tokens[i];
+                int eq = token.indexOf('=');
+                if (eq >= 0) {
+                    String key = token.substring(0, eq);
+                    String value = token.substring(eq + 1);
+                    if (!seenKeys.add(key)) {
+                        throw new ParseException(sourceName, startLine,
+                                "duplicate attribute key in query header: " + key);
+                    }
+                    if ("separator".equals(key)) {
+                        if (value.indexOf(' ') >= 0 || value.indexOf('\t') >= 0) {
+                            throw new ParseException(sourceName, startLine,
+                                    "separator value must not contain whitespace");
+                        }
+                        columnSeparator = value.isEmpty() ? Optional.empty() : Optional.of(value);
+                    } else {
+                        throw new ParseException(sourceName, startLine,
+                                "unknown attribute key in query header: " + key
+                                        + " (supported: separator)");
+                    }
+                } else {
+                    if (label.isPresent()) {
+                        throw new ParseException(sourceName, startLine,
+                                "query label specified more than once");
+                    }
+                    if (isKnownAttributeKey(token)) {
+                        throw new ParseException(sourceName, startLine,
+                                "use key=value form for attribute '" + token
+                                        + "' (e.g. " + token + "=<value>)");
+                    }
+                    label = Optional.of(token);
+                }
             }
-            columnSeparator = Optional.of(tokens[index + 1]);
-        } else if (remaining == 3) {
-            if (!tokens[index + 1].equals("separator")) {
-                throw new ParseException(
-                        sourceName, startLine, "unexpected tokens in query header after label");
-            }
-            label = Optional.of(tokens[index]);
-            columnSeparator = Optional.of(tokens[index + 2]);
-        } else if (remaining > 3) {
-            throw new ParseException(
-                    sourceName,
-                    startLine,
-                    "unexpected tokens in query header after separator <delim>");
         }
 
         List<String> sqlLines = new ArrayList<>();
@@ -259,6 +275,10 @@ public final class SqlLogicTestParser {
                 expectedBodyEndLine);
     }
 
+    private static boolean isKnownAttributeKey(String token) {
+        return "separator".equals(token);
+    }
+
     private static boolean isExpectationHeaderCandidate(String rawLine) {
         return stripLeadingWhitespace(rawLine).startsWith("----");
     }
@@ -277,7 +297,7 @@ public final class SqlLogicTestParser {
             throw new ParseException(
                     sourceName,
                     lineNumber,
-                    "---- separator was removed; declare separator <delim> on the query header"
+                    "---- separator was removed; declare separator=<delim> on the query header"
                             + " instead: "
                             + trimmed);
         }

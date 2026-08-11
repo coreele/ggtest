@@ -14,7 +14,7 @@ import java.util.Optional;
  * normalization and hashing belong to the {@code normalize} slice.
  *
  * <p>{@code columnSeparator} is set only when the query header declares
- * {@code separator <delim>}; empty means value-per-line expectations.
+ * {@code separator=<delim>}; empty means value-per-line expectations.
  *
  * @param typeSignature      column types, one entry per signature character
  * @param sortMode           declared sort mode ({@link SortMode#NOSORT} by default)

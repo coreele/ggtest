@@ -26,6 +26,7 @@
 | fix-sql-hash-comments | fix-sql-hash-comments | SQL 体内 `#` 注释裁剪 | backlog | fast | skipped | Planner | [workflow/docs/features/fix-sql-hash-comments/](../features/fix-sql-hash-comments/) |
 | add-lcs-diff-guard | add-lcs-diff-guard | LCS diff O(n*m) 加大小门限 | backlog | fast | skipped | Planner | [workflow/docs/features/add-lcs-diff-guard/](../features/add-lcs-diff-guard/) |
 | ggtest-cli-help | ggtest-cli-help | --help / -h 用法信息 | done | fast | skipped | — | [workflow/docs/features/ggtest-cli-help/](../features/ggtest-cli-help/) |
+| query-header-kv-attrs | query-header-kv-attrs | separator 改为 key=value 形式 | done | standard | required | — | [workflow/docs/features/query-header-kv-attrs/](../features/query-header-kv-attrs/) |
 | refactor-filerunner-responsibilities | refactor-filerunner-responsibilities | 拆分 FileRunner 职责（CA-010） | done | standard | skipped | — | [workflow/docs/features/refactor-filerunner-responsibilities/](../features/refactor-filerunner-responsibilities/) |
 
 ## 已归档

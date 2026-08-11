@@ -229,7 +229,7 @@ class SqlLogicTestParserTest {
     @Test
     void queryHead_separatorPipe_noLabel_bindsDelim() {
         String content = """
-                query IIT nosort separator |
+                query IIT nosort separator=|
                 SELECT 1, 1, 'hello world'
                 ----
                 1 | 1 | hello world
@@ -244,7 +244,7 @@ class SqlLogicTestParserTest {
     @Test
     void queryHead_multiCharDelim_allowed() {
         String content = """
-                query I separator ::
+                query I separator=::
                 SELECT 1
                 ----
                 1
@@ -257,7 +257,7 @@ class SqlLogicTestParserTest {
     @Test
     void queryHead_labelThenSeparator_bindsBoth() {
         String content = """
-                query III nosort lbl separator |
+                query III nosort lbl separator=|
                 SELECT 1, 2, 3
                 ----
                 1|2|3
@@ -268,7 +268,7 @@ class SqlLogicTestParserTest {
     }
 
     @Test
-    void p0_6_queryHead_trailingSeparatorToken_isLabelNotDeclaration() {
+    void p0_6_queryHead_separatorWithoutEquals_throwsHelpfulError() {
         String content = """
                 query III nosort separator
                 SELECT 1, 2, 3
@@ -277,21 +277,16 @@ class SqlLogicTestParserTest {
                 2
                 3
                 """;
-        QueryRecord query = assertInstanceOf(QueryRecord.class, parser.parse("label.test", content).get(0));
-        assertEquals(Optional.of("separator"), query.label());
-        assertEquals(Optional.empty(), query.columnSeparator());
+        ParseException ex = assertThrows(ParseException.class, () -> parser.parse("help.test", content));
+        assertTrue(ex.reason().contains("key=value"), ex.reason());
     }
 
     @Test
-    void p1_1_queryHead_separatorThenExtraToken_throwsReadableParseException() {
+    void p1_1_queryHead_separatorSpaceOldForm_throwsHelpfulError() {
         ParseException ex = assertThrows(
                 ParseException.class,
-                () -> parser.parse("extra.test", "query III separator | extra\nSELECT 1\n"));
-        assertFalse(ex.reason().isBlank());
-        String reason = ex.reason().toLowerCase();
-        assertTrue(
-                reason.contains("separator") || reason.contains("token") || reason.contains("unexpected"),
-                ex.reason());
+                () -> parser.parse("old.test", "query III separator | extra\nSELECT 1\n"));
+        assertTrue(ex.reason().contains("key=value"), ex.reason());
     }
 
     @Test
@@ -305,7 +300,7 @@ class SqlLogicTestParserTest {
     @Test
     void p1_4_nextQueryExactDashes_doesNotInheritSeparator() {
         String content = """
-                query III nosort separator |
+                query III nosort separator=|
                 SELECT 1, 2, 3
                 ----
                 1|2|3
@@ -332,7 +327,7 @@ class SqlLogicTestParserTest {
     @Test
     void p0_2_targetWriting_iitPipeBareTextQueryHead() {
         String content = """
-                query IIT nosort separator |
+                query IIT nosort separator=|
                 SELECT 1, 1, 'hello world'
                 ----
                 1 | 1 | hello world

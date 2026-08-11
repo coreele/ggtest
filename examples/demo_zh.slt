@@ -101,19 +101,19 @@ SELECT 1, 1, 'hello world'
 hello world
 
 # 行式：在 query 头声明 separator；token 两侧 trim
-query IIT nosort separator |
+query IIT nosort separator=|
 SELECT 1, 1, 'hello world'
 ----
 1 | 1 | hello world
 
 # 另一种分隔符（逗号）；不继承上一条的 |
-query IIT nosort separator ,
+query IIT nosort separator=,
 SELECT 1, 1, 'hello world'
 ----
 1,1,hello world
 
 # SQL 字面量转义：'' 在单元格中变为单个 '
-query IIT nosort separator |
+query IIT nosort separator=|
 SELECT 1, 1, 'hello ''world'
 ----
 1 | 1 | hello 'world

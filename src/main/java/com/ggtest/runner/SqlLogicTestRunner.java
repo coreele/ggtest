@@ -30,7 +30,7 @@ import java.util.Objects;
  * conditions, and label results — lives inside a single {@link #run(List)} call;
  * callers reset it by starting a new run for the next file. Column separator for
  * row-wise expectations is taken from each {@link QueryRecord} when the query header
- * declares {@code separator <delim>}; otherwise expectations are value-per-line.
+ * declares {@code separator=<delim>}; otherwise expectations are value-per-line.
  * Instances are
  * stateless and reusable, but not thread-safe beyond whatever the supplied
  * executor and its connection allow (execution is serial on one connection).

@@ -5,7 +5,7 @@ CREATE TABLE rw(a INTEGER, b INTEGER, c TEXT)
 statement ok
 INSERT INTO rw VALUES(1, 1, 'hello world')
 
-query IIT nosort separator |
+query IIT nosort separator=|
 SELECT a, b, c FROM rw
 ----
 1 | 1 | hello world

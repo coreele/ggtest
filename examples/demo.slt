@@ -102,19 +102,19 @@ SELECT 1, 1, 'hello world'
 hello world
 
 # Row-wise: declare separator on the query header; tokens are trimmed
-query IIT nosort separator |
+query IIT nosort separator=|
 SELECT 1, 1, 'hello world'
 ----
 1 | 1 | hello world
 
 # Another delimiter (comma); does not inherit prior |
-query IIT nosort separator ,
+query IIT nosort separator=,
 SELECT 1, 1, 'hello world'
 ----
 1,1,hello world
 
 # SQL quote escaping: '' inside a literal becomes a single ' in the cell
-query IIT nosort separator |
+query IIT nosort separator=|
 SELECT 1, 1, 'hello ''world'
 ----
 1 | 1 | hello 'world

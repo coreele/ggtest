@@ -12,7 +12,7 @@ import java.util.Optional;
  * after I/T/R normalization, sorting, and optional MD5 hashing.
  *
  * <p>Supports value-per-line expectations (default when no separator is declared)
- * and row-wise expectations when the query header declares {@code separator <delim>}.
+ * and row-wise expectations when the query header declares {@code separator=<delim>}.
  * Declared separators trim tokens after split; there is no quote shell on expected cells.
  * A row-wise line whose token count is not {@code C} yields a failed compare result
  * (run continues), not a parse abort.
