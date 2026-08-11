@@ -19,7 +19,7 @@
 
 | sub-feature-id | 状态 | 后续步骤 |
 |---|---|---|
-| sync-vs-slt-grammar | planned | Developer |
+| sync-vs-slt-grammar | developing | Developer（进行中） |
 
 ## 进度笔记
 
