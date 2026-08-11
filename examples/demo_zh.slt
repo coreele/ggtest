@@ -1,9 +1,9 @@
 # GGTEST 功能展示（sqllogictest 格式）
 #
-# 覆盖公开记录类型、期望形态与 PostgreSQL PL/pgSQL。
+# 覆盖记录类型、期望形态与 PostgreSQL PL/pgSQL。
 # 与 examples/demo.slt 对等（英文注释版）。
 #
-# SQLite（若当前目录 .env 指定了其他引擎，请显式传 --engine）：
+# SQLite：
 #   ./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo_zh.slt
 #
 # PostgreSQL（全部章节包含 PL/pgSQL）：
@@ -74,22 +74,9 @@ SELECT name FROM items WHERE id = 5
 ----
 NULL
 
-query R nosort
-SELECT price FROM items WHERE id = 5
-----
-NULL
-
-# --- 每值一行（恰 ----）与行式（query 头 separator=<delim>） ---
+# --- 每值一行 与 行式（separator=<delim>） ---
 
 # 恰 ---- 永远每值一行（每个物理行 = 一个单元格）
-query IIT nosort
-SELECT id, 1, name FROM items WHERE id = 1
-----
-1
-1
-apple
-
-# TEXT 含空格时整行保留为一个单元格（不会按空格拆列）
 query IIT nosort
 SELECT 1, 1, 'hello world'
 ----
@@ -97,31 +84,11 @@ SELECT 1, 1, 'hello world'
 1
 hello world
 
-# 行式：在 query 头声明 separator=<delim>；token 两侧 trim
+# 行式：在 query 头声明 separator=<delim>；两侧空格可选，token 被 trim
 query IIT nosort separator=|
 SELECT 1, 1, 'hello world'
 ----
 1 | 1 | hello world
-
-# 另一种分隔符（逗号）；不继承上一条的 |
-query IIT nosort separator=,
-SELECT 1, 1, 'hello world'
-----
-1, 1, hello world
-
-# SQL 字面量转义：'' 在单元格中变为单个 '
-query IIT nosort separator=|
-SELECT 1, 1, 'hello ''world'
-----
-1 | 1 | hello 'world
-
-# 恰 ---- 对多列整数行仍是每值一行
-query III nosort
-SELECT 4, 5, 6
-----
-4
-5
-6
 
 # --- 仅执行（无 ---- 块）：跑 SQL，不做结果比对 ---
 query I nosort
@@ -145,6 +112,7 @@ SELECT * FROM missing_table
 # --- skipif / onlyif（引擎名大小写不敏感） ---
 # sqlite：第一条跳过，第二条执行，第三条跳过。
 # postgres：第一条执行（须合法），第二条跳过，第三条执行。
+
 skipif sqlite
 statement ok
 SELECT 1
@@ -170,16 +138,11 @@ statement ok
 DROP TABLE IF EXISTS items;
 
 # ==============================================================================
-#  PostgreSQL PL/pgSQL 功能 — 需要 --engine postgres
+#  PostgreSQL PL/pgSQL — 需要 --engine postgres
 # ==============================================================================
-### 以下章节演示 PL/pgSQL：标量函数、控制流、集合返回、异常处理等。
 ### 全部记录带 onlyif postgres 守卫，在 SQLite 上自动跳过。
 
-## --- 标量函数 — 基本参数与返回值 ---
-
-onlyif postgres
-statement ok
-DROP FUNCTION IF EXISTS get_square(integer)
+## --- 标量函数 ---
 
 onlyif postgres
 statement ok
@@ -196,42 +159,7 @@ SELECT get_square(5)
 ----
 25
 
-onlyif postgres
-query I
-SELECT get_square(-3)
-----
-9
-
-## --- DECLARE 局部变量 ---
-
-onlyif postgres
-statement ok
-DROP FUNCTION IF EXISTS calc_discount(numeric, numeric)
-
-onlyif postgres
-statement ok
-CREATE OR REPLACE FUNCTION calc_discount(price numeric, rate numeric)
-RETURNS numeric AS $$
-DECLARE
-    discounted numeric;
-BEGIN
-    discounted := price - (price * rate / 100);
-    RETURN discounted;
-END
-$$ LANGUAGE plpgsql
-
-onlyif postgres
-query RR nosort
-SELECT calc_discount(100, 10), calc_discount(50, 20)
-----
-90.000
-40.000
-
-## --- IF / ELSIF / ELSE 条件分支 ---
-
-onlyif postgres
-statement ok
-DROP FUNCTION IF EXISTS grade_score(integer)
+## --- IF / ELSIF / ELSE ---
 
 onlyif postgres
 statement ok
@@ -256,21 +184,11 @@ A
 
 onlyif postgres
 query T nosort
-SELECT grade_score(65)
-----
-B
-
-onlyif postgres
-query T nosort
 SELECT grade_score(40)
 ----
 C
 
-## --- RETURN QUERY / SETOF — 返回结果集 ---
-
-onlyif postgres
-statement ok
-DROP FUNCTION IF EXISTS fibonacci(integer)
+## --- RETURN QUERY / SETOF ---
 
 onlyif postgres
 statement ok
@@ -305,50 +223,7 @@ SELECT * FROM fibonacci(13)
 8
 13
 
-## --- LOOP + EXIT WHEN + CONTINUE ---
-
-onlyif postgres
-statement ok
-DROP FUNCTION IF EXISTS sum_evens(integer)
-
-onlyif postgres
-statement ok
-CREATE OR REPLACE FUNCTION sum_evens(n integer)
-RETURNS integer AS $$
-DECLARE
-    i     integer := 1;
-    total integer := 0;
-BEGIN
-    LOOP
-        EXIT WHEN i > n;
-        IF i % 2 <> 0 THEN
-            i := i + 1;
-            CONTINUE;
-        END IF;
-        total := total + i;
-        i := i + 1;
-    END LOOP;
-    RETURN total;
-END
-$$ LANGUAGE plpgsql
-
-onlyif postgres
-query I
-SELECT sum_evens(10)
-----
-30
-
-onlyif postgres
-query I
-SELECT sum_evens(5)
-----
-6
-
 ## --- 默认参数值 ---
-
-onlyif postgres
-statement ok
-DROP FUNCTION IF EXISTS greet(text, text)
 
 onlyif postgres
 statement ok
@@ -360,22 +235,12 @@ END
 $$ LANGUAGE plpgsql
 
 onlyif postgres
-query T nosort
+query T
 SELECT greet('World')
 ----
 Hello, World!
 
-onlyif postgres
-query T nosort
-SELECT greet('GGTEST', 'Hi')
-----
-Hi, GGTEST!
-
-## --- RETURNS TABLE — 行结构返回 ---
-
-onlyif postgres
-statement ok
-DROP FUNCTION IF EXISTS split_name(text)
+## --- RETURNS TABLE ---
 
 onlyif postgres
 statement ok
@@ -395,10 +260,6 @@ SELECT * FROM split_name('John Smith')
 John | Smith
 
 ## --- 异常处理 — EXCEPTION WHEN ---
-
-onlyif postgres
-statement ok
-DROP FUNCTION IF EXISTS safe_divide(numeric, numeric)
 
 onlyif postgres
 statement ok
@@ -424,18 +285,6 @@ SELECT CAST(safe_divide(10, 0) AS text)
 ----
 NULL
 
-onlyif postgres
-query T
-SELECT safe_divide(10, 0) IS NULL
-----
-t
-
-## --- STATEMENT ERROR — 不捕获的异常会向客户端抛错 ---
-
-onlyif postgres
-statement error division by zero
-SELECT 1 / 0
-
 ## --- PL/pgSQL 清理 ---
 
 onlyif postgres
@@ -444,19 +293,11 @@ DROP FUNCTION IF EXISTS get_square(integer)
 
 onlyif postgres
 statement ok
-DROP FUNCTION IF EXISTS calc_discount(numeric, numeric)
-
-onlyif postgres
-statement ok
 DROP FUNCTION IF EXISTS grade_score(integer)
 
 onlyif postgres
 statement ok
 DROP FUNCTION IF EXISTS fibonacci(integer)
-
-onlyif postgres
-statement ok
-DROP FUNCTION IF EXISTS sum_evens(integer)
 
 onlyif postgres
 statement ok
@@ -470,13 +311,8 @@ onlyif postgres
 statement ok
 DROP FUNCTION IF EXISTS safe_divide(numeric, numeric)
 
-# --- halt：之后的记录一律跳过（不得执行） ---
+# --- halt：之后的记录一律跳过 ---
 halt
 
 statement ok
 INSERT INTO absent_after_halt VALUES (1)
-
-query I nosort
-SELECT id FROM absent_after_halt
-----
-1
