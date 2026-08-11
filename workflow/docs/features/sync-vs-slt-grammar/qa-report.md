@@ -5,6 +5,7 @@
 | 轮次 | 日期 | 实现版本 | 范围 | 结论 |
 |---|---|---|---|---|
 | 1 | 2026-08-11 | `6051da7` (HEAD `c81a730`) | 首测（自动化层 V1–V5 + 语法 sanity + 文档/安全） | Pass（V6 待用户视觉确认） |
+| 2 | 2026-08-11 | HEAD `c81a730` → 仅 V6 回归 | V6 L4 视觉检查（复测清单 1–7 项） | Pass |
 
 ## QA 入口门禁核验
 
@@ -30,7 +31,7 @@
 | V3 | Plan 132-186 行正则样本脚本原样执行 | Pass | 输出 `all regex checks passed`，exit 0 |
 | V4 | `grep -n -- "---- separator" vs-slt/README.md` | Pass | 无输出，exit 1 |
 | V5 | `git status --short` + `git diff main...HEAD --stat` | Pass | 工作区干净；`main...HEAD` 仅 `vs-slt/`（README + tmLanguage.json）与 workflow 文档变更，**无** parser / examples / package.json / vsix 改动（专项 diff 校验 `src/ examples/ vs-slt/package.json vs-slt/sqllogictest-0.0.1.vsix` 为空） |
-| V6 | L4 人工视觉检查（Cursor / VS Code 打开 `examples/demo2.slt`） | **pending-user-visual-confirmation** | headless 环境无编辑器 GUI，**未执行、未伪造**；清单见下节，由用户执行后补记回归轮 |
+| V6 | L4 人工视觉检查（Cursor / VS Code 打开 `examples/demo2.slt`） | Pass（轮次 2） | 用户会话 2026-08-11 安装 vs-slt（源码目录）并打开 demo2.slt，逐项核对清单 1–7 项全部通过。 |
 
 ## V6 — L4 视觉检查清单（待用户执行）
 
@@ -102,6 +103,5 @@ Review 非阻塞观察（4 条）逐条复核，均确认**非阻塞**：
 ## 结论
 
 - 自动化层（V1–V5 + 语法 sanity + 文档/安全）：**Pass**
-- V6（L4 视觉检查）：**pending-user-visual-confirmation**——headless 环境无法执行，已准备清单，不计数为失败（Plan §验证缺口声明的验证缺口）
-- 恢复条件：用户完成 V6 清单后由 QA 追加回归轮次并更新结论；未过则回 Developer
-- 合并：等待 V6 用户确认 + 用户合并授权后，Manager 置 `done` 一次提交 → 合入 main
+- V6（L4 视觉检查）：**Pass**（轮次 2，用户 2026-08-11 视觉确认通过）
+- 最终结论：**Pass**

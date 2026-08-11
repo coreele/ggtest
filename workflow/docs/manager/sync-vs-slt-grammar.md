@@ -19,7 +19,7 @@
 
 | sub-feature-id | 状态 | 后续步骤 |
 |---|---|---|
-| sync-vs-slt-grammar | qa | QA（V6 待用户视觉确认） |
+| sync-vs-slt-grammar | done | —（工作流关闭，等待合入 main） |
 
 ## 进度笔记
 
@@ -33,5 +33,5 @@
 - 2026-08-11 Plan 已由用户确认（用户会话：ok）；plan.md 见 `workflow/docs/features/sync-vs-slt-grammar/plan.md`。
 - 2026-08-11 Developer 完成 T1–T7；V1–V5 通过（V3 输出 `all regex checks passed`），dev-notes.md 已产出。V6（L4 视觉检查）待 QA。
 - 2026-08-11 Reviewer Approve（review.md：实现正确性、安全 N/A、无阻塞项；4 条非阻塞观察备查）。
-- 2026-08-11 QA 轮次 1：自动化层（V1–V5 + 语法 sanity + 文档/安全）Pass；V6（L4 视觉检查）headless 不可执行，标记 pending-user-visual-confirmation，清单已备于 qa-report.md。
+- 2026-08-11 QA 轮次 2（仅 V6 回归）：L4 视觉检查通过，用户确认；最终结论 Pass，用户授权合并。
 
