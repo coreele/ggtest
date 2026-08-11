@@ -19,7 +19,7 @@
 
 | sub-feature-id | 状态 | 后续步骤 |
 |---|---|---|
-| sync-vs-slt-grammar | reviewing | Reviewer |
+| sync-vs-slt-grammar | qa | QA |
 
 ## 进度笔记
 
@@ -32,4 +32,5 @@
 - 已知：vs-slt/README.md 第 29-30 行提到 `---- separator` 形式，需同步删除。
 - 2026-08-11 Plan 已由用户确认（用户会话：ok）；plan.md 见 `workflow/docs/features/sync-vs-slt-grammar/plan.md`。
 - 2026-08-11 Developer 完成 T1–T7；V1–V5 通过（V3 输出 `all regex checks passed`），dev-notes.md 已产出。V6（L4 视觉检查）待 QA。
+- 2026-08-11 Reviewer Approve（review.md：实现正确性、安全 N/A、无阻塞项；4 条非阻塞观察备查）。
 
