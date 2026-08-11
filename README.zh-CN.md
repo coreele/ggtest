@@ -46,6 +46,7 @@ ggtest [--url <jdbc>] [--user <u>] [--password <p>]
 | `--color`               | `auto`      | 按 TTY 探测；CI 常用 `never` |
 | `--halt`                | 关           | 见首个错误即停（断言失败或硬错误）：文件内后续记录跳过不执行、不报失败；尚未开始的文件不打开、不计入 `TOTAL`。退出码优先级不变。语料 `halt` 记录语义不变（仅中止当前文件后续并 skipped，非错误）。 |
 | `--override`            | 关           | golden-update 模式：用实际输出重写源 `.slt` 文件中范围内 mismatch 的 expected 区间（query 结果失配、`statement error` 消息失配）。被 override 的记录显示 `[OVERRIDDEN]` 且不计为失败；范围外 mismatch（label 冲突、执行失败、类型签名错、极性翻转）仍 `FAILED`。每文件至多一次原子写回（temp+rename）；无 in-scope mismatch 的文件不被改写。退出码优先级不变。不改 parser / 比较 / 规范化语义。 |
+| `--help`、`-h`           | —           | 打印用法信息，退出码 `0`。 |
 
 
 路径：任意文件（内容须是合法 sqllogictest），或递归收集 `*.test` / `*.slt` 的目录。
@@ -78,12 +79,12 @@ ggtest [--url <jdbc>] [--user <u>] [--password <p>]
 ### 期望结果
 
 `query` 期望头恰好为 `----` 时，默认是**每值一行**；仅当 query 头声明
-`separator <delim>` 时才是**行式**：
+`separator=<delim>` 时才是**行式**：
 
 | 形态 | 触发 | 示例（`query III`） |
 |---|---|---|
-| **每值一行**（默认） | 恰 `----`，无 query 头 `separator` | 三行：`1` / `2` / `3` |
-| **行式** | query 头 `separator <delim>` + 恰 `----` | 一行：`1 \| 1 \| hello world` |
+| **每值一行**（默认） | 恰 `----`，无 query 头 `separator=` | 三行：`1` / `2` / `3` |
+| **行式** | query 头 `separator=<delim>` + 恰 `----` | 一行：`1 \| 1 \| hello world` |
 
 每值一行时，每个物理行就是一个单元格（TEXT 中的空格整行保留）。不再按空格猜行式：
 纯 `----` 下的 `1 2 3` 是单值 `"1 2 3"`。
@@ -91,7 +92,7 @@ ggtest [--url <jdbc>] [--user <u>] [--password <p>]
 行式分隔符写在 **query 头**（不要写在 `----` 上）：
 
 ```text
-query IIT nosort separator |
+query IIT nosort separator=|
 SELECT 1, 1, 'hello world'
 ----
 1 | 1 | hello world
@@ -99,7 +100,7 @@ SELECT 1, 1, 'hello world'
 
 `delim` 须为空白切分产生的单 token（允许多字符，不得含空白）。每行须拆成恰 `C`
 个 token（类型串长度），否则比对可读失败（行号、实际 token 数、`C`）。token 两侧
-trim；空 token → `(empty)`。行尾单独的 `separator`（无 delim）仍是 **label**。
+trim；空 token → `(empty)`。行尾单独的 `separator`（无 `=`）仍是 **label**。
 已移除的 `---- separator …` 期望头会解析错误——请改用上方 query 头写法。单元格含当前
 delim 时换分隔符或改每值一行（无引号层）。
 
@@ -125,6 +126,31 @@ SELECT * FROM missing_table
 | `<message>`，但执行成功 | 失败：`statement expected to fail but succeeded` |
 | `<message>`，执行失败但错误摘要不含 `<message>` | 失败：`statement error message mismatch`（diff 风格展示预期 vs 实际） |
 | `<message>`，执行失败且错误摘要含 `<message>` | 通过 |
+
+### 头属性（`timeout=`、`conn=`）
+
+`statement` 和 `query` 头在必要 token 之后支持 key=value 属性：
+
+| 属性 | 适用 | 效果 |
+|---|---|---|
+| `timeout=<ms>` | statement、query | 最长执行时间（毫秒）；0 或缺省 = 无限制。通过 JDBC `setQueryTimeout` 实现（秒，向上取整）。SQLite JDBC 可能不强制。超时 → 记录 FAILED（非致命）。 |
+| `conn=<name>` | statement、query | 使用命名连接，独立于默认连接。每个不同 name 打开独立 JDBC 连接（同一 URL）。无 `conn=` 的记录使用默认连接。支持多连接 / 并发事务测试。 |
+
+```text
+statement ok conn=c1
+BEGIN;
+
+statement error conn=c2 timeout=2000
+UPDATE accounts SET balance = 0 WHERE id = 1;
+
+query II nosort
+SELECT id, balance FROM accounts ORDER BY id
+----
+1
+100
+2
+200
+```
 
 ### 退出码
 

@@ -1,0 +1,44 @@
+# GGTEST — 后续推进方向
+
+> 生成日期：2026-08-11。已完成的项目不在此列。
+
+## P1 — CI 增强
+
+- [ ] GitHub Actions 增加 PostgreSQL service container，跑 PG 集成测试
+- [ ] 覆盖率上报（Codecov 或 GitHub Actions artifact）
+- [ ] 多 JDK 版本矩阵（17 / 21）
+- [ ] `mvn verify`（SpotBugs + dependency-check）纳入 CI pipeline
+
+## P2 — 测试报告输出
+
+- [ ] `--format junit-xml|json` 输出，便于 CI（GitHub Actions、Jenkins）集成
+- [ ] 当前仅 human-readable stdout，缺乏机器可读格式
+
+## P2 — 更多引擎支持
+
+- [ ] DuckDB（嵌入式 OLAP）— `DatabaseExecutor` 接口已就绪
+- [ ] MySQL — 每引擎仅需一个 executor 实现
+- [ ] H2 — 纯 Java 内存数据库，适合 CI 无外部依赖测试
+
+## P3 — 并行文件执行
+
+- [ ] `--parallel <N>` 并行执行独立文件
+- [ ] 需注意 PG schema 隔离的并发安全（每文件独立 schema 已支持）
+- [ ] 大语料（select1/2/3 数千条）下显著加速
+
+## P3 — Backlog 清理
+
+- [ ] `fix-sql-hash-comments`：SQL 体内 `#` 注释裁剪（影响取决于语料）
+- [ ] `add-lcs-diff-guard`（CA-007）：超大 diff 截断（accepted，按需）
+- [ ] CA-009：CredentialRedaction URL 查询参数脱敏覆盖
+- [ ] CA-011：hash-threshold 非负范围校验
+- [ ] CA-012：splitLiteral / splitOnEol 字符串分割工具收敛
+- [ ] CA-013：DotEnvLoader 白名单外部化
+- [ ] CA-014：LineBuffer 流式读取（大文件优化）
+
+## P3 — 功能增强（按需）
+
+- [ ] `--watch` 模式：文件变更自动重跑（开发工作流）
+- [ ] 条件表达式增强：skipif/onlyif 支持版本检查、特性探测
+- [ ] 事务 savepoint/rollback 更复杂场景支持
+- [ ] 官方 sqllogictest 语料合规测试（select1/2/3 零失败目标）

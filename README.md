@@ -43,7 +43,7 @@ java -jar target/ggtest-0.1.0-SNAPSHOT.jar --url jdbc:sqlite::memory: path/to/fi
 ```text
 ggtest [--url <jdbc-url>] [--user <user>] [--password <password>]
        [--engine <name>=sqlite] [--hash-threshold <N>]
-       [--env-file <path>] [--color <auto|always|never>] [--halt] [--override]
+       [--env-file <path>] [--color <auto|always|never>] [--halt] [--override] [--help]
        <file-or-dir> [<file-or-dir> ...]
 ```
 
@@ -57,6 +57,7 @@ ggtest [--url <jdbc-url>] [--user <user>] [--password <password>]
 | `--color` | `auto` | `auto` (TTY only), `always`, or `never`; see color priority below |
 | `--halt` | off | Stop when the first error is seen (assertion failure or hard error). Later records in the file are skipped (not executed, not reported as failures) and not-yet-started files are not opened or counted. Exit-code priority is unchanged. A corpus `halt` record is unaffected (it skips the rest of one file but is not an error). |
 | `--override` | off | Golden-update mode: rewrite the expected interval of in-scope mismatches (query result mismatch; `statement error` message mismatch) in the source `.slt` file using the actual output. Overridden records show `[OVERRIDDEN]` and do not count as failures; scope-out mismatches (label conflict, execution failure, type-signature error, polarity flip) still `FAILED`. The file is written at most once (atomic temp+rename); files without in-scope mismatch are not touched. Exit-code priority is unchanged. Does not change parser / comparison / normalization semantics. |
+| `--help`, `-h` | — | Print usage information and exit with code 0. |
 
 Positional arguments: at least one file or directory.
 
@@ -99,12 +100,12 @@ Official sqllogictest corpora on PostgreSQL are **not** a hard acceptance criter
 
 After a `query` record’s expectation header (`----`), expected results are either
 **value-per-line** (default) or **row-wise** when the query header declares
-`separator <delim>`:
+`separator=<delim>`:
 
 | Form | Trigger | Example (`query III`) |
 |---|---|---|
-| **Value-per-line** (default) | Exact `----`, no query-head `separator` | `1` / `2` / `3` on three lines |
-| **Row-wise** | Query head `separator <delim>` + exact `----` | `1 \| 1 \| hello world` on one line |
+| **Value-per-line** (default) | Exact `----`, no query-head `separator=` | `1` / `2` / `3` on three lines |
+| **Row-wise** | Query head `separator=<delim>` + exact `----` | `1 \| 1 \| hello world` on one line |
 
 Value-per-line treats each physical line as one cell (spaces in TEXT are kept).
 There is no space-based row-wise inference: `1 2 3` on one line under plain `----`
@@ -113,7 +114,7 @@ is a single cell value `"1 2 3"`.
 Declare a row-wise delimiter on the **query** header (not on `----`):
 
 ```text
-query IIT nosort separator |
+query IIT nosort separator=|
 SELECT 1, 1, 'hello world'
 ----
 1 | 1 | hello world
@@ -123,7 +124,7 @@ SELECT 1, 1, 'hello world'
 embedded whitespace). Each expected line must split into exactly `C` tokens
 (signature length) or the compare fails with a readable message (line number,
 actual token count, `C`). Tokens are trimmed; empty tokens become `(empty)`.
-`separator` as the last header token (no delim) is still a **label**. A removed
+`separator` without `=` as the last header token is still a **label**. A removed
 `---- separator …` expectation header is a parse error — use the query-head form
 above. If a cell contains the current delimiter, pick a different `delim` or use
 value-per-line (no quote shell).
@@ -156,6 +157,33 @@ message.
 | `<message>`, but execution succeeds | Fail: `statement expected to fail but succeeded` |
 | `<message>`, execution fails but error summary does not contain `<message>` | Fail: `statement error message mismatch` (reported diff-style, expected vs actual) |
 | `<message>`, execution fails and error summary contains `<message>` | Pass |
+
+
+### Header attributes (`timeout=`, `conn=`)
+
+Both `statement` and `query` headers support key=value attributes after the
+mandatory tokens:
+
+| Attribute | Scope | Effect |
+|---|---|---|
+| `timeout=<ms>` | statement, query | Maximum execution time in milliseconds; 0 or absent = no limit. Implemented via JDBC `setQueryTimeout` (seconds, rounded up). SQLite JDBC may not enforce it. Timeout → record FAILED (not fatal). |
+| `conn=<name>` | statement, query | Uses a named connection independent from the default. Each distinct name opens a separate JDBC connection to the same URL. Records without `conn=` use the default connection. Enables multi-connection / concurrent transaction tests. |
+
+```text
+statement ok conn=c1
+BEGIN;
+
+statement error conn=c2 timeout=2000
+UPDATE accounts SET balance = 0 WHERE id = 1;
+
+query II nosort
+SELECT id, balance FROM accounts ORDER BY id
+----
+1
+100
+2
+200
+```
 
 
 ### Exit codes
@@ -321,6 +349,6 @@ try (Connection connection = DriverManager.getConnection("jdbc:sqlite::memory:")
 ```
 
 Per-file state (hash-threshold, conditions, labels) is scoped to a single `run` call.
-Row-wise column separators come from each query header’s optional `separator <delim>`.
+Row-wise column separators come from each query header’s optional `separator=<delim>`.
 Supporting another database: implement `com.ggtest.db.DatabaseExecutor`
 (see `com.ggtest.db.postgres.PostgresJdbcExecutor`).

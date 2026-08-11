@@ -20,9 +20,6 @@
 
 | feature-id | sub-feature-id | 描述 | 状态 | 路径 | Spec 门禁 | 后续步骤 | 目录 |
 |---|---|---|---|---|---|---|---|
-| add-jacoco-coverage | add-jacoco-coverage | pom.xml 添加 jacoco-maven-plugin | backlog | fast | skipped | Planner | [workflow/docs/features/add-jacoco-coverage/](../features/add-jacoco-coverage/) |
-| add-spotbugs-analysis | add-spotbugs-analysis | pom.xml 添加 spotbugs-maven-plugin | backlog | fast | skipped | Planner | [workflow/docs/features/add-spotbugs-analysis/](../features/add-spotbugs-analysis/) |
-| add-dependency-check | add-dependency-check | OWASP dependency-check 或 Dependabot | backlog | fast | skipped | Planner | [workflow/docs/features/add-dependency-check/](../features/add-dependency-check/) |
 | fix-sql-hash-comments | fix-sql-hash-comments | SQL 体内 `#` 注释裁剪 | backlog | fast | skipped | Planner | [workflow/docs/features/fix-sql-hash-comments/](../features/fix-sql-hash-comments/) |
 | add-lcs-diff-guard | add-lcs-diff-guard | LCS diff O(n*m) 加大小门限 | backlog | fast | skipped | Planner | [workflow/docs/features/add-lcs-diff-guard/](../features/add-lcs-diff-guard/) |
 | ggtest-cli-help | ggtest-cli-help | --help / -h 用法信息 | done | fast | skipped | — | [workflow/docs/features/ggtest-cli-help/](../features/ggtest-cli-help/) |
@@ -33,6 +30,8 @@
 | fix-ca015-dead-adapters | fix-ca015-dead-adapters | 删除死代码适配器（CA-015） | done | fast | skipped | — | [workflow/docs/features/fix-ca015-dead-adapters/](../features/fix-ca015-dead-adapters/) |
 | fix-ca016-stmt-error-conn | fix-ca016-stmt-error-conn | statement error 消息提取遗漏 conn=（CA-016） | done | fast | skipped | — | [workflow/docs/features/fix-ca016-stmt-error-conn/](../features/fix-ca016-stmt-error-conn/) |
 | refactor-filerunner-responsibilities | refactor-filerunner-responsibilities | 拆分 FileRunner 职责（CA-010） | done | standard | skipped | — | [workflow/docs/features/refactor-filerunner-responsibilities/](../features/refactor-filerunner-responsibilities/) |
+| sync-readme | sync-readme | README 同步 separator=/timeout=/conn=/--help | done | fast | skipped | — | [workflow/docs/features/sync-readme/](../features/sync-readme/) |
+| add-build-plugins | add-build-plugins | jacoco + spotbugs + dependency-check | done | fast | skipped | — | [workflow/docs/features/add-build-plugins/](../features/add-build-plugins/) |
 
 ## 已归档
 
