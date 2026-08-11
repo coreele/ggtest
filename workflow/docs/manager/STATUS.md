@@ -39,6 +39,9 @@
 
 | feature-id | sub-feature-id | 最终状态 | 目录 |
 |---|---|---|---|
+| add-jacoco-coverage | add-jacoco-coverage | done（经 `add-build-plugins` 合并交付，commit `257b7d8`） | [workflow/docs/archive/2026/add-jacoco-coverage/manager.md](../archive/2026/add-jacoco-coverage/manager.md) |
+| add-spotbugs-analysis | add-spotbugs-analysis | done（经 `add-build-plugins` 合并交付，commit `257b7d8`） | [workflow/docs/archive/2026/add-spotbugs-analysis/manager.md](../archive/2026/add-spotbugs-analysis/manager.md) |
+| add-dependency-check | add-dependency-check | done（经 `add-build-plugins` 合并交付，commit `257b7d8`） | [workflow/docs/archive/2026/add-dependency-check/manager.md](../archive/2026/add-dependency-check/manager.md) |
 | add-ci-workflow | add-ci-workflow | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/add-ci-workflow/manager.md](../archive/2026/add-ci-workflow/manager.md) |
 | fix-normalize-integer-float | fix-normalize-integer-float | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-normalize-integer-float/manager.md](../archive/2026/fix-normalize-integer-float/manager.md) |
 | fix-onlyif-skipif-hash-comments | fix-onlyif-skipif-hash-comments | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-onlyif-skipif-hash-comments/manager.md](../archive/2026/fix-onlyif-skipif-hash-comments/manager.md) |
