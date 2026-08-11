@@ -19,7 +19,7 @@
 
 | sub-feature-id | 状态 | 后续步骤 |
 |---|---|---|
-| sync-vs-slt-grammar | developing | Developer（进行中） |
+| sync-vs-slt-grammar | reviewing | Reviewer |
 
 ## 进度笔记
 
@@ -31,4 +31,5 @@
   5. SQL body `#` 行：parser 当前按字面量处理（fix-sql-hash-comments 仍 backlog），grammar 不应把 `#` 行当作 sql-body 终止符之外的特殊处理
 - 已知：vs-slt/README.md 第 29-30 行提到 `---- separator` 形式，需同步删除。
 - 2026-08-11 Plan 已由用户确认（用户会话：ok）；plan.md 见 `workflow/docs/features/sync-vs-slt-grammar/plan.md`。
+- 2026-08-11 Developer 完成 T1–T7；V1–V5 通过（V3 输出 `all regex checks passed`），dev-notes.md 已产出。V6（L4 视觉检查）待 QA。
 

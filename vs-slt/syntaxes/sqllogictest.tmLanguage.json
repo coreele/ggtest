@@ -32,7 +32,7 @@
     "sql-body": {
       "name": "meta.embedded.block.sql",
       "begin": "^(?!\\s*(?:statement|query|skipif|onlyif|hash-threshold|halt)\\b)(?!----)(?!\\s*#)(?=\\S)",
-      "end": "^(?=\\s*(?:statement|query|skipif|onlyif|hash-threshold|halt)\\b)|(?=^----)|(?=^\\s*#)|^(?=[ \\t]*$)",
+      "end": "^(?=\\s*(?:statement|query|skipif|onlyif|hash-threshold|halt)\\b)|(?=^----)|^(?=[ \\t]*$)",
       "patterns": [
         {
           "include": "source.sql"
@@ -41,16 +41,10 @@
     },
     "expectation-block": {
       "name": "meta.expectation.sqllogictest",
-      "begin": "^(----)(?:[ \\t]*$|([ \\t]*separator)([ \\t]?)(.*))$",
+      "begin": "^\\s*(----)\\s*$",
       "beginCaptures": {
         "1": {
           "name": "punctuation.separator.expectation.sqllogictest"
-        },
-        "2": {
-          "name": "keyword.other.separator.sqllogictest"
-        },
-        "4": {
-          "name": "constant.other.delimiter.sqllogictest"
         }
       },
       "end": "^(?=[ \\t]*$)|^(?=\\s*(?:statement|query|skipif|onlyif|hash-threshold|halt)\\b)|^(?=\\s*#)",
@@ -63,16 +57,28 @@
     },
     "statement-block": {
       "name": "meta.statement.sqllogictest",
-      "begin": "^\\s*(statement)\\s+(ok|error)\\s*$",
+      "begin": "^\\s*(statement)\\s+(ok)((?:\\s+(?:timeout|conn)=[^\\s]+)*)$|^\\s*(statement)\\s+(error)((?:\\s+(?!\\S*[=])\\S+)*)((?:\\s+(?:timeout|conn)=[^\\s]+)*)$",
       "beginCaptures": {
         "1": {
           "name": "keyword.control.sqllogictest"
         },
         "2": {
           "name": "constant.language.sqllogictest"
+        },
+        "3": {
+          "name": "entity.other.attribute-name.sqllogictest"
+        },
+        "4": {
+          "name": "keyword.control.sqllogictest"
+        },
+        "5": {
+          "name": "constant.language.sqllogictest"
+        },
+        "7": {
+          "name": "entity.other.attribute-name.sqllogictest"
         }
       },
-      "end": "^(?=\\s*(?:statement|query|skipif|onlyif|hash-threshold|halt)\\b)|(?=^\\s*#)|^(?=[ \\t]*$)",
+      "end": "^(?=\\s*(?:statement|query|skipif|onlyif|hash-threshold|halt)\\b)|^(?=[ \\t]*$)",
       "patterns": [
         {
           "include": "#sql-body"
@@ -81,7 +87,7 @@
     },
     "query-block": {
       "name": "meta.query.sqllogictest",
-      "begin": "^\\s*(query)\\s+([TIR]+)(?:\\s+(nosort|rowsort|valuesort))?(?:\\s+(\\S+))?\\s*$",
+      "begin": "^\\s*(query)\\s+([ITR]+)(?:\\s+(nosort|rowsort|valuesort))?(?:\\s+((?!\\S*[=])\\S+))?((?:\\s+(?:separator|timeout|conn)=[^\\s]+)*)$",
       "beginCaptures": {
         "1": {
           "name": "keyword.control.sqllogictest"
@@ -94,9 +100,12 @@
         },
         "4": {
           "name": "entity.name.label.sqllogictest"
+        },
+        "5": {
+          "name": "entity.other.attribute-name.sqllogictest"
         }
       },
-      "end": "^(?=\\s*(?:statement|query|skipif|onlyif|hash-threshold|halt)\\b)|(?=^\\s*#)|^(?=[ \\t]*$)",
+      "end": "^(?=\\s*(?:statement|query|skipif|onlyif|hash-threshold|halt)\\b)|^(?=[ \\t]*$)",
       "patterns": [
         {
           "include": "#expectation-block"
@@ -107,24 +116,30 @@
       ]
     },
     "skipif": {
-      "match": "^\\s*(skipif)\\s+(\\S+)\\s*$",
+      "match": "^\\s*(skipif)\\s+(\\S+?)(\\s*#.*)?\\s*$",
       "captures": {
         "1": {
           "name": "keyword.control.sqllogictest"
         },
         "2": {
           "name": "variable.other.database.sqllogictest"
+        },
+        "3": {
+          "name": "comment.line.number-sign.sqllogictest"
         }
       }
     },
     "onlyif": {
-      "match": "^\\s*(onlyif)\\s+(\\S+)\\s*$",
+      "match": "^\\s*(onlyif)\\s+(\\S+?)(\\s*#.*)?\\s*$",
       "captures": {
         "1": {
           "name": "keyword.control.sqllogictest"
         },
         "2": {
           "name": "variable.other.database.sqllogictest"
+        },
+        "3": {
+          "name": "comment.line.number-sign.sqllogictest"
         }
       }
     },

@@ -27,4 +27,4 @@ Open `examples/demo.slt` in the ggtest workspace and confirm:
 - `#` comments
 - directives (`statement`, `query`, …)
 - SQL keywords inside bodies
-- `----` / `---- separator <delim>` expectation headers and result lines (not SQL), including `(empty)`
+- `----` expectation headers and result lines (not SQL), including `(empty)`
