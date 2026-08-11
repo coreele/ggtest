@@ -1,18 +1,18 @@
 # GGTEST 功能展示（sqllogictest 格式）
-#
-# 覆盖记录类型、期望形态与 PostgreSQL PL/pgSQL。
-# 与 examples/demo.slt 对等（英文注释版）。
-#
-# SQLite：
-#   ./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo_zh.slt
-#
-# PostgreSQL（全部章节包含 PL/pgSQL）：
-#   ./bin/ggtest --engine postgres \
-#     --url 'jdbc:postgresql://localhost:5432/postgres' \
-#     --user postgres [--password ...] \
-#     examples/demo_zh.slt
 
-# --- 准备 ---
+### 覆盖记录类型、期望形态与 PostgreSQL PL/pgSQL。
+### 与 examples/demo.slt 对等（英文注释版）。
+###
+### SQLite：
+###   ./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo_zh.slt
+###
+### PostgreSQL（全部章节包含 PL/pgSQL）：
+###   ./bin/ggtest --engine postgres \
+###     --url 'jdbc:postgresql://localhost:5432/postgres' \
+###     --user postgres [--password ...] \
+###     examples/demo_zh.slt
+
+## --- 准备 ---
 statement ok
 DROP TABLE IF EXISTS items;
 
@@ -27,9 +27,9 @@ INSERT INTO items VALUES
   (4, '', 9.0),
   (5, NULL, NULL)
 
-# --- 类型串 I / T / R + 排序模式 ---
+## --- 类型签名 I / T / R + 排序模式 ---
 
-# T + rowsort：引擎返回顺序会按字典序重排
+# T + rowsort：结果按字典序重排
 query T rowsort
 SELECT name FROM items WHERE id <= 3
 ----
@@ -53,7 +53,7 @@ SELECT price FROM items WHERE id <= 3 ORDER BY id
 0.500
 3.000
 
-# valuesort：展开全部单元格后再按字符串排序
+# valuesort：展开全部单元格再按字符串排序
 query II valuesort
 SELECT id, CAST(price AS INTEGER) FROM items WHERE id IN (1, 2) ORDER BY id
 ----
@@ -62,7 +62,7 @@ SELECT id, CAST(price AS INTEGER) FROM items WHERE id IN (1, 2) ORDER BY id
 1
 2
 
-# --- NULL 与 (empty) ---
+## --- NULL 与 (empty) ---
 
 query T nosort
 SELECT name FROM items WHERE id = 4
@@ -74,7 +74,7 @@ SELECT name FROM items WHERE id = 5
 ----
 NULL
 
-# --- 每值一行 与 行式（separator=<delim>） ---
+## --- 每值一行 与 行式（separator=<delim>） ---
 
 # 恰 ---- 永远每值一行（每个物理行 = 一个单元格）
 query IIT nosort
@@ -84,17 +84,17 @@ SELECT 1, 1, 'hello world'
 1
 hello world
 
-# 行式：在 query 头声明 separator=<delim>；两侧空格可选，token 被 trim
+# 行式：在 query 头声明 separator=<delim>；token 两侧 trim
 query IIT nosort separator=|
 SELECT 1, 1, 'hello world'
 ----
 1 | 1 | hello world
 
-# --- 仅执行（无 ---- 块）：跑 SQL，不做结果比对 ---
+## --- 仅执行（无 ---- 块）：跑 SQL，不做结果比对 ---
 query I nosort
 SELECT id FROM items WHERE id = 1
 
-# --- label：相同 label 必须得到相同结果视图 ---
+## --- label：相同 label 必须得到相同结果视图 ---
 query I nosort same_id
 SELECT id FROM items WHERE id = 1
 ----
@@ -105,13 +105,13 @@ SELECT id FROM items WHERE name = 'apple'
 ----
 1
 
-# --- statement error：执行必须失败 ---
+## --- statement error：执行必须失败 ---
 statement error
 SELECT * FROM missing_table
 
-# --- skipif / onlyif（引擎名大小写不敏感） ---
+## --- skipif / onlyif（引擎名大小写不敏感） ---
 # sqlite：第一条跳过，第二条执行，第三条跳过。
-# postgres：第一条执行（须合法），第二条跳过，第三条执行。
+# postgres：第一条执行，第二条跳过，第三条执行。
 
 skipif sqlite
 statement ok
@@ -125,7 +125,7 @@ onlyif postgres
 statement ok
 SELECT 1
 
-# --- hash-threshold：值个数超过 N 时改用 MD5 期望 ---
+## --- hash-threshold：超过 N 个值 → MD5 格式 ---
 hash-threshold 1
 
 query I nosort
@@ -133,14 +133,14 @@ SELECT id FROM items WHERE id IN (1, 2) ORDER BY id
 ----
 2 values hashing to 6ddb4095eb719e2a9f0a3f95677d24e0
 
-# --- 清理 ---
+## --- 清理 ---
 statement ok
 DROP TABLE IF EXISTS items;
 
 # ==============================================================================
 #  PostgreSQL PL/pgSQL — 需要 --engine postgres
 # ==============================================================================
-### 全部记录带 onlyif postgres 守卫，在 SQLite 上自动跳过。
+### 全部记录带 onlyif postgres 守卫，在 SQLite 上可干净运行。
 
 ## --- 标量函数 ---
 
@@ -311,7 +311,7 @@ onlyif postgres
 statement ok
 DROP FUNCTION IF EXISTS safe_divide(numeric, numeric)
 
-# --- halt：之后的记录一律跳过 ---
+## --- halt：之后的记录一律跳过 ---
 halt
 
 statement ok
