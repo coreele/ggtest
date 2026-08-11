@@ -210,5 +210,6 @@ DROP FUNCTION IF EXISTS fibonacci(integer)
 ### halt：之后的记录一律跳过
 halt
 
+### 此语句将被跳过
 statement ok
 INSERT INTO absent_after_halt VALUES (1)
