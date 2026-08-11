@@ -110,7 +110,7 @@ SELECT 1, 1, 'hello world'
 query IIT nosort separator=,
 SELECT 1, 1, 'hello world'
 ----
-1,1,hello world
+1 , 1 , hello world
 
 # SQL 字面量转义：'' 在单元格中变为单个 '
 query IIT nosort separator=|

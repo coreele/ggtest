@@ -270,7 +270,7 @@ public final class SqlLogicTestRunner {
             if (i > 0 && i % columns == 0) {
                 sb.append('\n');
             } else if (i > 0) {
-                sb.append(record.columnSeparator().orElseThrow());
+                sb.append(' ').append(record.columnSeparator().orElseThrow()).append(' ');
             }
             sb.append(actualView.get(i));
         }
