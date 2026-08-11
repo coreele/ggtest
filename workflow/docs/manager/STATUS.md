@@ -27,6 +27,7 @@
 | add-lcs-diff-guard | add-lcs-diff-guard | LCS diff O(n*m) 加大小门限 | backlog | fast | skipped | Planner | [workflow/docs/features/add-lcs-diff-guard/](../features/add-lcs-diff-guard/) |
 | ggtest-cli-help | ggtest-cli-help | --help / -h 用法信息 | done | fast | skipped | — | [workflow/docs/features/ggtest-cli-help/](../features/ggtest-cli-help/) |
 | query-header-kv-attrs | query-header-kv-attrs | separator 改为 key=value 形式 | done | standard | required | — | [workflow/docs/features/query-header-kv-attrs/](../features/query-header-kv-attrs/) |
+| fix-override-rowwise | fix-override-rowwise | --override row-wise 写入格式 bug + 拼写提示 | done | fast | skipped | — | [workflow/docs/features/fix-override-rowwise/](../features/fix-override-rowwise/) |
 | refactor-filerunner-responsibilities | refactor-filerunner-responsibilities | 拆分 FileRunner 职责（CA-010） | done | standard | skipped | — | [workflow/docs/features/refactor-filerunner-responsibilities/](../features/refactor-filerunner-responsibilities/) |
 
 ## 已归档
