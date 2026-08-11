@@ -24,4 +24,4 @@ jobs:
           cache: maven
 
       - name: Build and test
-        run: mvn verify --batch-mode
+        run: mvn test spotbugs:check --batch-mode

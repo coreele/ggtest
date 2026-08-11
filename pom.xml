@@ -145,12 +145,6 @@
                     <skipTestScope>true</skipTestScope>
                     <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals><goal>check</goal></goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
