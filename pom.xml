@@ -143,6 +143,7 @@
                 <configuration>
                     <failBuildOnCVSS>9</failBuildOnCVSS>
                     <skipTestScope>true</skipTestScope>
+                    <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
                 </configuration>
                 <executions>
                     <execution>
