@@ -25,7 +25,7 @@
 
 | sub-feature-id | 状态 | 后续步骤 | 阻塞原因 | 恢复条件 | 恢复后目标 |
 |---|---|---|---|---|---|
-| xugu-engine | planned | Developer 实施（TDD T1-T7） | | | |
+| xugu-engine | done | — | | | |
 
 > 无阻塞则后三列留空。长说明优先进度笔记。
 

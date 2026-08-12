@@ -44,6 +44,7 @@
 | fix-ca020-main-fatal-catch | fix-ca020-main-fatal-catch | Main 顶层兜底异常映射（CA-020） | done | fast | skipped | — | [workflow/docs/features/fix-ca020-main-fatal-catch/](../features/fix-ca020-main-fatal-catch/) |
 | fix-ca023-prepare-conn-leak | fix-ca023-prepare-conn-leak | FileRunner prepare 失败连接泄漏（CA-023） | done | fast | skipped | — | [workflow/docs/features/fix-ca023-prepare-conn-leak/](../features/fix-ca023-prepare-conn-leak/) |
 | xugu-engine | xugu-engine | 虚谷数据库引擎 `--engine xugu`(别名 xugudb) + schema 隔离 | planned | full | required | Developer | [workflow/docs/features/xugu-engine/](../features/xugu-engine/) |
+| xugu-engine | xugu-engine | 虚谷数据库引擎 `--engine xugu`(别名 xugudb) + schema 隔离 | done | full | required | — | [workflow/docs/features/xugu-engine/](../features/xugu-engine/) |
 
 ## 已归档
 
