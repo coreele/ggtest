@@ -183,6 +183,8 @@ BEGIN
 END
 $$ LANGUAGE plpgsql
 
+hash-threshold 10
+
 onlyif postgres
 query I nosort
 SELECT * FROM fibonacci(13)

@@ -1,0 +1,66 @@
+# PostgreSQL EXPLAIN & Index usage test for ggtest
+
+## 1. Setup Table and Index
+onlyif postgres
+statement ok
+DROP TABLE IF EXISTS users;
+
+onlyif postgres
+statement ok
+CREATE TABLE users (
+    id INT PRIMARY KEY,
+    age INT,
+    name TEXT
+);
+
+onlyif postgres
+statement ok
+CREATE INDEX idx_users_age ON users(age);
+
+onlyif postgres
+statement ok
+INSERT INTO users VALUES
+  (1, 20, 'Alice'),
+  (2, 25, 'Bob'),
+  (3, 30, 'Charlie'),
+  (4, 25, 'David');
+
+## 2. Sequential Scan Test
+# 使用 COSTS OFF 忽略动态 cost/rows，保证断言结果在不同环境绝对一致
+onlyif postgres
+query T nosort
+EXPLAIN (COSTS OFF) SELECT * FROM users
+----
+Seq Scan on users
+
+## 3. Primary Key Index Scan Test
+onlyif postgres
+query T nosort
+EXPLAIN (COSTS OFF) SELECT * FROM users WHERE id = 1
+----
+Index Scan using users_pkey on users
+  Index Cond: (id = 1)
+
+## 4. Secondary Index Scan Test
+# 优化器在极小数据量下默认倾向全表扫描，通过禁用 seqscan 强制测试二级索引路径
+onlyif postgres
+statement ok
+SET enable_seqscan = off;
+
+onlyif postgres
+query T nosort
+EXPLAIN (COSTS OFF) SELECT * FROM users WHERE age = 25
+----
+Bitmap Heap Scan on users
+  Recheck Cond: (age = 25)
+  ->  Bitmap Index Scan on idx_users_age
+        Index Cond: (age = 25)
+
+## 5. Reset Settings & Teardown
+onlyif postgres
+statement ok
+RESET enable_seqscan;
+
+onlyif postgres
+statement ok
+DROP TABLE IF EXISTS users;
