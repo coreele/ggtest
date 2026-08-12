@@ -1,0 +1,10 @@
+statement ok
+CREATE TABLE t(x int);
+
+statement ok
+INSERT INTO t VALUES(1);
+
+query I nosort
+SELECT x FROM t
+----
+99

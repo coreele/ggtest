@@ -4,6 +4,8 @@ import com.ggtest.db.DatabaseExecutor;
 import com.ggtest.db.postgres.PostgresJdbcExecutor;
 import com.ggtest.db.postgres.PostgresSchemaIsolation;
 import com.ggtest.db.sqlite.SqliteJdbcExecutor;
+import com.ggtest.db.mysql.MySqlJdbcExecutor;
+import com.ggtest.db.mysql.MySqlSchemaIsolation;
 import com.ggtest.model.SqlTestRecord;
 import com.ggtest.parser.ParseException;
 import com.ggtest.parser.SqlLogicTestParser;
@@ -59,13 +61,19 @@ final class FileRunner {
         Map<String, Connection> connections = new HashMap<>();
         String[] fileSchemaHolder = {null};
         boolean isPostgres = RuntimeConfigResolver.ENGINE_POSTGRES.equals(options.engine());
+        boolean isMySql = RuntimeConfigResolver.ENGINE_MYSQL.equals(options.engine());
+        boolean needsIsolation = isPostgres || isMySql;
 
-        if (isPostgres) {
+        if (needsIsolation) {
             try {
                 Connection first = ConnectionFactory.open(options);
                 connections.put("", first);
                 try {
-                    fileSchemaHolder[0] = PostgresSchemaIsolation.prepare(first);
+                    if (isPostgres) {
+                        fileSchemaHolder[0] = PostgresSchemaIsolation.prepare(first);
+                    } else {
+                        fileSchemaHolder[0] = MySqlSchemaIsolation.prepare(first);
+                    }
                 } catch (SQLException ex) {
                     err.println("schema isolation failed: " + sanitize(ex.getMessage()));
                     return FileOutcome.hardFailure(reportWriter.detailLines(
@@ -86,8 +94,10 @@ final class FileRunner {
         String fileSchema = fileSchemaHolder[0];
 
         Function<String, DatabaseExecutor> factory = connKey -> {
-            if (isPostgres && "".equals(connKey)) {
-                return new PostgresJdbcExecutor(connections.get(""));
+            if (needsIsolation && "".equals(connKey)) {
+                return isPostgres
+                        ? new PostgresJdbcExecutor(connections.get(""))
+                        : new MySqlJdbcExecutor(connections.get(""));
             }
             try {
                 Connection c = ConnectionFactory.open(options);
@@ -95,6 +105,10 @@ final class FileRunner {
                 if (isPostgres) {
                     PostgresSchemaIsolation.setSearchPath(c, fileSchema);
                     return new PostgresJdbcExecutor(c);
+                }
+                if (isMySql) {
+                    MySqlSchemaIsolation.setSearchPath(c, fileSchema);
+                    return new MySqlJdbcExecutor(c);
                 }
                 return new SqliteJdbcExecutor(c);
             } catch (SQLException ex) {
@@ -119,7 +133,11 @@ final class FileRunner {
         } finally {
             if (fileSchema != null && connections.containsKey("")) {
                 try {
-                    PostgresSchemaIsolation.teardown(connections.get(""), fileSchema);
+                    if (isPostgres) {
+                        PostgresSchemaIsolation.teardown(connections.get(""), fileSchema);
+                    } else {
+                        MySqlSchemaIsolation.teardown(connections.get(""), fileSchema);
+                    }
                 } catch (SQLException ex) {
                     err.println("schema teardown failed: " + sanitize(ex.getMessage()));
                 }

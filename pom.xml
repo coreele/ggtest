@@ -20,6 +20,7 @@
         <surefire.version>3.2.5</surefire.version>
         <sqlite.jdbc.version>3.53.2.0</sqlite.jdbc.version>
         <postgresql.jdbc.version>42.7.13</postgresql.jdbc.version>
+        <mysql.jdbc.version>9.2.0</mysql.jdbc.version>
         <jacoco.version>0.8.12</jacoco.version>
         <spotbugs.version>4.8.6.4</spotbugs.version>
         <spotbugs.maven.version>4.8.6.4</spotbugs.maven.version>
@@ -36,6 +37,11 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.jdbc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>${mysql.jdbc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

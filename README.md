@@ -34,6 +34,7 @@ After packaging:
 
 ./bin/ggtest --url jdbc:sqlite::memory: path/to/file.test
 ./bin/ggtest --url jdbc:postgresql://localhost:5432/dbname --engine postgres path/to/file.test
+./bin/ggtest --url jdbc:mysql://localhost:3306 --engine mysql --user root path/to/file.test
 # or
 java -jar target/ggtest-0.1.0-SNAPSHOT.jar --url jdbc:sqlite::memory: path/to/file.test
 ```
@@ -51,7 +52,7 @@ ggtest [--url <jdbc-url>] [--user <user>] [--password <password>]
 |---|---|---|
 | `--url` | (from env / `.env`) | JDBC URL; required from CLI, `GGTEST_URL`, or `.env` |
 | `--user` / `--password` | none | Optional DB credentials; **never** written to logs or the report |
-| `--engine` | `sqlite` | `sqlite` or `postgres` (case-insensitive); must match the URL scheme |
+| `--engine` | `sqlite` | `sqlite`, `postgres`, or `mysql` (case-insensitive); must match the URL scheme |
 | `--hash-threshold` | `8` | Initial hash threshold per file; file-level `hash-threshold` still applies |
 | `--env-file` | (CWD `.env`) | When set, **replaces** the default CWD `.env` (does not layer both) |
 | `--color` | `auto` | `auto` (TTY only), `always`, or `never`; see color priority below |
@@ -82,6 +83,7 @@ Runtime keys (whitelist): `GGTEST_URL`, `GGTEST_USER`, `GGTEST_PASSWORD`,
 | Runtime config | `GGTEST_URL`, `GGTEST_USER`, `GGTEST_PASSWORD`, `GGTEST_ENGINE`, `GGTEST_HASH_THRESHOLD` |
 | Report color | `GGTEST_COLOR` (`auto` \| `always` \| `never`); also `-Dggtest.color=…` |
 | Test gate (CI / local PG) | `GGTEST_PG_URL`, `GGTEST_PG_USER`, `GGTEST_PG_PASSWORD` |
+| Test gate (CI / local MySQL) | `GGTEST_MY_URL`, `GGTEST_MY_USER`, `GGTEST_MY_PASSWORD` |
 
 **Color priority:** explicit `--color` > system property `ggtest.color` > env `GGTEST_COLOR` > default `auto`.
 CI / pipes typically use `--color never`, `-Dggtest.color=never`, or rely on non-TTY `auto`.
@@ -92,6 +94,7 @@ CI / pipes typically use `--color never`, `-Dggtest.color=never`, or rely on non
 |---|---|---|
 | `sqlite` (default) | `jdbc:sqlite:` | Independent connection (e.g. blank `:memory:` DB) |
 | `postgres` | `jdbc:postgresql:` | Unique schema + `search_path`, then `DROP SCHEMA … CASCADE` |
+| `mysql` | `jdbc:mysql:` | Unique schema（database）+ `USE`, then `DROP SCHEMA IF EXISTS` |
 
 Engine↔URL mismatch or unknown engine → exit code `2`, no connection, no execution.
 

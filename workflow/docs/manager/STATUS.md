@@ -37,6 +37,7 @@
 | add-build-plugins | add-build-plugins | jacoco + spotbugs + dependency-check | done | fast | skipped | — | [workflow/docs/features/add-build-plugins/](../features/add-build-plugins/) |
 | fix-parallel-halt-race | fix-parallel-halt-race | `--parallel --halt` 并发竞态，确定化跳过未分派文件；恢复按序流式输出 | done | standard | skipped | — | [workflow/docs/features/fix-parallel-halt-race/](../features/fix-parallel-halt-race/) |
 | add-trace-flag | add-trace-flag | `--trace` 执行 SQL 时打印到 stderr | done | standard | skipped | — | [workflow/docs/features/add-trace-flag/](../features/add-trace-flag/) |
+| mysql-engine | mysql-engine | MySQL 数据库引擎 `--engine mysql` + schema 隔离 | speccing | full | required | 用户确认 Spec | [workflow/docs/features/mysql-engine/](../features/mysql-engine/) |
 
 ## 已归档
 

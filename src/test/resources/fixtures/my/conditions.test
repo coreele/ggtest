@@ -1,0 +1,15 @@
+skipif mysql
+statement ok
+CREATE TABLE should_skip(x int);
+
+onlyif mysql
+statement ok
+CREATE TABLE only_my(x int);
+
+statement ok
+INSERT INTO only_my VALUES(7);
+
+query I nosort
+SELECT x FROM only_my
+----
+7

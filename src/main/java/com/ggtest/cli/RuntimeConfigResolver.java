@@ -23,6 +23,7 @@ public final class RuntimeConfigResolver {
 
     public static final String ENGINE_SQLITE = "sqlite";
     public static final String ENGINE_POSTGRES = "postgres";
+    public static final String ENGINE_MYSQL = "mysql";
 
     /** System property key for report color ({@code -Dggtest.color=…}). */
     public static final String COLOR_PROPERTY = "ggtest.color";
@@ -180,9 +181,10 @@ public final class RuntimeConfigResolver {
 
     static String normalizeEngine(String engine) {
         String normalized = engine.strip().toLowerCase(Locale.ROOT);
-        if (!ENGINE_SQLITE.equals(normalized) && !ENGINE_POSTGRES.equals(normalized)) {
+        if (!ENGINE_SQLITE.equals(normalized) && !ENGINE_POSTGRES.equals(normalized)
+                && !ENGINE_MYSQL.equals(normalized)) {
             throw new UsageException(
-                    "unsupported --engine value '" + engine + "'; allowed: 'sqlite', 'postgres'");
+                    "unsupported --engine value '" + engine + "'; allowed: 'sqlite', 'postgres', 'mysql'");
         }
         return normalized;
     }
@@ -198,6 +200,12 @@ public final class RuntimeConfigResolver {
         if (ENGINE_POSTGRES.equals(engine)) {
             if (!lowerUrl.startsWith("jdbc:postgresql:")) {
                 throw new UsageException("engine 'postgres' requires a jdbc:postgresql: URL");
+            }
+            return;
+        }
+        if (ENGINE_MYSQL.equals(engine)) {
+            if (!lowerUrl.startsWith("jdbc:mysql:")) {
+                throw new UsageException("engine 'mysql' requires a jdbc:mysql: URL");
             }
         }
     }
