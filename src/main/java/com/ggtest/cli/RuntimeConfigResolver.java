@@ -98,8 +98,8 @@ public final class RuntimeConfigResolver {
         int parallelVal = parsed.parallel().orElse(0);
 
         return new CliOptions(
-                url, user, password, engine, hashThreshold, colorMode, parsed.halt(), parsed.override(), parallelVal,
-                parsed.inputs());
+                url, user, password, engine, hashThreshold, colorMode, parsed.halt(), parsed.override(), parsed.trace(),
+                parallelVal, parsed.inputs());
     }
 
     static ColorMode resolveColorMode(

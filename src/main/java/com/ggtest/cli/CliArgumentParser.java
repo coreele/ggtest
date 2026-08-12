@@ -44,6 +44,7 @@ public final class CliArgumentParser {
         Optional<ColorMode> color = Optional.empty();
         boolean halt = false;
         boolean override = false;
+        boolean trace = false;
         boolean help = false;
         Optional<Integer> parallel = Optional.empty();
         List<String> inputs = new ArrayList<>();
@@ -75,6 +76,7 @@ public final class CliArgumentParser {
                     }
                     case "--halt" -> halt = true;
                     case "--override" -> override = true;
+                    case "--trace" -> trace = true;
                     case "--help", "-h" -> help = true;
                     default -> throw new UsageException("unknown option: " + arg);
                 }
@@ -87,7 +89,7 @@ public final class CliArgumentParser {
             throw new UsageException("--parallel and --override cannot be used together");
         }
 
-        return new ParsedArguments(url, user, password, engine, hashThreshold, envFile, color, halt, override, help,
+        return new ParsedArguments(url, user, password, engine, hashThreshold, envFile, color, halt, override, trace, help,
                 parallel, inputs);
     }
 

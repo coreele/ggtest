@@ -348,6 +348,7 @@ class RuntimeConfigResolverTest {
                 ColorMode.AUTO,
                 false,
                 false,
+                false,
                 2,
                 java.util.List.of("a.test"));
         assertFalse(options.toString().contains("super-secret-credential"));

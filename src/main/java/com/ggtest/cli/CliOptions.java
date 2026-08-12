@@ -17,6 +17,8 @@ import java.util.Optional;
  *                      CLI-only; {@code false} when absent
  * @param override      whether {@code --override} (golden-update) is enabled;
  *                      CLI-only; {@code false} when absent
+ * @param trace         whether {@code --trace} (print SQL to stderr) is enabled;
+ *                      CLI-only; {@code false} when absent
  * @param parallel      maximum concurrent files; 0 when not specified
  * @param inputs        positional file or directory paths (at least one)
  */
@@ -29,6 +31,7 @@ public record CliOptions(
         ColorMode colorMode,
         boolean halt,
         boolean override,
+        boolean trace,
         int parallel,
         List<String> inputs) {
 
@@ -41,7 +44,7 @@ public record CliOptions(
             ColorMode colorMode,
             boolean halt,
             List<String> inputs) {
-        this(url, user, password, engine, hashThreshold, colorMode, halt, false, 0, inputs);
+        this(url, user, password, engine, hashThreshold, colorMode, halt, false, false, 0, inputs);
     }
 
     public CliOptions(
@@ -54,7 +57,7 @@ public record CliOptions(
             boolean halt,
             boolean override,
             List<String> inputs) {
-        this(url, user, password, engine, hashThreshold, colorMode, halt, override, 0, inputs);
+        this(url, user, password, engine, hashThreshold, colorMode, halt, override, false, 0, inputs);
     }
 
     public CliOptions {
@@ -85,6 +88,8 @@ public record CliOptions(
                 + halt
                 + ", override="
                 + override
+                + ", trace="
+                + trace
                 + ", parallel="
                 + parallel
                 + ", inputs="

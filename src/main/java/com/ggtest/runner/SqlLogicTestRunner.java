@@ -56,6 +56,8 @@ public final class SqlLogicTestRunner {
     private final boolean haltOnFirstFailure;
     private final boolean overrideEnabled;
 
+    private java.io.PrintStream traceStream;
+
     /**
      * Uses {@link ResultComparer#DEFAULT_HASH_THRESHOLD} as the initial threshold.
      *
@@ -128,6 +130,22 @@ public final class SqlLogicTestRunner {
         this.initialHashThreshold = initialHashThreshold;
         this.haltOnFirstFailure = haltOnFirstFailure;
         this.overrideEnabled = overrideEnabled;
+    }
+
+    /**
+     * When set to a non-null stream, each SQL statement is printed to it just
+     * before execution (CLI {@code --trace}). Pass {@code null} to disable.
+     *
+     * @param traceStream the stream to print traced SQL to, or {@code null}
+     */
+    public void setTraceStream(java.io.PrintStream traceStream) {
+        this.traceStream = traceStream;
+    }
+
+    private void trace(String sql) {
+        if (traceStream != null) {
+            traceStream.println(sql);
+        }
     }
 
     /**
@@ -204,6 +222,7 @@ public final class SqlLogicTestRunner {
 
     private RecordResult runStatement(StatementRecord record, Map<String, DatabaseExecutor> executors) {
         DatabaseExecutor exec = executorFor(record.conn(), executors);
+        trace(record.sql());
         StatementResult result = exec.executeStatement(record.sql(), record.timeoutMs());
         return switch (record.expectation()) {
             case OK -> result.succeeded()
@@ -234,6 +253,7 @@ public final class SqlLogicTestRunner {
 
     private RecordResult runQuery(QueryRecord record, FileState state, Map<String, DatabaseExecutor> executors) {
         DatabaseExecutor exec = executorFor(record.conn(), executors);
+        trace(record.sql());
         QueryResult result = exec.executeQuery(record.sql(), record.timeoutMs());
         if (!result.succeeded()) {
             return RecordResult.failed(record, describe("query execution failed", result.errorSummary()));

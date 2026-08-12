@@ -106,6 +106,7 @@ final class FileRunner {
         try {
             SqlLogicTestRunner runner = new SqlLogicTestRunner(
                     factory, options.hashThreshold(), options.halt(), options.override());
+            runner.setTraceStream(options.trace() ? err : null);
             FileRunResult result = runner.run(records);
             return processResult(result, display, file);
         } catch (com.ggtest.db.FatalDatabaseException ex) {

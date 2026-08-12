@@ -12,6 +12,7 @@ import java.util.Optional;
  *             repeated occurrences are equivalent to a single one
  * @param override whether {@code --override} (golden-update) was supplied;
  *                 repeated occurrences are equivalent to a single one
+ * @param trace whether {@code --trace} (print SQL to stderr as executed) was supplied
  * @param help whether {@code --help} (or {@code -h}) was supplied
  * @param parallel maximum concurrent files; empty when {@code --parallel} not supplied
  */
@@ -25,6 +26,7 @@ public record ParsedArguments(
         Optional<ColorMode> color,
         boolean halt,
         boolean override,
+        boolean trace,
         boolean help,
         Optional<Integer> parallel,
         List<String> inputs) {
