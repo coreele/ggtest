@@ -6,6 +6,8 @@ import com.ggtest.db.postgres.PostgresSchemaIsolation;
 import com.ggtest.db.sqlite.SqliteJdbcExecutor;
 import com.ggtest.db.mysql.MySqlJdbcExecutor;
 import com.ggtest.db.mysql.MySqlSchemaIsolation;
+import com.ggtest.db.xugu.XuguJdbcExecutor;
+import com.ggtest.db.xugu.XuguSchemaIsolation;
 import com.ggtest.model.SqlTestRecord;
 import com.ggtest.parser.ParseException;
 import com.ggtest.parser.SqlLogicTestParser;
@@ -61,8 +63,9 @@ final class FileRunner {
         Map<String, Connection> connections = new HashMap<>();
         String[] fileSchemaHolder = {null};
         boolean isPostgres = RuntimeConfigResolver.ENGINE_POSTGRES.equals(options.engine());
+        boolean isXugu = RuntimeConfigResolver.ENGINE_XUGU.equals(options.engine());
         boolean isMySql = RuntimeConfigResolver.ENGINE_MYSQL.equals(options.engine());
-        boolean needsIsolation = isPostgres || isMySql;
+        boolean needsIsolation = isPostgres || isXugu || isMySql;
 
         if (needsIsolation) {
             try {
@@ -71,6 +74,8 @@ final class FileRunner {
                 try {
                     if (isPostgres) {
                         fileSchemaHolder[0] = PostgresSchemaIsolation.prepare(first);
+                    } else if (isXugu) {
+                        fileSchemaHolder[0] = XuguSchemaIsolation.prepare(first);
                     } else {
                         fileSchemaHolder[0] = MySqlSchemaIsolation.prepare(first);
                     }
@@ -82,26 +87,22 @@ final class FileRunner {
                     }
                     return FileOutcome.hardFailure(reportWriter.detailLines(
                             "schema isolation failed: " + sanitize(ex.getMessage()),
-                            null,
-                            display,
-                            null));
+                            null, display, null));
                 }
             } catch (SQLException ex) {
                 err.println("connection failed: " + sanitize(ex.getMessage()));
                 return FileOutcome.hardFailure(reportWriter.detailLines(
                         "connection failed: " + sanitize(ex.getMessage()),
-                        null,
-                        display,
-                        null));
+                        null, display, null));
             }
         }
         String fileSchema = fileSchemaHolder[0];
 
         Function<String, DatabaseExecutor> factory = connKey -> {
             if (needsIsolation && "".equals(connKey)) {
-                return isPostgres
-                        ? new PostgresJdbcExecutor(connections.get(""))
-                        : new MySqlJdbcExecutor(connections.get(""));
+                if (isPostgres) return new PostgresJdbcExecutor(connections.get(""));
+                if (isXugu) return new XuguJdbcExecutor(connections.get(""));
+                return new MySqlJdbcExecutor(connections.get(""));
             }
             try {
                 Connection c = ConnectionFactory.open(options);
@@ -109,6 +110,10 @@ final class FileRunner {
                 if (isPostgres) {
                     PostgresSchemaIsolation.setSearchPath(c, fileSchema);
                     return new PostgresJdbcExecutor(c);
+                }
+                if (isXugu) {
+                    XuguSchemaIsolation.setSearchPath(c, fileSchema);
+                    return new XuguJdbcExecutor(c);
                 }
                 if (isMySql) {
                     MySqlSchemaIsolation.setSearchPath(c, fileSchema);
@@ -131,19 +136,22 @@ final class FileRunner {
             err.println("connection failed: " + sanitize(ex.getMessage()));
             return FileOutcome.hardFailure(reportWriter.detailLines(
                     "connection failed: " + sanitize(ex.getMessage()),
-                    null,
-                    display,
-                    null));
+                    null, display, null));
         } finally {
             if (fileSchema != null && connections.containsKey("")) {
                 try {
-                    if (isPostgres) {
-                        PostgresSchemaIsolation.teardown(connections.get(""), fileSchema);
-                    } else {
-                        MySqlSchemaIsolation.teardown(connections.get(""), fileSchema);
-                    }
+                    if (isPostgres) PostgresSchemaIsolation.teardown(connections.get(""), fileSchema);
+                    else if (isXugu) XuguSchemaIsolation.teardown(connections.get(""), fileSchema);
+                    else MySqlSchemaIsolation.teardown(connections.get(""), fileSchema);
                 } catch (SQLException ex) {
                     err.println("schema teardown failed: " + sanitize(ex.getMessage()));
+                }
+            }
+            for (Connection c : connections.values()) {
+                try { c.close(); } catch (SQLException ignored) { }
+            }
+        }
+    }
                 }
             }
             for (Connection c : connections.values()) {

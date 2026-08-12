@@ -15,4 +15,7 @@ target/
 superpowers/
 
 .temp
-driver
+
+# Xugu JDBC driver (proprietary) — local file repository, not tracked.
+# Bootstrap via scripts/install-xugu-driver.sh.example
+/driver/

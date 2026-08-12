@@ -24,6 +24,25 @@ PostgreSQL-specific tests are **gated** by `GGTEST_PG_URL` (optional
 PG tests are skipped and the default suite still passes. Gate variables are
 **not** the same as runtime config keys (`GGTEST_*` without `_PG_`).
 
+XuguDB-specific tests are likewise gated by `GGTEST_XG_URL` (optional
+`GGTEST_XG_USER` / `GGTEST_XG_PASSWORD`).
+
+### XuguDB driver (proprietary)
+
+The XuguDB JDBC driver (`com.xugudb:xugu-jdbc`) is proprietary and not on
+Maven Central. Before building, place it into the gitignored local file
+repository once:
+
+```bash
+./scripts/install-xugu-driver.sh.example ~/xgspace/cloudjdbc/target/xugu-jdbc-12.3.9-20260710.jar
+# equivalent to:
+mvn install:install-file -Dfile=<xugu-jdbc.jar> -DgroupId=com.xugudb \
+  -DartifactId=xugu-jdbc -Dversion=12.3.9-20260710 -Dpackaging=jar \
+  -DgeneratePom=true -DlocalRepositoryPath=driver
+```
+
+`pom.xml` resolves it from `driver/` (`<repository>xugu-local</repository>`).
+
 ## Run (`ggtest`)
 
 After packaging:
@@ -35,6 +54,7 @@ After packaging:
 ./bin/ggtest --url jdbc:sqlite::memory: path/to/file.test
 ./bin/ggtest --url jdbc:postgresql://localhost:5432/dbname --engine postgres path/to/file.test
 ./bin/ggtest --url jdbc:mysql://localhost:3306 --engine mysql --user root path/to/file.test
+./bin/ggtest --url jdbc:xugu://127.0.0.1:5138/SYSTEM?char_set=utf8 --engine xugu --user SYSDBA --password SYSDBA path/to/file.test
 # or
 java -jar target/ggtest-0.1.0-SNAPSHOT.jar --url jdbc:sqlite::memory: path/to/file.test
 ```
@@ -53,6 +73,7 @@ ggtest [--url <jdbc-url>] [--user <user>] [--password <password>]
 | `--url` | (from env / `.env`) | JDBC URL; required from CLI, `GGTEST_URL`, or `.env` |
 | `--user` / `--password` | none | Optional DB credentials; **never** written to logs or the report |
 | `--engine` | `sqlite` | `sqlite`, `postgres`, or `mysql` (case-insensitive); must match the URL scheme |
+| `--engine` | `sqlite` | `sqlite`, `postgres`, or `xugu` (case-insensitive; `xugudb` is an alias for `xugu`); must match the URL scheme |
 | `--hash-threshold` | `8` | Initial hash threshold per file; file-level `hash-threshold` still applies |
 | `--env-file` | (CWD `.env`) | When set, **replaces** the default CWD `.env` (does not layer both) |
 | `--color` | `auto` | `auto` (TTY only), `always`, or `never`; see color priority below |
@@ -84,6 +105,7 @@ Runtime keys (whitelist): `GGTEST_URL`, `GGTEST_USER`, `GGTEST_PASSWORD`,
 | Report color | `GGTEST_COLOR` (`auto` \| `always` \| `never`); also `-Dggtest.color=…` |
 | Test gate (CI / local PG) | `GGTEST_PG_URL`, `GGTEST_PG_USER`, `GGTEST_PG_PASSWORD` |
 | Test gate (CI / local MySQL) | `GGTEST_MY_URL`, `GGTEST_MY_USER`, `GGTEST_MY_PASSWORD` |
+| Test gate (CI / local XuguDB) | `GGTEST_XG_URL`, `GGTEST_XG_USER`, `GGTEST_XG_PASSWORD` |
 
 **Color priority:** explicit `--color` > system property `ggtest.color` > env `GGTEST_COLOR` > default `auto`.
 CI / pipes typically use `--color never`, `-Dggtest.color=never`, or rely on non-TTY `auto`.
@@ -95,6 +117,7 @@ CI / pipes typically use `--color never`, `-Dggtest.color=never`, or rely on non
 | `sqlite` (default) | `jdbc:sqlite:` | Independent connection (e.g. blank `:memory:` DB) |
 | `postgres` | `jdbc:postgresql:` | Unique schema + `search_path`, then `DROP SCHEMA … CASCADE` |
 | `mysql` | `jdbc:mysql:` | Unique schema（database）+ `USE`, then `DROP SCHEMA IF EXISTS` |
+| `xugu` (alias `xugudb`) | `jdbc:xugu:` | Unique schema + `SET SCHEMA`, then `DROP SCHEMA … CASCADE` |
 
 Engine↔URL mismatch or unknown engine → exit code `2`, no connection, no execution.
 
@@ -356,4 +379,7 @@ try (Connection connection = DriverManager.getConnection("jdbc:sqlite::memory:")
 Per-file state (hash-threshold, conditions, labels) is scoped to a single `run` call.
 Row-wise column separators come from each query header’s optional `separator=<delim>`.
 Supporting another database: implement `com.ggtest.db.DatabaseExecutor`
-(see `com.ggtest.db.postgres.PostgresJdbcExecutor`).
+(see `com.ggtest.db.postgres.PostgresJdbcExecutor` or
+`com.ggtest.db.xugu.XuguJdbcExecutor`), then wire engine selection in
+`RuntimeConfigResolver` (allow-list + URL prefix) and `FileRunner`
+(executor + isolation).

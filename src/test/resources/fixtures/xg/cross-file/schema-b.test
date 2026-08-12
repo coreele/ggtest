@@ -1,0 +1,10 @@
+statement ok
+CREATE TABLE t1(a INTEGER);
+
+statement ok
+INSERT INTO t1 VALUES(2);
+
+query I nosort
+SELECT a FROM t1
+----
+2

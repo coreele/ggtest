@@ -24,6 +24,9 @@ public final class RuntimeConfigResolver {
     public static final String ENGINE_SQLITE = "sqlite";
     public static final String ENGINE_POSTGRES = "postgres";
     public static final String ENGINE_MYSQL = "mysql";
+    public static final String ENGINE_XUGU = "xugu";
+    /** Accepted alias for {@link #ENGINE_XUGU}, normalized to {@code "xugu"}. */
+    private static final String ENGINE_XUGU_ALIAS = "xugudb";
 
     /** System property key for report color ({@code -Dggtest.color=…}). */
     public static final String COLOR_PROPERTY = "ggtest.color";
@@ -181,10 +184,14 @@ public final class RuntimeConfigResolver {
 
     static String normalizeEngine(String engine) {
         String normalized = engine.strip().toLowerCase(Locale.ROOT);
+        // "xugudb" is an accepted alias, normalized to the canonical "xugu".
+        if ("xugudb".equals(normalized)) {
+            normalized = ENGINE_XUGU;
+        }
         if (!ENGINE_SQLITE.equals(normalized) && !ENGINE_POSTGRES.equals(normalized)
-                && !ENGINE_MYSQL.equals(normalized)) {
+                && !ENGINE_XUGU.equals(normalized) && !ENGINE_MYSQL.equals(normalized)) {
             throw new UsageException(
-                    "unsupported --engine value '" + engine + "'; allowed: 'sqlite', 'postgres', 'mysql'");
+                    "unsupported --engine value '" + engine + "'; allowed: 'sqlite', 'postgres', 'xugu', 'mysql'");
         }
         return normalized;
     }
@@ -206,6 +213,9 @@ public final class RuntimeConfigResolver {
         if (ENGINE_MYSQL.equals(engine)) {
             if (!lowerUrl.startsWith("jdbc:mysql:")) {
                 throw new UsageException("engine 'mysql' requires a jdbc:mysql: URL");
+        if (ENGINE_XUGU.equals(engine)) {
+            if (!lowerUrl.startsWith("jdbc:xugu:")) {
+                throw new UsageException("engine 'xugu' requires a jdbc:xugu: URL");
             }
         }
     }

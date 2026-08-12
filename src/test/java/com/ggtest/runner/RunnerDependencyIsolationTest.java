@@ -33,10 +33,12 @@ class RunnerDependencyIsolationTest {
                     "com.ggtest.db.sqlite",
                     "com.ggtest.db.postgres",
                     "com.ggtest.db.mysql",
+                    "com.ggtest.db.xugu",
                     "java.sql",
                     "org.sqlite",
                     "org.xerial",
-                    "org.postgresql")) {
+                    "org.postgresql",
+                    "com.xugu")) {
                 if (body.contains(forbidden)) {
                     violations.add(source + " references " + forbidden);
                 }
@@ -52,6 +54,9 @@ class RunnerDependencyIsolationTest {
         for (Path source : javaSources(MAIN_SOURCES.resolve("db"))) {
             Path parent = source.getParent();
             if (parent.endsWith("sqlite") || parent.endsWith("postgres") || parent.endsWith("mysql")) {
+            // Engine-specific subpackages (sqlite/postgres/xugu) legitimately use
+            // java.sql + their driver — exempt them, like AbstractJdbcExecutor.
+            if (parent.endsWith("sqlite") || parent.endsWith("postgres") || parent.endsWith("xugu")) {
                 continue;
             }
             if (source.getFileName().toString().equals("AbstractJdbcExecutor.java")) {
@@ -59,6 +64,7 @@ class RunnerDependencyIsolationTest {
             }
             String body = read(source);
             for (String forbidden : List.of("java.sql", "org.sqlite", "org.xerial", "org.postgresql", "com.mysql")) {
+            for (String forbidden : List.of("java.sql", "org.sqlite", "org.xerial", "org.postgresql", "com.xugu")) {
                 if (body.contains(forbidden)) {
                     violations.add(source + " references " + forbidden);
                 }

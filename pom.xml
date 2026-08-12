@@ -21,11 +21,23 @@
         <sqlite.jdbc.version>3.53.2.0</sqlite.jdbc.version>
         <postgresql.jdbc.version>42.7.13</postgresql.jdbc.version>
         <mysql.jdbc.version>9.2.0</mysql.jdbc.version>
+        <xugu.jdbc.version>12.3.9-20260710</xugu.jdbc.version>
         <jacoco.version>0.8.12</jacoco.version>
         <spotbugs.version>4.8.6.4</spotbugs.version>
         <spotbugs.maven.version>4.8.6.4</spotbugs.maven.version>
         <depcheck.version>10.0.4</depcheck.version>
     </properties>
+
+    <repositories>
+        <!-- Xugu JDBC driver is proprietary; resolve from a gitignored in-repo
+             file repository under driver/. Bootstrap via scripts/install-xugu-driver.sh.example. -->
+        <repository>
+            <id>xugu-local</id>
+            <url>file://${project.basedir}/driver</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -42,6 +54,9 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>${mysql.jdbc.version}</version>
+            <groupId>com.xugudb</groupId>
+            <artifactId>xugu-jdbc</artifactId>
+            <version>${xugu.jdbc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

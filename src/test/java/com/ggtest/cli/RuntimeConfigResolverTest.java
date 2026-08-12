@@ -172,6 +172,65 @@ class RuntimeConfigResolverTest {
     }
 
     @Test
+    void allowsXuguEngineWithMatchingUrl() {
+        CliOptions options = resolve(
+                parsed(
+                        "--url", "jdbc:xugu://127.0.0.1:5138/SYSTEM",
+                        "--engine", "XUGU",
+                        "a.test"),
+                key -> null);
+        assertEquals("xugu", options.engine());
+    }
+
+    @Test
+    void xugudbAliasIsNormalizedToXugu() {
+        CliOptions options = resolve(
+                parsed(
+                        "--url", "jdbc:xugu://127.0.0.1:5138/SYSTEM",
+                        "--engine", "xugudb",
+                        "a.test"),
+                key -> null);
+        assertEquals("xugu", options.engine());
+    }
+
+    @Test
+    void xuguEngineUrlMismatchYieldsUsageError() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> resolve(
+                        parsed(
+                                "--url", "jdbc:sqlite::memory:",
+                                "--engine", "xugu",
+                                "a.test"),
+                        key -> null));
+        assertTrue(ex.getMessage().toLowerCase().contains("xugu")
+                || ex.getMessage().toLowerCase().contains("url"));
+    }
+
+    @Test
+    void xuguEngineAppearsInAllowedEngineList() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> resolve(
+                        parsed("--url", "jdbc:sqlite::memory:", "--engine", "mysql", "a.test"),
+                        key -> null));
+        assertTrue(ex.getMessage().contains("xugu"));
+    }
+
+    @Test
+    void doesNotReadGgtestXgGateKeysAsRuntimeConfig() throws IOException {
+        writeEnv("GGTEST_URL=jdbc:sqlite::memory:\n");
+        Map<String, String> process = new HashMap<>();
+        process.put("GGTEST_XG_URL", "jdbc:xugu://should-not-be-used/SYSTEM");
+        process.put("GGTEST_XG_PASSWORD", "gate-secret");
+
+        CliOptions options = resolve(parsed("a.test"), process::get);
+
+        assertEquals("jdbc:sqlite::memory:", options.url());
+        assertTrue(options.password().isEmpty());
+    }
+
+    @Test
     void nonEmptyPasswordFromCliIsAssembledForPostgres() {
         CliOptions options = resolve(
                 parsed(

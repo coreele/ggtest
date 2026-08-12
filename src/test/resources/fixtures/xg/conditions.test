@@ -1,0 +1,15 @@
+skipif xugu
+statement ok
+CREATE TABLE should_skip(x int);
+
+onlyif xugu
+statement ok
+CREATE TABLE only_xg(x int);
+
+statement ok
+INSERT INTO only_xg VALUES(7);
+
+query I nosort
+SELECT x FROM only_xg
+----
+7

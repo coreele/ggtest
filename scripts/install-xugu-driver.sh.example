@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Bootstrap the Xugu JDBC driver into the gitignored local file repository (driver/).
+#
+# The driver (com.xugudb:xugu-jdbc) is proprietary and not on Maven Central.
+# Place the built jar (from the cloudjdbc project, e.g.
+# ~/xgspace/cloudjdbc/target/xugu-jdbc-<ver>.jar) into driver/ as an m2 layout
+# so Maven resolves it via the <repository>xugu-local</repository> in pom.xml.
+#
+# Usage:
+#   ./scripts/install-xugu-driver.sh.example <path-to-xugu-jdbc.jar>
+#
+# After running this once, `mvn compile` / `mvn package` resolve the driver.
+# Copy this file to install-xugu-driver.sh to use (the .example is tracked,
+# the script and driver/ are gitignored).
+
+set -euo pipefail
+
+JAR="${1:-$HOME/xgspace/cloudjdbc/target/xugu-jdbc-12.3.9-20260710.jar}"
+if [ ! -f "$JAR" ]; then
+  echo "Driver jar not found: $JAR" >&2
+  echo "Pass the path explicitly: $0 <path-to-xugu-jdbc.jar>" >&2
+  exit 1
+fi
+
+# Derive version from jar name (xugu-jdbc-<version>.jar).
+VERSION="$(basename "$JAR" .jar | sed 's/^xugu-jdbc-//')"
+
+mvn -q install:install-file \
+  -Dfile="$JAR" \
+  -DgroupId=com.xugudb \
+  -DartifactId=xugu-jdbc \
+  -Dversion="$VERSION" \
+  -Dpackaging=jar \
+  -DgeneratePom=true \
+  -DlocalRepositoryPath=driver
+
+echo "Installed com.xugudb:xugu-jdbc:$VERSION into driver/"

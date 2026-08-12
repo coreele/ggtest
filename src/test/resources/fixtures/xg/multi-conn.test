@@ -1,0 +1,21 @@
+statement ok conn=a
+CREATE TABLE ca(x int);
+
+statement ok conn=a
+INSERT INTO ca VALUES(1);
+
+statement ok conn=b
+CREATE TABLE cb(x int);
+
+statement ok conn=b
+INSERT INTO cb VALUES(2);
+
+query I nosort conn=a
+SELECT x FROM ca
+----
+1
+
+query I nosort conn=b
+SELECT x FROM cb
+----
+2
