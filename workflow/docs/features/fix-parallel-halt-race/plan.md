@@ -44,11 +44,12 @@
    - 计数/退出码逻辑与顺序路径一致（hardError → 2；failed>0 → 1；else 0）
    - `printErrorSection` / `printTrailingBlankIfNeeded` / `printTotal` 复用现有 `reportWriter`，数据源改为按索引遍历
 
-4. **T4: 新增 fixture + 改 `parallelHaltSkipsQueuedFilesReportsRunningFiles`**（完成条件：该用例确定地通过——`1-fail` FAILED、`2-slow` PASSED、`3-queued` 不出现，passed=1 failed=1 exit=1）
-   - 新建 `src/test/resources/fixtures/cli/parallel-halt/1-fail.test`（~3 条语句；首查询即失败）
-   - 新建 `src/test/resources/fixtures/cli/parallel-halt/2-slow.test`（~40 条语句全通过；确保显著慢于 1-fail）
-   - 新建 `src/test/resources/fixtures/cli/parallel-halt/3-queued.test`（合法通过内容；应永不执行）
-   - 修改测试：传三个 fixture + `--parallel 2 --halt`；断言更新为上述确定结果
+4. **T4: 新增 fixture + 改 `parallelHaltSkipsQueuedFilesReportsRunningFiles`**（完成条件：该用例确定地通过——`1-parse-error` FAILED、`2-pass` PASSED、`3-queued` 不出现，passed=1 failed=1 exit=2）
+   - 新建 `src/test/resources/fixtures/cli/parallel-halt/1-parse-error.test`（单行非法记录 → parse 即 hardFailure，无 DB 工作，~µs 完成）
+   - 新建 `src/test/resources/fixtures/cli/parallel-halt/2-pass.test`（合法通过；dispatched，运行中）
+   - 新建 `src/test/resources/fixtures/cli/parallel-halt/3-queued.test`（合法通过；pending，应永不执行）
+   - 修改测试：传三个 fixture + `--parallel 2 --halt`；断言更新为上述确定结果（exit=2，因触发器为 hardError）
+   - 理据：实测 SQLite 首批文件 ~200ms 共享预热淹没 op 差异，op 数无法可靠拉开完成顺序；改用「无 DB 工作的失败文件」确定先于任何 DB 文件完成（详见 design.md 决策 5）
 
 5. **T5: 全量回归**（完成条件：`mvn -q test` 通过；现有并行用例 `parallel1IsEquivalentToSequential` / `parallel2MultiFileReportComplete` / `parallelStatusLineOrderMatchesSorterOutput` / `parallelFaultIsolationSingleWorkerErrorDoesNotAffectOthers` / `parallelPasswordNeverPrinted` 等零回归；顺序 `--halt` 用例 `haltStopsAfterFirstFailingFileAndDoesNotStartLaterFiles` / `haltWithHardErrorExitsTwoAndDoesNotStartLaterFiles` 零回归）
    - 目标用例连跑 ≥5 次确认稳定
@@ -70,9 +71,9 @@ T1 (ParallelExecutor 接口) ─→ T2 (executeParallel 受控分派)
 |---|---|---|
 | `src/main/java/com/ggtest/cli/ParallelExecutor.java` | 修改 | 暴露 `executor()`；移除 `submitAll` |
 | `src/main/java/com/ggtest/cli/CliSession.java` | 修改 | 重写 `executeParallel()`（受控分派 + halt + 按序聚合）；`execute()` 顺序路径不动 |
-| `src/test/resources/fixtures/cli/parallel-halt/1-fail.test` | 新建 | 快速失败 fixture |
-| `src/test/resources/fixtures/cli/parallel-halt/2-slow.test` | 新建 | 慢速通过 fixture |
-| `src/test/resources/fixtures/cli/parallel-halt/3-queued.test` | 新建 | 应被跳过的 fixture |
+| `src/test/resources/fixtures/cli/parallel-halt/1-parse-error.test` | 新建 | 即时失败（parse，无 DB） |
+| `src/test/resources/fixtures/cli/parallel-halt/2-pass.test` | 新建 | 合法通过（dispatched，运行中） |
+| `src/test/resources/fixtures/cli/parallel-halt/3-queued.test` | 新建 | 合法通过（应被跳过） |
 | `src/test/java/com/ggtest/cli/MainOrchestrationTest.java` | 修改 | 改 `parallelHaltSkipsQueuedFilesReportsRunningFiles` 的 fixture 与断言 |
 
 > 明确**不触碰**：`CliSession.execute()`（顺序路径）、`FileRunner`、`ReportWriter`、`ConnectionFactory`、`PostgresSchemaIsolation`、CLI 解析链（`CliArgumentParser`/`ParsedArguments`/`CliOptions`/`RuntimeConfigResolver`/`Main`）。
@@ -81,7 +82,7 @@ T1 (ParallelExecutor 接口) ─→ T2 (executeParallel 受控分派)
 
 | ID | 要求或命令 | 预期证据 | 结果（实施后填） |
 |---|---|---|---|
-| V1 | `mvn -q -Dtest='MainOrchestrationTest#parallelHaltSkipsQueuedFilesReportsRunningFiles' test` 连跑 ≥5 次 | 每次均通过；stdout 确定含 `1-fail` `[FAILED]` 与 `2-slow` `[PASSED]`，不含 `3-queued`；passed=1 failed=1 exit=1 | |
+| V1 | `mvn -q -Dtest='MainOrchestrationTest#parallelHaltSkipsQueuedFilesReportsRunningFiles' test` 连跑 ≥5 次 | 每次均通过；stdout 确定含 `1-parse-error` `[FAILED]` 与 `2-pass` `[PASSED]`，不含 `3-queued`；passed=1 failed=1 exit=2 | |
 | V2 | `mvn -q test`（全量） | 全部通过 | |
 | V3 | 零回归：顺序 `--halt` 用例（`haltStopsAfterFirstFailingFileAndDoesNotStartLaterFiles`、`haltWithHardErrorExitsTwoAndDoesNotStartLaterFiles`、`corpusHaltRecordDoesNotTriggerCliHalt`） | 通过；行为不变 | |
 | V4 | 零回归：无 halt 并行用例（`parallel1IsEquivalentToSequential`、`parallel2MultiFileReportComplete`、`parallelStatusLineOrderMatchesSorterOutput`、`parallelFaultIsolationSingleWorkerErrorDoesNotAffectOthers`、`parallelPasswordNeverPrinted` 等） | 通过；报告完整、顺序正确 | |
@@ -92,7 +93,7 @@ T1 (ParallelExecutor 接口) ─→ T2 (executeParallel 受控分派)
 
 | 项 | 原因 | 风险 | 恢复条件 |
 |---|---|---|---|
-| 多机/多 CI runner 时序复测 | 本地与 CI 单次跑无法穷尽所有调度时序 | 低——受控分派已从结构上消除 worker 自主抽干队列的竞态；完成顺序由 fixture 工作量比（≈13×）锁定 | 如未来再现 flake，调大 `2-slow.test` 语句数或改用显式并发测试手段 |
+| 多机/多 CI runner 时序复测 | 本地与 CI 单次跑无法穷尽所有调度时序 | 低——受控分派已从结构上消除 worker 自主抽干队列的竞态；失败文件用 parse error（无 DB 工作）确定先于任何 DB 文件完成，完成顺序与时序/机器无关 | 如未来再现 flake，复查是否有新增 DB-free 快速失败路径 |
 
 ## 文档影响
 

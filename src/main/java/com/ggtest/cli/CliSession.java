@@ -3,18 +3,22 @@ package com.ggtest.cli;
 import com.ggtest.parser.SqlLogicTestParser;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Worker result bundling an outcome with the per-file elapsed duration.
+ * Worker result bundling an outcome with the per-file elapsed duration and the
+ * file's input index (needed because {@link ExecutorCompletionService} does not
+ * expose which Future maps to which submitted task).
  */
-record TimedFileOutcome(FileOutcome outcome, long elapsedMs) {}
+record IndexedTimedOutcome(int index, FileOutcome outcome, long elapsedMs) {}
 
 /**
  * Orchestrates multi-file CLI execution: path display, per-file timing,
@@ -126,12 +130,17 @@ final class CliSession {
         return 0;
     }
 
+    /**
+     * Parallel execution with controlled dispatch.
+     *
+     * <p>Tasks are submitted lazily: at most {@code parallel} run at once, and a new
+     * task is dispatched only when a slot frees <em>and</em> halt has not tripped. This
+     * makes the spec's {@code --halt} contract deterministic: a file is either
+     * dispatched (runs to completion and is reported by its true bucket) or never
+     * dispatched (not opened, not parsed, not counted) — there is no thread-grab race.
+     */
     private int executeParallel(List<Path> files) {
-        int totalPassed = 0;
-        int totalFailed = 0;
-        int totalSkipped = 0;
-        boolean hardError = false;
-        List<String> failedPaths = new ArrayList<>();
+        int parallelism = options.parallel();
 
         int pathWidth = STATUS_PATH_COLUMN_WIDTH;
         List<String> displays = new ArrayList<>(files.size());
@@ -142,42 +151,95 @@ final class CliSession {
         }
 
         SqlLogicTestParser parser = new SqlLogicTestParser();
-        ParallelExecutor executor = new ParallelExecutor(options.parallel());
-        List<Callable<TimedFileOutcome>> tasks = new ArrayList<>(files.size());
+        ParallelExecutor pool = new ParallelExecutor(parallelism);
+        ExecutorCompletionService<IndexedTimedOutcome> ecs =
+                new ExecutorCompletionService<>(pool.executor());
 
+        List<Callable<IndexedTimedOutcome>> tasks = new ArrayList<>(files.size());
         for (int i = 0; i < files.size(); i++) {
-            Path file = files.get(i);
-            String display = displays.get(i);
+            final int index = i;
+            final Path file = files.get(i);
+            final String display = displays.get(i);
             tasks.add(() -> {
-                FileRunner runner = new FileRunner(options, err, reportWriter);
-                long start = System.nanoTime();
-                FileOutcome outcome = runner.run(parser, file, display);
-                long ms = Math.max(0L, (System.nanoTime() - start) / 1_000_000L);
-                return new TimedFileOutcome(outcome, ms);
+                try {
+                    FileRunner runner = new FileRunner(options, err, reportWriter);
+                    long start = System.nanoTime();
+                    FileOutcome outcome = runner.run(parser, file, display);
+                    long ms = Math.max(0L, (System.nanoTime() - start) / 1_000_000L);
+                    return new IndexedTimedOutcome(index, outcome, ms);
+                } catch (Throwable t) {
+                    String w = t.getMessage() == null ? t.toString() : t.getMessage();
+                    FileOutcome hard = FileOutcome.hardFailure(reportWriter.detailLines(
+                            "unexpected error: " + w, null, display, null));
+                    return new IndexedTimedOutcome(index, hard, 0L);
+                }
             });
         }
 
-        List<Future<TimedFileOutcome>> futures = executor.submitAll(tasks);
-        FileBucket lastBucket = null;
+        IndexedTimedOutcome[] results = new IndexedTimedOutcome[files.size()];
+        Deque<Integer> pending = new ArrayDeque<>();
+        for (int i = 0; i < files.size(); i++) {
+            pending.addLast(i);
+        }
+
+        int running = 0;
         boolean halted = false;
 
-        for (int i = 0; i < futures.size(); i++) {
-            if (halted && futures.get(i).isCancelled()) {
-                continue;
-            }
-            TimedFileOutcome timed;
+        // Initial dispatch: fill up to `parallelism` slots.
+        while (running < parallelism && !pending.isEmpty() && !halted) {
+            ecs.submit(tasks.get(pending.removeFirst()));
+            running++;
+        }
+
+        // Reap completions, tripping halt on the first FAILED, and refilling only
+        // while halt has not tripped. Reaping continues until every dispatched task
+        // has completed (we never cancel/interrupt running DB work).
+        while (running > 0) {
+            Future<IndexedTimedOutcome> future;
             try {
-                timed = futures.get(i).get();
-            } catch (ExecutionException e) {
-                String w = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
-                timed = new TimedFileOutcome(FileOutcome.hardFailure(reportWriter.detailLines(
-                        "unexpected error: " + w, null, displays.get(i), null)), 0);
+                future = ecs.take();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                timed = new TimedFileOutcome(FileOutcome.hardFailure(reportWriter.detailLines(
-                        "interrupted", null, displays.get(i), null)), 0);
+                break;
             }
+            running--;
+            IndexedTimedOutcome result;
+            try {
+                result = future.get();
+            } catch (Exception e) {
+                // Callable catches Throwable, so this is unreachable; stay defensive.
+                String w = e.getMessage() == null ? e.toString() : e.getMessage();
+                FileOutcome hard = FileOutcome.hardFailure(reportWriter.detailLines(
+                        "unexpected error: " + w, null, "?", null));
+                result = new IndexedTimedOutcome(-1, hard, 0L);
+            }
+            if (result.index() >= 0) {
+                results[result.index()] = result;
+            }
+            if (!halted && options.halt() && result.outcome().bucket() == FileBucket.FAILED) {
+                halted = true;
+            }
+            while (running < parallelism && !pending.isEmpty() && !halted) {
+                ecs.submit(tasks.get(pending.removeFirst()));
+                running++;
+            }
+        }
 
+        // Report collected results in input (sorted) order; never-dispatched files
+        // (results[i] == null) are skipped entirely — no status line, no TOTAL count.
+        int totalPassed = 0;
+        int totalFailed = 0;
+        int totalSkipped = 0;
+        int totalOverridden = 0;
+        boolean hardError = false;
+        List<String> failedPaths = new ArrayList<>();
+        FileBucket lastBucket = null;
+
+        for (int i = 0; i < files.size(); i++) {
+            IndexedTimedOutcome timed = results[i];
+            if (timed == null) {
+                continue;
+            }
             String display = displays.get(i);
             FileOutcome outcome = timed.outcome();
             long elapsedMs = timed.elapsedMs();
@@ -195,6 +257,7 @@ final class CliSession {
                 }
                 case OVERRIDDEN -> {
                     reportWriter.printStatusLine(display, pathWidth, style.overriddenTag(), elapsedMs, true);
+                    totalOverridden++;
                 }
                 case FAILED -> {
                     reportWriter.printStatusLine(display, pathWidth, style.failedTag(), elapsedMs, true);
@@ -206,22 +269,15 @@ final class CliSession {
                     totalFailed++;
                 }
             }
-
-            if (!halted && options.halt() && outcome.bucket() == FileBucket.FAILED) {
-                for (int j = i + 1; j < futures.size(); j++) {
-                    futures.get(j).cancel(false);
-                }
-                halted = true;
-            }
         }
 
         reportWriter.printErrorSection(failedPaths, lastBucket);
         reportWriter.printTrailingBlankIfNeeded(failedPaths, totalPassed, totalSkipped);
-        reportWriter.printTotal(totalPassed, totalFailed, totalSkipped, 0, options.override());
+        reportWriter.printTotal(totalPassed, totalFailed, totalSkipped, totalOverridden, options.override());
 
-        executor.shutdown();
+        pool.shutdown();
         try {
-            executor.awaitTermination(30, TimeUnit.SECONDS);
+            pool.awaitTermination(30, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

@@ -647,21 +647,26 @@ class MainOrchestrationTest {
 
     @Test
     void parallelHaltSkipsQueuedFilesReportsRunningFiles() {
+        // Files sort to [1-parse-error, 2-pass, 3-queued]; with --parallel 2 the first
+        // two are dispatched, 3-queued waits. 1-parse-error fails with NO db work (parse
+        // only), so it deterministically completes before 2-pass and trips halt while
+        // 2-pass is still running — guaranteeing 3-queued is never dispatched.
         Capture capture = run(
                 "--url", "jdbc:sqlite::memory:",
                 "--parallel", "2",
                 "--halt",
-                fixture("pass.test").toString(),
-                fixture("multi-fail.test").toString(),
-                fixture("nested/a.test").toString());
+                fixture("parallel-halt/1-parse-error.test").toString(),
+                fixture("parallel-halt/2-pass.test").toString(),
+                fixture("parallel-halt/3-queued.test").toString());
 
         String out = capture.stdout();
-        assertTrue(out.contains("multi-fail.test"), out);
+        assertTrue(out.contains("1-parse-error.test"), out);
         assertTrue(out.contains("[FAILED]"), out);
-        assertTrue(out.contains("a.test"), "already-running file must be reported:\n" + out);
+        assertTrue(out.contains("2-pass.test"), "already-running file must be reported:\n" + out);
+        assertFalse(out.contains("3-queued.test"), "not-yet-dispatched file must be skipped:\n" + out);
         assertEquals(1, countFailures(out));
         assertEquals(1, extractPassed(out), out);
-        assertEquals(1, capture.exitCode(), capture::dump);
+        assertEquals(2, capture.exitCode(), capture::dump);
     }
 
     @Test

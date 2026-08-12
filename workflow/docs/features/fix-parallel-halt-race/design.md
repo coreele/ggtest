@@ -53,19 +53,23 @@
 
 **决策:** 选 A。`ParallelExecutor` 仍只管线程池生命周期；分派/收割/聚合编排在 `CliSession.executeParallel`（属 CLI 编排职责）。删除 `submitAll`（不再使用）；如其他处无引用则一并移除以避免死代码。
 
-### 决策 5: 测试确定性策略（fixture 完成顺序可控）
+### 决策 5: 测试确定性策略（即时失败触发器）
 
 根因之外，即便用受控分派，「未分派文件是否会被派发」仍取决于**失败文件是否先于并发文件完成**——因为并发文件先完成会腾出 worker 槽位、在 halt 前触发下一文件派发。故要让「排队文件被跳过」可重复验证，必须使失败文件**确定地**先完成。
 
+**实现期关键发现（见 dev-notes.md）：** 实测（冷/暖 JVM 均然）SQLite 首批文件承担 ~200ms 一次性预热（驱动/连接/JIT），使「失败断言文件」与「并发 DB 文件」**几乎同时**完成（211ms vs 206ms），op 数差异被预热噪声淹没。因此「用 op 数让失败文件先完成」不可靠。
+
 | 方案 | 概要 | 比较依据 |
 |---|---|---|
-| A | 新增自包含 fixture 子目录 `src/test/resources/fixtures/cli/parallel-halt/`，三文件按数字前缀保证排序与完成顺序：`1-fail.test`（极少语句、首查询即失败 → 最快完成）、`2-slow.test`（大量语句全通过 → 显著慢于 1-fail，确保其完成前 1-fail 已失败触发 halt）、`3-queued.test`（合法通过内容，但应永不执行） | 完成顺序由语句工作量决定（同引擎下确定），不依赖 sleep/时序；数字前缀同时锁定排序；自包含不污染其他测试 |
-| B | 复用现有 `multi-fail.test`（慢、失败）+ `nested/a.test`（快） | multi-fail 比 nested/a 慢 → nested/a 先完成腾槽 → 排队文件被派发；断言无法成立 |
+| A | 失败文件**不含任何 DB 工作**（`1-parse-error.test` 单行非法记录 → parse 即 hardFailure，~µs 完成，无连接），确定地先于任何 DB 文件（`2-pass.test`，承担预热）完成；`3-queued.test` 合法通过内容，应永不执行 | 完成顺序由「有无 DB 工作」决定（确定），与机器/JVM 预热/时序**完全无关**；零时序依赖 |
+| B | `1-fail`（少 op 断言失败）+ `2-slow`（多 op 通过）靠 op 数拉开完成顺序 | 实测 ~200ms 共享预热淹没 op 差异，211ms vs 206ms 仍并驾齐驱；flaky |
 | C | 在 fixture 中引入显式延迟（sleep/大查询） | sleep 不可靠且拖慢测试；fixture 不应有生产式副作用 |
 
-**决策:** 选 A。受控分派 + `1-fail` 先完成的 fixture 组合，使下述结果**确定**：`1-fail` 报告 `[FAILED]` 触发 halt；`2-slow`（运行中）完成并报告 `[PASSED]`；`3-queued` 永不被分派，不出现在 stdout、不计入 TOTAL。验证 spec「跳过未分派文件」与「报告运行中文件」两条合同。
+**决策:** 选 A。失败文件用 parse error（`FAILED` 桶 + hardError，但**零 DB 工作**）→ 确定地、跨环境地在任何 DB 文件之前完成 → halt 在并发文件仍运行时触发 → `3-queued` 永不被分派。
 
-> 数量选取：`1-fail` ≈ 3 条语句；`2-slow` ≈ 40 条语句。同引擎下工作量比 ≈ 13×，足以在任意机器上保证 `1-fail` 先完成，且整体测试耗时仍 < 50 ms。
+> 取代原 Design v1.0 决策 5 的方案 A（op 数拉开）。trade-off：触发器由「断言失败」变为「hard error（parse）」，退出码由 1 变 2。spec `--halt` 语义对二者一视同仁（均为 `FAILED` 桶 → 停止派发），故 skip 机制被等价覆盖；hard error 触发路径此前仅顺序用例覆盖，本切片顺带补足并行 hard-error halt 覆盖。
+
+受控分派 + `1-parse-error` 先完成的组合，使下述结果**确定**：`1-parse-error` 报告 `[FAILED]`（hardError）触发 halt；`2-pass`（运行中）完成并报告 `[PASSED]`；`3-queued` 永不被分派，不出现在 stdout、不计入 TOTAL。验证 spec「跳过未分派文件」与「报告运行中文件」两条合同。
 
 ## 模块边界与分层
 
@@ -90,15 +94,15 @@ CliArgumentParser → ParsedArguments → RuntimeConfigResolver → CliOptions (
 | `ParallelExecutor` | 修改 | 暴露 `ExecutorService executor()`（package-private）；移除未再使用的 `submitAll`（确认无其他引用） |
 | `CliSession.execute()`（顺序路径） | 不变 | 零回归 |
 | `FileRunner` / `ReportWriter` / `ConnectionFactory` / `PostgresSchemaIsolation` | 不变 | — |
-| `MainOrchestrationTest.parallelHaltSkipsQueuedFilesReportsRunningFiles` | 修改 | 改用 `parallel-halt/` 三 fixture；断言 `1-fail` FAILED、`2-slow` PASSED、`3-queued` 不出现、passed=1 failed=1、exit=1 |
-| 新增 fixture `parallel-halt/{1-fail,2-slow,3-queued}.test` | 新建 | 自包含；数字前缀锁定排序 |
+| `MainOrchestrationTest.parallelHaltSkipsQueuedFilesReportsRunningFiles` | 修改 | 改用 `parallel-halt/` 三 fixture；断言 `1-parse-error` FAILED、`2-pass` PASSED、`3-queued` 不出现、passed=1 failed=1、exit=2（hardError） |
+| 新增 fixture `parallel-halt/{1-parse-error,2-pass,3-queued}.test` | 新建 | 自包含；数字前缀锁定排序；`1-parse-error` 无 DB 工作 |
 
 ## 风险
 
 | 风险 | 影响 | 缓解 |
 |---|---|---|
 | 重写 `executeParallel` 引入新并发缺陷 | 死锁 / 结果丢失 / 输出乱序 | 收割循环不变量明确（`running` 计数 + `pending` 队列）；输出按输入索引遍历缓冲结果保证 P1-1；现有并行测试（无 halt 报告完整、故障隔离、凭据脱敏、status line 顺序、`--parallel 1` 等价）作回归网 |
-| `2-slow` 仍可能在极快机器上先于 `1-fail` 完成 | 排队文件被派发 → 测试 flaky | 工作量比 ≈13× 提供稳定裕度；且即便发生，是确定的完成顺序问题，可调大 `2-slow` 语句数 |
+| `2-slow` 仍可能在极快机器上先于失败文件完成 | 排队文件被派发 → 测试 flaky | 已规避：失败文件改用 parse error（无 DB 工作），确定先于任何 DB 文件完成；不依赖工作量比 |
 | CompletionService `take()` 阻塞 | 若任务异常未包装导致 `take().get()` 抛 `ExecutionException` 可能中断循环 | Callable 保留全量 try-catch 包装为 hardError `TimedFileOutcome`（沿用 add-parallel-execution 决策 6），`get()` 永不抛 |
 | 移除 `submitAll` 误伤其他调用方 | 编译失败 | Plan 触碰路径已限定；Developer 改前 `grep` 确认无其他引用 |
 
@@ -119,4 +123,4 @@ CliArgumentParser → ParsedArguments → RuntimeConfigResolver → CliOptions (
 - 完成后按输入索引升序遍历结果容器，仅对存在结果的下标输出（status line + FAILED 的 error block），累计 passed/failed/skipped/overridden 与 hardError、failedPaths；最后 `printErrorSection` / `printTrailingBlankIfNeeded` / `printTotal`。
 - 退出码逻辑不变。
 - `shutdown()` 后 `awaitTermination(30s)` 不变；不引入 `shutdownNow()` / `cancel(true)`。
-- 测试断言更新见决策 5；`3-queued.test` 内容须为合法通过文件（防御性地不应硬错）。
+- 测试断言更新见决策 5；`3-queued.test` 内容须为合法通过文件（防御性地不应硬错）；`1-parse-error.test` 为单行非法记录（parse 即失败，无 DB 工作）。
