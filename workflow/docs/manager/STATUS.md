@@ -35,7 +35,7 @@
 | refactor-filerunner-responsibilities | refactor-filerunner-responsibilities | 拆分 FileRunner 职责（CA-010） | done | standard | skipped | — | [workflow/docs/features/refactor-filerunner-responsibilities/](../features/refactor-filerunner-responsibilities/) |
 | sync-readme | sync-readme | README 同步 separator=/timeout=/conn=/--help | done | fast | skipped | — | [workflow/docs/features/sync-readme/](../features/sync-readme/) |
 | add-build-plugins | add-build-plugins | jacoco + spotbugs + dependency-check | done | fast | skipped | — | [workflow/docs/features/add-build-plugins/](../features/add-build-plugins/) |
-| fix-parallel-halt-race | fix-parallel-halt-race | `--parallel --halt` 并发竞态，确定化跳过未分派文件 | planned | standard | skipped | Developer | [workflow/docs/features/fix-parallel-halt-race/](../features/fix-parallel-halt-race/) |
+| fix-parallel-halt-race | fix-parallel-halt-race | `--parallel --halt` 并发竞态，确定化跳过未分派文件；恢复按序流式输出 | done | standard | skipped | — | [workflow/docs/features/fix-parallel-halt-race/](../features/fix-parallel-halt-race/) |
 
 ## 已归档
 
