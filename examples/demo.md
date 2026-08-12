@@ -18,7 +18,7 @@ statement ok
 DROP TABLE IF EXISTS items;
 
 statement ok
-CREATE TABLE items(id INTEGER, name TEXT, price REAL)
+CREATE TABLE items(id INTEGER, name TEXT, price REAL);
 
 statement ok
 INSERT INTO items VALUES
@@ -26,7 +26,7 @@ INSERT INTO items VALUES
   (1, 'apple', 1.25),
   (3, 'cherry', 3.0),
   (4, '', 9.0),
-  (5, NULL, NULL)
+  (5, NULL, NULL);
 ```
 
 ## I / T / R type signatures + sort modes
@@ -34,7 +34,7 @@ INSERT INTO items VALUES
 > T + rowsort: result is re-sorted lexicographically
 ```sql
 query T rowsort
-SELECT name FROM items WHERE id <= 3
+SELECT name FROM items WHERE id <= 3;
 ----
 apple
 banana
@@ -44,7 +44,7 @@ cherry
 > I + nosort: order must match ORDER BY
 ```sql
 query I nosort
-SELECT id FROM items WHERE id <= 3 ORDER BY id
+SELECT id FROM items WHERE id <= 3 ORDER BY id;
 ----
 1
 2
@@ -54,7 +54,7 @@ SELECT id FROM items WHERE id <= 3 ORDER BY id
 > R: REAL formatted as %.3f
 ```sql
 query R nosort
-SELECT price FROM items WHERE id <= 3 ORDER BY id
+SELECT price FROM items WHERE id <= 3 ORDER BY id;
 ----
 1.250
 0.500
@@ -64,7 +64,7 @@ SELECT price FROM items WHERE id <= 3 ORDER BY id
 > valuesort: flatten all cells then sort as strings
 ```sql
 query II valuesort
-SELECT id, CAST(price AS INTEGER) FROM items WHERE id IN (1, 2) ORDER BY id
+SELECT id, CAST(price AS INTEGER) FROM items WHERE id IN (1, 2) ORDER BY id;
 ----
 0
 1
@@ -76,12 +76,12 @@ SELECT id, CAST(price AS INTEGER) FROM items WHERE id IN (1, 2) ORDER BY id
 
 ```sql
 query T nosort
-SELECT name FROM items WHERE id = 4
+SELECT name FROM items WHERE id = 4;
 ----
 (empty)
 
 query T nosort
-SELECT name FROM items WHERE id = 5
+SELECT name FROM items WHERE id = 5;
 ----
 NULL
 ```
@@ -91,7 +91,7 @@ NULL
 > Plain ---- is always value-per-line (one physical line = one cell)
 ```sql
 query IIT nosort
-SELECT 1, 1, 'hello world'
+SELECT 1, 1, 'hello world';
 ----
 1
 1
@@ -101,7 +101,7 @@ hello world
 > Row-wise: declare separator=<delim> on the query header; tokens are trimmed
 ```sql
 query IIT nosort separator=|
-SELECT 1, 1, 'hello world'
+SELECT 1, 1, 'hello world';
 ----
 1 | 1 | hello world
 ```
@@ -109,18 +109,18 @@ SELECT 1, 1, 'hello world'
 ## execute-only (no ---- block): run SQL, do not compare
 ```sql
 query I nosort
-SELECT id FROM items WHERE id = 1
+SELECT id FROM items WHERE id = 1;
 ```
 
 ## label: same label must yield the same result view
 ```sql
 query I nosort same_id
-SELECT id FROM items WHERE id = 1
+SELECT id FROM items WHERE id = 1;
 ----
 1
 
 query I nosort same_id
-SELECT id FROM items WHERE name = 'apple'
+SELECT id FROM items WHERE name = 'apple';
 ----
 1
 ```
@@ -128,7 +128,7 @@ SELECT id FROM items WHERE name = 'apple'
 ## statement error: execution MUST fail
 ```sql
 statement error
-SELECT * FROM missing_table
+SELECT * FROM missing_table;
 ```
 
 ## skipif / onlyif (engine name case-insensitive)
@@ -139,15 +139,15 @@ SELECT * FROM missing_table
 ```sql
 skipif sqlite
 statement ok
-SELECT 1
+SELECT 1;
 
 onlyif sqlite
 statement ok
-SELECT 1
+SELECT 1;
 
 onlyif postgres
 statement ok
-SELECT 1
+SELECT 1;
 ```
 
 ## hash-threshold: above N values → MD5 form
@@ -155,7 +155,7 @@ SELECT 1
 hash-threshold 1
 
 query I nosort
-SELECT id FROM items WHERE id IN (1, 2) ORDER BY id
+SELECT id FROM items WHERE id IN (1, 2) ORDER BY id;
 ----
 2 values hashing to 6ddb4095eb719e2a9f0a3f95677d24e0
 ```
@@ -165,8 +165,6 @@ SELECT id FROM items WHERE id IN (1, 2) ORDER BY id
 statement ok
 DROP TABLE IF EXISTS items;
 ```
-
-
 
 # PostgreSQL PL/pgSQL — requires --engine postgres
 
@@ -186,7 +184,7 @@ $$ LANGUAGE plpgsql
 
 onlyif postgres
 query I
-SELECT get_square(5)
+SELECT get_square(5);
 ----
 25
 ```
@@ -214,9 +212,11 @@ BEGIN
 END
 $$ LANGUAGE plpgsql
 
+hash-threshold 10
+
 onlyif postgres
 query I nosort
-SELECT * FROM fibonacci(13)
+SELECT * FROM fibonacci(13);
 ----
 0
 1
@@ -234,11 +234,11 @@ SELECT * FROM fibonacci(13)
 ```sql
 onlyif postgres
 statement ok
-DROP FUNCTION IF EXISTS get_square(integer)
+DROP FUNCTION IF EXISTS get_square(integer);
 
 onlyif postgres
 statement ok
-DROP FUNCTION IF EXISTS fibonacci(integer)
+DROP FUNCTION IF EXISTS fibonacci(integer);
 ```
 
 > halt: everything after is skipped
@@ -249,5 +249,5 @@ halt
 > This statement will be skipped
 ```sql
 statement ok
-INSERT INTO absent_after_halt VALUES (1)
+INSERT INTO absent_after_halt VALUES (1);
 ```
