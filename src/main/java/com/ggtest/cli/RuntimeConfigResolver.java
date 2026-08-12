@@ -213,6 +213,9 @@ public final class RuntimeConfigResolver {
         if (ENGINE_MYSQL.equals(engine)) {
             if (!lowerUrl.startsWith("jdbc:mysql:")) {
                 throw new UsageException("engine 'mysql' requires a jdbc:mysql: URL");
+            }
+            return;
+        }
         if (ENGINE_XUGU.equals(engine)) {
             if (!lowerUrl.startsWith("jdbc:xugu:")) {
                 throw new UsageException("engine 'xugu' requires a jdbc:xugu: URL");

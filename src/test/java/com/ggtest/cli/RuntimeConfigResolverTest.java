@@ -115,7 +115,7 @@ class RuntimeConfigResolverTest {
         UsageException ex = assertThrows(
                 UsageException.class,
                 () -> resolve(
-                        parsed("--url", "jdbc:sqlite::memory:", "--engine", "mysql", "a.test"),
+                        parsed("--url", "jdbc:sqlite::memory:", "--engine", "oracle", "a.test"),
                         key -> null));
         assertTrue(ex.getMessage().toLowerCase().contains("engine"));
     }
@@ -212,7 +212,7 @@ class RuntimeConfigResolverTest {
         UsageException ex = assertThrows(
                 UsageException.class,
                 () -> resolve(
-                        parsed("--url", "jdbc:sqlite::memory:", "--engine", "mysql", "a.test"),
+                        parsed("--url", "jdbc:sqlite::memory:", "--engine", "oracle", "a.test"),
                         key -> null));
         assertTrue(ex.getMessage().contains("xugu"));
     }

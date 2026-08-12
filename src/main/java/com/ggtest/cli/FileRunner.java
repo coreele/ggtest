@@ -152,16 +152,6 @@ final class FileRunner {
             }
         }
     }
-                }
-            }
-            for (Connection c : connections.values()) {
-                try {
-                    c.close();
-                } catch (SQLException ignored) {
-                }
-            }
-        }
-    }
 
     private FileOutcome processResult(FileRunResult result, String display, Path file) {
         List<String> detailLines = new ArrayList<>();
