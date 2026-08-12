@@ -138,6 +138,10 @@ final class CliSession {
      * makes the spec's {@code --halt} contract deterministic: a file is either
      * dispatched (runs to completion and is reported by its true bucket) or never
      * dispatched (not opened, not parsed, not counted) — there is no thread-grab race.
+     *
+     * <p>Status lines stream in input (sorted) order: a result is printed as soon as it
+     * is complete <em>and</em> every earlier-indexed file has already been printed, so a
+     * slow file only holds back its own line (and later ones) — not the whole report.
      */
     private int executeParallel(List<Path> files) {
         int parallelism = options.parallel();
@@ -182,8 +186,17 @@ final class CliSession {
             pending.addLast(i);
         }
 
+        int totalPassed = 0;
+        int totalFailed = 0;
+        int totalSkipped = 0;
+        int totalOverridden = 0;
+        boolean hardError = false;
+        List<String> failedPaths = new ArrayList<>();
+        FileBucket lastBucket = null;
+
         int running = 0;
         boolean halted = false;
+        int nextToPrint = 0;
 
         // Initial dispatch: fill up to `parallelism` slots.
         while (running < parallelism && !pending.isEmpty() && !halted) {
@@ -193,7 +206,8 @@ final class CliSession {
 
         // Reap completions, tripping halt on the first FAILED, and refilling only
         // while halt has not tripped. Reaping continues until every dispatched task
-        // has completed (we never cancel/interrupt running DB work).
+        // has completed (we never cancel/interrupt running DB work). After each reap,
+        // drain printable results in input order so output streams.
         while (running > 0) {
             Future<IndexedTimedOutcome> future;
             try {
@@ -223,51 +237,40 @@ final class CliSession {
                 ecs.submit(tasks.get(pending.removeFirst()));
                 running++;
             }
-        }
+            // Print every result that is now next in input order; never-dispatched
+            // files (results[i] == null) are skipped — no status line, no TOTAL count.
+            while (nextToPrint < results.length && results[nextToPrint] != null) {
+                IndexedTimedOutcome timed = results[nextToPrint];
+                String display = displays.get(nextToPrint);
+                FileOutcome outcome = timed.outcome();
+                long elapsedMs = timed.elapsedMs();
+                hardError = hardError || outcome.hardError();
+                lastBucket = outcome.bucket();
 
-        // Report collected results in input (sorted) order; never-dispatched files
-        // (results[i] == null) are skipped entirely — no status line, no TOTAL count.
-        int totalPassed = 0;
-        int totalFailed = 0;
-        int totalSkipped = 0;
-        int totalOverridden = 0;
-        boolean hardError = false;
-        List<String> failedPaths = new ArrayList<>();
-        FileBucket lastBucket = null;
-
-        for (int i = 0; i < files.size(); i++) {
-            IndexedTimedOutcome timed = results[i];
-            if (timed == null) {
-                continue;
-            }
-            String display = displays.get(i);
-            FileOutcome outcome = timed.outcome();
-            long elapsedMs = timed.elapsedMs();
-            hardError = hardError || outcome.hardError();
-            lastBucket = outcome.bucket();
-
-            switch (outcome.bucket()) {
-                case PASSED -> {
-                    reportWriter.printStatusLine(display, pathWidth, style.passedTag(), elapsedMs, true);
-                    totalPassed++;
-                }
-                case SKIPPED -> {
-                    reportWriter.printStatusLine(display, pathWidth, style.skippedTag(), elapsedMs, false);
-                    totalSkipped++;
-                }
-                case OVERRIDDEN -> {
-                    reportWriter.printStatusLine(display, pathWidth, style.overriddenTag(), elapsedMs, true);
-                    totalOverridden++;
-                }
-                case FAILED -> {
-                    reportWriter.printStatusLine(display, pathWidth, style.failedTag(), elapsedMs, true);
-                    for (String blockLine : outcome.detailLines()) {
-                        out.println(blockLine);
+                switch (outcome.bucket()) {
+                    case PASSED -> {
+                        reportWriter.printStatusLine(display, pathWidth, style.passedTag(), elapsedMs, true);
+                        totalPassed++;
                     }
-                    out.println();
-                    failedPaths.add(display);
-                    totalFailed++;
+                    case SKIPPED -> {
+                        reportWriter.printStatusLine(display, pathWidth, style.skippedTag(), elapsedMs, false);
+                        totalSkipped++;
+                    }
+                    case OVERRIDDEN -> {
+                        reportWriter.printStatusLine(display, pathWidth, style.overriddenTag(), elapsedMs, true);
+                        totalOverridden++;
+                    }
+                    case FAILED -> {
+                        reportWriter.printStatusLine(display, pathWidth, style.failedTag(), elapsedMs, true);
+                        for (String blockLine : outcome.detailLines()) {
+                            out.println(blockLine);
+                        }
+                        out.println();
+                        failedPaths.add(display);
+                        totalFailed++;
+                    }
                 }
+                nextToPrint++;
             }
         }
 

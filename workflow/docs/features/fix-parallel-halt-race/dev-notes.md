@@ -52,3 +52,11 @@ trade-off：触发器由断言失败变为 hard error（parse），退出码 1 �
 - `mvn -q compile`：通过。
 - 目标用例连跑 5/5 通过（见 qa-report.md V1）。
 - `mvn test` 全量 343 通过 / 0 失败 / 0 错误（V2）。
+
+## 重构（QA 后用户实测反馈）：恢复按序流式输出
+
+**问题：** Design v1.0/v1.1 决策 3 采用「end-dump」（全部完成后按序一次性输出）。用户在源分支实测 `--parallel 10 ./sqllogictest/test/`（622 文件 / 1.1G）时报告「为什么要等运行完了一起输出」。QA 第 1 轮遗漏此点——测试以 `Main.run` 返回后捕获整段 stdout，流式与否对单测不可观察。
+
+**修订（Design v1.2 决策 3 → in-order streaming）：** 引入 `int nextToPrint` 指针 + `IndexedTimedOutcome[] results` 滑窗；收割到任一结果后，`while (nextToPrint < len && results[nextToPrint] != null)` 立即打印并推进。一个慢文件只暂阻塞它自身及后续的打印（执行仍并行），不再整批等待。halt-skip 与 P1-1 顺序不变。
+
+**验证：** `./sqllogictest/test/evidence/`（12 文件）`--parallel 4` 实测，status line 按完成+顺序在 +262ms/+266ms/+270ms… 陆续出现（非末尾一次性），首批慢文件完成后快文件立即流式。目标用例仍 5/5；全量 343/0/0。

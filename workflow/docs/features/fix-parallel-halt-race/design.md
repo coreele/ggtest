@@ -35,14 +35,17 @@
 
 **决策:** 选 A。`halted` 只用于「停止派发新文件」，绝不去取消/中断已分派任务。收割循环继续 `take()` 直到 `running == 0`，把仍运行任务的完成结果一并按真实桶报告。
 
-### 决策 3: 输出顺序——缓冲后按输入顺序输出
+### 决策 3: 输出顺序——按序流式（in-order streaming）
 
 | 方案 | 概要 | 优点 | 缺点 | 比较依据 |
 |---|---|---|---|---|
-| A | 完成（含 halt）后，按输入（排序后）索引顺序遍历；仅有结果的文件输出 status line + error block；未分派的文件跳过 | 严格满足 P1-1（输入顺序）；与顺序路径输出格式一致；与 `add-parallel-execution/design.md` 决策 4「聚合后按序输出」吻合 | 全部完成后才统一输出（非流式） | 测试在 `Main.run` 返回后捕获整段 stdout，流式与否不可观察；聚合输出更贴合 spec 原意 |
-| B | 完成即输出（completion 顺序） | 早出结果 | 违反 P1-1（完成顺序 ≠ 输入顺序） | 不满足 |
+| A | 按序流式：结果按输入索引存入滑窗缓冲；每当「下一个待打印索引」已有结果就立即打印并推进 | 严格满足 P1-1（输入顺序）；**流式**——大语料下文件一完成即可见进度（仅被尚未完成的更早索引暂时阻塞）；与原 `submitAll + 按序 get()` 的 UX 一致 | 一个慢文件会暂阻塞它及后续的打印（但仍并行执行，只是输出等待） | spec 要求输入顺序；真实大语料（`./sqllogictest/test/`，622 文件）需要可见进度 |
+| B | 全部完成后一次性按序输出（end-dump） | 实现略简 | **大语料下全程无输出直到结束**——UX 倒退；用户实测 `--parallel 10 ./sqllogictest/test/` 时即报告此问题 | 不可接受 |
+| C | 完成即输出（completion 顺序） | 早出结果 | 违反 P1-1（完成顺序 ≠ 输入顺序） | 不满足 |
 
-**决策:** 选 A。`Map<Integer, TimedFileOutcome>`（或数组）按输入索引存结果；收割结束后按索引升序输出已执行文件，未执行文件不出现在 stdout、不计入 TOTAL——与 spec P1-2「未执行文件不在 stdout」一致。Error section / TOTAL 逻辑复用现有 `reportWriter`，仅数据源从「按序 get()」改为「按序遍历结果容器」。
+**决策:** 选 A（in-order streaming）。`IndexedTimedOutcome[] results`（按输入索引）+ `int nextToPrint` 指针；收割到任一结果后，执行 `while (results[nextToPrint] != null) { 打印; nextToPrint++; }`——把「已完成且前面都已打印」的结果立即输出。未分派文件（`results[i]==null`）永不打印、不计入 TOTAL（满足 spec P1-2）。Error section / TOTAL 仍在所有 status line 之后输出。
+
+> 取代 Design v1.0/v1.1 决策 3 的方案「end-dump」。修订起因：用户在源分支实测 `--parallel 10 ./sqllogictest/test/` 发现全程无输出（QA 第 1 轮遗漏——测试以 `Main.run` 返回后捕获整段 stdout，流式与否对测试不可观察，故未被发现）。in-order streaming 恢复原 `submitAll` 路径的流式 UX，同时保留按序与 halt-skip 正确性。
 
 ### 决策 4: ParallelExecutor 接口调整
 
