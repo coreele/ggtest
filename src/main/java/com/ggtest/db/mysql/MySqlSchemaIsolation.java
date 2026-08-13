@@ -1,11 +1,10 @@
 package com.ggtest.db.mysql;
 
+import com.ggtest.db.SchemaNames;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Locale;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Per-file schema isolation helpers for MySQL.
@@ -20,7 +19,7 @@ public final class MySqlSchemaIsolation {
 
     public static String prepare(Connection connection) throws SQLException {
         Objects.requireNonNull(connection, "connection");
-        String schema = "ggtest_" + UUID.randomUUID().toString().replace("-", "").toLowerCase(Locale.ROOT);
+        String schema = SchemaNames.generate();
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE SCHEMA IF NOT EXISTS " + schema);
             statement.execute("USE " + schema);
@@ -28,26 +27,27 @@ public final class MySqlSchemaIsolation {
         return schema;
     }
 
+    /**
+     * @throws SQLException when DROP SCHEMA fails, or if {@code schema} is not a
+     *     safe identifier
+     */
     public static void teardown(Connection connection, String schema) throws SQLException {
         Objects.requireNonNull(connection, "connection");
-        Objects.requireNonNull(schema, "schema");
-        if (!isSafeIdentifier(schema)) {
-            throw new SQLException("refusing to drop unsafe schema name");
-        }
+        SchemaNames.requireSafe(schema);
         try (Statement statement = connection.createStatement()) {
             statement.execute("DROP SCHEMA IF EXISTS " + schema);
         }
     }
 
+    /**
+     * @throws SQLException when USE fails, or if {@code schema} is not a safe
+     *     identifier
+     */
     public static void setSearchPath(Connection connection, String schema) throws SQLException {
         Objects.requireNonNull(connection, "connection");
-        Objects.requireNonNull(schema, "schema");
+        SchemaNames.requireSafe(schema);
         try (Statement statement = connection.createStatement()) {
             statement.execute("USE " + schema);
         }
-    }
-
-    private static boolean isSafeIdentifier(String name) {
-        return name.matches("[a-z][a-z0-9_]*");
     }
 }

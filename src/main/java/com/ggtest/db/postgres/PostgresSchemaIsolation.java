@@ -1,11 +1,10 @@
 package com.ggtest.db.postgres;
 
+import com.ggtest.db.SchemaNames;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Locale;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Per-file schema isolation helpers for PostgreSQL.
@@ -26,7 +25,7 @@ public final class PostgresSchemaIsolation {
      */
     public static String prepare(Connection connection) throws SQLException {
         Objects.requireNonNull(connection, "connection");
-        String schema = "ggtest_" + UUID.randomUUID().toString().replace("-", "").toLowerCase(Locale.ROOT);
+        String schema = SchemaNames.generate();
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE SCHEMA " + schema);
             statement.execute("SET search_path TO " + schema + ", pg_catalog");
@@ -37,14 +36,12 @@ public final class PostgresSchemaIsolation {
     /**
      * Drops the isolation schema and all objects created inside it.
      *
-     * @throws SQLException when DROP SCHEMA fails
+     * @throws SQLException when DROP SCHEMA fails, or if {@code schema} is not a
+     *     safe identifier
      */
     public static void teardown(Connection connection, String schema) throws SQLException {
         Objects.requireNonNull(connection, "connection");
-        Objects.requireNonNull(schema, "schema");
-        if (!isSafeIdentifier(schema)) {
-            throw new SQLException("refusing to drop unsafe schema name");
-        }
+        SchemaNames.requireSafe(schema);
         try (Statement statement = connection.createStatement()) {
             statement.execute("DROP SCHEMA IF EXISTS " + schema + " CASCADE");
         }
@@ -54,17 +51,14 @@ public final class PostgresSchemaIsolation {
      * Points an existing connection to an already-created isolation schema.
      * Used for additional connections in multi-connection (conn=<name>) mode.
      *
-     * @throws SQLException when SET search_path fails
+     * @throws SQLException when SET search_path fails, or if {@code schema} is
+     *     not a safe identifier
      */
     public static void setSearchPath(Connection connection, String schema) throws SQLException {
         Objects.requireNonNull(connection, "connection");
-        Objects.requireNonNull(schema, "schema");
+        SchemaNames.requireSafe(schema);
         try (Statement statement = connection.createStatement()) {
             statement.execute("SET search_path TO " + schema + ", pg_catalog");
         }
-    }
-
-    private static boolean isSafeIdentifier(String name) {
-        return name.matches("[a-z][a-z0-9_]*");
     }
 }
