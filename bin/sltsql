@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""Convert a sqllogictest (.slt / .test) file to plain SQL (.sql).
+
+Extracts only the SQL body of every `statement` and `query` record. Drops
+directives (`skipif` / `onlyif` / `hash-threshold` / `halt`), `#` comments,
+record headers, and query expected-result blocks. Each statement is emitted
+terminated by `;` and separated by a blank line.
+
+Usage:
+  sltsql <file.slt>          # print SQL to stdout
+  cat file.slt | sltsql      # read from stdin
+"""
+import sys
+
+RECORD_STARTS = ("statement", "query", "skipif", "onlyif", "hash-threshold", "halt")
+
+
+def convert_slt_to_sql(slt_content: str) -> str:
+    lines = slt_content.splitlines()
+    out = []
+    i = 0
+    n = len(lines)
+
+    while i < n:
+        line = lines[i]
+        stripped = line.strip()
+
+        # blank line or full-line comment -> skip
+        if not stripped or stripped.startswith("#"):
+            i += 1
+            continue
+
+        first = stripped.split()[0]
+        if first not in RECORD_STARTS:
+            i += 1
+            continue
+
+        if first in ("skipif", "onlyif", "hash-threshold", "halt"):
+            i += 1
+            continue
+
+        # statement / query: collect the SQL body (may span multiple lines).
+        i += 1
+        body = []
+        while i < n:
+            cur = lines[i]
+            cur_stripped = cur.strip()
+            if not cur_stripped or cur_stripped.startswith("#"):
+                break
+            if first == "query" and cur_stripped.startswith("----"):
+                # drop the ---- separator and its expected-result block
+                i += 1
+                while i < n and lines[i].strip() and not lines[i].strip().startswith("#"):
+                    i += 1
+                break
+            if cur_stripped.split()[0] in RECORD_STARTS:
+                break  # next record follows without a blank separator
+            body.append(cur)
+            i += 1
+
+        sql = "\n".join(body).strip()
+        if not sql:
+            continue
+        if not sql.endswith(";"):
+            sql += ";"
+        out.append(sql)
+
+    return "\n\n".join(out) + ("\n" if out else "")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        with open(sys.argv[1], encoding="utf-8") as f:
+            content = f.read()
+    else:
+        content = sys.stdin.read()
+    print(convert_slt_to_sql(content), end="")

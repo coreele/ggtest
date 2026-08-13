@@ -1,0 +1,164 @@
+#!/usr/bin/env python3
+"""Convert a plain SQL (.sql) file to sqllogictest (.slt).
+
+Each SQL statement becomes a record:
+
+  - non-query statements  -> `statement ok` + SQL;
+  - row-returning SQL     -> `query T` + SQL + `----` (empty expected block).
+
+Statements are classified as queries when they begin with SELECT / VALUES /
+WITH / SHOW / EXPLAIN / PRAGMA / DESCRIBE (case-insensitive). The `T` type
+signature and empty expected block are placeholders: run
+
+    ggtest --override <file.slt>
+
+to fill the actual result (adjust the type signature and sort mode manually
+for multi-column or ordered results).
+
+Usage:
+  sqlslt <file.sql>          # print SLT to stdout
+  cat file.sql | sqlslt      # read from stdin
+"""
+import re
+import sys
+
+QUERY_KEYWORDS = ("select", "values", "with", "show", "explain", "pragma",
+                  "describe", "desc")
+
+
+def split_sql_statements(sql_content: str):
+    """Yield complete SQL statements, splitting on ';' outside strings/comments."""
+    stmts = []
+    buf = []
+    i = 0
+    n = len(sql_content)
+
+    while i < n:
+        c = sql_content[i]
+
+        # -- line comment
+        if c == "-" and i + 1 < n and sql_content[i + 1] == "-":
+            j = sql_content.find("\n", i)
+            end = n if j < 0 else j
+            buf.append(sql_content[i:end])
+            i = end
+            continue
+
+        # /* block comment */
+        if c == "/" and i + 1 < n and sql_content[i + 1] == "*":
+            j = sql_content.find("*/", i + 2)
+            end = n if j < 0 else j + 2
+            buf.append(sql_content[i:end])
+            i = end
+            continue
+
+        # 'single-quoted' string ('' escape)
+        if c == "'":
+            j = i + 1
+            while j < n:
+                if sql_content[j] == "'":
+                    if j + 1 < n and sql_content[j + 1] == "'":
+                        j += 2
+                        continue
+                    j += 1
+                    break
+                j += 1
+            buf.append(sql_content[i:j])
+            i = j
+            continue
+
+        # "double-quoted" identifier ("" escape)
+        if c == '"':
+            j = i + 1
+            while j < n:
+                if sql_content[j] == '"':
+                    if j + 1 < n and sql_content[j + 1] == '"':
+                        j += 2
+                        continue
+                    j += 1
+                    break
+                j += 1
+            buf.append(sql_content[i:j])
+            i = j
+            continue
+
+        # $tag$ ... $tag$ dollar-quoted string (PostgreSQL)
+        if c == "$":
+            j = i + 1
+            while j < n and (sql_content[j].isalnum() or sql_content[j] == "_"):
+                j += 1
+            if j < n and sql_content[j] == "$":
+                tag = sql_content[i:j + 1]
+                k = sql_content.find(tag, j + 1)
+                end = n if k < 0 else k + len(tag)
+                buf.append(sql_content[i:end])
+                i = end
+                continue
+
+        # statement terminator
+        if c == ";":
+            stmt = "".join(buf).strip()
+            if stmt and stmt != ";":
+                stmts.append(stmt)
+            buf = []
+            i += 1
+            continue
+
+        buf.append(c)
+        i += 1
+
+    tail = "".join(buf).strip()
+    if tail and tail != ";":
+        stmts.append(tail)
+    return stmts
+
+
+def first_keyword(stmt: str) -> str:
+    """Return the first SQL keyword, skipping leading whitespace and comments."""
+    text = stmt
+    while True:
+        text = text.lstrip()
+        if text.startswith("--"):
+            idx = text.find("\n")
+            if idx < 0:
+                return ""
+            text = text[idx + 1:]
+            continue
+        if text.startswith("/*"):
+            idx = text.find("*/")
+            if idx < 0:
+                return ""
+            text = text[idx + 2:]
+            continue
+        break
+    m = re.match(r"[A-Za-z_]+", text)
+    return m.group(0).lower() if m else ""
+
+
+def convert_sql_to_slt(sql_content: str) -> str:
+    out = []
+    for stmt in split_sql_statements(sql_content):
+        s = stmt.strip()
+        if not s:
+            continue
+        if not s.endswith(";"):
+            s += ";"
+        if first_keyword(s) in QUERY_KEYWORDS:
+            out.append("query T")
+            out.append(s)
+            out.append("----")
+            out.append("")
+        else:
+            out.append("statement ok")
+            out.append(s)
+            out.append("")
+    return "\n".join(out)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        with open(sys.argv[1], encoding="utf-8") as f:
+            content = f.read()
+    else:
+        content = sys.stdin.read()
+    print(convert_sql_to_slt(content), end="")
