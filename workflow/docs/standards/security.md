@@ -60,7 +60,7 @@
 
 安全验证的范围与结论必须记录在以下之一：
 
-- **Review 报告** — 对应切片目录的 `review.md`，当 Reviewer 执行安全影响检查时；
-- **QA 报告** — 对应切片目录的 `qa-report.md`，当 QA 执行安全相关验收时。
+- **Review 报告** — `workflow/docs/features/<feature-id>/review.md`，当 Reviewer 执行安全影响检查时；
+- **QA 报告** — `workflow/docs/features/<feature-id>/qa-report.md`，当 QA 执行安全相关验收时。
 
 记录须包含：检查范围、发现项（如有）、处置状态、是否允许继续合并。

@@ -1,12 +1,12 @@
 ---
 name: design-ui
 description: >-
-  Writes UI/UX design decisions to workflow/docs/features/.../ui-design.md for slices
-  with user-facing screens, flows, or interactive surfaces. Invoked by Planner
-  after Spec is satisfied and before Plan when the scope includes UI/UX.
-  Skip for backend-only, API-only, docs-only, or fast copy/CSS tweaks with no
-  layout or information-architecture decisions. Do not use for module boundaries
-  or tech stack (that is design-architecture / design.md).
+  Writes UI/UX design decisions to workflow/docs/features/.../ui-design.md for
+  work items with user-facing screens, flows, or interactive surfaces. Invoked
+  by Planner after Spec is satisfied and before Plan when the scope includes
+  UI/UX. Skip for backend-only, API-only, docs-only, or fast copy/CSS tweaks
+  with no layout or information-architecture decisions. Do not use for module
+  boundaries or tech stack (that is design-architecture / design.md).
 ---
 
 # design-ui — 界面与交互设计
@@ -16,15 +16,14 @@ description: >-
 - 调用者：Planner。
 - **不是**新门禁：无 STATUS 字段；按范围按需调用。
 - 执行时机：Spec 门禁已满足后、Plan 编写前。可与 `design-architecture` 并行或先后（二者互不替代）。
-- 下文「切片目录」：未拆分为 `workflow/docs/features/<feature-id>/`；已拆分为 `workflow/docs/features/<feature-id>/<feature-id>-<sub-feature-id>/`。
 
 **输入：**
 
 - `workflow/docs/manager/<feature-id>.md`
-- 对应切片 Spec（若有）：`<切片目录>/spec.md`（必要时并读总览）
+- Spec（若有）：`workflow/docs/features/<feature-id>/spec.md`
 - 仓库既有设计系统、组件库、品牌或布局约定（若有）
 
-**产出：** `<切片目录>/ui-design.md`（模板 `workflow/docs/_templates/ui-design.md`）
+**产出：** `workflow/docs/features/<feature-id>/ui-design.md`（模板 `workflow/docs/_templates/ui-design.md`）
 
 ## 何时调用 / 跳过
 
@@ -70,4 +69,4 @@ Git：源分支已声明则按 `workflow/docs/standards/git.md` 在源分支提�
 
 ## 后续
 
-返回 Planner。Planner 在同一切片编写 `plan.md` 时必须引用本文件（若已产出），并将界面任务与验证落到 Plan，不得整份复述 UI 稿。
+返回 Planner。Planner 在同一目录编写 `plan.md` 时必须引用本文件（若已产出），并将界面任务与验证落到 Plan，不得整份复述 UI 稿。

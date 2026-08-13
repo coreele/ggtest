@@ -2,8 +2,7 @@
 name: write-spec
 description: >-
   Writes requirements and behavioral specs to
-  workflow/docs/features/<feature-id>/spec.md (unsplit) or
-  workflow/docs/features/<feature-id>/<feature-id>-<sub-feature-id>/spec.md (split).
+  workflow/docs/features/<feature-id>/spec.md.
   Invoked by Analyst when Spec gate requires it, scheduled by Manager after
   work item registration and before /planner. Use when Spec gate requires it,
   path is full/standard with unclear contracts, or user asks for 规格/spec.
@@ -15,14 +14,11 @@ description: >-
 ## 调用者与门禁
 
 - 调用者：Analyst。
-- 调用条件：工作项记录中对应 `(feature-id, sub-feature-id)` 的 Spec 门禁为 `required`。
+- 调用条件：工作项记录中对应 `feature-id` 的 Spec 门禁为 `required`。
 - 执行时机：Manager 登记工作项后、Planner 开始 Design 或 Plan 前。
-- 产出：
-  - 未拆分：`workflow/docs/features/<feature-id>/spec.md`（此时 `sub-feature-id` = `feature-id`，无需子目录）；
-  - 已拆分：总览 `workflow/docs/features/<feature-id>/spec.md` 与/或切片 `workflow/docs/features/<feature-id>/<feature-id>-<sub-feature-id>/spec.md`；
-  - 模板：`workflow/docs/_templates/spec.md`。
+- 产出：`workflow/docs/features/<feature-id>/spec.md`（模板 `workflow/docs/_templates/spec.md`）。
 
-本 Skill 仅定义需求与规格。实施任务拆分属于 Planner 的 `plan.md`（写在同一切片目录）。
+本 Skill 仅定义需求与规格。实施任务拆分属于 Planner 的 `plan.md`（写在同一目录）。
 
 ## 适用条件
 
@@ -36,7 +32,7 @@ description: >-
 
 ## 必含内容
 
-每份 Spec 必须包含背景与目标、非目标、范围与可见行为、合同、验收条件和开放问题。合同必须覆盖适用的 API、数据、状态和错误约定；不适用时标记 `N/A`。验收条件使用 Given-When-Then，并标记 P0 或 P1。总览索引 Spec 可将合同与验收标为 `N/A` 并指向子 Spec。
+每份 Spec 必须包含背景与目标、非目标、范围与可见行为、合同、验收条件和开放问题。合同必须覆盖适用的 API、数据、状态和错误约定；不适用时标记 `N/A`。验收条件使用 Given-When-Then，并标记 P0 或 P1。
 
 每条 P0 必须可验证。
 
@@ -48,9 +44,9 @@ description: >-
 
 ## 执行与交接
 
-1. 确认 `<feature-id>`、`<sub-feature-id>` 与 Spec 门禁。
+1. 确认 `<feature-id>` 与 Spec 门禁。
 2. 完成调研，编写对应 Spec 文件，并依据必含内容自检。
-3. Git：若该切片源分支已声明，按 `workflow/docs/standards/git.md` 在源分支提交；尚未声明则可将文件留在工作区并报告 Manager。非 Git 跳过提交。
+3. Git：若源分支已声明，按 `workflow/docs/standards/git.md` 在源分支提交；尚未声明则可将文件留在工作区并报告 Manager。非 Git 跳过提交。
 4. 向 Manager 报告产出路径、验证结果和用户确认要求后**立即返回**（不得阻塞等待确认）。状态建议为 `speccing`；需要确认时建议进入 `awaiting-spec-approval`。
 
 Manager 随后调度 Planner。Design 门禁为 `required` 时调用 `design-architecture`；范围含界面且需 UI/UX 决策时调用 `design-ui`；否则可直接进入 Plan。Manager 不得执行上述 Design skill。

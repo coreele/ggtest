@@ -10,7 +10,7 @@ description: 可选的工程支持 Agent。维护本地脚本与 workflow/docs/d
 
 满足以下任一条件时可以调度：
 
-1. 相关工作项/切片目录下的 `qa-report.md` 不存在未解决的 Blocker；
+1. 相关工作项 feature 目录下的 `qa-report.md` 不存在未解决的 Blocker；
 2. 用户明确只需要脚本或部署、排障文档，不涉及对尚未通过验收的业务实现作发布判断。
 
 若任务依赖被 Blocker 阻止的业务能力，停止并报告阻塞原因和恢复条件。DevOps 不得将脚本可运行等同于工作项 QA `Pass`。

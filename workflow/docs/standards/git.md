@@ -19,22 +19,20 @@
 1. Manager 在调度 Developer 前，于工作项记录填写 **目标分支**（默认 `main`）与 **源分支**（拟创建的工作分支名）；
 2. Developer 自目标分支创建并检出源分支；若源分支已存在则检出并确认基于正确目标；
 3. 全部实现、修复、相关文档与**工作流关闭后的 STATUS/`done` 更新**均发生在该源分支上；
-4. QA `Pass` 且用户明确授权后，Manager 在源分支将状态置为 `done`，并将尚未入库的 `review.md` / `qa-report.md` 与 STATUS/工作项记录**一次提交**；随后由 Merge Executor 或 GitHub PR 将源分支合入目标分支。合入后不得再为 STATUS 或报告单独提交。
+4. QA `Pass` 且用户授权合并后，Manager 在源分支置 `done`（与未入库的 `review.md` / `qa-report.md` 一次提交，细则见 §1.4），再由 Merge Executor / PR 合入；合入后不再为 STATUS 或报告单独提交。
 
-已拆分为 `(feature-id, sub-feature-id)` 时：每个进入实施的切片使用**独立**工作分支，不得多个切片共用同一功能分支，也不得与其他工作项共用。
+每个工作项使用**独立**工作分支，不得与其他工作项共用。
 
 ### 1.2 命名
 
-分支名称须包含工作项标识；有切片时须包含 `sub-feature-id`：
+分支名称须包含工作项标识：
 
 ```text
 <feature-id>
 <feature-id>-<简短描述>
-<feature-id>-<sub-feature-id>
-<feature-id>-<sub-feature-id>-<简短描述>
 ```
 
-示例：`ggtest-core-parser`、`ggtest-core-normalize`。
+示例：`fix-ca019-cli-dash-values`、`xugu-engine`。
 
 ### 1.3 职责划分
 
@@ -43,7 +41,7 @@
 | Manager | 登记时或调度 Developer 前声明目标分支与源分支名；用户授权合并后在**源分支**将状态置 `done`，并与未入库的 `review.md` / `qa-report.md` **一次提交** |
 | Developer | 创建/检出工作分支后方可实施；禁止在受保护分支上直接提交实现 |
 | Merge Executor | 仅在授权且 STATUS 已为 `done` 后合并源分支 → 目标分支（或用户经 GitHub 合并）；不负责改 STATUS |
-| Reviewer / QA | 将 `review.md` / `qa-report.md` 写入切片目录；**不负责**对这些报告做 Git 提交（交由 Manager 按时机提交） |
+| Reviewer / QA | 将 `review.md` / `qa-report.md` 写入 `features/<feature-id>/`；**不负责**对这些报告做 Git 提交（交由 Manager 按时机提交） |
 
 ### 1.4 Review / QA 报告的提交时机
 
@@ -103,15 +101,7 @@
 
 ## 4. 合并前置条件
 
-执行合并前须同时满足：
-
-| 条件 | 说明 |
-|---|---|
-| Plan 确认 | 用户已确认对应 Plan |
-| 适用的 Review | Review 门禁为 `required` 时须取得 Approve |
-| QA Pass | QA 验收结论为 Pass |
-| 分支确认 | 源分支与目标分支已明确并在工作项记录中声明；实现位于源分支而非目标受保护分支 |
-| 用户明确授权 | 当前用户会话已授权合并；Manager 已在源分支将状态置为 `done`（含未入库的 `review.md` / `qa-report.md` 一次提交） |
+合并门禁（QA Pass、用户授权、分支合规等）以 [`workflow/README.md`](../../README.md#merge) §Merge 为准；本规范仅补充 Git 机制：合入策略见 §6（rebase + FF），受保护分支见 §5，报告提交时机见 §1.4。
 
 任一条件未满足时，Merge Executor 不得执行合并。
 

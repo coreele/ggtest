@@ -1,4 +1,4 @@
-# Dev Notes: <feature-id>[ / <sub-feature-id>]
+# Dev Notes: <feature-id>
 
 ## 实现摘要
 

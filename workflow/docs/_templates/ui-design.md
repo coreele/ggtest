@@ -1,4 +1,4 @@
-# UI Design: <feature-id>[ / <sub-feature-id>]
+# UI Design: <feature-id>
 
 ## 背景与范围
 

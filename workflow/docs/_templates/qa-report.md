@@ -1,4 +1,4 @@
-# QA Report: <feature-id>[ / <sub-feature-id>]
+# QA Report: <feature-id>
 
 ## 轮次
 

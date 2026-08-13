@@ -177,12 +177,7 @@ QA Fail → Manager: qa → developing → Developer 修复（更新 dev-notes.m
 
 当前用户会话是唯一用户交互入口。Manager 从持久化文档恢复状态，不得依赖其他角色会话记忆。
 
-**编排：** Manager 默认连续推进，仅在以下两处回到用户会话：
-
-1. Spec 确认（`full`，或 `standard` 存在业务歧义时）；
-2. QA Pass 后的合并授权。
-
-Spec 确认 ≠ 合并授权；二者独立。其余阶段（Design / Plan / Developer / Review / QA）无需用户确认即可推进。
+**编排：** Manager 默认按状态机连续推进；用户确认门禁见「不得自动越过的用户确认」（仅 Spec 与合并）。
 
 Manager 返回格式：
 

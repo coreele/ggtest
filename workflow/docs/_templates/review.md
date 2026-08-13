@@ -1,4 +1,4 @@
-# Review: <feature-id>[ / <sub-feature-id>]
+# Review: <feature-id>
 
 ## 审阅范围
 

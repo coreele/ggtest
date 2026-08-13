@@ -1,4 +1,4 @@
-# Design: <feature-id>[ / <sub-feature-id>]
+# Design: <feature-id>
 
 ## 背景与约束
 

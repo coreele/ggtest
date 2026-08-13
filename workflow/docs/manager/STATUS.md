@@ -37,7 +37,7 @@
 | add-build-plugins | jacoco + spotbugs + dependency-check | done | fast | skipped | — | [workflow/docs/features/add-build-plugins/](../features/add-build-plugins/) |
 | fix-parallel-halt-race | `--parallel --halt` 并发竞态，确定化跳过未分派文件；恢复按序流式输出 | done | standard | skipped | — | [workflow/docs/features/fix-parallel-halt-race/](../features/fix-parallel-halt-race/) |
 | add-trace-flag | `--trace` 执行 SQL 时打印到 stderr | done | standard | skipped | — | [workflow/docs/features/add-trace-flag/](../features/add-trace-flag/) |
-| mysql-engine | MySQL 数据库引擎 `--engine mysql` + schema 隔离 | speccing | full | required | 用户确认 Spec | [workflow/docs/features/mysql-engine/](../features/mysql-engine/) |
+| mysql-engine | MySQL 数据库引擎 `--engine mysql` + schema 隔离 | awaiting-spec-approval | full | required | 用户确认 Spec | [workflow/docs/features/mysql-engine/](../features/mysql-engine/) |
 | fix-ca017-override-atomic-move | 修复 `OverrideWriter.writeAtomically` 原子移动回退死代码（CA-017） | done | fast | skipped | — | [workflow/docs/features/fix-ca017-override-atomic-move/](../features/fix-ca017-override-atomic-move/) |
 | fix-ca018-search-path-validation | setSearchPath 标识符校验 + 抽取 SchemaNames（CA-018） | done | fast | skipped | — | [workflow/docs/features/fix-ca018-search-path-validation/](../features/fix-ca018-search-path-validation/) |
 | fix-ca019-cli-dash-values | CLI 允许以 `-` 开头的值（CA-019） | done | fast | skipped | — | [workflow/docs/features/fix-ca019-cli-dash-values/](../features/fix-ca019-cli-dash-values/) |
@@ -49,31 +49,31 @@
 
 归档根目录：[`workflow/docs/archive/YYYY/`](../archive/)。「目录」列直接链接各工作项的 `workflow/docs/archive/YYYY/<feature-id>/manager.md`（同目录另含原 features 产物，若有）。
 
-| feature-id | sub-feature-id | 最终状态 | 目录 |
-|---|---|---|---|
-| add-jacoco-coverage | add-jacoco-coverage | done（经 `add-build-plugins` 合并交付，commit `257b7d8`） | [workflow/docs/archive/2026/add-jacoco-coverage/manager.md](../archive/2026/add-jacoco-coverage/manager.md) |
-| add-spotbugs-analysis | add-spotbugs-analysis | done（经 `add-build-plugins` 合并交付，commit `257b7d8`） | [workflow/docs/archive/2026/add-spotbugs-analysis/manager.md](../archive/2026/add-spotbugs-analysis/manager.md) |
-| add-dependency-check | add-dependency-check | done（经 `add-build-plugins` 合并交付，commit `257b7d8`） | [workflow/docs/archive/2026/add-dependency-check/manager.md](../archive/2026/add-dependency-check/manager.md) |
-| add-ci-workflow | add-ci-workflow | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/add-ci-workflow/manager.md](../archive/2026/add-ci-workflow/manager.md) |
-| fix-normalize-integer-float | fix-normalize-integer-float | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-normalize-integer-float/manager.md](../archive/2026/fix-normalize-integer-float/manager.md) |
-| fix-onlyif-skipif-hash-comments | fix-onlyif-skipif-hash-comments | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-onlyif-skipif-hash-comments/manager.md](../archive/2026/fix-onlyif-skipif-hash-comments/manager.md) |
-| architecture-overview | architecture-overview | cancelled（用户舍弃；草稿已删；工作项记录已归档） | [workflow/docs/archive/2026/architecture-overview/manager.md](../archive/2026/architecture-overview/manager.md) |
-| fix-aggfunc-sum-overflow | fix-aggfunc-sum-overflow | cancelled（非 harness 设计缺陷；SQLite sum 溢出语义 vs JDBC/引擎错误形态；无需修复；已归档） | [workflow/docs/archive/2026/fix-aggfunc-sum-overflow/manager.md](../archive/2026/fix-aggfunc-sum-overflow/manager.md) |
-| fix-aggfunc-total-precision | fix-aggfunc-total-precision | cancelled / wontfix（已知限制：极端量级 R 的 String.format vs sqlite3_snprintf；不移植 float printf、不改语料；已归档） | [workflow/docs/archive/2026/fix-aggfunc-total-precision/manager.md](../archive/2026/fix-aggfunc-total-precision/manager.md) |
-| fix-rowwise-value-per-line-compat | fix-rowwise-value-per-line-compat | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-rowwise-value-per-line-compat/manager.md](../archive/2026/fix-rowwise-value-per-line-compat/manager.md) |
-| ggtest-pg | ggtest-pg | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/ggtest-pg/manager.md](../archive/2026/ggtest-pg/manager.md) |
-| fix-shared-defaults | fix-shared-defaults | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-shared-defaults/manager.md](../archive/2026/fix-shared-defaults/manager.md) |
-| fix-jdbc-executor-dedup | fix-jdbc-executor-dedup | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-jdbc-executor-dedup/manager.md](../archive/2026/fix-jdbc-executor-dedup/manager.md) |
-| fix-cli-credential-redaction | fix-cli-credential-redaction | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-cli-credential-redaction/manager.md](../archive/2026/fix-cli-credential-redaction/manager.md) |
-| fix-pg-teardown-once | fix-pg-teardown-once | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-pg-teardown-once/manager.md](../archive/2026/fix-pg-teardown-once/manager.md) |
-| refactor-cli-session-boundaries | refactor-cli-session-boundaries | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/refactor-cli-session-boundaries/manager.md](../archive/2026/refactor-cli-session-boundaries/manager.md) |
-| ggtest-core | ggtest-core（含 parser/normalize/runner-sqlite/cli-corpus 四切片） | done（父项归档；四切片均 done 且已合入 `main`） | [workflow/docs/archive/2026/ggtest-core/manager.md](../archive/2026/ggtest-core/manager.md) |
-| ggtest-cli-report | ggtest-cli-report | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/ggtest-cli-report/manager.md](../archive/2026/ggtest-cli-report/manager.md) |
-| ggtest-rowwise-expected | ggtest-rowwise-expected | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/ggtest-rowwise-expected/manager.md](../archive/2026/ggtest-rowwise-expected/manager.md) |
-| feat-override-results | feat-override-results | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/feat-override-results/manager.md](../archive/2026/feat-override-results/manager.md) |
-| chore-maven-compiler-release | chore-maven-compiler-release | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/chore-maven-compiler-release/manager.md](../archive/2026/chore-maven-compiler-release/manager.md) |
-| improve-multi-failure-report | improve-multi-failure-report | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/improve-multi-failure-report/manager.md](../archive/2026/improve-multi-failure-report/manager.md) |
-| chore-audit-tails | chore-audit-tails | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/chore-audit-tails/manager.md](../archive/2026/chore-audit-tails/manager.md) |
-| feat-cli-halt | feat-cli-halt | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/feat-cli-halt/manager.md](../archive/2026/feat-cli-halt/manager.md) |
+| feature-id | 最终状态 | 目录 |
+|---|---|---|
+| add-jacoco-coverage | done（经 `add-build-plugins` 合并交付，commit `257b7d8`） | [workflow/docs/archive/2026/add-jacoco-coverage/manager.md](../archive/2026/add-jacoco-coverage/manager.md) |
+| add-spotbugs-analysis | done（经 `add-build-plugins` 合并交付，commit `257b7d8`） | [workflow/docs/archive/2026/add-spotbugs-analysis/manager.md](../archive/2026/add-spotbugs-analysis/manager.md) |
+| add-dependency-check | done（经 `add-build-plugins` 合并交付，commit `257b7d8`） | [workflow/docs/archive/2026/add-dependency-check/manager.md](../archive/2026/add-dependency-check/manager.md) |
+| add-ci-workflow | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/add-ci-workflow/manager.md](../archive/2026/add-ci-workflow/manager.md) |
+| fix-normalize-integer-float | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-normalize-integer-float/manager.md](../archive/2026/fix-normalize-integer-float/manager.md) |
+| fix-onlyif-skipif-hash-comments | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-onlyif-skipif-hash-comments/manager.md](../archive/2026/fix-onlyif-skipif-hash-comments/manager.md) |
+| architecture-overview | cancelled（用户舍弃；草稿已删；工作项记录已归档） | [workflow/docs/archive/2026/architecture-overview/manager.md](../archive/2026/architecture-overview/manager.md) |
+| fix-aggfunc-sum-overflow | cancelled（非 harness 设计缺陷；SQLite sum 溢出语义 vs JDBC/引擎错误形态；无需修复；已归档） | [workflow/docs/archive/2026/fix-aggfunc-sum-overflow/manager.md](../archive/2026/fix-aggfunc-sum-overflow/manager.md) |
+| fix-aggfunc-total-precision | cancelled / wontfix（已知限制：极端量级 R 的 String.format vs sqlite3_snprintf；不移植 float printf、不改语料；已归档） | [workflow/docs/archive/2026/fix-aggfunc-total-precision/manager.md](../archive/2026/fix-aggfunc-total-precision/manager.md) |
+| fix-rowwise-value-per-line-compat | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-rowwise-value-per-line-compat/manager.md](../archive/2026/fix-rowwise-value-per-line-compat/manager.md) |
+| ggtest-pg | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/ggtest-pg/manager.md](../archive/2026/ggtest-pg/manager.md) |
+| fix-shared-defaults | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-shared-defaults/manager.md](../archive/2026/fix-shared-defaults/manager.md) |
+| fix-jdbc-executor-dedup | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-jdbc-executor-dedup/manager.md](../archive/2026/fix-jdbc-executor-dedup/manager.md) |
+| fix-cli-credential-redaction | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-cli-credential-redaction/manager.md](../archive/2026/fix-cli-credential-redaction/manager.md) |
+| fix-pg-teardown-once | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/fix-pg-teardown-once/manager.md](../archive/2026/fix-pg-teardown-once/manager.md) |
+| refactor-cli-session-boundaries | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/refactor-cli-session-boundaries/manager.md](../archive/2026/refactor-cli-session-boundaries/manager.md) |
+| ggtest-core（parser / normalize / runner-sqlite / cli-corpus） | done（父项归档；四部分均 done 且已合入 `main`） | [workflow/docs/archive/2026/ggtest-core/manager.md](../archive/2026/ggtest-core/manager.md) |
+| ggtest-cli-report | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/ggtest-cli-report/manager.md](../archive/2026/ggtest-cli-report/manager.md) |
+| ggtest-rowwise-expected | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/ggtest-rowwise-expected/manager.md](../archive/2026/ggtest-rowwise-expected/manager.md) |
+| feat-override-results | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/feat-override-results/manager.md](../archive/2026/feat-override-results/manager.md) |
+| chore-maven-compiler-release | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/chore-maven-compiler-release/manager.md](../archive/2026/chore-maven-compiler-release/manager.md) |
+| improve-multi-failure-report | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/improve-multi-failure-report/manager.md](../archive/2026/improve-multi-failure-report/manager.md) |
+| chore-audit-tails | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/chore-audit-tails/manager.md](../archive/2026/chore-audit-tails/manager.md) |
+| feat-cli-halt | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/feat-cli-halt/manager.md](../archive/2026/feat-cli-halt/manager.md) |
 | improve-failure-output-format | improve-failure-output-format | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/improve-failure-output-format/manager.md](../archive/2026/improve-failure-output-format/manager.md) |
 | feat-statement-error-msg | feat-statement-error-msg | done（已合入 `main`；已归档） | [workflow/docs/archive/2026/feat-statement-error-msg/manager.md](../archive/2026/feat-statement-error-msg/manager.md) |

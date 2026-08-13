@@ -1,12 +1,11 @@
-# Plan: <feature-id>[ / <sub-feature-id>]
+# Plan: <feature-id>
 
 ## 元信息
 
 - 工作项标识: <feature-id>
-- sub-feature-id: <sub-feature-id>（未拆分时与 feature-id 相同）
-- 依据 Spec: workflow/docs/features/<feature-id>/spec.md | workflow/docs/features/<feature-id>/<feature-id>-<sub>/spec.md | N/A
-- 依据 Design: workflow/docs/features/<feature-id>/design.md | workflow/docs/features/<feature-id>/<feature-id>-<sub>/design.md | N/A
-- 依据 UI: workflow/docs/features/<feature-id>/ui-design.md | workflow/docs/features/<feature-id>/<feature-id>-<sub>/ui-design.md | N/A
+- 依据 Spec: workflow/docs/features/<feature-id>/spec.md | N/A
+- 依据 Design: workflow/docs/features/<feature-id>/design.md | N/A
+- 依据 UI: workflow/docs/features/<feature-id>/ui-design.md | N/A
 - 路径等级: fast | standard | full
 - Review 门禁: required | skipped
 - Review 跳过说明: （仅当 skipped；否则删除本行）
@@ -16,7 +15,7 @@
 
 ## 适用工程规范
 
-> 使用仓库根路径，避免未拆分/已拆分目录深度不同导致相对链接断裂。
+> 使用仓库根路径写相对链接。
 
 - `workflow/docs/standards/documentation.md`
 - `workflow/docs/standards/git.md`（仅 Git 工作区）
