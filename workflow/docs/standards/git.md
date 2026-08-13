@@ -60,7 +60,7 @@
 
 提交须保持原子性：每次提交对应单一逻辑变更，便于审阅与回滚。授权关闭时「STATUS/`done` + 未入库 review/qa 报告」视为同一逻辑关闭变更，允许同一次提交。
 
-提交信息须遵循仓库既有规范；无既有规范时采用 [Conventional Commits](https://www.conventionalcommits.org/)：
+### 2.1 信息格式（Conventional Commits）
 
 ```text
 <type>(<scope>): <subject>
@@ -68,7 +68,28 @@
 <body>
 ```
 
-常见 `type`：`feat`、`fix`、`docs`、`refactor`、`test`、`chore`。
+- **`<type>`**（必须，小写）：`feat` 新功能｜`fix` 缺陷修复｜`docs` 文档｜`refactor` 重构（无行为变化）｜`test` 测试｜`chore` 构建/工具/杂务｜`perf` 性能｜`build` 构建系统/依赖｜`ci` CI 配置。
+- **`<scope>`**（可选，小写）：受影响模块，如 `cli`、`db`、`parser`、`normalize`、`runner`、`model`、`workflow`、`audit`、`test`。多模块选主要者；工作流/文档类用 `workflow`/`audit`。
+- **`<subject>`**（必须）：祈使语气、小写起首、不加句号、≤72 字符；说「做什么/改什么」，避免泛化（不写 `update code`）。
+- **`<body>`**（可选）：解释**为什么**（动机、根因、权衡），不复述 diff；每行 ≤72 字符 wrapping；可用 `-` 列表。
+
+### 2.2 本仓库约定用法
+
+| 场景 | 示例 |
+|---|---|
+| 实现/缺陷修复 | `fix(cli): allow dash-prefixed values for value options (CA-019)` |
+| 新功能 | `feat(db): add XuguDB engine (--engine xugu, alias xugudb)` |
+| 工作流状态推进 | `docs(workflow): <feature-id> -> <state> (<context>)`，如 `docs(workflow): fix-ca020-main-fatal-catch -> done (QA Pass r1, review Approve, user authorized)` |
+| 审计登记/报告 | `docs(audit): mark CA-023 resolved (...)` / `chore(audit): ...` |
+| 纯文档 | `docs: ...`（无明确 scope 时） |
+
+> 工作流状态推进提交统一用 `docs(workflow): <feature-id> -> <state>`；`<state>` 取 `planned` / `qa` / `done` 等，括注关键上下文（review/QA 结论、授权来源）。`developing` 等中间态一般随实现提交，不单独成文。
+
+### 2.3 禁止
+
+- 提交信息含凭据、连接串或可还原密钥；
+- `WIP` / `misc` / `fix bug` 等无信息 subject；
+- 一个提交混入多个无关 `type`/scope 的变更。
 
 ## 3. 禁止提交的内容
 
@@ -100,11 +121,11 @@
 
 禁止在受保护分支上直接实施功能或缺陷修复；实现必须经工作分支合并进入。
 
-## 6. 合入目标分支的默认策略
+## 6. 合入目标分支的策略
 
-**默认优先：rebase 到最新目标分支后 fast-forward 合入**，避免无必要的 merge commit，保持主线线性历史。
+**强制：rebase 到最新目标分支后 fast-forward 合入**，保持主线线性历史，**禁止 merge commit**（除非用户明确授权保留 merge commit）。
 
-推荐流程（本地或 CI 等价操作）：
+流程（本地或 CI 等价操作）：
 
 1. 在源分支执行 `git fetch`（若使用远程）并 `git rebase <目标分支>`（通常为 `main`）；
 2. 解决冲突后，在目标分支上 `git merge --ff-only <源分支>`；
@@ -113,8 +134,9 @@
 出现以下情形时，须停止合并操作并返回 Manager 与用户决策：
 
 - 无法 fast-forward，且 rebase 不可行或用户未授权改写源分支历史；
-- 存在未解决的合并冲突且无法在不破坏 Plan 范围的前提下安全解决；
-- 目标分支保护规则与当前合并请求冲突。
+- 存在未解决的合并冲突且无法在不破坏工作项范围的前提下安全解决；
+- 目标分支保护规则与当前合并请求冲突；
+- 用户要求保留 merge commit（偏离默认 rebase+FF，须显式授权）。
 
 不得自行假设允许 merge commit 或 force push；偏离「rebase + FF」须有用户明确授权。
 

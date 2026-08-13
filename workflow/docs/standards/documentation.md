@@ -18,10 +18,10 @@ Docs as Code：与相关代码同仓库、同分支、同审阅演进。
 | 类型 | 主责 | 典型路径 |
 |---|---|---|
 | 开发 / API / 配置 | Developer | 代码注释、README、接口与配置说明 |
-| 架构决策 | Planner | 切片目录 `design.md`（未拆分在 feature 根）、ADR |
-| 界面与交互（按需） | Planner | 切片目录 `ui-design.md` |
+| 架构决策 | Planner | `features/<id>/design.md`、ADR |
+| 界面与交互（按需） | Planner | `features/<id>/ui-design.md` |
 | 部署与排障 | DevOps | `workflow/docs/deploy/` |
-| Spec | Analyst | 未拆分：`features/<id>/spec.md`；已拆分：总览 + 各子目录 `spec.md` |
+| Spec | Analyst | `features/<id>/spec.md` |
 | 工作项与流程 | Manager | `workflow/docs/manager/`、工作项记录 |
 
 只改本职文档；跨角色变更须在 Plan「文档影响」中声明。工作流产物结构见模板与 `workflow/docs/README.md`；交接前整理见 **B**。
@@ -64,7 +64,7 @@ Review 或 QA 须核验：内外链接、路径、命令与脚本示例、配置
 
 **对象：** `spec.md`、`design.md`、`ui-design.md`、`plan.md`、`dev-notes.md`、`review.md`、`qa-report.md`、工作项记录（含归档 `manager.md`）。
 
-**时机：** 初稿或阶段更新完成后、交接前；每次只处理一份文件。路径：未拆分在 feature 根；已拆分在 `<feature-id>-<sub-feature-id>/`。
+**时机：** 初稿或阶段更新完成后、交接前；每次只处理一份文件。路径：`features/<feature-id>/` 根目录。
 
 目标是**更好扫读**，不是更短。本节不替代 A 的主责与验收规则。
 
