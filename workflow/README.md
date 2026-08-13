@@ -147,6 +147,7 @@ backlog → speccing → awaiting-spec-approval → designing → planning
 | 跳过 Spec | `backlog → designing \| planning` |
 | Spec 无需确认 | `speccing → designing \| planning` |
 | Spec 需确认 | `speccing → awaiting-spec-approval` →（确认后）`designing \| planning` |
+| Spec 被拒（rejected） | `awaiting-spec-approval → speccing`（Analyst 修订后重新确认） |
 | 跳过 Design | `backlog \| speccing \| awaiting-spec-approval → planning` |
 | 开始 Design / Plan | → `designing` / `planning`；Design 通过后 → `planning` |
 | Plan 写完 | `planning → planned`（无需用户确认） |
@@ -157,6 +158,7 @@ backlog → speccing → awaiting-spec-approval → designing → planning
 | Reviewer `Request changes` | `reviewing → developing`（修复后复审） |
 | Reviewer `Comment` 含阻塞 | 按 `Request changes` 处理 |
 | 用户授权合并 | `qa → done`（源分支一次提交，见 Merge 门禁） |
+| 合并授权暂缓 / 拒绝 | `qa` 保持 `qa`（待后续授权；或用户取消 → `cancelled`） |
 | 合入失败 | `done → blocked`（或保持 `done` + 笔记） |
 | 任意活动态阻塞 | → `blocked`；恢复后进入工作项记录指定目标态 |
 | 用户取消 | → `cancelled` |
@@ -193,6 +195,8 @@ Manager 返回格式：
 ```
 
 只汇报可验证的操作、文件、状态、门禁、阻塞与待确认事项。
+
+`question` = 非门禁澄清（方案取舍、命名、范围取舍等），由 Manager 视需要提问，不改变状态机；门禁确认仅 Spec 与合并两类。
 
 ## 文档结构
 
@@ -274,7 +278,7 @@ Review 门禁: required | skipped | N/A   # skipped 仅 fast
 ### Git：文档提交时机
 
 1. 登记时填目标分支；将进入产出的工作项填源分支（宜在调度 Analyst / Planner 前；**最迟**调度 Developer 前）。
-2. 源分支已声明后：该工作项的 Spec / Design / Plan / 实现与相关文档均提交到该源分支。
+2. 源分支已声明后：该工作项的 Spec / Design / Plan / 实现与相关文档均提交到该源分支；代码与文档分提（先代码后文档）见 [`workflow/docs/standards/git.md`](workflow/docs/standards/git.md) §2.4。
 3. 源分支未声明前：文件可留在工作区；声明并检出后按 [`workflow/docs/standards/git.md`](workflow/docs/standards/git.md) 提交，禁止在受保护分支直接提交。
 
 ## 关闭与归档
