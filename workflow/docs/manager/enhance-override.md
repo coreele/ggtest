@@ -16,7 +16,7 @@
 
 | 路径等级 | 源分支 | Spec | Spec 门禁 | Spec 用户确认 | Design 门禁 | Review 门禁 |
 |---|---|---|---|---|---|---|
-| standard | enhance-override | [spec.md](./../features/enhance-override/spec.md) | required | required | required | required |
+| standard | enhance-override | [spec.md](./../features/enhance-override/spec.md) | required | approved | required | required |
 
 > 现有 `--override` 的接口/行为增强（跨 runner/cli/normalize），故 standard；Spec 因存在业务歧义（separator 语义、错误改写形态）需用户确认；Design required（OverrideWriter 需决定如何承载签名改写与 record 类型转换）；Review required。
 
@@ -24,8 +24,9 @@
 
 | 状态 | 后续步骤 | 阻塞原因 | 恢复条件 | 恢复后目标 |
 |---|---|---|---|---|
-| awaiting-spec-approval | 用户确认 Spec | | | |
+| planned | Developer | | | |
 
 ## 进度笔记
 
 - 2026-08-13：登记。需求来源：用户运行 `--override` 时遇「row width != signature length」「no such table」两类失败，要求强化 `--override`。状态 `backlog → speccing → awaiting-spec-approval`。与已 blocked 的 `sql-to-slt` 相关但独立（本项不新增 `.sql` 自动路由）。
+- 2026-08-13：用户确认 Spec（approve）。Planner 产出 design.md（类型推断入 normalize、RecordResult 扩展字段、OverrideWriter 增签名改写/记录转换、separator 走 `--override-separator`）与 plan.md（T1–T6）。状态 → `planned`，待调度 Developer。
