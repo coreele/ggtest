@@ -118,6 +118,13 @@ public final class Main {
         } catch (UsageException ex) {
             printUsageError(err, ex.getMessage());
             return 2;
+        } catch (Throwable t) {
+            // Defensive top-level net: any non-UsageException that escapes the
+            // pipeline (e.g. an unexpected RuntimeException) maps to a stable
+            // exit code with a short, redacted summary instead of an uncontrolled
+            // JVM exit. Normal error paths are already mapped to FileOutcome.
+            printFatalError(err, t);
+            return 2;
         }
     }
 
@@ -125,6 +132,16 @@ public final class Main {
     static void printUsageError(PrintStream err, String message) {
         err.println("Error: usage");
         err.println("    [WHY] " + (message == null ? "" : message.strip()));
+    }
+
+    /** Short, redacted fatal-error summary for unexpected throwables. */
+    static void printFatalError(PrintStream err, Throwable t) {
+        String message = t.getMessage();
+        String detail = (message == null || message.isBlank())
+                ? t.getClass().getSimpleName()
+                : t.getClass().getSimpleName() + ": " + message.strip();
+        err.println("Error: fatal");
+        err.println("    [WHY] " + CredentialRedaction.redactUrlUserInfo(detail));
     }
 
     static void printHelp(PrintStream out) {

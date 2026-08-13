@@ -528,6 +528,32 @@ class MainOrchestrationTest {
                 + "wrong\n");
     }
 
+    @Test
+    void unexpectedExceptionExitsTwoWithRedactedFatalSummary() {
+        ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
+        String secretUrl = "jdbc:postgresql://alice:hunter2@host:5432/db";
+        java.util.function.Function<String, String> throwingEnv = key -> {
+            throw new RuntimeException("boom while reading env: " + secretUrl);
+        };
+
+        int code = Main.run(
+                new String[] {"a.test"},
+                new PrintStream(stdout, true, StandardCharsets.UTF_8),
+                new PrintStream(stderr, true, StandardCharsets.UTF_8),
+                throwingEnv,
+                tempDir,
+                key -> null,
+                () -> false);
+
+        assertEquals(2, code, "unexpected throwable must map to exit 2");
+        String err = stderr.toString(StandardCharsets.UTF_8);
+        assertTrue(err.contains("Error: fatal"), err);
+        assertTrue(err.contains("RuntimeException"), err);
+        assertFalse(err.contains("alice:hunter2"), "url userinfo must be redacted: " + err);
+        assertFalse(err.contains("hunter2"), "password must be redacted: " + err);
+    }
+
     private Capture run(String... args) {
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
