@@ -16,7 +16,7 @@
 
 | sub-feature-id | 状态 | 后续步骤 | 阻塞原因 | 恢复条件 | 恢复后目标 |
 |---|---|---|---|---|---|
-| fix-ca019-cli-dash-values | developing | Reviewer | | | |
+| fix-ca019-cli-dash-values | done | — | | | |
 
 ## 进度笔记
 
