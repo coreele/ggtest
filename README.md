@@ -64,7 +64,7 @@ java -jar target/ggtest-0.1.0-SNAPSHOT.jar --url jdbc:sqlite::memory: path/to/fi
 ```text
 ggtest [--url <jdbc-url>] [--user <user>] [--password <password>]
        [--engine <name>=sqlite] [--hash-threshold <N>]
-       [--env-file <path>] [--color <auto|always|never>] [--halt] [--parallel <N>] [--override] [--trace] [--help]
+       [--env-file <path>] [--color <auto|always|never>] [--halt] [--parallel <N>] [--override] [--override-separator <s>] [--trace] [--help]
        <file-or-dir> [<file-or-dir> ...]
 ```
 
@@ -79,7 +79,8 @@ ggtest [--url <jdbc-url>] [--user <user>] [--password <password>]
 | `--color` | `auto` | `auto` (TTY only), `always`, or `never`; see color priority below |
 | `--halt` | off | Stop when the first error is seen (assertion failure or hard error). Later records in the file are skipped (not executed, not reported as failures) and not-yet-started files are not opened or counted. Exit-code priority is unchanged. A corpus `halt` record is unaffected (it skips the rest of one file but is not an error). |
 | `--parallel` | off | Run at most `N` files concurrently (N >= 1). `--parallel 1` is equivalent to sequential execution. Report structure is identical regardless of parallel mode: status lines keep input-file order, single-file blocks are never interleaved. When combined with `--halt`, already-running files complete naturally while queued files are cancelled. Cannot be used with `--override`. |
-| `--override` | off | Golden-update mode: rewrite the expected interval of in-scope mismatches (query result mismatch; `statement error` message mismatch) in the source `.slt` file using the actual output. Overridden records show `[OVERRIDDEN]` and do not count as failures; scope-out mismatches (label conflict, execution failure, type-signature error, polarity flip) still `FAILED`. The file is written at most once (atomic temp+rename); files without in-scope mismatch are not touched. Exit-code priority is unchanged. Does not change parser / comparison / normalization semantics. Cannot be used with `--parallel`. |
+| `--override` | off | Golden-update mode: rewrite the source `.slt` using the actual output. In-scope mismatches — query result mismatch, `statement error` message mismatch — get their expected text overwritten; a query whose declared type signature does not fit the actual result gets its signature auto-inferred and rewritten; a query/`statement ok` that fails at execution is rewritten as `statement error <message>` (a failed query's `----` block is dropped). Overridden records show `[OVERRIDDEN]` and do not count as failures. The file is written at most once (atomic temp+rename); files without an overridable mismatch are not touched. Exit-code priority is unchanged. Does not change parser / comparison / normalization semantics. Cannot be used with `--parallel`. |
+| `--override-separator` | off | Row-wise delimiter for `--override` golden output: declares `separator=<s>` on overridden query headers and writes one row per line (columns joined by `<s>`). Requires `--override`; the value must not contain whitespace. When omitted, override writes value-per-line. |
 | `--trace` | off | Print each SQL statement to stderr as it executes (diagnostic). Does not affect stdout, report format, or exit codes. |
 | `--help`, `-h` | — | Print usage information and exit with code 0. |
 
