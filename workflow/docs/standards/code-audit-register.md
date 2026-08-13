@@ -40,3 +40,4 @@
 | CA-020 | Known Issue | resolved | `cli/Main.java` | 顶层补 `catch (Throwable)` → exit 2 + 脱敏摘要（`printFatalError`） | 已合入 `main`（`fix-ca020-main-fatal-catch`） | none | 2026-08-13 |
 | CA-021 | Tech Debt | open | `db/AbstractJdbcExecutor.java:134-138` | `summarize` Javadoc 声称「无凭据」但本层未脱敏（误导） | 层内文档问题；实际脱敏在 CLI 输出层 | 弱化 Javadoc 或本层净化 | 2026-08-13 |
 | CA-022 | Tech Debt | open | `model/QueryRecord.java:52-60` / `normalize/ResultComparer.java:86-94` | `columnSeparator` 校验两处逐字符重复 | 少量重复 | 抽取共享校验静态方法 | 2026-08-13 |
+| CA-023 | Known Issue | resolved | `cli/FileRunner.java:67-91`（PG/MySQL/Xugu 同款） | 引擎隔离 `prepare` 失败时默认连接泄漏：prepare 失败 catch 内 return 前显式 `first.close()` | 已合入 `main`（`fix-ca023-prepare-conn-leak`；原 2026-08-12 xugu 审计记为 CA-017，因与源码审计 CA-017 撞号改 CA-023） | none | 2026-08-13 |
