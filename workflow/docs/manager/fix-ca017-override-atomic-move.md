@@ -18,7 +18,7 @@
 
 | sub-feature-id | 状态 | 后续步骤 | 阻塞原因 | 恢复条件 | 恢复后目标 |
 |---|---|---|---|---|---|
-| fix-ca017-override-atomic-move | qa | QA | | | |
+| fix-ca017-override-atomic-move | done | — | | | |
 
 ## 进度笔记
 
@@ -27,3 +27,4 @@
 - 2026-08-13：用户会话确认 Plan（approve）；状态 `awaiting-plan-approval → planned`，源分支 `fix-ca017-override-atomic-move` 已创建并提交 Plan/记录。待调度 Developer。
 - 2026-08-13：Developer 实施完成 —— `catch` 改为 `AtomicMoveNotSupportedException` + `FileMover` 注入缝 + 新增回退分支测试；`mvn -Dtest=OverrideWriterTest test`（15/0/0）、`mvn clean test`（360/0/0，34 既有 skip）。状态 `planned → developing`，待调度 Reviewer。
 - 2026-08-13：Reviewer Approve（`review.md`，证据提交 `151d0f5`；报告暂未入库，待 `done` 一次提交）。状态 `developing → reviewing → qa`，待 QA 验收。
+- 2026-08-13：QA Pass r1（`qa-report.md`，V1–V5 全 Pass，360/0/0）。用户授权合并；状态 `qa → done`，与本轮未入库的 `review.md` / `qa-report.md` 一次提交，随后合入 `main`。
