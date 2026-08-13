@@ -18,7 +18,7 @@
 
 | sub-feature-id | 状态 | 后续步骤 | 阻塞原因 | 恢复条件 | 恢复后目标 |
 |---|---|---|---|---|---|
-| fix-ca023-prepare-conn-leak | developing | Reviewer | | | |
+| fix-ca023-prepare-conn-leak | done | — | | | |
 
 ## 进度笔记
 
