@@ -39,7 +39,7 @@
 | add-trace-flag | add-trace-flag | `--trace` 执行 SQL 时打印到 stderr | done | standard | skipped | — | [workflow/docs/features/add-trace-flag/](../features/add-trace-flag/) |
 | mysql-engine | mysql-engine | MySQL 数据库引擎 `--engine mysql` + schema 隔离 | speccing | full | required | 用户确认 Spec | [workflow/docs/features/mysql-engine/](../features/mysql-engine/) |
 | fix-ca017-override-atomic-move | fix-ca017-override-atomic-move | 修复 `OverrideWriter.writeAtomically` 原子移动回退死代码（CA-017） | done | fast | skipped | — | [workflow/docs/features/fix-ca017-override-atomic-move/](../features/fix-ca017-override-atomic-move/) |
-| fix-ca018-search-path-validation | fix-ca018-search-path-validation | setSearchPath 标识符校验 + 抽取 SchemaNames（CA-018） | developing | fast | skipped | Reviewer | [workflow/docs/features/fix-ca018-search-path-validation/](../features/fix-ca018-search-path-validation/) |
+| fix-ca018-search-path-validation | fix-ca018-search-path-validation | setSearchPath 标识符校验 + 抽取 SchemaNames（CA-018） | done | fast | skipped | — | [workflow/docs/features/fix-ca018-search-path-validation/](../features/fix-ca018-search-path-validation/) |
 
 ## 已归档
 
