@@ -13,8 +13,11 @@ import com.ggtest.model.StatementExpectation;
 import com.ggtest.model.StatementRecord;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -190,6 +193,26 @@ class OverrideWriterTest {
 
         assertFalse(rewritten.contains("wrong"));
         assertTrue(rewritten.contains("1"));
+    }
+
+    @Test
+    void writeAtomically_fallsBackToReplaceWhenAtomicMoveUnsupported(@TempDir Path tempDir) throws IOException {
+        Path target = tempDir.resolve("fallback.test");
+        Files.writeString(target, "old\n", StandardCharsets.UTF_8);
+
+        OverrideWriter failingAtomic = new OverrideWriter((source, target1, options) -> {
+            for (CopyOption opt : options) {
+                if (opt == StandardCopyOption.ATOMIC_MOVE) {
+                    throw new AtomicMoveNotSupportedException(
+                            source.toString(), target1.toString(), "atomic move not supported");
+                }
+            }
+            Files.move(source, target1, options);
+        });
+
+        failingAtomic.writeAtomically(target, "replaced\n");
+
+        assertEquals("replaced\n", Files.readString(target, StandardCharsets.UTF_8));
     }
 
     private static QueryRecord queryRecord(int startLine, int headerLine, int bodyEndLine) {

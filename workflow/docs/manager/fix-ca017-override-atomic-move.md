@@ -18,10 +18,11 @@
 
 | sub-feature-id | 状态 | 后续步骤 | 阻塞原因 | 恢复条件 | 恢复后目标 |
 |---|---|---|---|---|---|
-| fix-ca017-override-atomic-move | planned | Developer | | | |
+| fix-ca017-override-atomic-move | developing | Reviewer | | | |
 
 ## 进度笔记
 
 - 来源：`workflow/docs/audit/2026-08-13-src.md` Findings CA-017。
 - 根因与修复方向见 [plan.md](../features/fix-ca017-override-atomic-move/plan.md)。
 - 2026-08-13：用户会话确认 Plan（approve）；状态 `awaiting-plan-approval → planned`，源分支 `fix-ca017-override-atomic-move` 已创建并提交 Plan/记录。待调度 Developer。
+- 2026-08-13：Developer 实施完成 —— `catch` 改为 `AtomicMoveNotSupportedException` + `FileMover` 注入缝 + 新增回退分支测试；`mvn -Dtest=OverrideWriterTest test`（15/0/0）、`mvn clean test`（360/0/0，34 既有 skip）。状态 `planned → developing`，待调度 Reviewer。

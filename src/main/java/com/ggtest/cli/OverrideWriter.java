@@ -5,6 +5,8 @@ import com.ggtest.model.SqlTestRecord;
 import com.ggtest.model.StatementRecord;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -23,7 +25,22 @@ import java.util.Objects;
  * and performs byte-level interval replacement, preserving every other byte
  * (comments, whitespace, SQL, other records, headers, EOL style, trailing newline).
  */
+@FunctionalInterface
+interface FileMover {
+    void move(Path source, Path target, CopyOption... options) throws IOException;
+}
+
 final class OverrideWriter {
+
+    private final FileMover mover;
+
+    OverrideWriter() {
+        this((source, target, options) -> Files.move(source, target, options));
+    }
+
+    OverrideWriter(FileMover mover) {
+        this.mover = Objects.requireNonNull(mover, "mover");
+    }
 
     /** A single override: the record whose expected interval to rewrite and the new golden text. */
     record Override(SqlTestRecord record, String newText) {
@@ -82,9 +99,9 @@ final class OverrideWriter {
         try {
             Files.writeString(temp, newText, StandardCharsets.UTF_8);
             try {
-                Files.move(temp, target.toAbsolutePath(), StandardCopyOption.ATOMIC_MOVE);
-            } catch (UnsupportedOperationException ex) {
-                Files.move(temp, target.toAbsolutePath(), StandardCopyOption.REPLACE_EXISTING);
+                mover.move(temp, target.toAbsolutePath(), StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException ex) {
+                mover.move(temp, target.toAbsolutePath(), StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (Exception ex) {
             try {
