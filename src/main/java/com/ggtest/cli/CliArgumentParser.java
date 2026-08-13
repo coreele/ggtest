@@ -3,6 +3,7 @@ package com.ggtest.cli;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Parses {@code ggtest} command-line arguments into {@link ParsedArguments}.
@@ -22,6 +23,17 @@ import java.util.Optional;
 public final class CliArgumentParser {
 
     public static final String DEFAULT_ENGINE = "sqlite";
+
+    /**
+     * The complete set of recognized option flags. A value token is treated as
+     * a missing value only when the next argv element is one of these flags;
+     * any other token (including one that starts with {@code -}, such as a
+     * password {@code -secret} or a negative number) is accepted as the value.
+     */
+    private static final Set<String> OPTION_FLAGS = Set.of(
+            "--url", "--user", "--password", "--engine", "--hash-threshold",
+            "--env-file", "--color", "--parallel", "--halt", "--override",
+            "--trace", "--help", "-h");
 
     private CliArgumentParser() {}
 
@@ -94,10 +106,14 @@ public final class CliArgumentParser {
     }
 
     private static String requireValue(String[] args, int index, String option) {
-        if (index >= args.length || args[index].startsWith("-")) {
+        if (index >= args.length) {
             throw new UsageException("missing value for " + option);
         }
-        return args[index];
+        String next = args[index];
+        if (OPTION_FLAGS.contains(next)) {
+            throw new UsageException("missing value for " + option);
+        }
+        return next;
     }
 
     private static int parseHashThreshold(String raw) {

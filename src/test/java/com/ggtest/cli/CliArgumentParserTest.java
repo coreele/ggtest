@@ -150,6 +150,41 @@ class CliArgumentParserTest {
     }
 
     @Test
+    void passwordStartingWithDashIsAccepted() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {
+            "--url", "jdbc:sqlite::memory:",
+            "--password", "-secret",
+            "a.test"
+        });
+        assertEquals(Optional.of("-secret"), parsed.password());
+    }
+
+    @Test
+    void valueStartingWithDashIsAcceptedForValueOptions() {
+        ParsedArguments parsed = CliArgumentParser.parse(new String[] {
+            "--url", "jdbc:sqlite::memory:",
+            "--user", "-name",
+            "--env-file", "-path/to/.env",
+            "a.test"
+        });
+        assertEquals(Optional.of("-name"), parsed.user());
+        assertEquals(Optional.of("-path/to/.env"), parsed.envFile());
+    }
+
+    @Test
+    void missingValueWhenNextTokenIsKnownFlag() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> CliArgumentParser.parse(new String[] {
+                    "--url", "jdbc:sqlite::memory:",
+                    "--password", "--user",
+                    "a.test"
+                }));
+        assertTrue(ex.getMessage().toLowerCase().contains("missing")
+                && ex.getMessage().contains("--password"));
+    }
+
+    @Test
     void parsesOptionalUserPasswordEngineHashThresholdAndEnvFile() {
         ParsedArguments parsed = CliArgumentParser.parse(new String[] {
             "--url", "jdbc:sqlite:file.db",
