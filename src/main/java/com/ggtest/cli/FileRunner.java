@@ -76,6 +76,10 @@ final class FileRunner {
                     }
                 } catch (SQLException ex) {
                     err.println("schema isolation failed: " + sanitize(ex.getMessage()));
+                    try {
+                        first.close();
+                    } catch (SQLException ignored) {
+                    }
                     return FileOutcome.hardFailure(reportWriter.detailLines(
                             "schema isolation failed: " + sanitize(ex.getMessage()),
                             null,
