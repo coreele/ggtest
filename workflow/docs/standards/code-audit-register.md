@@ -34,3 +34,9 @@
 | CA-014 | Tech Debt | open | `SqlLogicTestParser.LineBuffer.splitPreserveAllLines` | 解析前将整个文件内容拷贝到 `ArrayList<String>` | 大文件（>100MB）可能 OOM；sqllogictest 文件通常很小 | 仅在文件极大时关注；可改为流式读取 | 2026-08-11 |
 | CA-015 | Tech Debt | resolved | `cli/EngineAdapter.java` / `cli/SqliteAdapter.java` / `cli/PostgresAdapter.java` | 死代码已删除 | 已合入 `main`（`fix-ca015-dead-adapters`） | none | 2026-08-11 |
 | CA-016 | Known Issue | resolved | `parser/SqlLogicTestParser.java:163-184` | statement error 消息提取改用 token 索引，conn= 不再污染 expectedErrorMsg | 已合入 `main`（`fix-ca016-stmt-error-conn`） | none | 2026-08-11 |
+| CA-017 | Known Issue | resolved | `cli/OverrideWriter.java` | `writeAtomically` 原子移动回退死代码（catch 错误类型）改 `AtomicMoveNotSupportedException` + `FileMover` 测试缝 | 已合入 `main`（`fix-ca017-override-atomic-move`） | none | 2026-08-13 |
+| CA-018 | Known Issue | resolved | `db/postgres/PostgresSchemaIsolation.java` / `db/mysql/MySqlSchemaIsolation.java` | `setSearchPath` 补标识符校验；抽取 `com.ggtest.db.SchemaNames`（generate/isSafe/requireSafe）消除 PG/MySQL 重复 | 已合入 `main`（`fix-ca018-search-path-validation`） | none | 2026-08-13 |
+| CA-019 | Known Issue | resolved | `cli/CliArgumentParser.java` | `requireValue` 改为仅在下一 token 是已知 flag 时报缺值，允许 `-` 开头的值（如 `--password -secret`） | 已合入 `main`（`fix-ca019-cli-dash-values`） | none | 2026-08-13 |
+| CA-020 | Known Issue | resolved | `cli/Main.java` | 顶层补 `catch (Throwable)` → exit 2 + 脱敏摘要（`printFatalError`） | 已合入 `main`（`fix-ca020-main-fatal-catch`） | none | 2026-08-13 |
+| CA-021 | Tech Debt | open | `db/AbstractJdbcExecutor.java:134-138` | `summarize` Javadoc 声称「无凭据」但本层未脱敏（误导） | 层内文档问题；实际脱敏在 CLI 输出层 | 弱化 Javadoc 或本层净化 | 2026-08-13 |
+| CA-022 | Tech Debt | open | `model/QueryRecord.java:52-60` / `normalize/ResultComparer.java:86-94` | `columnSeparator` 校验两处逐字符重复 | 少量重复 | 抽取共享校验静态方法 | 2026-08-13 |
