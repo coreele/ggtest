@@ -16,7 +16,7 @@
 
 | sub-feature-id | 状态 | 后续步骤 | 阻塞原因 | 恢复条件 | 恢复后目标 |
 |---|---|---|---|---|---|
-| fix-ca020-main-fatal-catch | developing | Reviewer | | | |
+| fix-ca020-main-fatal-catch | done | — | | | |
 
 ## 进度笔记
 
