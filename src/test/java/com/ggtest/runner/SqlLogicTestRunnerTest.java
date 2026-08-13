@@ -563,15 +563,18 @@ class SqlLogicTestRunnerTest {
     }
 
     @Test
-    void overrideEnabled_queryExecutionFailure_remainsFailed() {
+    void overrideEnabled_queryExecutionFailure_yieldsStatementErrorOverride() {
         String sql = "SELECT a FROM t1";
         FakeDatabaseExecutor executor = new FakeDatabaseExecutor().queryFails(sql, "no such column: a");
 
         FileRunResult result = runWithOverride(executor,
                 query(List.of(ColumnType.INTEGER), SortMode.NOSORT, null, sql, List.of("1")));
 
-        assertEquals(List.of(RecordOutcome.FAILED), outcomes(result));
-        assertEquals(0, result.overriddenCount());
+        assertEquals(List.of(RecordOutcome.OVERRIDDEN), outcomes(result));
+        assertEquals(1, result.overriddenCount());
+        RecordResult rr = result.recordResults().get(0);
+        assertTrue(rr.overrideAsStatementError());
+        assertEquals("no such column: a", rr.overrideText().orElseThrow());
     }
 
     @Test
@@ -588,14 +591,17 @@ class SqlLogicTestRunnerTest {
     }
 
     @Test
-    void overrideEnabled_statementOkFailure_remainsFailed() {
+    void overrideEnabled_statementOkFailure_yieldsStatementErrorOverride() {
         FakeDatabaseExecutor executor =
                 new FakeDatabaseExecutor().statementFails("BOOM", "syntax error");
 
         FileRunResult result = runWithOverride(executor, statementOk("BOOM"));
 
-        assertEquals(List.of(RecordOutcome.FAILED), outcomes(result));
-        assertEquals(0, result.overriddenCount());
+        assertEquals(List.of(RecordOutcome.OVERRIDDEN), outcomes(result));
+        assertEquals(1, result.overriddenCount());
+        RecordResult rr = result.recordResults().get(0);
+        assertTrue(rr.overrideAsStatementError());
+        assertEquals("syntax error", rr.overrideText().orElseThrow());
     }
 
     @Test

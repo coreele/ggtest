@@ -409,7 +409,8 @@ class RuntimeConfigResolverTest {
                 false,
                 false,
                 2,
-                java.util.List.of("a.test"));
+                java.util.List.of("a.test"),
+                Optional.empty());
         assertFalse(options.toString().contains("super-secret-credential"));
         assertTrue(options.toString().contains("parallel=2"));
     }

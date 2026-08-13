@@ -103,7 +103,7 @@ public final class RuntimeConfigResolver {
 
         return new CliOptions(
                 url, user, password, engine, hashThreshold, colorMode, parsed.halt(), parsed.override(), parsed.trace(),
-                parallelVal, parsed.inputs());
+                parallelVal, parsed.inputs(), parsed.overrideSeparator());
     }
 
     static ColorMode resolveColorMode(

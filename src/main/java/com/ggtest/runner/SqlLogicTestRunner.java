@@ -4,6 +4,7 @@ import com.ggtest.db.DatabaseExecutor;
 import com.ggtest.db.FatalDatabaseException;
 import com.ggtest.db.QueryResult;
 import com.ggtest.db.StatementResult;
+import com.ggtest.model.ColumnType;
 import com.ggtest.model.HaltRecord;
 import com.ggtest.model.HashThresholdRecord;
 import com.ggtest.model.OnlyIfRecord;
@@ -12,12 +13,14 @@ import com.ggtest.model.SkipIfRecord;
 import com.ggtest.model.SqlTestRecord;
 import com.ggtest.model.StatementRecord;
 import com.ggtest.normalize.ResultComparer;
+import com.ggtest.normalize.TypeSignatureInferer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -55,6 +58,7 @@ public final class SqlLogicTestRunner {
     private final int initialHashThreshold;
     private final boolean haltOnFirstFailure;
     private final boolean overrideEnabled;
+    private Optional<String> overrideSeparator = Optional.empty();
 
     private java.io.PrintStream traceStream;
 
@@ -142,6 +146,16 @@ public final class SqlLogicTestRunner {
         this.traceStream = traceStream;
     }
 
+    /**
+     * Sets the row-wise delimiter for {@code --override} golden output (CLI
+     * {@code --override-separator}). Empty means value-per-line.
+     *
+     * @param separator row-wise delimiter, or {@link Optional#empty()} for value-per-line
+     */
+    public void setOverrideSeparator(Optional<String> separator) {
+        this.overrideSeparator = Objects.requireNonNull(separator, "separator");
+    }
+
     private void trace(String sql) {
         if (traceStream != null) {
             traceStream.println(sql);
@@ -225,10 +239,17 @@ public final class SqlLogicTestRunner {
         trace(record.sql());
         StatementResult result = exec.executeStatement(record.sql(), record.timeoutMs());
         return switch (record.expectation()) {
-            case OK -> result.succeeded()
-                    ? RecordResult.passed(record)
-                    : RecordResult.failed(
-                            record, describe("statement expected to succeed but failed", result.errorSummary()));
+            case OK -> {
+                if (result.succeeded()) {
+                    yield RecordResult.passed(record);
+                }
+                if (overrideEnabled) {
+                    String message = result.errorSummary() == null ? "" : result.errorSummary();
+                    yield RecordResult.overriddenAsStatementError(record, message);
+                }
+                yield RecordResult.failed(
+                        record, describe("statement expected to succeed but failed", result.errorSummary()));
+            }
             case ERROR -> {
                 if (result.succeeded()) {
                     yield RecordResult.failed(record, "statement expected to fail but succeeded");
@@ -256,6 +277,10 @@ public final class SqlLogicTestRunner {
         trace(record.sql());
         QueryResult result = exec.executeQuery(record.sql(), record.timeoutMs());
         if (!result.succeeded()) {
+            if (overrideEnabled) {
+                String message = result.errorSummary() == null ? "" : result.errorSummary();
+                return RecordResult.overriddenAsStatementError(record, message);
+            }
             return RecordResult.failed(record, describe("query execution failed", result.errorSummary()));
         }
 
@@ -269,6 +294,13 @@ public final class SqlLogicTestRunner {
                     expectedText(record),
                     result.rows());
         } catch (IllegalArgumentException ex) {
+            if (overrideEnabled) {
+                List<ColumnType> inferred = TypeSignatureInferer.infer(result.rows());
+                return RecordResult.overridden(
+                        record,
+                        overrideBodyFor(record, state, inferred, result.rows()),
+                        signatureString(inferred));
+            }
             return RecordResult.failed(
                     record, describe("result does not fit the declared type signature", ex.getMessage()));
         }
@@ -298,12 +330,12 @@ public final class SqlLogicTestRunner {
         return RecordResult.failed(record, String.join("\n", failures));
     }
 
-    private static String formatOverrideText(QueryRecord record, List<String> actualView) {
-        if (record.columnSeparator().isEmpty() || actualView.size() == 1) {
-            return String.join("\n", actualView);
-        }
-        int columns = record.typeSignature().size();
-        if (columns <= 0) {
+    private String formatOverrideText(QueryRecord record, List<String> actualView) {
+        return formatOverrideText(actualView, record.typeSignature().size(), effectiveSeparator(record));
+    }
+
+    private static String formatOverrideText(List<String> actualView, int columns, Optional<String> separator) {
+        if (separator.isEmpty() || actualView.size() == 1 || columns <= 0) {
             return String.join("\n", actualView);
         }
         StringBuilder sb = new StringBuilder();
@@ -311,9 +343,27 @@ public final class SqlLogicTestRunner {
             if (i > 0 && i % columns == 0) {
                 sb.append('\n');
             } else if (i > 0) {
-                sb.append(' ').append(record.columnSeparator().orElseThrow()).append(' ');
+                sb.append(' ').append(separator.orElseThrow()).append(' ');
             }
             sb.append(actualView.get(i));
+        }
+        return sb.toString();
+    }
+
+    private Optional<String> effectiveSeparator(QueryRecord record) {
+        return overrideSeparator.or(() -> record.columnSeparator());
+    }
+
+    private String overrideBodyFor(QueryRecord record, FileState state, List<ColumnType> signature, List<List<String>> rows) {
+        ResultComparer.CompareResult rec = ResultComparer.compare(
+                signature, record.sortMode(), state.hashThreshold(), Optional.empty(), "", rows);
+        return formatOverrideText(rec.actualView(), signature.size(), effectiveSeparator(record));
+    }
+
+    private static String signatureString(List<ColumnType> signature) {
+        StringBuilder sb = new StringBuilder(signature.size());
+        for (ColumnType type : signature) {
+            sb.append(type.code());
         }
         return sb.toString();
     }

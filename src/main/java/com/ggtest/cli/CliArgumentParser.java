@@ -33,7 +33,7 @@ public final class CliArgumentParser {
     private static final Set<String> OPTION_FLAGS = Set.of(
             "--url", "--user", "--password", "--engine", "--hash-threshold",
             "--env-file", "--color", "--parallel", "--halt", "--override",
-            "--trace", "--help", "-h");
+            "--override-separator", "--trace", "--help", "-h");
 
     private CliArgumentParser() {}
 
@@ -59,6 +59,7 @@ public final class CliArgumentParser {
         boolean trace = false;
         boolean help = false;
         Optional<Integer> parallel = Optional.empty();
+        Optional<String> overrideSeparator = Optional.empty();
         List<String> inputs = new ArrayList<>();
 
         for (int i = 0; i < args.length; i++) {
@@ -88,6 +89,13 @@ public final class CliArgumentParser {
                     }
                     case "--halt" -> halt = true;
                     case "--override" -> override = true;
+                    case "--override-separator" -> {
+                        String sep = requireValue(args, ++i, "--override-separator");
+                        if (sep.chars().anyMatch(Character::isWhitespace)) {
+                            throw new UsageException("--override-separator value must not contain whitespace");
+                        }
+                        overrideSeparator = Optional.of(sep);
+                    }
                     case "--trace" -> trace = true;
                     case "--help", "-h" -> help = true;
                     default -> throw new UsageException("unknown option: " + arg);
@@ -100,9 +108,12 @@ public final class CliArgumentParser {
         if (parallel.isPresent() && override) {
             throw new UsageException("--parallel and --override cannot be used together");
         }
+        if (overrideSeparator.isPresent() && !override) {
+            throw new UsageException("--override-separator requires --override");
+        }
 
         return new ParsedArguments(url, user, password, engine, hashThreshold, envFile, color, halt, override, trace, help,
-                parallel, inputs);
+                parallel, overrideSeparator, inputs);
     }
 
     private static String requireValue(String[] args, int index, String option) {

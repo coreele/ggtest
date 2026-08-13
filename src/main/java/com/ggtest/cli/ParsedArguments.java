@@ -29,6 +29,7 @@ public record ParsedArguments(
         boolean trace,
         boolean help,
         Optional<Integer> parallel,
+        Optional<String> overrideSeparator,
         List<String> inputs) {
 
     public ParsedArguments {
@@ -40,6 +41,7 @@ public record ParsedArguments(
         envFile = envFile == null ? Optional.empty() : envFile;
         color = color == null ? Optional.empty() : color;
         parallel = parallel == null ? Optional.empty() : parallel;
+        overrideSeparator = overrideSeparator == null ? Optional.empty() : overrideSeparator;
         inputs = List.copyOf(Objects.requireNonNull(inputs, "inputs"));
     }
 }

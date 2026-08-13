@@ -23,11 +23,20 @@ final class OverrideCoordinator {
         this.sanitize = Objects.requireNonNull(sanitize, "sanitize");
     }
 
-    List<OverrideWriter.Override> collectOverrides(FileRunResult result) {
+    List<OverrideWriter.Override> collectOverrides(FileRunResult result, java.util.Optional<String> overrideSeparator) {
         List<OverrideWriter.Override> overrides = new ArrayList<>();
         for (RecordResult rr : result.recordResults()) {
-            if (rr.outcome() == RecordOutcome.OVERRIDDEN && rr.overrideText().isPresent()) {
-                overrides.add(new OverrideWriter.Override(rr.record(), rr.overrideText().orElseThrow()));
+            if (rr.outcome() != RecordOutcome.OVERRIDDEN || rr.overrideText().isEmpty()) {
+                continue;
+            }
+            String text = rr.overrideText().orElseThrow();
+            if (rr.overrideAsStatementError()) {
+                overrides.add(OverrideWriter.Override.statementError(rr.record(), text));
+            } else if (rr.record() instanceof com.ggtest.model.QueryRecord) {
+                overrides.add(OverrideWriter.Override.querySignature(
+                        rr.record(), rr.overrideSignature().orElse(null), overrideSeparator.orElse(null), text));
+            } else {
+                overrides.add(OverrideWriter.Override.expected(rr.record(), text));
             }
         }
         return overrides;

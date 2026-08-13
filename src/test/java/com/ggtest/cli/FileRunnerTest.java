@@ -236,7 +236,7 @@ class FileRunnerTest {
     }
 
     @Test
-    void overrideEnabled_scopeOutFailedPlusInScopeMismatch_writesBackAndStaysFailed() throws Exception {
+    void overrideEnabled_executionFailureConvertedAndMismatchOverridden() throws Exception {
         Path file = overrideTempDir.resolve("mixed.test");
         Files.writeString(file, ""
                 + "statement ok\n"
@@ -258,9 +258,10 @@ class FileRunnerTest {
 
         FileOutcome outcome = overrideRunner.run(parser, file, "mixed.test");
 
-        assertEquals(FileBucket.FAILED, outcome.bucket(), "scope-out execution failure keeps bucket FAILED");
+        assertEquals(FileBucket.OVERRIDDEN, outcome.bucket());
         assertFalse(outcome.hardError());
         String content = Files.readString(file, StandardCharsets.UTF_8);
+        assertTrue(content.contains("statement error "), () -> "execution failure must become statement error:\n" + content);
         assertTrue(content.contains("----\n42\n"), () -> "in-scope override must still be written:\n" + content);
         assertFalse(content.contains("wrong"), () -> "old expected should be gone:\n" + content);
     }

@@ -21,6 +21,8 @@ import java.util.Optional;
  *                      CLI-only; {@code false} when absent
  * @param parallel      maximum concurrent files; 0 when not specified
  * @param inputs        positional file or directory paths (at least one)
+ * @param overrideSeparator optional row-wise delimiter for {@code --override} golden
+ *                      output; empty means value-per-line (default)
  */
 public record CliOptions(
         String url,
@@ -33,7 +35,8 @@ public record CliOptions(
         boolean override,
         boolean trace,
         int parallel,
-        List<String> inputs) {
+        List<String> inputs,
+        Optional<String> overrideSeparator) {
 
     public CliOptions(
             String url,
@@ -44,7 +47,7 @@ public record CliOptions(
             ColorMode colorMode,
             boolean halt,
             List<String> inputs) {
-        this(url, user, password, engine, hashThreshold, colorMode, halt, false, false, 0, inputs);
+        this(url, user, password, engine, hashThreshold, colorMode, halt, false, false, 0, inputs, Optional.empty());
     }
 
     public CliOptions(
@@ -57,7 +60,7 @@ public record CliOptions(
             boolean halt,
             boolean override,
             List<String> inputs) {
-        this(url, user, password, engine, hashThreshold, colorMode, halt, override, false, 0, inputs);
+        this(url, user, password, engine, hashThreshold, colorMode, halt, override, false, 0, inputs, Optional.empty());
     }
 
     public CliOptions {
@@ -67,6 +70,7 @@ public record CliOptions(
         Objects.requireNonNull(engine, "engine");
         Objects.requireNonNull(colorMode, "colorMode");
         inputs = List.copyOf(Objects.requireNonNull(inputs, "inputs"));
+        overrideSeparator = overrideSeparator == null ? Optional.empty() : overrideSeparator;
     }
 
     /** Omits password plaintext from diagnostic dumps. */
@@ -92,6 +96,8 @@ public record CliOptions(
                 + trace
                 + ", parallel="
                 + parallel
+                + ", overrideSeparator="
+                + overrideSeparator
                 + ", inputs="
                 + inputs
                 + "]";

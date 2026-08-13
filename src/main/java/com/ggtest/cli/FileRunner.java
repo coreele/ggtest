@@ -130,6 +130,7 @@ final class FileRunner {
             SqlLogicTestRunner runner = new SqlLogicTestRunner(
                     factory, options.hashThreshold(), options.halt(), options.override());
             runner.setTraceStream(options.trace() ? err : null);
+            runner.setOverrideSeparator(options.overrideSeparator());
             FileRunResult result = runner.run(records);
             return processResult(result, display, file);
         } catch (com.ggtest.db.FatalDatabaseException ex) {
@@ -173,7 +174,7 @@ final class FileRunner {
         }
 
         if (options.override()) {
-            List<OverrideWriter.Override> overrides = overrideCoordinator.collectOverrides(result);
+            List<OverrideWriter.Override> overrides = overrideCoordinator.collectOverrides(result, options.overrideSeparator());
             if (!overrides.isEmpty()) {
                 FileOutcome writeOutcome = overrideCoordinator.applyOverrideWriteBack(file, overrides, display);
                 if (writeOutcome != null) {

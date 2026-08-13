@@ -276,7 +276,7 @@ class MainOrchestrationTest {
     }
 
     @Test
-    void overrideEnabled_mixedOverrideAndScopeOutFailed_exitsOne() throws Exception {
+    void overrideEnabled_mixedOverrideAndExecutionFailure_exitsZero() throws Exception {
         Path overrideFile = writeOverrideMismatchFixture("a.test");
         Path failFile = tempDir.resolve("b.test");
         Files.writeString(failFile, ""
@@ -290,10 +290,10 @@ class MainOrchestrationTest {
         Capture capture = run("--override", "--url", "jdbc:sqlite::memory:",
                 overrideFile.toString(), failFile.toString());
 
-        assertEquals(1, capture.exitCode(), capture::dump);
-        assertTrue(capture.stdout().contains("overridden=1"), capture.stdout());
+        assertEquals(0, capture.exitCode(), capture::dump);
+        assertTrue(capture.stdout().contains("overridden=2"), capture.stdout());
         assertTrue(capture.stdout().contains("[OVERRIDDEN]"), capture.stdout());
-        assertTrue(capture.stdout().contains("[FAILED]"), capture.stdout());
+        assertFalse(capture.stdout().contains("[FAILED]"), capture.stdout());
     }
 
     @Test
@@ -404,7 +404,7 @@ class MainOrchestrationTest {
     }
 
     @Test
-    void overrideEnabled_statementOkFailure_notOverridden() throws Exception {
+    void overrideEnabled_statementOkFailure_rewrittenToStatementError() throws Exception {
         Path file = tempDir.resolve("stmt-ok-fail.test");
         String original = ""
                 + "statement ok\n"
@@ -413,8 +413,51 @@ class MainOrchestrationTest {
 
         Capture capture = run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
 
-        assertEquals(1, capture.exitCode(), "polarity failure stays FAILED under --override");
-        assertEquals(original, Files.readString(file, StandardCharsets.UTF_8), "file must not be rewritten");
+        assertEquals(0, capture.exitCode(), "statement ok failure converts to statement error under --override");
+        String rewritten = Files.readString(file, StandardCharsets.UTF_8);
+        assertTrue(rewritten.startsWith("statement error "), () -> "header must become statement error:\n" + rewritten);
+        assertTrue(rewritten.contains("SELECT * FROM nonexistent_table"), "SQL body must be unchanged");
+    }
+
+    @Test
+    void overrideEnabled_alignsTypeSignature() throws Exception {
+        Path file = tempDir.resolve("align.test");
+        Files.writeString(file, ""
+                + "statement ok\n"
+                + "CREATE TABLE t(id INTEGER, name TEXT)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES (1, 'apple'), (2, 'banana')\n"
+                + "query T\n"
+                + "SELECT id, name FROM t ORDER BY id\n"
+                + "----\n");
+
+        Capture capture = run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertEquals(0, capture.exitCode(), capture::dump);
+        String content = Files.readString(file, StandardCharsets.UTF_8);
+        assertTrue(content.contains("query IT"), () -> "signature must be inferred:\n" + content);
+        assertTrue(content.contains("1\napple\n2\nbanana"), () -> "results must be written value-per-line:\n" + content);
+    }
+
+    @Test
+    void overrideEnabled_separatorRowWiseOutput() throws Exception {
+        Path file = tempDir.resolve("sep.test");
+        Files.writeString(file, ""
+                + "statement ok\n"
+                + "CREATE TABLE t(id INTEGER, name TEXT)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES (1, 'apple'), (2, 'banana')\n"
+                + "query T\n"
+                + "SELECT id, name FROM t ORDER BY id\n"
+                + "----\n");
+
+        Capture capture = run("--override", "--override-separator", "|",
+                "--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertEquals(0, capture.exitCode(), capture::dump);
+        String content = Files.readString(file, StandardCharsets.UTF_8);
+        assertTrue(content.contains("query IT separator=|"), () -> "separator must be declared:\n" + content);
+        assertTrue(content.contains("1 | apple\n2 | banana"), () -> "row-wise output expected:\n" + content);
     }
 
     @Test
@@ -460,7 +503,7 @@ class MainOrchestrationTest {
     }
 
     @Test
-    void overrideEnabled_withHalt_inScopeOverrideThenScopeOutFailed() throws Exception {
+    void overrideEnabled_withHalt_executionFailureConverted() throws Exception {
         Path file = tempDir.resolve("halt-mix.test");
         Files.writeString(file, ""
                 + "statement ok\n"
@@ -485,10 +528,11 @@ class MainOrchestrationTest {
         Capture capture = run(
                 "--override", "--halt", "--url", "jdbc:sqlite::memory:", file.toString());
 
-        assertEquals(1, capture.exitCode(), capture::dump);
+        assertEquals(0, capture.exitCode(), capture::dump);
         String content = Files.readString(file, StandardCharsets.UTF_8);
         assertTrue(content.contains("----\n42\n"), () -> "first query override must be written:\n" + content);
         assertFalse(content.contains("wrong"), () -> "old expected must be gone:\n" + content);
+        assertTrue(content.contains("statement error "), () -> "execution failure must become statement error:\n" + content);
     }
 
     @Test

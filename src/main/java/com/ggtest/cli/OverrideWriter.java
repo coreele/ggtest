@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
 
 /**
  * Rewrites the expected intervals of overridden records in a source file and
@@ -42,12 +43,37 @@ final class OverrideWriter {
         this.mover = Objects.requireNonNull(mover, "mover");
     }
 
-    /** A single override: the record whose expected interval to rewrite and the new golden text. */
-    record Override(SqlTestRecord record, String newText) {
+    /**
+     * A single override to apply to a source file.
+     *
+     * @param record           the record being overridden
+     * @param newText          golden text: query expected body, or statement error message
+     * @param newSignature     when non-null, rewrite the query header type signature to this
+     *                         (I/R/T string)
+     * @param separator        when non-null, declare {@code separator=<separator>} on the query header
+     * @param toStatementError when {@code true}, rewrite the record as {@code statement error <newText>}
+     */
+    record Override(SqlTestRecord record, String newText, String newSignature, String separator, boolean toStatementError) {
 
         public Override {
             Objects.requireNonNull(record, "record");
             Objects.requireNonNull(newText, "newText");
+        }
+
+        Override(SqlTestRecord record, String newText) {
+            this(record, newText, null, null, false);
+        }
+
+        static Override expected(SqlTestRecord record, String newText) {
+            return new Override(record, newText);
+        }
+
+        static Override querySignature(SqlTestRecord record, String signature, String separator, String newText) {
+            return new Override(record, newText, signature, separator, false);
+        }
+
+        static Override statementError(SqlTestRecord record, String message) {
+            return new Override(record, message, null, null, true);
         }
     }
 
@@ -118,14 +144,29 @@ final class OverrideWriter {
 
     private void applyOverride(List<String> lines, Override ov) {
         SqlTestRecord record = ov.record();
+        if (ov.toStatementError()) {
+            if (record instanceof QueryRecord query) {
+                convertQueryToStatementError(lines, query, ov.newText());
+            } else if (record instanceof StatementRecord stmt) {
+                convertStatementToError(lines, stmt, ov.newText());
+            }
+            return;
+        }
         if (record instanceof QueryRecord query) {
-            applyQueryOverride(lines, query, ov.newText());
+            applyQueryOverride(lines, query, ov.newText(), ov.newSignature(), ov.separator());
         } else if (record instanceof StatementRecord stmt) {
             applyStatementOverride(lines, stmt, ov.newText());
         }
     }
 
-    private void applyQueryOverride(List<String> lines, QueryRecord query, String newText) {
+    private void applyQueryOverride(
+            List<String> lines, QueryRecord query, String newText, String newSignature, String separator) {
+        if (newSignature != null || separator != null) {
+            int headerIdx = query.location().startLine() - 1;
+            if (headerIdx >= 0 && headerIdx < lines.size()) {
+                lines.set(headerIdx, rewriteQueryHeader(lines.get(headerIdx), newSignature, separator));
+            }
+        }
         int headerLine = query.expectedHeaderLine();
         int bodyEnd = query.expectedBodyEndLine();
         if (headerLine <= 0) {
@@ -138,6 +179,49 @@ final class OverrideWriter {
         }
         List<String> newBody = splitOnEol(newText, "\n");
         lines.addAll(from, newBody);
+    }
+
+    /** Rewrites the query header's type signature and/or separator attribute in place. */
+    private static String rewriteQueryHeader(String line, String newSignature, String separator) {
+        String result = line;
+        if (newSignature != null) {
+            result = result.replaceFirst("^(\\s*query\\s+)\\S+", "$1" + newSignature);
+        }
+        if (separator != null) {
+            if (result.matches(".*\\sseparator=\\S+.*")) {
+                result = result.replaceFirst("separator=\\S+", Matcher.quoteReplacement("separator=" + separator));
+            } else {
+                result = result + " separator=" + separator;
+            }
+        }
+        return result;
+    }
+
+    /** Rewrites a failed query into {@code statement error <message>}, dropping its expectation block. */
+    private void convertQueryToStatementError(List<String> lines, QueryRecord query, String message) {
+        int headerIdx = query.location().startLine() - 1;
+        if (headerIdx < 0 || headerIdx >= lines.size()) {
+            return;
+        }
+        lines.set(headerIdx, "statement error " + message);
+        int headerLine = query.expectedHeaderLine();
+        if (headerLine > 0) {
+            int from = headerLine - 1;
+            int to = query.expectedBodyEndLine();
+            if (from >= 0 && from <= to && to <= lines.size()) {
+                lines.subList(from, to).clear();
+            }
+        }
+    }
+
+    /** Rewrites a failed {@code statement ok} into {@code statement error <message>}. */
+    private void convertStatementToError(List<String> lines, StatementRecord stmt, String message) {
+        int idx = stmt.location().startLine() - 1;
+        if (idx < 0 || idx >= lines.size()) {
+            return;
+        }
+        String line = lines.get(idx);
+        lines.set(idx, line.replace("statement ok", "statement error " + message));
     }
 
     private void applyStatementOverride(List<String> lines, StatementRecord stmt, String newText) {
