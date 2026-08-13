@@ -28,17 +28,6 @@
         <depcheck.version>10.0.4</depcheck.version>
     </properties>
 
-    <repositories>
-        <!-- Xugu JDBC driver is proprietary; resolve from a gitignored in-repo
-             file repository under driver/. Bootstrap via scripts/install-xugu-driver.sh.example. -->
-        <repository>
-            <id>xugu-local</id>
-            <url>file://${project.basedir}/driver</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>false</enabled></snapshots>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>org.xerial</groupId>
@@ -54,11 +43,6 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>${mysql.jdbc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.xugudb</groupId>
-            <artifactId>xugu-jdbc</artifactId>
-            <version>${xugu.jdbc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -171,4 +155,37 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Xugu JDBC driver (com.xugudb:xugu-jdbc) is proprietary and not on
+             Maven Central; it lives in the gitignored in-repo file repository
+             under driver/ (bootstrap: scripts/install-xugu-driver.sh.example).
+             Activate only when the driver jar is present, so CI without the
+             driver still builds and tests everything else (xugu sources compile
+             against java.sql only; xugu tests are env-gated and skip). -->
+        <profile>
+            <id>xugu</id>
+            <activation>
+                <file>
+                    <exists>${project.basedir}/driver/com/xugudb/xugu-jdbc/${xugu.jdbc.version}/xugu-jdbc-${xugu.jdbc.version}.jar</exists>
+                </file>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>xugu-local</id>
+                    <url>file://${project.basedir}/driver</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>false</enabled></snapshots>
+                </repository>
+            </repositories>
+            <dependencies>
+                <dependency>
+                    <groupId>com.xugudb</groupId>
+                    <artifactId>xugu-jdbc</artifactId>
+                    <version>${xugu.jdbc.version}</version>
+                    <scope>runtime</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
