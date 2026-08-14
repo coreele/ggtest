@@ -6,6 +6,7 @@
 |---|---|---|---|---|
 | 1 | 2026-08-13 | `3034c39` | 首测 | Pass |
 | 2 | 2026-08-13 | `de5ce0a` | 增补：`--separator` 简写 + PASS 强制行式 | Pass |
+| 3 | 2026-08-13 | `c0f21ab` | 增补：单列省略 separator | Pass |
 
 ## 环境与命令
 
@@ -19,9 +20,11 @@
 | P0-2 类型签名 | I/R/T 推断 | Pass | `TypeSignatureInfererTest`（7 用例） |
 | P0-3 查询失败 → statement error | `SELECT * FROM missing_table` → `statement error`（脱敏） | Pass | 端到端 + `SqlLogicTestRunnerTest` |
 | P0-4 statement ok 失败 → statement error | — | Pass | `MainOrchestrationTest.overrideEnabled_statementOkFailure_rewrittenToStatementError` |
-| P0-5 separator | `--override-separator "|"` → 头含 `separator=|` + 行式 | Pass | 端到端 + `MainOrchestrationTest.overrideEnabled_separatorRowWiseOutput` |
-| P0-6 默认 value-per-line | 未指定 separator | Pass | 端到端签名对齐写值逐行 |
-| P0-7 回归 | 既有 --override/测试/非 override | Pass | `mvn test` 405/0 |
+| P0-5 separator | `--separator "|"` → 多列 query 头含 `separator=|` + 行式 | Pass | 端到端 + `MainOrchestrationTest` |
+| P0-6 默认 value-per-line | 未指定 separator 时仍 value-per-line | Pass | 端到端签名对齐写值逐行 |
+| P0-7 PASS 也重写 | `--separator` 下全绿 query 也以行式重写 | Pass | `MainOrchestrationTest.overrideEnabled_separatorReformatsPassingQuery` |
+| P0-7b 单列省略 separator | 单列 query 不注入 `separator=`、不被 override | Pass | 端到端：`query T` 无 separator=，保持 value-per-line |
+| P0-8 回归 | 既有 --override/测试/非 override | Pass | `mvn test` 406/0 |
 | P1-1 statement error msg 更新 | 既有 msg 不符 → 更新 | Pass | 既有 `overrideEnabled_statementErrorMessageMismatch_yieldsOverridden` 不回归 |
 | P1-2 全 NULL/空集回退 | → T / 空签名 | Pass | `TypeSignatureInfererTest` |
 
