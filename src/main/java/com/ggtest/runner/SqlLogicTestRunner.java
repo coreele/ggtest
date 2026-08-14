@@ -321,6 +321,11 @@ public final class SqlLogicTestRunner {
             }
         }
         if (failures.isEmpty()) {
+            if (overrideEnabled && overrideSeparator.isPresent() && record.hasExpectedResults()) {
+                String body = formatOverrideText(
+                        comparison.actualView(), record.typeSignature().size(), overrideSeparator);
+                return RecordResult.overridden(record, body);
+            }
             return RecordResult.passed(record);
         }
         if (overrideEnabled && resultMismatch && !labelConflict) {

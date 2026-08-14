@@ -451,13 +451,38 @@ class MainOrchestrationTest {
                 + "SELECT id, name FROM t ORDER BY id\n"
                 + "----\n");
 
-        Capture capture = run("--override", "--override-separator", "|",
+        Capture capture = run("--override", "--separator", "|",
                 "--url", "jdbc:sqlite::memory:", file.toString());
 
         assertEquals(0, capture.exitCode(), capture::dump);
         String content = Files.readString(file, StandardCharsets.UTF_8);
         assertTrue(content.contains("query IT separator=|"), () -> "separator must be declared:\n" + content);
         assertTrue(content.contains("1 | apple\n2 | banana"), () -> "row-wise output expected:\n" + content);
+    }
+
+    @Test
+    void overrideEnabled_separatorReformatsPassingQuery() throws Exception {
+        Path file = tempDir.resolve("passing-sep.test");
+        Files.writeString(file, ""
+                + "statement ok\n"
+                + "CREATE TABLE t(id INTEGER, name TEXT)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES (1, 'apple'), (2, 'banana')\n"
+                + "query IT nosort\n"
+                + "SELECT id, name FROM t ORDER BY id\n"
+                + "----\n"
+                + "1\n"
+                + "apple\n"
+                + "2\n"
+                + "banana\n");
+
+        Capture capture = run("--override", "--separator", "|",
+                "--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertEquals(0, capture.exitCode(), capture::dump);
+        String content = Files.readString(file, StandardCharsets.UTF_8);
+        assertTrue(content.contains("separator=|"), () -> "separator declared:\n" + content);
+        assertTrue(content.contains("1 | apple\n2 | banana"), () -> "row-wise reformatted:\n" + content);
     }
 
     @Test

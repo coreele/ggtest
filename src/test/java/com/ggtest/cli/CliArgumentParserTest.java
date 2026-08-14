@@ -336,31 +336,31 @@ class CliArgumentParserTest {
     void overrideSeparatorParsedWhenWithOverride() {
         ParsedArguments parsed = CliArgumentParser.parse(new String[] {
             "--url", "jdbc:sqlite::memory:",
-            "--override", "--override-separator", "|",
+            "--override", "--separator", "|",
             "a.test"
         });
         assertEquals(Optional.of("|"), parsed.overrideSeparator());
     }
 
     @Test
-    void overrideSeparatorWithoutOverrideYieldsUsageError() {
+    void separatorWithoutOverrideYieldsUsageError() {
         UsageException ex = assertThrows(
                 UsageException.class,
                 () -> CliArgumentParser.parse(new String[] {
                     "--url", "jdbc:sqlite::memory:",
-                    "--override-separator", "|",
+                    "--separator", "|",
                     "a.test"
                 }));
-        assertTrue(ex.getMessage().contains("--override"), ex.getMessage());
+        assertTrue(ex.getMessage().contains("--separator"), ex.getMessage());
     }
 
     @Test
-    void overrideSeparatorWithWhitespaceYieldsUsageError() {
+    void separatorWithWhitespaceYieldsUsageError() {
         UsageException ex = assertThrows(
                 UsageException.class,
                 () -> CliArgumentParser.parse(new String[] {
                     "--url", "jdbc:sqlite::memory:",
-                    "--override", "--override-separator", "a b",
+                    "--override", "--separator", "a b",
                     "a.test"
                 }));
         assertTrue(ex.getMessage().toLowerCase().contains("whitespace"), ex.getMessage());

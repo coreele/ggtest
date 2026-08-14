@@ -157,7 +157,7 @@ public final class Main {
         out.println("  --halt                      Stop after first failure");
         out.println("  --parallel <N>              Run at most N files concurrently (1 = sequential)");
         out.println("  --override                  Write actual output into expected-result blocks");
-        out.println("  --override-separator <s>    Row-wise override delimiter (requires --override)");
+        out.println("  --separator <s>             Row-wise override delimiter (requires --override)");
         out.println("  --trace                     Print each SQL statement to stderr as it executes");
         out.println("  --env-file <path>           Load config from a .env file (default: ./.env)");
         out.println("  --help, -h                  Print this help and exit");

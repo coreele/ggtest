@@ -33,7 +33,7 @@ public final class CliArgumentParser {
     private static final Set<String> OPTION_FLAGS = Set.of(
             "--url", "--user", "--password", "--engine", "--hash-threshold",
             "--env-file", "--color", "--parallel", "--halt", "--override",
-            "--override-separator", "--trace", "--help", "-h");
+            "--separator", "--trace", "--help", "-h");
 
     private CliArgumentParser() {}
 
@@ -89,10 +89,10 @@ public final class CliArgumentParser {
                     }
                     case "--halt" -> halt = true;
                     case "--override" -> override = true;
-                    case "--override-separator" -> {
-                        String sep = requireValue(args, ++i, "--override-separator");
+                    case "--separator" -> {
+                        String sep = requireValue(args, ++i, "--separator");
                         if (sep.chars().anyMatch(Character::isWhitespace)) {
-                            throw new UsageException("--override-separator value must not contain whitespace");
+                            throw new UsageException("--separator value must not contain whitespace");
                         }
                         overrideSeparator = Optional.of(sep);
                     }
@@ -109,7 +109,7 @@ public final class CliArgumentParser {
             throw new UsageException("--parallel and --override cannot be used together");
         }
         if (overrideSeparator.isPresent() && !override) {
-            throw new UsageException("--override-separator requires --override");
+            throw new UsageException("--separator requires --override");
         }
 
         return new ParsedArguments(url, user, password, engine, hashThreshold, envFile, color, halt, override, trace, help,
