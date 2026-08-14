@@ -1,6 +1,6 @@
 # GGTEST 工作流
 
-本项目的工作流定义在 workflow/README.md 中。
+本项目的工作流定义在 workflow/WORKFLOW.md 中。
 你必须严格按照其中定义的步骤执行，不得跳步。
 
 ## 强制执行规则
@@ -95,8 +95,8 @@ PG/MySQL/Xugu 使用每文件唯一 schema（`SchemaNames.generate()`），prepa
 
 ## 工作流文档索引
 
-- 权威流程：`workflow/README.md`（状态机、门禁、角色）
-- STATUS：`workflow/docs/manager/STATUS.md`（活跃工作项表）
-- Git 规范：`workflow/docs/standards/git.md`（分支、提交、rebase + FF）
-- 审计登记册：`workflow/docs/standards/code-audit-register.md`
-- 审计报告：`workflow/docs/audit/`（工作流外）
+- 权威流程：`workflow/WORKFLOW.md`（状态机、门禁、角色）
+- STATUS：`workflow/STATUS.md`（当前工作树看板）
+- Git 规范：`workflow/agents/standards/git.md`（分支、提交、rebase + FF）
+- 审计登记册：`workflow/audit/register.md`
+- 审计报告：`workflow/audit/`（工作流外）
