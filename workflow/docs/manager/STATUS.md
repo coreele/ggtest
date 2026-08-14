@@ -46,6 +46,7 @@
 | xugu-engine | 虚谷数据库引擎 `--engine xugu`(别名 xugudb) + schema 隔离 | done | full | required | — | [workflow/docs/features/xugu-engine/](../features/xugu-engine/) |
 | enhance-override | 强化 --override：类型签名对齐 + 错误改写 err + separator 参数 | done | standard | required | — | [workflow/docs/features/enhance-override/](../features/enhance-override/) |
 | fix-override-direct-write | --override 直接覆盖（不比较 pass）+ --separator 覆盖 header | done | fast | skipped | — | [workflow/docs/features/fix-override-direct-write/](../features/fix-override-direct-write/) |
+| rust-rewrite | Rust 重写 ggtest（ODBC 统一 DB、去 XuguDB） | awaiting-spec-approval | full | required | 用户确认 Spec | [workflow/docs/features/rust-rewrite/](../features/rust-rewrite/) |
 
 ## 已归档
 
