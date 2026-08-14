@@ -2,179 +2,43 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-基于 JDBC 运行 [sqllogictest](https://www.sqlite.org/sqllogictest) 格式用例的 Java CLI。
-命令名：`ggtest`。
+基于 JDBC 运行 [sqllogictest](https://www.sqlite.org/sqllogictest) 格式用例的 Java CLI（Maven, Java 17）。命令名：`ggtest`。
 
-当前内置 SQLite 与 PostgreSQL；更多引擎通过 `DatabaseExecutor` 扩展。
-
-## 环境
+## 环境要求
 
 - JDK 17+、Maven 3.8+
-- PostgreSQL（可选）：具备 `CREATE` / `DROP SCHEMA … CASCADE` 权限的账号
+- PostgreSQL / MySQL（可选）：具备 `CREATE SCHEMA` / `DROP SCHEMA` 权限的账号
 
-## 安装
-
-```bash
-mvn -q clean package
-# 功能展示（英文注释 demo.slt / 中文注释 demo_zh.slt，断言对等）
-./bin/ggtest --engine sqlite --url jdbc:sqlite::memory: examples/demo.slt examples/demo_zh.slt
-./bin/ggtest --url jdbc:sqlite::memory: path/to/file.slt
-# 或：java -jar target/ggtest-*.jar --url jdbc:sqlite::memory: path/to/file.slt
-```
+## 构建与测试
 
 ```bash
-mvn -q clean test   # 未设置 GGTEST_PG_URL 时跳过 PG 套件
+mvn -q clean test       # 编译 + 单元/集成测试
+mvn -q clean package    # 生成 target/ggtest-*.jar（shaded uber-JAR）
 ```
 
-## 用法
+PostgreSQL / MySQL 测试由环境变量门控（`GGTEST_PG_URL` / `GGTEST_MY_URL`），未设置时跳过，默认套件仍通过。
 
-```text
-ggtest [--url <jdbc>] [--user <u>] [--password <p>]
-       [--engine sqlite|postgres] [--hash-threshold <N>]
-       [--env-file <path>] [--color auto|always|never] [--halt] [--parallel <N>] [--override]
-       <file-or-dir> ...
+## 运行（`ggtest`）
+
+```bash
+./bin/ggtest --url jdbc:sqlite::memory: examples/demo.slt
+./bin/ggtest --url jdbc:postgresql://localhost:5432/db --engine postgres file.test
+./bin/ggtest --url jdbc:mysql://localhost:3306 --engine mysql --user root file.test
 ```
 
+或 `java -jar target/ggtest-*.jar --url jdbc:sqlite::memory: file.test`。
 
-| 选项                      | 默认          | 说明                     |
-| ----------------------- | ----------- | ---------------------- |
-| `--url`                 | 环境 / `.env` | 必填（`GGTEST_URL` 或 CLI） |
-| `--user` / `--password` | —           | 不会出现在报告中               |
-| `--engine`              | `sqlite`    | 须与 URL 协议一致            |
-| `--hash-threshold`      | `8`         | 每文件初始阈值                |
-| `--env-file`            | `./.env`    | 指定后**替换**当前目录 `.env`   |
-| `--color`               | `auto`      | 按 TTY 探测；CI 常用 `never` |
-| `--halt`                | 关           | 见首个错误即停（断言失败或硬错误）：文件内后续记录跳过不执行、不报失败；尚未开始的文件不打开、不计入 `TOTAL`。退出码优先级不变。语料 `halt` 记录语义不变（仅中止当前文件后续并 skipped，非错误）。 |
-| `--parallel` <N>        | 关           | 最多 N 个文件并发执行（N ≥ 1）。`--parallel 1` 等价于顺序执行。报告结构与顺序模式一致：status line 按输入顺序输出，单文件 block 不交错。与 `--halt` 组合时，已开始执行的文件自然完成，排队任务被取消。不可与 `--override` 同时使用。 |
-| `--override`            | 关           | golden-update 模式：用实际输出重写源 `.slt` 文件中范围内 mismatch 的 expected 区间（query 结果失配、`statement error` 消息失配）。被 override 的记录显示 `[OVERRIDDEN]` 且不计为失败；范围外 mismatch（label 冲突、执行失败、类型签名错、极性翻转）仍 `FAILED`。每文件至多一次原子写回（temp+rename）；无 in-scope mismatch 的文件不被改写。退出码优先级不变。不改 parser / 比较 / 规范化语义。不可与 `--parallel` 同时使用。 |
-| `--help`、`-h`           | —           | 打印用法信息，退出码 `0`。 |
+### 输出示例
 
-
-路径：任意文件（内容须是合法 sqllogictest），或递归收集 `*.test` / `*.slt` 的目录。
-
-### 配置
-
-优先级：**CLI > 进程环境 >** `.env`。
-
-
-| 用途   | 变量                                                                                   |
-| ---- | ------------------------------------------------------------------------------------ |
-| 运行时  | `GGTEST_URL`、`GGTEST_USER`、`GGTEST_PASSWORD`、`GGTEST_ENGINE`、`GGTEST_HASH_THRESHOLD` |
-| 彩色   | `GGTEST_COLOR`、`-Dggtest.color`（次于 `--color`）                                        |
-| 测试门控 | `GGTEST_PG_*`、`GGTEST_CORPUS_DIR`                                                    |
-
-
-参见 `[.env.example](.env.example)`。
-
-### 引擎
-
-
-| 引擎         | URL 前缀             | 隔离                                  |
-| ---------- | ------------------ | ----------------------------------- |
-| `sqlite`   | `jdbc:sqlite:`     | 每文件独立连接                             |
-| `postgres` | `jdbc:postgresql:` | 唯一 schema + `DROP SCHEMA … CASCADE` |
-
-
-引擎与 URL 不匹配 → 退出码 `2`。官方 PG 语料零失败不是硬验收。
-
-### 期望结果
-
-`query` 期望头恰好为 `----` 时，默认是**每值一行**；仅当 query 头声明
-`separator=<delim>` 时才是**行式**：
-
-| 形态 | 触发 | 示例（`query III`） |
-|---|---|---|
-| **每值一行**（默认） | 恰 `----`，无 query 头 `separator=` | 三行：`1` / `2` / `3` |
-| **行式** | query 头 `separator=<delim>` + 恰 `----` | 一行：`1 \| 1 \| hello world` |
-
-每值一行时，每个物理行就是一个单元格（TEXT 中的空格整行保留）。不再按空格猜行式：
-纯 `----` 下的 `1 2 3` 是单值 `"1 2 3"`。
-
-行式分隔符写在 **query 头**（不要写在 `----` 上）：
-
-```text
-query IIT nosort separator=|
-SELECT 1, 1, 'hello world'
-----
-1 | 1 | hello world
-```
-
-`delim` 须为空白切分产生的单 token（允许多字符，不得含空白）。每行须拆成恰 `C`
-个 token（类型串长度），否则比对可读失败（行号、实际 token 数、`C`）。token 两侧
-trim；空 token → `(empty)`。行尾单独的 `separator`（无 `=`）仍是 **label**。
-已移除的 `---- separator …` 期望头会解析错误——请改用上方 query 头写法。单元格含当前
-delim 时换分隔符或改每值一行（无引号层）。
-
-哈希期望（`N values hashing to <md5>`）优先识别，口径不变。
-
-### 语句断言
-
-`statement ok` 断言 SQL 执行成功；`statement error` 断言执行失败。`statement error`
-后可选地跟一段预期错误消息——即 `error` 关键字之后的剩余文本（原样保留空白；`#` 视为
-字面字符，不按注释剥离）：
-
-```text
-statement error no such table
-SELECT * FROM missing_table
-```
-
-给出消息时，语句必须失败**且**返回的错误摘要（`errorSummary`）**包含**该预期消息，匹配为
-**大小写不敏感的子串包含**（纯子串包含——非正则、非精确相等）。消息为空或仅空格视为无消息。
-
-| `statement error` 形态 | 结果 |
-|---|---|
-| 无消息 | 仅验证执行失败（向后兼容，行为不变） |
-| `<message>`，但执行成功 | 失败：`statement expected to fail but succeeded` |
-| `<message>`，执行失败但错误摘要不含 `<message>` | 失败：`statement error message mismatch`（diff 风格展示预期 vs 实际） |
-| `<message>`，执行失败且错误摘要含 `<message>` | 通过 |
-
-### 头属性（`timeout=`、`conn=`）
-
-`statement` 和 `query` 头在必要 token 之后支持 key=value 属性：
-
-| 属性 | 适用 | 效果 |
-|---|---|---|
-| `timeout=<ms>` | statement、query | 最长执行时间（毫秒）；0 或缺省 = 无限制。通过 JDBC `setQueryTimeout` 实现（秒，向上取整）。SQLite JDBC 可能不强制。超时 → 记录 FAILED（非致命）。 |
-| `conn=<name>` | statement、query | 使用命名连接，独立于默认连接。每个不同 name 打开独立 JDBC 连接（同一 URL）。无 `conn=` 的记录使用默认连接。支持多连接 / 并发事务测试。 |
-
-```text
-statement ok conn=c1
-BEGIN;
-
-statement error conn=c2 timeout=2000
-UPDATE accounts SET balance = 0 WHERE id = 1;
-
-query II nosort
-SELECT id, balance FROM accounts ORDER BY id
-----
-1
-100
-2
-200
-```
-
-### 退出码
-
-
-| 码   | 含义                       |
-| --- | ------------------------ |
-| `0` | 全部可断言记录通过                |
-| `1` | 存在断言失败                   |
-| `2` | 用法 / 配置 / 解析 / 连接 / 致命错误 |
-
-
-硬错误文件计入 `TOTAL.failed`，退出码仍为 `2`。
-
-### 报告
-
-`TOTAL` 按**文件**计数（不是 query 数）。路径相对当前工作目录。
+**通过：**
 
 ```text
 examples/demo.slt                                            .. [PASSED] in 5 ms
-examples/demo_zh.slt                                         .. [PASSED] in 6 ms
 
-TOTAL: passed=2 failed=0 skipped=0
+TOTAL: passed=1 failed=0 skipped=0
 ```
+
+**失败**（内联 expected-vs-actual diff）：
 
 ```text
 examples/demo.slt                                            .. [FAILED] in 18 ms
@@ -193,43 +57,36 @@ Error: some test case failed:
 TOTAL: passed=0 failed=1 skipped=0
 ```
 
+**`--override` golden 更新**（用实际结果重写期望）：
+
 ```text
-examples/multi.slt                                           .. [FAILED] in 40 ms
-    at examples/multi.slt:480 : query execution failed: ... integer overflow ...
-    at examples/multi.slt:484 : query execution failed: ... integer overflow ...
-    at examples/multi.slt:491 : query result mismatch
-        (-expected|+actual)
-            ...
-    -   ...
-    +   ...
+examples/demo.slt                                            .. [OVERRIDDEN] in 210 ms
 
-Error: some test case failed:
-[
-    "examples/multi.slt",
-]
-
-TOTAL: passed=0 failed=1 skipped=0
+TOTAL: passed=0 failed=0 skipped=0 overridden=1
 ```
 
+## 命令行选项
 
-
-## 库 API
-
-与 CLI 使用同一套包：
-
-```java
-var records = new SqlLogicTestParser().parse(Path.of("sample.test"));
-
-var compared = ResultComparer.compare(
-        List.of(ColumnType.INTEGER, ColumnType.TEXT),
-        SortMode.ROWSORT,
-        ResultComparer.DEFAULT_HASH_THRESHOLD,
-        "1\n(empty)\n2\nx\n",
-        List.of(List.of("2", "x"), List.of("1", "")));
-
-try (Connection c = DriverManager.getConnection("jdbc:sqlite::memory:")) {
-    FileRunResult run = new SqlLogicTestRunner(new SqliteJdbcExecutor(c)).run(records);
-}
+```text
+ggtest [options] <file-or-dir> [<file-or-dir> ...]
 ```
 
-扩展数据库：实现 `com.ggtest.db.DatabaseExecutor`（参考 `PostgresJdbcExecutor`）。
+| 选项 | 默认 | 说明 |
+|---|---|---|
+| `--url <jdbc-url>` | 环境 `.env` | JDBC 连接 URL |
+| `--user <user>` | 无 | 数据库用户 |
+| `--password <pwd>` | 无 | 数据库密码；不会写入日志或报告 |
+| `--engine <name>` | `sqlite` | `sqlite`、`postgres`、`mysql` — 须与 URL 协议一致 |
+| `--override` | 关 | golden-update 模式：用实际结果覆盖 `.slt` 期望（即使已通过） |
+| `--separator <s>` | 关 | `--override` 行式输出分隔符；须配合 `--override` |
+| `--halt` | 关 | 首个失败即停（文件内后续记录跳过） |
+| `--parallel <N>` | 关 | 最多 N 个文件并发；不可与 `--override` 同时使用 |
+| `--trace` | 关 | 执行时将每条 SQL 打印到 stderr |
+| `--color <auto\|always\|never>` | `auto` | ANSI 颜色控制 |
+| `--hash-threshold <N>` | `8` | 结果行数超过 N 时启用 hash 比对 |
+| `--env-file <path>` | `./.env` | 从指定 `.env` 加载配置（替换默认） |
+| `--help`、`-h` | — | 打印用法并退出 |
+
+退出码：`0` = 全部通过 · `1` = 断言失败 · `2` = 用法 / 配置 / 致命错误。
+
+详细架构与工程知识见 [AGENTS.md](AGENTS.md)。

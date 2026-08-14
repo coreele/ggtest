@@ -30,6 +30,43 @@ skipped and the default suite passes.
 
 Or `java -jar target/ggtest-*.jar --url jdbc:sqlite::memory: file.test`.
 
+### Output examples
+
+**Pass:**
+
+```text
+examples/demo.slt                                            .. [PASSED] in 5 ms
+
+TOTAL: passed=1 failed=0 skipped=0
+```
+
+**Failure** (inline detail with expected-vs-actual diff):
+
+```text
+examples/demo.slt                                            .. [FAILED] in 18 ms
+    at examples/demo.slt:22 : query result mismatch
+        (-expected|+actual)
+        apple
+    -   bananad
+    +   banana
+        cherry
+
+Error: some test case failed:
+[
+    "examples/demo.slt",
+]
+
+TOTAL: passed=0 failed=1 skipped=0
+```
+
+**`--override` golden update** (rewrites expected results with actual output):
+
+```text
+examples/demo.slt                                            .. [OVERRIDDEN] in 210 ms
+
+TOTAL: passed=0 failed=0 skipped=0 overridden=1
+```
+
 ## CLI
 
 ```text
