@@ -135,7 +135,8 @@ def first_keyword(stmt: str) -> str:
     return m.group(0).lower() if m else ""
 
 
-def convert_sql_to_slt(sql_content: str) -> str:
+def convert_sql_to_slt(sql_content: str, separator: str = None) -> str:
+    sep_attr = f" separator={separator}" if separator else ""
     out = []
     for stmt in split_sql_statements(sql_content):
         s = stmt.strip()
@@ -144,7 +145,7 @@ def convert_sql_to_slt(sql_content: str) -> str:
         if not s.endswith(";"):
             s += ";"
         if first_keyword(s) in QUERY_KEYWORDS:
-            out.append("query T")
+            out.append(f"query T{sep_attr}")
             out.append(s)
             out.append("----")
             out.append("")
@@ -156,9 +157,18 @@ def convert_sql_to_slt(sql_content: str) -> str:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        with open(sys.argv[1], encoding="utf-8") as f:
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Convert plain SQL to sqllogictest (.slt).")
+    parser.add_argument("file", nargs="?", help="input .sql file (default: stdin)")
+    parser.add_argument("--separator", default=None,
+                        help="declare separator=<delim> on query headers for row-wise expectations")
+    args = parser.parse_args()
+
+    if args.file:
+        with open(args.file, encoding="utf-8") as f:
             content = f.read()
     else:
         content = sys.stdin.read()
-    print(convert_sql_to_slt(content), end="")
+    print(convert_sql_to_slt(content, separator=args.separator), end="")
