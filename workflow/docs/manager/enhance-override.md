@@ -24,10 +24,11 @@
 
 | 状态 | 后续步骤 | 阻塞原因 | 恢复条件 | 恢复后目标 |
 |---|---|---|---|---|
-| reviewing | Reviewer | | | |
+| qa | 用户授权合并 | | | |
 
 ## 进度笔记
 
 - 2026-08-13：登记。需求来源：用户运行 `--override` 时遇「row width != signature length」「no such table」两类失败，要求强化 `--override`。状态 `backlog → speccing → awaiting-spec-approval`。与已 blocked 的 `sql-to-slt` 相关但独立（本项不新增 `.sql` 自动路由）。
 - 2026-08-13：用户确认 Spec（approve）。Planner 产出 design.md（类型推断入 normalize、RecordResult 扩展字段、OverrideWriter 增签名改写/记录转换、separator 走 `--override-separator`）与 plan.md（T1–T6）。状态 → `planned`，待调度 Developer。
 - 2026-08-13：Developer 实施完成（`TypeSignatureInferer` + runner/OverrideWriter/CLI 增强 + 6 处测试新增/更新）。`mvn test` 405/0（50 既有 skip）；端到端验证签名对齐、执行失败转 err、separator、自洽全绿。状态 → `reviewing`，待 Reviewer。
+- 2026-08-13：Spec 增补两项：① `--override-separator` 简写为 `--separator`；② PASS 的 query 也以新 separator 强制重写。Developer 实施完成（rename + force-reformat-passing）；`mvn test` 406/0；端到端验证 PASS 文件被行式重写。Review Approve r2 + QA Pass r2。状态 → `qa`，待用户授权合并。
