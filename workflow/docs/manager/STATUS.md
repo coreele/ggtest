@@ -45,6 +45,7 @@
 | fix-ca023-prepare-conn-leak | FileRunner prepare 失败连接泄漏（CA-023） | done | fast | skipped | — | [workflow/docs/features/fix-ca023-prepare-conn-leak/](../features/fix-ca023-prepare-conn-leak/) |
 | xugu-engine | 虚谷数据库引擎 `--engine xugu`(别名 xugudb) + schema 隔离 | done | full | required | — | [workflow/docs/features/xugu-engine/](../features/xugu-engine/) |
 | enhance-override | 强化 --override：类型签名对齐 + 错误改写 err + separator 参数 | done | standard | required | — | [workflow/docs/features/enhance-override/](../features/enhance-override/) |
+| fix-override-direct-write | --override 直接覆盖（不比较 pass）+ --separator 覆盖 header | developing | fast | skipped | Reviewer | [workflow/docs/features/fix-override-direct-write/](../features/fix-override-direct-write/) |
 
 ## 已归档
 
