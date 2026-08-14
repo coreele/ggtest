@@ -658,7 +658,7 @@ class SqlLogicTestRunnerTest {
                         query(List.of(ColumnType.INTEGER), SortMode.NOSORT, null, "SELECT bad", List.of("9")),
                         query(List.of(ColumnType.INTEGER), SortMode.NOSORT, null, "SELECT good", List.of("2"))));
 
-        assertEquals(List.of(RecordOutcome.OVERRIDDEN, RecordOutcome.PASSED), outcomes(result));
+        assertEquals(List.of(RecordOutcome.OVERRIDDEN, RecordOutcome.OVERRIDDEN), outcomes(result));
         assertFalse(result.aborted());
         assertFalse(result.halted());
     }

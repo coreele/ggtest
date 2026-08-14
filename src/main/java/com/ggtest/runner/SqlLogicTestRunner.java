@@ -306,9 +306,7 @@ public final class SqlLogicTestRunner {
         }
 
         List<String> failures = new ArrayList<>();
-        boolean resultMismatch = false;
         if (record.hasExpectedResults() && !comparison.passed()) {
-            resultMismatch = true;
             failures.add("result mismatch:\n" + comparison.diffSummary());
         }
         boolean labelConflict = false;
@@ -320,18 +318,16 @@ public final class SqlLogicTestRunner {
                 failures.add(labelConflict(label, firstView, comparison.actualView()));
             }
         }
-        if (failures.isEmpty()) {
-            if (overrideEnabled && overrideSeparator.isPresent()
-                    && record.hasExpectedResults() && record.typeSignature().size() > 1) {
-                String body = formatOverrideText(
-                        comparison.actualView(), record.typeSignature().size(), overrideSeparator);
-                return RecordResult.overridden(record, body);
-            }
-            return RecordResult.passed(record);
-        }
-        if (overrideEnabled && resultMismatch && !labelConflict) {
+
+        // --override: always write actual results for queries with expected blocks,
+        // regardless of pass/fail (label conflicts still FAILED).
+        if (overrideEnabled && record.hasExpectedResults() && !labelConflict) {
             String overrideText = formatOverrideText(record, comparison.actualView());
             return RecordResult.overridden(record, overrideText);
+        }
+
+        if (failures.isEmpty()) {
+            return RecordResult.passed(record);
         }
         return RecordResult.failed(record, String.join("\n", failures));
     }

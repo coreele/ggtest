@@ -326,8 +326,8 @@ class MainOrchestrationTest {
 
         Capture second = run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
         assertEquals(0, second.exitCode(), second::dump);
-        assertTrue(second.stdout().contains("[PASSED]"), second::dump);
-        assertFalse(second.stdout().contains("[OVERRIDDEN]"));
+        assertTrue(second.stdout().contains("[OVERRIDDEN]"), second::dump);
+        assertFalse(second.stdout().contains("[PASSED]"));
         assertEquals(afterFirst, Files.readString(file, StandardCharsets.UTF_8), "second run must not change file");
 
         Capture third = run("--url", "jdbc:sqlite::memory:", file.toString());
@@ -336,7 +336,7 @@ class MainOrchestrationTest {
     }
 
     @Test
-    void overrideEnabled_noMismatch_fileAndMtimeUnchanged() throws Exception {
+    void overrideEnabled_noMismatch_fileContentUnchanged() throws Exception {
         Path file = tempDir.resolve("pass.test");
         String content = ""
                 + "statement ok\n"
@@ -348,13 +348,12 @@ class MainOrchestrationTest {
                 + "----\n"
                 + "1\n";
         Files.writeString(file, content);
-        FileTime mtime = Files.getLastModifiedTime(file);
 
         Capture capture = run("--override", "--url", "jdbc:sqlite::memory:", file.toString());
 
         assertEquals(0, capture.exitCode());
-        assertEquals(content, Files.readString(file, StandardCharsets.UTF_8));
-        assertEquals(mtime, Files.getLastModifiedTime(file));
+        assertEquals(content, Files.readString(file, StandardCharsets.UTF_8),
+                "content unchanged when actual equals expected (still OVERRIDDEN)");
     }
 
     @Test
@@ -458,6 +457,30 @@ class MainOrchestrationTest {
         String content = Files.readString(file, StandardCharsets.UTF_8);
         assertTrue(content.contains("query IT separator=|"), () -> "separator must be declared:\n" + content);
         assertTrue(content.contains("1 | apple\n2 | banana"), () -> "row-wise output expected:\n" + content);
+    }
+
+    @Test
+    void overrideEnabled_separatorOverridesHeaderSeparator() throws Exception {
+        Path file = tempDir.resolve("sep-override.test");
+        Files.writeString(file, ""
+                + "statement ok\n"
+                + "CREATE TABLE t(id INTEGER, name TEXT)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES (1, 'apple'), (2, 'banana')\n"
+                + "query IT nosort separator=,\n"
+                + "SELECT id, name FROM t ORDER BY id\n"
+                + "----\n"
+                + "1 , apple\n"
+                + "2 , banana\n");
+
+        Capture capture = run("--override", "--separator", "|",
+                "--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertEquals(0, capture.exitCode(), capture::dump);
+        String content = Files.readString(file, StandardCharsets.UTF_8);
+        assertTrue(content.contains("separator=|"), () -> "new separator must override old:\n" + content);
+        assertFalse(content.contains("separator=,"), () -> "old separator must be gone:\n" + content);
+        assertTrue(content.contains("1 | apple\n2 | banana"), () -> "row-wise with new separator:\n" + content);
     }
 
     @Test

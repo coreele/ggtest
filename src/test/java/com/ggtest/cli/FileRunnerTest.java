@@ -211,7 +211,7 @@ class FileRunnerTest {
     }
 
     @Test
-    void overrideEnabled_allPassed_fileNotRewritten() throws Exception {
+    void overrideEnabled_allPassed_fileRewrittenAsOverridden() throws Exception {
         Path file = overrideTempDir.resolve("pass.test");
         String original = ""
                 + "statement ok\n"
@@ -223,16 +223,15 @@ class FileRunnerTest {
                 + "----\n"
                 + "1\n";
         Files.writeString(file, original);
-        FileTime mtime = Files.getLastModifiedTime(file);
         CliOptions options = sqliteOptionsWithOverride("jdbc:sqlite::memory:");
         ReportWriter rw = new ReportWriter(new PrintStream(new ByteArrayOutputStream()), new ReportStyle(false));
         FileRunner overrideRunner = new FileRunner(options, new PrintStream(new ByteArrayOutputStream()), rw);
 
         FileOutcome outcome = overrideRunner.run(parser, file, "pass.test");
 
-        assertEquals(FileBucket.PASSED, outcome.bucket());
-        assertEquals(original, Files.readString(file, StandardCharsets.UTF_8));
-        assertEquals(mtime, Files.getLastModifiedTime(file), "no mismatch → no write, no mtime change");
+        assertEquals(FileBucket.OVERRIDDEN, outcome.bucket());
+        assertEquals(original, Files.readString(file, StandardCharsets.UTF_8),
+                "content unchanged when actual equals expected");
     }
 
     @Test
