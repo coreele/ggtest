@@ -321,7 +321,8 @@ public final class SqlLogicTestRunner {
             }
         }
         if (failures.isEmpty()) {
-            if (overrideEnabled && overrideSeparator.isPresent() && record.hasExpectedResults()) {
+            if (overrideEnabled && overrideSeparator.isPresent()
+                    && record.hasExpectedResults() && record.typeSignature().size() > 1) {
                 String body = formatOverrideText(
                         comparison.actualView(), record.typeSignature().size(), overrideSeparator);
                 return RecordResult.overridden(record, body);

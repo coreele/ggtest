@@ -32,9 +32,13 @@ final class OverrideCoordinator {
             String text = rr.overrideText().orElseThrow();
             if (rr.overrideAsStatementError()) {
                 overrides.add(OverrideWriter.Override.statementError(rr.record(), text));
-            } else if (rr.record() instanceof com.ggtest.model.QueryRecord) {
+            } else if (rr.record() instanceof com.ggtest.model.QueryRecord qr) {
+                int effectiveColumns = rr.overrideSignature()
+                        .map(String::length)
+                        .orElse(qr.typeSignature().size());
+                String sep = (effectiveColumns > 1) ? overrideSeparator.orElse(null) : null;
                 overrides.add(OverrideWriter.Override.querySignature(
-                        rr.record(), rr.overrideSignature().orElse(null), overrideSeparator.orElse(null), text));
+                        rr.record(), rr.overrideSignature().orElse(null), sep, text));
             } else {
                 overrides.add(OverrideWriter.Override.expected(rr.record(), text));
             }
