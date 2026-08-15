@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.ggtest.db.FatalDatabaseException;
-import com.ggtest.db.QueryResult;
-import com.ggtest.db.StatementResult;
 import java.sql.*;
 import java.util.*;
 import org.junit.jupiter.api.*;

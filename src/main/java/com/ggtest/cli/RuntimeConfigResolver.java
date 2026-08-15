@@ -25,9 +25,6 @@ public final class RuntimeConfigResolver {
     public static final String ENGINE_POSTGRES = "postgres";
     public static final String ENGINE_MYSQL = "mysql";
     public static final String ENGINE_XUGU = "xugu";
-    /** Accepted alias for {@link #ENGINE_XUGU}, normalized to {@code "xugu"}. */
-    private static final String ENGINE_XUGU_ALIAS = "xugudb";
-
     /** System property key for report color ({@code -Dggtest.color=…}). */
     public static final String COLOR_PROPERTY = "ggtest.color";
 
