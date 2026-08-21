@@ -11,8 +11,8 @@
 | 进行中 | 0 | — |
 | 待办 | 2 | add-lcs-diff-guard, fix-sql-hash-comments |
 | 阻塞 | 1 | add-report-format |
-| 待归档 | 1 | tighten-cli-boundary-validation |
-| 已归档 | 53 | — |
+| 待归档 | 0 | — |
+| 已归档 | 54 | — |
 
 ## 等待用户
 
@@ -47,7 +47,7 @@
 
 | 工作项 | 源分支 → 目标分支 | 待确认事项 |
 |---|---|---|
-| tighten-cli-boundary-validation | tighten-cli-boundary-validation → main | 已授权，待合入确认后归档 |
+| — | | |
 
 ## 归档索引
 
@@ -105,4 +105,5 @@
 | refactor-filerunner-responsibilities | done | [refactor-filerunner-responsibilities.md](archive/2026/refactor-filerunner-responsibilities/refactor-filerunner-responsibilities.md) |
 | sync-readme | done | [sync-readme.md](archive/2026/sync-readme/sync-readme.md) |
 | sync-vs-slt-grammar | done | [sync-vs-slt-grammar.md](archive/2026/sync-vs-slt-grammar/sync-vs-slt-grammar.md) |
+| tighten-cli-boundary-validation | done | [tighten-cli-boundary-validation.md](archive/2026/tighten-cli-boundary-validation/tighten-cli-boundary-validation.md) |
 | xugu-engine | done | [xugu-engine.md](archive/2026/xugu-engine/xugu-engine.md) |
