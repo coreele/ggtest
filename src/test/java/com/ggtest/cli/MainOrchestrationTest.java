@@ -126,6 +126,47 @@ class MainOrchestrationTest {
     }
 
     @Test
+    void explicitMarkdownFileExecutesSupportedCodeBlocks() throws Exception {
+        Path file = tempDir.resolve("doc.md");
+        Files.writeString(file, ""
+                + "# Demo\n"
+                + "\n"
+                + "```sql\n"
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(5)\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "5\n"
+                + "```\n");
+
+        Capture capture = run("--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertEquals(0, capture.exitCode(), capture::dump);
+        assertTrue(capture.stdout().contains("doc.md"), capture::dump);
+        assertTrue(capture.stdout().contains("[PASSED]"), capture::dump);
+        assertEquals(1, extractPassed(capture.stdout()));
+    }
+
+    @Test
+    void markdownParseErrorReportsOriginalLineNumber() throws Exception {
+        Path file = tempDir.resolve("broken.md");
+        Files.writeString(file, ""
+                + "before\n"
+                + "```sql\n"
+                + "SELECT 1;\n"
+                + "```\n");
+
+        Capture capture = run("--url", "jdbc:sqlite::memory:", file.toString());
+
+        assertEquals(2, capture.exitCode(), capture::dump);
+        assertTrue(capture.stdout().contains("broken.md:3"), capture::dump);
+        assertTrue(capture.stdout().contains("unknown record type: SELECT"), capture::dump);
+    }
+
+    @Test
     void laterFileIsNotPollutedByEarlierHashThreshold() {
         Capture capture = run(
                 "--url", "jdbc:sqlite::memory:",

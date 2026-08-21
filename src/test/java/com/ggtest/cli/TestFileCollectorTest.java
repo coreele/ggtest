@@ -24,7 +24,9 @@ class TestFileCollectorTest {
         Path deep = Files.writeString(nested.resolve("deep.slt"), "statement ok\nSELECT 1;\n");
         Path alpha = Files.writeString(tempDir.resolve("alpha.test"), "statement ok\nSELECT 1;\n");
         Files.writeString(tempDir.resolve("ignore.txt"), "not a test");
+        Files.writeString(tempDir.resolve("doc.md"), "```slt\nstatement ok\nSELECT 1;\n```\n");
         Files.writeString(nested.resolve("also.skip"), "not a test");
+        Files.writeString(nested.resolve("also.md"), "```slt\nstatement ok\nSELECT 1;\n```\n");
 
         List<Path> collected = TestFileCollector.collect(List.of(tempDir.toString()));
 
@@ -52,6 +54,26 @@ class TestFileCollectorTest {
         List<Path> collected = TestFileCollector.collect(List.of(slt.toString()));
 
         assertEquals(List.of(slt.toAbsolutePath().normalize()), collected);
+    }
+
+    @Test
+    void explicitMarkdownFileIsCollected() throws IOException {
+        Path markdown = Files.writeString(tempDir.resolve("doc.md"), "```slt\nstatement ok\nSELECT 1;\n```\n");
+
+        List<Path> collected = TestFileCollector.collect(List.of(markdown.toString()));
+
+        assertEquals(List.of(markdown.toAbsolutePath().normalize()), collected);
+    }
+
+    @Test
+    void directoryDoesNotCollectMarkdownFiles() throws IOException {
+        Files.writeString(tempDir.resolve("doc.md"), "```slt\nstatement ok\nSELECT 1;\n```\n");
+
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> TestFileCollector.collect(List.of(tempDir.toString())));
+
+        assertTrue(ex.getMessage().contains("*.test") || ex.getMessage().contains("*.slt"));
     }
 
     @Test

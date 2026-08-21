@@ -45,7 +45,8 @@ final class FileRunner {
     FileOutcome run(SqlLogicTestParser parser, Path file, String display) {
         List<SqlTestRecord> records;
         try {
-            records = parser.parse(file);
+            ExecutableDocument document = ExecutableDocumentLoader.load(file);
+            records = parser.parse(document.sourceName(), document.content());
         } catch (ParseException ex) {
             return FileOutcome.hardFailure(reportWriter.detailLines(
                     "parse error: " + sanitize(ex.reason()),

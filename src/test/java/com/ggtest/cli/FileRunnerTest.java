@@ -125,6 +125,98 @@ class FileRunnerTest {
         assertAtIndent4(outcome.detailLines());
     }
 
+    @Test
+    void explicitMarkdownFileExecutesMultipleSupportedFencesInOneContext() throws Exception {
+        Path file = overrideTempDir.resolve("doc.md");
+        Files.writeString(file, ""
+                + "# Demo\n"
+                + "\n"
+                + "```sql\n"
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "```\n"
+                + "\n"
+                + "prose between blocks\n"
+                + "\n"
+                + "```slt\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(7)\n"
+                + "\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "7\n"
+                + "```\n"
+                + "after\n");
+
+        FileOutcome outcome = runner.run(parser, file, "doc.md");
+
+        assertEquals(FileBucket.PASSED, outcome.bucket());
+        assertFalse(outcome.hardError());
+    }
+
+    @Test
+    void unsupportedMarkdownFenceIsSkipped() throws Exception {
+        Path file = overrideTempDir.resolve("doc.md");
+        Files.writeString(file, ""
+                + "# Demo\n"
+                + "\n"
+                + "```python\n"
+                + "statement ok\n"
+                + "SELECT 1\n"
+                + "```\n");
+
+        FileOutcome outcome = runner.run(parser, file, "doc.md");
+
+        assertEquals(FileBucket.PASSED, outcome.bucket());
+        assertFalse(outcome.hardError());
+        assertTrue(outcome.detailLines().isEmpty());
+    }
+
+    @Test
+    void markdownPureSqlFenceUsesSltParserErrors() throws Exception {
+        Path file = overrideTempDir.resolve("pure-sql.md");
+        Files.writeString(file, ""
+                + "before\n"
+                + "```sql\n"
+                + "SELECT 1;\n"
+                + "```\n");
+
+        FileOutcome outcome = runner.run(parser, file, "pure-sql.md");
+
+        assertEquals(FileBucket.FAILED, outcome.bucket());
+        assertTrue(outcome.hardError());
+        String joined = stripAnsi(String.join("\n", outcome.detailLines()));
+        assertTrue(joined.contains("parse error:"), joined);
+        assertTrue(joined.contains("pure-sql.md:3"), joined);
+        assertTrue(joined.contains("unknown record type: SELECT"), joined);
+    }
+
+    @Test
+    void markdownAssertionFailureReportsOriginalLineNumber() throws Exception {
+        Path file = overrideTempDir.resolve("fail.md");
+        Files.writeString(file, ""
+                + "# Demo\n"
+                + "\n"
+                + "```sqllogictest\n"
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(1)\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "2\n"
+                + "```\n");
+
+        FileOutcome outcome = runner.run(parser, file, "fail.md");
+
+        assertEquals(FileBucket.FAILED, outcome.bucket());
+        assertFalse(outcome.hardError());
+        String joined = stripAnsi(String.join("\n", outcome.detailLines()));
+        assertTrue(joined.contains("fail.md:8"), joined);
+    }
+
     private static void assertAtIndent4(List<String> lines) {
         boolean sawAt = false;
         for (String raw : lines) {
@@ -263,6 +355,41 @@ class FileRunnerTest {
         assertTrue(content.contains("statement error "), () -> "execution failure must become statement error:\n" + content);
         assertTrue(content.contains("----\n42\n"), () -> "in-scope override must still be written:\n" + content);
         assertFalse(content.contains("wrong"), () -> "old expected should be gone:\n" + content);
+    }
+
+    @Test
+    void overrideEnabled_markdownFileRewrittenInsideCodeBlockOnly() throws Exception {
+        Path file = overrideTempDir.resolve("doc.md");
+        Files.writeString(file, ""
+                + "# Demo\n"
+                + "\n"
+                + "Prose before.\n"
+                + "\n"
+                + "```slt\n"
+                + "statement ok\n"
+                + "CREATE TABLE t(x int)\n"
+                + "statement ok\n"
+                + "INSERT INTO t VALUES(42)\n"
+                + "query I nosort\n"
+                + "SELECT x FROM t\n"
+                + "----\n"
+                + "wrong\n"
+                + "```\n"
+                + "\n"
+                + "Prose after.\n");
+        CliOptions options = sqliteOptionsWithOverride("jdbc:sqlite::memory:");
+        ReportWriter rw = new ReportWriter(new PrintStream(new ByteArrayOutputStream()), new ReportStyle(false));
+        FileRunner overrideRunner = new FileRunner(options, new PrintStream(new ByteArrayOutputStream()), rw);
+
+        FileOutcome outcome = overrideRunner.run(parser, file, "doc.md");
+
+        assertEquals(FileBucket.OVERRIDDEN, outcome.bucket());
+        assertFalse(outcome.hardError());
+        String content = Files.readString(file, StandardCharsets.UTF_8);
+        assertTrue(content.startsWith("# Demo\n\nProse before.\n\n```slt\n"), content);
+        assertTrue(content.contains("----\n42\n```\n"), content);
+        assertTrue(content.endsWith("\nProse after.\n"), content);
+        assertFalse(content.contains("wrong"), content);
     }
 
     @Test
