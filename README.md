@@ -32,6 +32,23 @@ the default suite passes.
 
 Or `java -jar target/ggtest-*.jar --url jdbc:sqlite::memory: file.test`.
 
+### Executable Markdown
+
+Explicit `.md` file inputs are executable. GGTEST scans fenced code blocks whose
+first info-string token is `sql`, `slt`, or `sqllogictest` (case-insensitive) and
+runs those block contents as sqllogictest. Prose, fence lines, and unsupported
+code blocks are ignored while original line numbers are preserved in reports.
+
+```bash
+./bin/ggtest --url jdbc:sqlite::memory: docs/example.md
+```
+
+Directory inputs still recurse only `*.test` and `*.slt`; pass `.md` files
+explicitly. A Markdown file with no supported blocks passes with zero records.
+`sql` fences are not a separate pure-SQL mode: their contents must be valid
+sqllogictest, so plain SQL receives the normal parser error. `--override` works
+for `.md` files and rewrites only the record ranges inside executable blocks.
+
 ### Output examples
 
 **Pass:**

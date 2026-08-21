@@ -29,6 +29,22 @@ PostgreSQL / MySQL / XuguDB 测试由环境变量门控（`GGTEST_PG_URL` / `GGT
 
 或 `java -jar target/ggtest-*.jar --url jdbc:sqlite::memory: file.test`。
 
+### 可执行 Markdown
+
+显式传入的 `.md` 文件可以直接执行。GGTEST 会扫描 fenced code block，取
+info string 的第一个 token；`sql`、`slt`、`sqllogictest`（大小写不敏感）
+都会按 sqllogictest 内容执行。代码块外文本、fence 行和不支持的代码块会被
+忽略，同时报告中的行号仍对应原始 Markdown。
+
+```bash
+./bin/ggtest --url jdbc:sqlite::memory: docs/example.md
+```
+
+目录输入仍只递归收集 `*.test` 和 `*.slt`；`.md` 需要显式传入。没有支持代码块的
+Markdown 会以 0 条记录通过。`sql` fence 不是独立的纯 SQL 模式：块内仍必须符合
+sqllogictest 规范，纯 SQL 会得到正常 parser 错误。`--override` 支持 `.md`，并且只
+改写可执行代码块内的记录区间。
+
 ### 输出示例
 
 **通过：**
