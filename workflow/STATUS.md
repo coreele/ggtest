@@ -7,12 +7,12 @@
 
 | 泳道 | 数量 | 工作项 |
 |---|---|---|
-| 等待用户 | 1 | rust-rewrite |
+| 等待用户 | 0 | — |
 | 进行中 | 0 | — |
 | 待办 | 2 | add-lcs-diff-guard, fix-sql-hash-comments |
 | 阻塞 | 1 | add-report-format |
-| 待归档 | 1 | execute-markdown-slt |
-| 已归档 | 54 | — |
+| 待归档 | 0 | — |
+| 已归档 | 56 | — |
 
 ## 等待用户
 
@@ -20,7 +20,7 @@
 
 | 工作项 | 等待什么 | 停在此处自 | 摘要 |
 |---|---|---|---|
-| rust-rewrite | Spec 确认 | 2026-08-14 | Rust 重写 ggtest（ODBC，去 XuguDB） |
+| — | | | |
 
 ## 进行中
 
@@ -47,7 +47,7 @@
 
 | 工作项 | 源分支 → 目标分支 | 待确认事项 |
 |---|---|---|
-| execute-markdown-slt | execute-markdown-slt → main | 已获用户合并授权，待合入并归档 |
+| — | | |
 
 ## 归档索引
 
@@ -66,6 +66,7 @@
 | chore-audit-tails | done | [chore-audit-tails.md](archive/2026/chore-audit-tails/chore-audit-tails.md) |
 | chore-maven-compiler-release | done | [chore-maven-compiler-release.md](archive/2026/chore-maven-compiler-release/chore-maven-compiler-release.md) |
 | enhance-override | done | [enhance-override.md](archive/2026/enhance-override/enhance-override.md) |
+| execute-markdown-slt | done | [execute-markdown-slt.md](archive/2026/execute-markdown-slt/execute-markdown-slt.md) |
 | feat-cli-halt | done | [feat-cli-halt.md](archive/2026/feat-cli-halt/feat-cli-halt.md) |
 | feat-override-results | done | [feat-override-results.md](archive/2026/feat-override-results/feat-override-results.md) |
 | feat-statement-error-msg | done | [feat-statement-error-msg.md](archive/2026/feat-statement-error-msg/feat-statement-error-msg.md) |
@@ -103,6 +104,7 @@
 | query-header-kv-attrs | done | [query-header-kv-attrs.md](archive/2026/query-header-kv-attrs/query-header-kv-attrs.md) |
 | refactor-cli-session-boundaries | done | [refactor-cli-session-boundaries.md](archive/2026/refactor-cli-session-boundaries/refactor-cli-session-boundaries.md) |
 | refactor-filerunner-responsibilities | done | [refactor-filerunner-responsibilities.md](archive/2026/refactor-filerunner-responsibilities/refactor-filerunner-responsibilities.md) |
+| rust-rewrite | cancelled | [rust-rewrite.md](archive/2026/rust-rewrite/rust-rewrite.md) |
 | sync-readme | done | [sync-readme.md](archive/2026/sync-readme/sync-readme.md) |
 | sync-vs-slt-grammar | done | [sync-vs-slt-grammar.md](archive/2026/sync-vs-slt-grammar/sync-vs-slt-grammar.md) |
 | tighten-cli-boundary-validation | done | [tighten-cli-boundary-validation.md](archive/2026/tighten-cli-boundary-validation/tighten-cli-boundary-validation.md) |
