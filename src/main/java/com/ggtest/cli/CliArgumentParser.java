@@ -91,6 +91,9 @@ public final class CliArgumentParser {
                     case "--override" -> override = true;
                     case "--separator" -> {
                         String sep = requireValue(args, ++i, "--separator");
+                        if (sep.isEmpty()) {
+                            throw new UsageException("--separator value must not be empty");
+                        }
                         if (sep.chars().anyMatch(Character::isWhitespace)) {
                             throw new UsageException("--separator value must not contain whitespace");
                         }
@@ -129,7 +132,11 @@ public final class CliArgumentParser {
 
     private static int parseHashThreshold(String raw) {
         try {
-            return Integer.parseInt(raw);
+            int value = Integer.parseInt(raw);
+            if (value < 0) {
+                throw new UsageException("--hash-threshold must be non-negative, got: " + value);
+            }
+            return value;
         } catch (NumberFormatException ex) {
             throw new UsageException("invalid --hash-threshold value: " + raw);
         }

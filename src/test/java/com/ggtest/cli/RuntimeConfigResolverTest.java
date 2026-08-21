@@ -284,6 +284,32 @@ class RuntimeConfigResolverTest {
     }
 
     @Test
+    void negativeHashThresholdFromProcessEnvYieldsUsageError() {
+        Map<String, String> process = Map.of(
+                "GGTEST_URL", "jdbc:sqlite::memory:",
+                "GGTEST_HASH_THRESHOLD", "-1");
+
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> resolve(parsed("a.test"), process::get));
+
+        assertTrue(ex.getMessage().toLowerCase().contains("hash-threshold"));
+        assertTrue(ex.getMessage().toLowerCase().contains("non-negative"));
+    }
+
+    @Test
+    void negativeHashThresholdFromDotEnvYieldsUsageError() throws IOException {
+        writeEnv("GGTEST_URL=jdbc:sqlite::memory:\nGGTEST_HASH_THRESHOLD=-1\n");
+
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> resolve(parsed("a.test"), key -> null));
+
+        assertTrue(ex.getMessage().toLowerCase().contains("hash-threshold"));
+        assertTrue(ex.getMessage().toLowerCase().contains("non-negative"));
+    }
+
+    @Test
     void cliOptionsToStringRedactsUrlUserInfo() {
         CliOptions options = new CliOptions(
                 "jdbc:postgresql://alice:bob@localhost/mydb",

@@ -14,9 +14,18 @@ final class ConnectionFactory {
         Properties properties = new Properties();
         options.user().ifPresent(user -> properties.setProperty("user", user));
         options.password().ifPresent(password -> properties.setProperty("password", password));
-        if (properties.isEmpty()) {
-            return DriverManager.getConnection(options.url());
+        try {
+            if (properties.isEmpty()) {
+                return DriverManager.getConnection(options.url());
+            }
+            return DriverManager.getConnection(options.url(), properties);
+        } catch (RuntimeException ex) {
+            throw new SQLException("JDBC driver connection error: " + summarize(ex), ex);
         }
-        return DriverManager.getConnection(options.url(), properties);
+    }
+
+    private static String summarize(RuntimeException ex) {
+        String message = ex.getMessage();
+        return message == null || message.isBlank() ? ex.getClass().getSimpleName() : message.strip();
     }
 }

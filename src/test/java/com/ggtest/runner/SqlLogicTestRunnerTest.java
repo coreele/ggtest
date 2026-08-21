@@ -181,6 +181,21 @@ class SqlLogicTestRunnerTest {
     }
 
     @Test
+    void initialHashThresholdZeroCanBeReenabledByHashThresholdRecord() {
+        String sql = "SELECT a FROM t1";
+        String hashLine = ResultHasher.hashForm(List.of("1", "2", "3"));
+        FakeDatabaseExecutor executor = new FakeDatabaseExecutor()
+                .queryReturns(sql, List.of(List.of("1"), List.of("2"), List.of("3")));
+
+        FileRunResult result = new SqlLogicTestRunner(executor, 0)
+                .run(List.of(
+                        hashThreshold(2),
+                        query(List.of(ColumnType.INTEGER), SortMode.NOSORT, null, sql, List.of(hashLine))));
+
+        assertEquals(List.of(RecordOutcome.PASSED), outcomes(result));
+    }
+
+    @Test
     void skippedHashThresholdRecordLeavesThresholdUnchanged() {
         String sql = "SELECT a FROM t1";
         String hashLine = ResultHasher.hashForm(List.of("1", "2", "3"));

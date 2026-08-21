@@ -238,6 +238,19 @@ class CliArgumentParserTest {
     }
 
     @Test
+    void negativeHashThresholdYieldsUsageError() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> CliArgumentParser.parse(new String[] {
+                    "--url", "jdbc:sqlite::memory:",
+                    "--hash-threshold", "-1",
+                    "a.test"
+                }));
+        assertTrue(ex.getMessage().toLowerCase().contains("hash-threshold"));
+        assertTrue(ex.getMessage().toLowerCase().contains("non-negative"));
+    }
+
+    @Test
     void usageErrorMessageDoesNotContainPasswordValue() {
         UsageException ex = assertThrows(
                 UsageException.class,
@@ -364,5 +377,18 @@ class CliArgumentParserTest {
                     "a.test"
                 }));
         assertTrue(ex.getMessage().toLowerCase().contains("whitespace"), ex.getMessage());
+    }
+
+    @Test
+    void separatorEmptyYieldsUsageError() {
+        UsageException ex = assertThrows(
+                UsageException.class,
+                () -> CliArgumentParser.parse(new String[] {
+                    "--url", "jdbc:sqlite::memory:",
+                    "--override", "--separator", "",
+                    "a.test"
+                }));
+        assertTrue(ex.getMessage().toLowerCase().contains("separator"), ex.getMessage());
+        assertTrue(ex.getMessage().toLowerCase().contains("empty"), ex.getMessage());
     }
 }

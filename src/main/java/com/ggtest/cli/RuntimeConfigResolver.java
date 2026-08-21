@@ -173,7 +173,11 @@ public final class RuntimeConfigResolver {
 
     private static int parseHashThreshold(String raw) {
         try {
-            return Integer.parseInt(raw.strip());
+            int value = Integer.parseInt(raw.strip());
+            if (value < 0) {
+                throw new UsageException("hash-threshold must be non-negative, got: " + value);
+            }
+            return value;
         } catch (NumberFormatException ex) {
             throw new UsageException("invalid hash-threshold value: " + raw);
         }
