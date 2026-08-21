@@ -31,7 +31,7 @@ workflow/
 
 用词约定：本文档用「工作树」指 Git 中未提交的本地改动，与目录 `workflow/workspace/` 无关，二者不要混。
 
-**工作项标识 `<id>`**：小写短横线，全局唯一。它同时是调度主键、目录名和建议分支名。
+**工作项标识 `<id>`**：小写短横线，全局唯一。它同时是调度主键、目录名和建议分支名。每个工作项独立登记、独立走完整流程；不设父项 / 子项，也不用总览项索引其他工作项。范围过大时登记为多个独立 `<id>`，彼此无隶属关系。
 
 **一个工作项 = 一个目录**：
 
@@ -96,7 +96,6 @@ QA `Fail` 闭环：Developer 修复并在同一 `dev-notes.md` 追加回执 → 
 | `archived` | 已归档，终态 | — |
 | `blocked` | 阻塞，须记录原因与恢复条件 | → 记录中「恢复后目标」 |
 | `cancelled` | 用户取消，终态（仍须归档记录） | → `archived` |
-| `tracking` | 总览项，只索引不实施 | 子项全部归档 → `archived` |
 
 两个状态名以 `-approval` 结尾，含义固定为「流程停住，等用户回话」，看板据此单列一栏。
 
@@ -121,10 +120,6 @@ QA `Fail` 闭环：Developer 修复并在同一 `dev-notes.md` 追加回执 → 
 
 Manager 可在任意活动态调整路径等级与 Spec / Design / Review 门禁，须在进度笔记记录日期、原值、新值与理由。其他角色一律不得重判，只能停止并报告。
 
-### 3.3 拆分
-
-大工作项拆成多个独立 `<id>`，父项状态为 `tracking`、不产出实施类文档，在其 `<id>.md` 列出子项 `<id>`；子项各自走完整流程。禁止用子目录表达父子关系。
-
 ## 4. 角色
 
 | 角色 | 产物 | 可写 | 明确不做 |
@@ -144,7 +139,7 @@ Manager 可在任意活动态调整路径等级与 Spec / Design / Review 门禁
 
 ### 4.1 看板作用域与并行
 
-`STATUS.md` 是**当前 Git 分支 / 工作树的看板视图**，不是跨分支的全局数据库。一个 Git 工作树同一时间只推进一个实施类工作项；并行工作项必须使用独立 `git worktree`，每个 worktree 检出各自源分支并维护自己的 STATUS 视图。跨分支全局汇总应交给 Issue / PR 系统，不在本地 Markdown 看板中伪装实现。
+`STATUS.md` 是**当前 Git 分支 / 工作树的看板视图**，不是跨分支的全局数据库。一个 Git 工作树同一时间只推进一个工作项；并行工作项必须使用独立 `git worktree`，每个 worktree 检出各自源分支并维护自己的 STATUS 视图。跨分支全局汇总应交给 Issue / PR 系统，不在本地 Markdown 看板中伪装实现。
 
 ## 5. 路径等级与门禁
 
@@ -155,7 +150,6 @@ Manager 可在任意活动态调整路径等级与 Spec / Design / Review 门禁
 | `fast` | 范围明确的单点修改 | 默认 `skipped` | 默认 `skipped` | 可 `skipped` |
 | `standard` | 常规功能、重构、接口变更 | 有合同风险时 `required` | 有结构决策时 `required` | `required` |
 | `full` | 新能力、跨模块、范围未明 | `required` | 通常 `required` | `required` |
-| `tracking` | 只索引不实施 | `N/A` | `N/A` | `N/A` |
 
 **无条件必需，任何等级都不得跳过：** `plan.md`、`dev-notes.md`、`qa-report.md`。
 
@@ -189,7 +183,7 @@ Manager 可在任意活动态调整路径等级与 Spec / Design / Review 门禁
 | 事项 | 何时 | 状态 |
 |---|---|---|
 | Spec 确认 | `full`；或 `standard` 且存在业务歧义 | `spec-approval` |
-| 合并授权 | 所有实施类路径 | `merge-approval` |
+| 合并授权 | 所有路径 | `merge-approval` |
 
 除此之外，Design、Plan、实施、Review、QA 阶段一律连续推进，不停下来问用户。
 

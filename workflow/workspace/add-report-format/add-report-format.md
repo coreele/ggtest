@@ -23,12 +23,6 @@
 |---|---|---|---|---|
 | blocked | 恢复后 → Planner（Design + Plan） | 用户优先级调整，暂停以处理 P3 并行文件执行 | 用户要求恢复 P2 | designing |
 
-## 子项（仅 tracking 项填写）
-
-| 子项 id | 状态 |
-|---|---|
-| — | |
-
 ## 进度笔记
 
 - 2026-08-11 登记。来源 `TODO:12-15`（P2 测试报告输出）。当前仅 human-readable stdout（`ReportWriter` + `CliSession.execute`），缺机器可读格式，不利 CI（GitHub Actions / Jenkins）集成。

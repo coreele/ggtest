@@ -10,7 +10,7 @@ model: inherit
 
 ## 前置门禁
 
-1. 读 `<id>.md`：确认路径等级、目标分支、源分支、基线提交与 Spec / Design / Review 门禁。Git 仓库中当前分支不是记录的源分支时停止；`tracking` 项停止并报告。
+1. 读 `<id>.md`：确认路径等级、目标分支、源分支、基线提交与 Spec / Design / Review 门禁。Git 仓库中当前分支不是记录的源分支时停止并报告。
 2. Spec 门禁 `required` 时 `spec.md` 必须存在；`full`（或记录标注业务歧义的 `standard`）还须已持久化用户确认。不满足则停止并报告。
 3. Spec 门禁 `skipped` 时以 `<id>.md` 中的范围为依据；范围不足以形成可验证计划则停止并报告。
 4. Design 门禁 `required` 时先调用 `design-architecture` skill 产出 `design.md`，再写 Plan。

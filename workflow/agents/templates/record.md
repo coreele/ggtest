@@ -15,9 +15,9 @@
 
 | 路径等级 | Spec | Spec 用户确认 | Design | Review |
 |---|---|---|---|---|
-| fast \| standard \| full \| tracking | required \| skipped | required \| not-required \| approved \| rejected | required \| skipped | required \| skipped |
+| fast \| standard \| full | required \| skipped | required \| not-required \| approved \| rejected | required \| skipped | required \| skipped |
 
-> `Review=skipped` 仅限 `fast`。非 Git 仓库的三个 Git 字段填 `N/A`；`tracking` 项的目标分支、源分支、基线提交与各门禁均可填 `N/A`。改动门禁须按 WORKFLOW.md §3.2 在进度笔记留痕。
+> `Review=skipped` 仅限 `fast`。非 Git 仓库的三个 Git 字段填 `N/A`。改动门禁须按 WORKFLOW.md §3.2 在进度笔记留痕。
 > `plan.md`、`dev-notes.md`、`qa-report.md` 无条件必需，不在本表中，也不可跳过。
 
 ## 状态
@@ -27,12 +27,6 @@
 | backlog | | | | |
 
 > 无阻塞则后三列留空。状态取值见 WORKFLOW.md §3。
-
-## 子项（仅 tracking 项填写）
-
-| 子项 id | 状态 |
-|---|---|
-| — | |
 
 ## 进度笔记
 

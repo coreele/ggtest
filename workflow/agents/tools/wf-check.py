@@ -3,12 +3,6 @@
 
 用法: python3 workflow/agents/tools/wf-check.py [--verbose]
 退出码: 0 全部通过 / 1 存在错误
-
-相对 ggnote 原版的存量适配（新工作项仍按 WORKFLOW.md 严格执行）：
-- archive/ 下除 <id>.md 外的历史产物不校验链接与表格
-- 归档项不要求补齐 plan/dev-notes/review，也不校验源分支是否仍是基线祖先
-- 待办 / 等待用户 / 阻塞 不要求当前检出源分支
-- 同一工作树最多一个「进行中」实施项（speccing…qa），待办可并存
 """
 from __future__ import annotations
 
@@ -25,7 +19,7 @@ IS_GIT = (REPO / ".git").exists()            # worktree 中 .git 可能是文件
 STATES = {
     "backlog", "speccing", "spec-approval", "designing", "planning",
     "developing", "reviewing", "qa", "merge-approval", "done",
-    "archived", "blocked", "cancelled", "tracking",
+    "archived", "blocked", "cancelled",
 }
 # 达到该状态时必须已存在的产物
 REQUIRED_AT = [
@@ -38,9 +32,9 @@ REQUIRED_AT = [
 ]
 ORDER = ["backlog", "speccing", "spec-approval", "designing", "planning",
          "developing", "reviewing", "qa", "merge-approval", "done", "archived"]
-LEVELS = {"fast", "standard", "full", "tracking", "N/A"}
-GATES = {"required", "skipped", "N/A"}
-SPEC_APPROVALS = {"required", "not-required", "approved", "rejected", "N/A"}
+LEVELS = {"fast", "standard", "full"}
+GATES = {"required", "skipped"}
+SPEC_APPROVALS = {"required", "not-required", "approved", "rejected"}
 ARTIFACTS = {"spec.md", "design.md", "ui-design.md", "plan.md",
              "dev-notes.md", "review.md", "qa-report.md"}
 # 工作项记录与目录同名：workspace/<id>/<id>.md
@@ -110,7 +104,7 @@ def check_paths(path: Path) -> None:
     text = path.read_text(encoding="utf-8")
     for i, line in enumerate(text.splitlines(), 1):
         for ref in re.findall(r"`(workflow/[^`\s]+)`", line):
-            if "<" in ref or "*" in ref or "{" in ref:
+            if "<" in ref or "*" in ref:
                 continue
             if not (REPO / ref.rstrip("/")).exists():
                 err(f"{path.relative_to(REPO)}:{i}", f"路径不存在 `{ref}`")
@@ -206,17 +200,17 @@ def check_entry(d: Path, archived: bool) -> tuple[str, str] | None:
         err(doc, f"Spec 用户确认取值非法 `{spec_approval}`")
     if review_gate == "skipped" and level != "fast":
         err(doc, "Review=skipped 仅允许 fast 路径")
-    if level != "tracking" and IS_GIT:
+    if IS_GIT:
         if not target or target == "N/A":
-            err(doc, "实施类工作项必须填写目标分支")
+            err(doc, "工作项必须填写目标分支")
         if not source or source == "N/A":
-            err(doc, "实施类工作项必须填写源分支")
+            err(doc, "工作项必须填写源分支")
         elif PROTECTED.match(source):
             err(doc, f"源分支不得为受保护分支 `{source}`")
         elif source != d.name and not source.startswith(f"{d.name}-"):
             err(doc, f"源分支 `{source}` 必须为 `<id>` 或以 `<id>-` 开头")
         if not SHA_RE.match(baseline):
-            err(doc, "实施类工作项必须填写 7–40 位十六进制基线提交 SHA")
+            err(doc, "工作项必须填写 7–40 位十六进制基线提交 SHA")
         else:
             if git("cat-file", "-e", f"{baseline}^{{commit}}")[0] != 0:
                 err(doc, f"基线提交 `{baseline}` 在当前仓库中不存在")
@@ -224,36 +218,20 @@ def check_entry(d: Path, archived: bool) -> tuple[str, str] | None:
                 and git("rev-parse", "--verify", target)[0] != 0:
             err(doc, f"目标分支 `{target}` 在当前仓库中不存在")
         if source and source != "N/A":
-            source_present = git("rev-parse", "--verify", source)[0] == 0
-            if not source_present:
-                if not archived and state in {
-                    "speccing", "designing", "planning", "developing",
-                    "reviewing", "qa", "merge-approval",
-                }:
-                    err(doc, f"源分支 `{source}` 在当前仓库中不存在")
-            elif not archived and SHA_RE.match(baseline) and \
+            if git("rev-parse", "--verify", source)[0] != 0:
+                err(doc, f"源分支 `{source}` 在当前仓库中不存在")
+            elif SHA_RE.match(baseline) and \
                     git("merge-base", "--is-ancestor", baseline, source)[0] != 0:
                 err(doc, f"基线提交 `{baseline}` 不是源分支 `{source}` 的祖先")
-            live = not archived and state in {
-                "speccing", "designing", "planning", "developing",
-                "reviewing", "qa", "merge-approval",
-            }
-            if live:
+            if not archived and state not in {"done", "cancelled"}:
                 current = git("branch", "--show-current")[1]
                 if current != source:
                     err(doc, f"当前分支 `{current or '(detached HEAD)'}` "
                              f"与记录的源分支 `{source}` 不一致")
-    elif level != "tracking" and any(v != "N/A" for v in
-                                     (target, source, baseline)):
+    elif any(v != "N/A" for v in (target, source, baseline)):
         err(doc, "非 Git 仓库的目标分支、源分支与基线提交应为 N/A")
-    elif level == "tracking" and any(v != "N/A" for v in
-                                    (target, source, baseline, spec_gate,
-                                     spec_approval, design_gate, review_gate)):
-        err(doc, "tracking 项的分支、基线与门禁应全部为 N/A")
-    if level == "tracking" and state not in {"tracking", "archived", "cancelled"}:
-        err(doc, "tracking 项状态应为 tracking / archived / cancelled")
 
-    if state in ORDER and level != "tracking" and not archived:
+    if state in ORDER:
         idx = ORDER.index(state)
         missing = {f for at, f in REQUIRED_AT
                    if idx >= ORDER.index(at) and not (d / f).exists()}
@@ -341,14 +319,6 @@ def main() -> int:
 
     md_files = list(ROOT.rglob("*.md"))
     for p in md_files:
-        rel = p.relative_to(ROOT)
-        # 历史归档产物不按现行链接/表格规则回改；仍校验工作项记录与机制文件。
-        archive_artifact = (
-            rel.parts and rel.parts[0] == "archive"
-            and p.name != f"{p.parent.name}.md"
-        )
-        if archive_artifact:
-            continue
         check_tables(p)
         check_paths(p)
         check_links(p)
@@ -358,21 +328,9 @@ def main() -> int:
         if d.is_dir():
             active.add(d.name)
             check_entry(d, archived=False)
-    in_flight = []
-    for d in sorted((ROOT / "workspace").iterdir()):
-        if not d.is_dir():
-            continue
-        rec = d / f"{d.name}.md"
-        if not rec.exists():
-            continue
-        st_rows = rows(rec.read_text(encoding="utf-8"), "状态")
-        st = st_rows[0][0] if st_rows else ""
-        if st in {"speccing", "designing", "planning", "developing",
-                  "reviewing", "qa"}:
-            in_flight.append(d.name)
-    if IS_GIT and len(in_flight) > 1:
+    if IS_GIT and len(active) > 1:
         err("workflow/workspace",
-            f"一个 Git 工作树只允许一个进行中的实施项，当前有：{in_flight}")
+            f"一个 Git 工作树只允许一个工作项，当前有：{sorted(active)}")
 
     # archive/ 首次归档时才创建，存在则校验
     archived: set[str] = set()

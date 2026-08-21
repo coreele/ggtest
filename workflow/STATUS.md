@@ -90,7 +90,7 @@
 | fix-shared-defaults | done | [fix-shared-defaults.md](archive/2026/fix-shared-defaults/fix-shared-defaults.md) |
 | ggtest-cli-help | done | [ggtest-cli-help.md](archive/2026/ggtest-cli-help/ggtest-cli-help.md) |
 | ggtest-cli-report | done | [ggtest-cli-report.md](archive/2026/ggtest-cli-report/ggtest-cli-report.md) |
-| ggtest-core | archived（tracking 父项） | [ggtest-core.md](archive/2026/ggtest-core/ggtest-core.md) |
+| ggtest-core | cancelled | [ggtest-core.md](archive/2026/ggtest-core/ggtest-core.md) |
 | ggtest-core-cli-corpus | done | [ggtest-core-cli-corpus.md](archive/2026/ggtest-core-cli-corpus/ggtest-core-cli-corpus.md) |
 | ggtest-core-normalize | done | [ggtest-core-normalize.md](archive/2026/ggtest-core-normalize/ggtest-core-normalize.md) |
 | ggtest-core-parser | done | [ggtest-core-parser.md](archive/2026/ggtest-core-parser/ggtest-core-parser.md) |

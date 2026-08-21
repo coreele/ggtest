@@ -23,12 +23,6 @@
 |---|---|---|---|---|
 | backlog | Planner |  |  |  |
 
-## 子项（仅 tracking 项填写）
-
-| 子项 id | 状态 |
-|---|---|
-| — | |
-
 ## 进度笔记
 
 - 2026-08-07 登记。P1：官方 sqllogictest 要求裁剪 SQL 体中的 `#` 注释；当前仅 skipif/onlyif 头处理。`SqlLogicTestParser.readSqlBody()` 需逐行 strip `#` 及后续内容。

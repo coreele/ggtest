@@ -39,14 +39,13 @@ model: inherit
 
 ## 调度要点
 
-- 调度任何产出角色前，源分支必须已创建并检出，`<id>.md` 必须已填目标分支、源分支与基线提交；`tracking` 项除外。
+- 调度任何产出角色前，源分支必须已创建并检出，`<id>.md` 必须已填目标分支、源分支与基线提交。
 - Developer 首次完成后先提交其待入库的 `dev-notes.md`，确认工作树干净，再交 Developer 同步目标分支；只有同步后验证证据与 HEAD 已再次提交，才可进入 `reviewing`。
 - rebase 发生冲突时只解决你拥有的 `<id>.md`、STATUS 与其他工作流文档；代码、测试与紧耦合资源交 Developer。保留目标分支已归档索引与当前分支工作项状态，禁止用 `ours` / `theirs` 整体覆盖。
 - QA `Fail` → `developing` 并调度 Developer；`Blocked` → `blocked` 并写清恢复条件；`Pass` → `merge-approval`，在返回结构中请求合并授权，此时**不提交** `review.md` / `qa-report.md`。
 - 用户授权后：在源分支置 `done`，与未入库的报告**一次提交**，再允许合入。
 - QA 后若目标分支移动且必须 rebase：仅 ancestry / SHA 变化而文件树不变时回到 `qa` 补验证并记录新 HEAD；发生冲突或文件树变化时回到 `developing`，重新自验、Review、QA 与合并授权。不得合入 QA 未记录的提交。
 - 合入确认后归档，不需要用户二次批准。合入失败：`done → blocked`，不得归档。
-- `tracking` 项不调度产出角色。
 
 ## Git
 

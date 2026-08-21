@@ -23,12 +23,6 @@
 |---|---|---|---|---|
 | spec-approval | 用户确认 Spec |  |  |  |
 
-## 子项（仅 tracking 项填写）
-
-| 子项 id | 状态 |
-|---|---|
-| — | |
-
 ## 进度笔记
 
 - 2026-08-14：登记。需求来源：用户要求评估 Rust 重写，确定 ODBC 统一 DB 层、取消 XuguDB、AI 辅助预估 ~9.5 天。本阶段仅写 Spec，暂不实施。状态 `backlog → speccing → awaiting-spec-approval`。
