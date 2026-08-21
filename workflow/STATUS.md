@@ -11,7 +11,7 @@
 | 进行中 | 0 | — |
 | 待办 | 2 | add-lcs-diff-guard, fix-sql-hash-comments |
 | 阻塞 | 1 | add-report-format |
-| 待归档 | 0 | — |
+| 待归档 | 1 | tighten-cli-boundary-validation |
 | 已归档 | 53 | — |
 
 ## 等待用户
@@ -47,7 +47,7 @@
 
 | 工作项 | 源分支 → 目标分支 | 待确认事项 |
 |---|---|---|
-| — | | |
+| tighten-cli-boundary-validation | tighten-cli-boundary-validation → main | 已授权，待合入确认后归档 |
 
 ## 归档索引
 
