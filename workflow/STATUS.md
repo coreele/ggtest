@@ -1,7 +1,7 @@
 # 看板
 
 > 由 Manager 唯一维护。本文件是**当前 Git 分支 / 工作树的看板视图**，不是跨分支全局数据库；并行工作项使用独立 `git worktree`。流程与状态定义见 [WORKFLOW.md](WORKFLOW.md)，本文件不重复定义规则。
-> 活跃工作项记录 `workflow/workspace/<id>/<id>.md`，归档记录 `workflow/archive/<年>/<id>/<id>.md`。
+> 活跃工作项记录 `workflow/workspace/<id>/main.md`，归档记录 `workflow/archive/<年>/<id>/<id>.md`。
 
 ## 概览
 

@@ -26,8 +26,6 @@ Plan 的「最低验证层」从下表取值，可组合，写法如 `unit + bui
 
 三项缺任一，Developer 不得开始实施。
 
-本仓库常用验证命令：`mvn -q test`（`unit` + `build`）、`mvn -q -DskipTests package`（`build`）。静态检查随仓库 Maven 插件（如 SpotBugs）计入 `static`。
-
 ## 3. 开发者自验
 
 Developer 在交给 Reviewer 前必须执行与变更范围匹配的验证，覆盖 Plan 声明的全部层级，命令与结果记入 `dev-notes.md`。
@@ -59,6 +57,6 @@ Review 结论须明确这三项的检查结果。
 
 ## 7. 无法验证时
 
-必须记录**原因**（具体障碍）、**风险**（降级验证对质量的影响）、**恢复条件**（何时可补执行），写入 `dev-notes.md`、`qa-report.md` 或 `<id>.md` 的阻塞字段。
+必须记录**原因**（具体障碍）、**风险**（降级验证对质量的影响）、**恢复条件**（何时可补执行），写入 `dev-notes.md`、`qa-report.md` 或 `main.md` 的阻塞字段。
 
 **禁止静默跳过**：未记录原因与风险的验证缺口，不得进入 QA `Pass` 或合并阶段。

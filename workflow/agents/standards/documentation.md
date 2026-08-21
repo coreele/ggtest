@@ -18,7 +18,7 @@ Docs as Code：文档与相关代码同仓库、同分支、同审阅演进。
 | 界面与交互 | Planner | `workflow/workspace/<id>/ui-design.md` |
 | 需求规格 | Analyst | `workflow/workspace/<id>/spec.md` |
 | 部署与排障 | DevOps | [ops/](../../ops/) |
-| 工作项与流程 | Manager | `workflow/workspace/<id>/<id>.md`、[STATUS.md](../../STATUS.md) |
+| 工作项与流程 | Manager | `workflow/workspace/<id>/main.md`、[STATUS.md](../../STATUS.md) |
 
 只改本职文档；跨角色的文档变更须在 Plan「文档影响」中声明。工作流产物的结构见 [templates/](../templates/)。
 
@@ -42,7 +42,7 @@ Reviewer 或 QA 须核验链接、路径、命令与配置示例可用：实跑�
 
 ## B. 产物整理
 
-**对象：** `spec.md`、`design.md`、`ui-design.md`、`plan.md`、`dev-notes.md`、`review.md`、`qa-report.md`、`<id>.md`。
+**对象：** `spec.md`、`design.md`、`ui-design.md`、`plan.md`、`dev-notes.md`、`review.md`、`qa-report.md`、`main.md`。
 
 **时机：** 初稿或阶段更新完成后、交接前，每次只处理一份。
 

@@ -11,7 +11,7 @@
 1. Manager 在内存中分配 `<id>`，确定**目标分支**（默认 `main`）与**源分支**；源分支名默认即 `<id>`，必要时可为 `<id>-<简短描述>`。
 2. 创建前确认：目标分支存在；源分支名未被其他工作项占用；工作树没有无关修改；远程目标需要更新时已 fetch。
 3. Manager 从明确的目标分支提交创建并检出源分支，记录该提交为**基线提交**。不得用含未提交修改的 `git switch -c` 把其他工作带进新分支；无法获得干净工作树时停止，或使用独立 `git worktree`。
-4. 分支就绪后，Manager 才创建 `workspace/<id>/<id>.md`、更新 STATUS、提交登记记录并调度 Analyst / Planner。
+4. 分支就绪后，Manager 才创建 `workspace/<id>/main.md`、更新 STATUS 并调度 Analyst / Planner。登记与后续预开发文档先留在工作树，不单独提交。
 5. Developer 不创建或改选源分支；开工前只验证当前分支、目标分支、源分支与基线记录一致，不满足就停止并报告 Manager。
 6. 每个工作项独占一个源分支。一个 Git worktree 同时只推进一个工作项；并行工作使用不同 worktree。
 
@@ -20,24 +20,36 @@
 | 内容 | 谁提交 |
 |---|---|
 | 实现代码与测试 | Developer |
-| `<id>.md`、`STATUS.md`、`spec.md`、`design.md`、`ui-design.md`、`plan.md`、`dev-notes.md`、`review.md`、`qa-report.md` | **Manager** |
+| `main.md`、`STATUS.md`、`spec.md`、`design.md`、`ui-design.md`、`plan.md`、`dev-notes.md`、`review.md`、`qa-report.md` | **Manager** |
 | 审计报告与登记册 | 执行 `code-audit` 的会话 |
 
-产出角色一律把文档留在**当前源分支的工作树**并报告，不执行 `git add` / `commit` / `push`。Manager 提交前须确认当前分支与 `<id>.md` 一致，且提交不含无关修改。
+产出角色一律把文档留在**当前源分支的工作树**并报告，不执行 `git add` / `commit` / `push`。Manager 只在 §3 规定的窗口提交；提交前确认当前分支与 `main.md` 一致，且该提交不含代码或无关修改。
 
-## 3. 提交时机
+状态推进写入工作树即可，**不等于** git 提交。
 
-| 时机 | 提交什么 |
-|---|---|
-| 登记完成 | Manager 在新建源分支提交 `<id>.md` 与 STATUS |
-| Spec / Design / Plan 完成 | Manager 随状态推进提交对应阶段文档 |
-| 实施完成 | Developer 先提交代码与测试，Manager 随后提交 `dev-notes.md` 与状态 |
-| Reviewer 给出结论、进入 `qa` | **不提交** `review.md` |
-| QA `Pass`、进入 `merge-approval` | **不提交** `qa-report.md` |
-| 用户授权合并 | Manager 把 `done` 状态与未入库的 `review.md`、`qa-report.md` **一次提交** |
-| QA `Fail` / `Blocked`，或 `Request changes` 退回 | 可与状态回退一并提交，让修复链路有持久证据 |
+## 3. 提交时机（三阶段）
 
-禁止在「QA Pass 待授权」窗口内先单独提交报告、随后再为 `done` 开第二次纯文档提交。
+标准路径在源分支上只有两类提交：Manager 的**两次**工作流文档提交，加上 Developer 的**若干**代码提交。禁止按状态机每走一步就提一次文档。
+
+| 阶段 | 何时 | 谁 | 提交什么 |
+|---|---|---|---|
+| **一、预开发文档** | Plan 齐备、即将调度 Developer（状态进入 `developing`） | Manager | **一次**：`main.md`、STATUS、已产出的 `spec.md` / `design.md` / `ui-design.md` / `plan.md` |
+| **二、实现** | 实施与修复期间 | Developer | **可多次**：代码、测试，以及 Plan「文档影响」中的开发/用户/运维文档。不含 `workflow/` 下工作流产物 |
+| **三、关闭文档** | QA `Pass` 且用户已授权合并（置 `done`） | Manager | **一次**：`done` 状态、STATUS、`dev-notes.md`、`review.md`（若有）、`qa-report.md`，以及仍留在工作树的其他工作流文档 |
+
+第一阶段之前：登记、Spec 确认、Design、Plan 全部在工作树推进，不提交。
+
+第二、三阶段之间：Review、QA、`Fail` / `Request changes` 回环、目标分支同步证据，一律追加到工作树中的同一批文件，不另开文档提交。
+
+合入后的归档（把目录移到 `archive/`、更新 STATUS）在目标分支上另作一次治理提交，不算源分支上的第四次琐碎提交。
+
+**允许额外文档提交的例外（仍须整批、说得清，禁止拆成状态日记）：**
+
+- 必须离开本工作树或把未提交工作流文档交给另一个 worktree；
+- 用户取消：一次提交 `cancelled` 及相关记录后归档；
+- 第一阶段文档已入库后发生回退且改动必须让 Developer 看到已入库版本——优先把改动留到第三阶段；只有无法等到关闭时才允许再提一次预开发文档。
+
+禁止：登记单独提交；Spec / Design / Plan 各提一次；每次状态变更提交；`review.md` 与 `qa-report.md` 在授权前单独提交；为 `dev-notes.md` 或同步证据单独提交。
 
 ## 4. 提交信息
 
@@ -48,19 +60,24 @@
 ```
 
 - **type**（必须，小写）：`feat` `fix` `docs` `refactor` `test` `chore` `perf` `build` `ci`。
-- **scope**（可选，小写）：受影响模块名，取自本仓库实际模块划分（如 `cli`、`db`、`parser`、`normalize`、`runner`、`model`）；工作流与流程文档统一用 `workflow`，审计用 `audit`。
+- **scope**（可选，小写）：受影响模块名，取自本仓库实际模块划分；工作流与流程文档统一用 `workflow`，审计用 `audit`。
 - **subject**（必须）：祈使语气、小写开头、无句号、≤72 字符，说清改了什么，不写 `update code` 这类空话。
 - **body**（可选）：解释**为什么**（动机、根因、取舍），不复述 diff。
 
-工作流状态推进统一写：`docs(workflow): <id> -> <state> (<上下文>)`，上下文括注 Review / QA 结论或授权来源。`developing` 等中间态一般随实现提交，不单独成文。
+工作流文档提交只用两次固定句式，不写中间态：
 
-**禁止**：提交信息含凭据或可还原密钥；`WIP` / `misc` / `fix bug` 类无信息 subject；一个提交混入多个无关 type 或 scope。
+- 第一阶段：`docs(workflow): <id> ready for developing`
+- 第三阶段：`docs(workflow): <id> -> done (qa pass, merge authorized)`
+- 取消：`docs(workflow): <id> -> cancelled`
+- 归档：`docs(workflow): <id> -> archived`
+
+代码提交按变更本身选 type/scope，不要用 `docs(workflow)` 记录实现。
+
+**禁止**：提交信息含凭据或可还原密钥；`WIP` / `misc` / `fix bug` 类无信息 subject；一个提交混入多个无关 type 或 scope；用一连串 `docs(workflow): <id> -> <state>` 当流水账。
 
 ## 5. 代码与文档分提
 
-一次变更同时含实现代码与工作流文档时，**分两次提交，先代码后文档**：代码提交只含实现、测试与紧耦合资源（fixtures、构建配置）；文档提交用 `docs(workflow): ...`。
-
-例外：关闭提交（`done` + 未入库的 `review.md` / `qa-report.md`）是同一逻辑关闭变更，一次提交不拆分。纯文档变更直接单次 `docs(...)`。
+代码与工作流文档**分提交、不混装**。Developer 的提交只含实现、测试、紧耦合资源，以及 Plan「文档影响」里的产品文档；`workflow/` 下产物只出现在 Manager 的第一、第三阶段（或 §3 例外）。不要为了「先代码后文档」在第二阶段再插一次 `dev-notes` 提交。
 
 ## 6. 禁止入库
 
@@ -74,13 +91,12 @@
 
 Developer 完成实现后、进入最终 Review 前：
 
-1. Developer 先提交代码与测试并报告“待同步”；Manager 提交此时待入库的 `dev-notes.md` 与状态，确保工作树干净；
-2. Developer fetch 远程更新（如有），把源分支 rebase 到最新目标分支；
-3. 发生冲突时按文件所有权处理：Developer 只解决代码、测试及紧耦合资源；`<id>.md`、STATUS 与其他工作流文档由 Manager 解决。任一方无法确认语义时停止并交用户决策，不得用 `ours` / `theirs` 整体覆盖；
-4. Developer 在全部冲突按职责解决后继续 rebase，重新执行 Plan 要求的验证，在 `dev-notes.md` 追加目标分支提交、同步后源分支 HEAD、冲突处理与验证证据；
-5. Manager 提交同步证据，确认工作树干净后才把状态推进到 `reviewing`。
-
-禁止依赖未声明的 stash、autostash 或把未提交文档带过 rebase；同步前后每一份工作流证据都须由 Manager 明确入库。
+1. Developer 先把待入库的代码与测试提交完毕并报告“待同步”。`dev-notes.md` 与其他工作流文档留在工作树，Manager **不**为此提交；
+2. rebase 需要干净工作树时，**显式**暂存工作流路径（如 `git stash push -- workflow/`），禁止 autostash，禁止把代码与文档塞进同一个 stash；
+3. fetch（如有）并把源分支 rebase 到最新目标分支；
+4. 发生冲突时按文件所有权处理：Developer 只解决代码、测试及紧耦合资源；`main.md`、STATUS 与其他工作流文档由 Manager 解决。任一方无法确认语义时停止并交用户决策，不得用 `ours` / `theirs` 整体覆盖；
+5. 恢复暂存的工作流文档，重新执行 Plan 要求的验证，在 `dev-notes.md` 追加目标分支提交、同步后源分支 HEAD、冲突处理与验证证据；
+6. 同步证据仍留在工作树，由 Manager 把状态推进到 `reviewing`，文档等到第三阶段再提交。
 
 Reviewer 与 QA 必须以同步后的提交为对象，并分别在报告中记录完整或足以唯一识别的提交 SHA。
 
@@ -90,20 +106,7 @@ Reviewer 与 QA 必须以同步后的提交为对象，并分别在报告中记�
 - 若必须再次 rebase，且旧 QA 提交与新 HEAD 的文件树完全一致（仅 ancestry / SHA 变化）：重新运行最低必要验证，QA 在报告追加同步轮次并记录新 HEAD 后，才可请求合入。
 - 若 rebase 发生冲突、改变提交内容或文件树：状态回到 `developing`，重新自验、Review、QA 与合并授权。禁止把未验收版本直接合入。
 
-### 7.3 合入前提交整理
-
-用户授权合并后、执行合入前，应检查源分支相对目标分支的独有提交。源分支未推送，或已按仓库政策取得改写共享历史授权时，允许用 rebase / reset / fixup / squash 等非交互或可审计方式整理提交历史。
-
-整理目标是少量、语义清晰的提交：
-
-- 实现代码与测试按功能或修复主题保留为实现提交；
-- 用户文档、help 文案、示例说明等文档修正可合并为同一文档提交；
-- 工作流记录、状态推进、`review.md` / `qa-report.md` / `done` 关闭记录合并为一次工作流提交；
-- 多次修正同一说明、同一报告或同一状态的提交应 squash / fixup 到对应提交。
-
-整理时不得为了减少数量混入不相关范围，或把未通过 QA 的文件树伪装为已验收版本。整理后若文件树相对 QA 记录版本发生变化，须重新执行受影响验证并更新 `dev-notes.md` / `qa-report.md`；若仅提交 SHA / ancestry 变化且文件树等价，至少记录新提交并执行最低必要复验。已推送或他人可能基于其工作的源分支，未获授权不得改写历史。
-
-### 7.4 合入策略
+### 7.3 合入策略
 
 默认保持线性历史：源分支已基于最新目标且验证通过后，fast-forward 合入；禁止 merge commit（除非用户明确授权保留）。
 

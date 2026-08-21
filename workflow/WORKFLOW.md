@@ -37,7 +37,7 @@ workflow/
 
 ```text
 workflow/workspace/<id>/
-  <id>.md        工作项记录（Manager 维护，文件名与目录同名）
+  main.md        工作项记录（Manager 维护）
   spec.md        Spec 门禁 required 时
   design.md      Design 门禁 required 时
   ui-design.md   按需
@@ -71,10 +71,11 @@ Manager 分配 id → [Git] 从目标基线创建并检出源分支
   → [Design required] Planner   → design.md
   → [UI 按需]         Planner   → ui-design.md
   →                   Planner   → plan.md
-  →                   Developer → 实施 + 自验 + 同步目标分支 + dev-notes.md
+  → Manager 第一阶段提交（预开发文档，仅一次）
+  →                   Developer → 实施 + 自验 + 同步目标分支 + 代码提交（可多次）+ dev-notes.md
   →                   Reviewer  → review.md
   →                   QA        → qa-report.md
-  → 用户授权合并 → Manager 置 done 并一次提交 → 合入 → Manager 归档
+  → 用户授权合并 → Manager 置 done 并第三阶段提交 → 合入 → Manager 归档
 ```
 
 QA `Fail` 闭环：Developer 修复并在同一 `dev-notes.md` 追加回执 → Review 门禁为 `required` 时须重新 `Approve` → QA 在同一 `qa-report.md` 追加回归轮次。循环至 `Pass`、`Blocked` 或用户取消。
@@ -103,7 +104,7 @@ QA `Fail` 闭环：Developer 修复并在同一 `dev-notes.md` 追加回执 → 
 
 ### 3.1 回退
 
-上游产物不足时不得硬撑，由 Manager 执行回退并在 `<id>.md` 进度笔记记录触发原因：
+上游产物不足时不得硬撑，由 Manager 执行回退并在 `main.md` 进度笔记记录触发原因：
 
 | 触发 | 转换 |
 |---|---|
@@ -124,7 +125,7 @@ Manager 可在任意活动态调整路径等级与 Spec / Design / Review 门禁
 
 | 角色 | 产物 | 可写 | 明确不做 |
 |---|---|---|---|
-| Manager | `<id>.md`、`STATUS.md` | 记录与看板 | 写 Spec/Design/Plan/代码/报告；执行合并 |
+| Manager | `main.md`、`STATUS.md` | 记录与看板 | 写 Spec/Design/Plan/代码/报告；执行合并 |
 | Analyst | `spec.md` | 需求与行为合同 | 技术拆分、实现、状态 |
 | Planner | `design.md`、`ui-design.md`、`plan.md` | 技术设计与计划 | 需求决策、实现、状态 |
 | Developer | 代码、`dev-notes.md` | 实现与自验 | Spec/Plan、状态、验收结论 |
@@ -132,8 +133,8 @@ Manager 可在任意活动态调整路径等级与 Spec / Design / Review 门禁
 | QA | `qa-report.md` | 验收结论 | 改代码、状态；默认兼任受控 Merge Executor |
 | DevOps | [ops/](ops/) 下脚本与运维文档 | 按需支持 | 流程内任何门禁与状态 |
 
-- **只有 Manager** 写 `STATUS.md` 与 `<id>.md`；其他角色报告结果，由 Manager 持久化。
-- **只有 Developer** 提交代码；**其余一切工作流文档由 Manager 提交**（见 §6）。
+- **只有 Manager** 写 `STATUS.md` 与 `main.md`；其他角色报告结果，由 Manager 持久化。
+- **只有 Developer** 提交代码；**工作流文档由 Manager 按 §6 三阶段提交**，状态先写入工作树。
 - 产出角色在独立上下文运行，仅通过工作树文件、Git 与 `workflow/workspace/<id>/` 交接，完成即返回，不得在子会话内阻塞等用户回话。
 - DevOps 不在状态机内：按需调度，不改变工作项状态，不作验收结论。
 
@@ -143,7 +144,7 @@ Manager 可在任意活动态调整路径等级与 Spec / Design / Review 门禁
 
 ## 5. 路径等级与门禁
 
-路径等级按工作项判定并写入 `<id>.md`。
+路径等级按工作项判定并写入 `main.md`。
 
 | 等级 | 适用 | Spec | Design | Review |
 |---|---|---|---|---|
@@ -167,16 +168,16 @@ Manager 可在任意活动态调整路径等级与 Spec / Design / Review 门禁
 
 细则见 [agents/standards/git.md](agents/standards/git.md)，要点：
 
-1. **先分支、后产出**：Manager 分配 `<id>` 并确定目标分支后，须在创建 `<id>.md`、更新 STATUS 或调度任何产出角色**之前**，从明确的目标基线创建并检出独立源分支；记录目标分支、源分支与基线提交 SHA。禁止把工作项产物暂存在目标分支工作树，等 Developer 再建分支。
+1. **先分支、后产出**：Manager 分配 `<id>` 并确定目标分支后，须在创建 `main.md`、更新 STATUS 或调度任何产出角色**之前**，从明确的目标基线创建并检出独立源分支；记录目标分支、源分支与基线提交 SHA。禁止把工作项产物暂存在目标分支工作树，等 Developer 再建分支。
 2. **创建责任**：Manager 创建并检出源分支；Developer 只验证当前分支与记录一致，不得临时另建或改选基线。源分支名默认即 `<id>`，每个工作项独占一个分支。
-3. **提交责任**：Developer 提交代码与测试；`<id>.md`、`STATUS.md`、`spec.md`、`design.md`、`ui-design.md`、`plan.md`、`dev-notes.md`、`review.md`、`qa-report.md` 一律由 Manager 提交。产出角色把文件留在工作树并报告即可。
-4. **提交时机**：Manager 在每次推进状态时提交该阶段文档；`review.md` 与 `qa-report.md` 在「QA Pass 待授权」窗口内**不单独提交**，等用户授权后与 `done` 一次提交。
+3. **提交责任**：Developer 提交代码与测试（及 Plan「文档影响」中的产品文档）；`workflow/` 下产物一律由 Manager 提交。产出角色把文件留在工作树并报告即可。
+4. **提交时机**：源分支上标准只有三次窗口——预开发文档一次、代码若干次、关闭文档一次。禁止每次状态推进都提交。细则见 [git.md](agents/standards/git.md) §3。
 5. **验收前同步**：Developer 完成实现后、进入最终 Review / QA 前，须把源分支同步到最新目标分支并重新自验；Reviewer 与 QA 必须记录同步后的提交。
 6. **验收后目标移动**：QA Pass 后若目标分支移动但源分支仍可直接 fast-forward，则直接合入；若必须 rebase，即使文件树不变也须补验证并让 QA 记录新 SHA。发生冲突或文件树变化时回到 `developing`，重新 Review、QA 与合并授权。禁止合入 QA 未记录的提交。
 7. **合入**：默认 rebase + fast-forward，禁止 merge commit（除非用户明确授权）。
 8. 非 Git 仓库跳过分支、提交与合并，其余门禁一律不跳过。
 
-**合并门禁**须同时满足：QA 最新结论为 `Pass`；用户已明确授权；`<id>.md` 已记录目标分支、源分支与基线提交；实现位于该源分支；QA 报告记录的提交与待合入提交一致；工作项已为 `done`。合入本身不改状态。
+**合并门禁**须同时满足：QA 最新结论为 `Pass`；用户已明确授权；`main.md` 已记录目标分支、源分支与基线提交；实现位于该源分支；QA 报告记录的提交与待合入提交一致；工作项已为 `done`。合入本身不改状态。
 
 ## 7. 需要用户的两处
 
@@ -198,7 +199,7 @@ Manager 不直接与用户对话：把待确认事项写进返回结构的「待
 归档步骤：
 
 1. 把 `workflow/workspace/<id>/` 整个目录移到 `workflow/archive/<年>/<id>/`；
-2. 在 `<id>.md` 状态表写 `archived`；
+2. 在 `main.md` 状态表写 `archived`；
 3. 在 `STATUS.md` 中把该项从活跃泳道移到归档索引；
 4. 提交归档变更。
 
@@ -232,4 +233,4 @@ Manager 不直接与用户对话：把待确认事项写进返回结构的「待
 
 `code-audit` 在本工作流之外，不进状态机，产物写入 [audit/](audit/)。
 
-关闭工作项前和提交前应运行 `wf-check`，它校验目录结构、状态枚举、必需产物、分支约束、路径引用与看板一致性。
+关闭工作项前和两阶段文档提交前应运行 `wf-check`，它校验目录结构、状态枚举、必需产物、分支约束、路径引用与看板一致性。

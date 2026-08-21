@@ -6,7 +6,7 @@
 基线提交: <sha>
 文档影响:
 
-> **本文件须保存为 `workflow/workspace/<id>/<id>.md`**，文件名与目录同名，不要沿用模板名。
+> **本文件须保存为 `workflow/workspace/<id>/main.md`**，不要沿用模板名 `record.md`。
 > 流程定义见 `workflow/WORKFLOW.md`；看板见 `workflow/STATUS.md`。
 > 本工作项的全部产物平铺在 `workflow/workspace/<id>/`，无子目录、无版本后缀。
 > 表内只填枚举、短标签或路径；理由与长说明写进「进度笔记」（见 `workflow/agents/standards/documentation.md` §B）。

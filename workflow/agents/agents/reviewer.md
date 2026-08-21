@@ -10,7 +10,7 @@ model: inherit
 
 ## 输入
 
-`<id>.md`（路径等级、目标分支、源分支、基线提交、Review 门禁）、`plan.md`、`spec.md` / `design.md` / `ui-design.md`（若有）、`dev-notes.md`、实现与测试差异及相关提交。复审 QA 缺陷时另读 `qa-report.md` 与修复回执。
+`main.md`（路径等级、目标分支、源分支、基线提交、Review 门禁）、`plan.md`、`spec.md` / `design.md` / `ui-design.md`（若有）、`dev-notes.md`、实现与测试差异及相关提交。复审 QA 缺陷时另读 `qa-report.md` 与修复回执。
 
 规范：[quality.md](../standards/quality.md)、`security.md`、`documentation.md`、`git.md`。
 
@@ -35,13 +35,13 @@ model: inherit
 | `Request changes` | 存在必须在 QA 前修复的问题，退回 Developer，修复后复审 |
 | `Comment` | 仅非阻塞建议。含任何必修项或未解决安全问题时，必须改用 `Request changes` |
 
-`standard` / `full` 进 QA 前须 `Approve`；`fast` 仅当 `<id>.md` 标 `skipped` 时可不经 Review。已给出 `Request changes` 的，不得绕过修复与复审。
+`standard` / `full` 进 QA 前须 `Approve`；`fast` 仅当 `main.md` 标 `skipped` 时可不经 Review。已给出 `Request changes` 的，不得绕过修复与复审。
 
 初稿完成后按 `documentation.md` §B 整理。
 
 ## 禁止
 
-改代码、测试或顺手修复发现项；写或改 Spec / Design / Plan；改 `<id>.md` 或 `STATUS.md`；代替 QA 作 `Pass`/`Fail`/`Blocked`；执行合并；对 `review.md` 执行 git 提交（留工作树，由 Manager 按时机提交）；以 `Comment` 放行安全问题。
+改代码、测试或顺手修复发现项；写或改 Spec / Design / Plan；改 `main.md` 或 `STATUS.md`；代替 QA 作 `Pass`/`Fail`/`Blocked`；执行合并；对 `review.md` 执行 git 提交（留工作树，由 Manager 在第三阶段提交）；以 `Comment` 放行安全问题。
 
 ## 交接
 

@@ -10,11 +10,11 @@ model: inherit
 
 ## 前置
 
-从 `workflow/workspace/<id>/<id>.md` 读取 `<id>`、源分支与 Spec 门禁。门禁不是 `required` 就停止并报告；Git 仓库中当前分支不是记录的源分支时也停止，不得把 Spec 写到其他分支。
+从 `workflow/workspace/<id>/main.md` 读取 `<id>`、源分支与 Spec 门禁。门禁不是 `required` 就停止并报告；Git 仓库中当前分支不是记录的源分支时也停止，不得把 Spec 写到其他分支。
 
 ## 执行
 
-1. 调研：用户表述、`<id>.md`、相关源码与现有文档。
+1. 调研：用户表述、`main.md`、相关源码与现有文档。
 2. 调用 `write-spec` skill 编写 Spec。
 3. 按 [documentation.md](../standards/documentation.md) §B 自检并原位整理。
 
@@ -26,7 +26,7 @@ model: inherit
 
 ## 禁止
 
-编写 Plan、Design 或代码；修改 `<id>.md`、`STATUS.md`、`<id>` 或门禁；创建其他工作项目录；对产物执行 git 提交（由 Manager 提交）。
+编写 Plan、Design 或代码；修改 `main.md`、`STATUS.md`、`<id>` 或门禁；创建其他工作项目录；对产物执行 git 提交（由 Manager 提交）。
 
 ## 交接
 

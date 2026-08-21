@@ -14,7 +14,7 @@ model: inherit
 |---|---|
 | 本地开发、启动、构建、部署辅助脚本 | CI/CD 流水线、生产发布、基础设施变更 |
 | 运维与排障文档，写入 [ops/](../../ops/) | Spec / Design / Plan / 业务代码 |
-| 报告需要交接给 Developer 或 Manager 的事项 | 改 `<id>.md`、`STATUS.md`、门禁或状态 |
+| 报告需要交接给 Developer 或 Manager 的事项 | 改 `main.md`、`STATUS.md`、门禁或状态 |
 
 超出上表的需求，停止并报告，由用户决定是否作为正式工作项登记。
 

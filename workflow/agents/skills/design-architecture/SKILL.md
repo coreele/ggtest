@@ -5,9 +5,9 @@ description: 编写结构设计到 workflow/workspace/<id>/design.md，记录模
 
 # design-architecture — 结构设计
 
-调用者 Planner。调用条件：`workflow/workspace/<id>/<id>.md` 中 Design 门禁为 `required`。时机：Spec 门禁满足后、Plan 之前。
+调用者 Planner。调用条件：`workflow/workspace/<id>/main.md` 中 Design 门禁为 `required`。时机：Spec 门禁满足后、Plan 之前。
 
-输入：`<id>.md`、`spec.md`（Spec 门禁 `required` 时）。产出：`workflow/workspace/<id>/design.md`，模板 [design.md](../../templates/design.md)。
+输入：`main.md`、`spec.md`（Spec 门禁 `required` 时）。产出：`workflow/workspace/<id>/design.md`，模板 [design.md](../../templates/design.md)。
 
 ## 范围
 
@@ -25,7 +25,7 @@ description: 编写结构设计到 workflow/workspace/<id>/design.md，记录模
 
 发现 Spec 合同缺失或歧义时**停止并报告**，不得在 `design.md` 里替代 Spec 作需求决策。
 
-禁止写实现代码、Plan、UI 稿；禁止改 `<id>`、`<id>.md` 或 [STATUS.md](../../../STATUS.md)；禁止 git 提交（由 Manager 提交）。
+禁止写实现代码、Plan、UI 稿；禁止改 `<id>`、`main.md` 或 [STATUS.md](../../../STATUS.md)；禁止 git 提交（由 Manager 提交）。
 
 ## 交接
 

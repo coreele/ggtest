@@ -7,7 +7,7 @@ description: 编写界面与交互设计到 workflow/workspace/<id>/ui-design.md
 
 调用者 Planner。**不是门禁**，没有状态字段，按范围按需调用。时机：Spec 门禁满足后、Plan 之前，可与 `design-architecture` 先后或并行（二者互不替代）。
 
-输入：`workflow/workspace/<id>/<id>.md`、`spec.md`（若有）、仓库既有设计系统或布局约定。产出：`workflow/workspace/<id>/ui-design.md`，模板 [ui-design.md](../../templates/ui-design.md)。
+输入：`workflow/workspace/<id>/main.md`、`spec.md`（若有）、仓库既有设计系统或布局约定。产出：`workflow/workspace/<id>/ui-design.md`，模板 [ui-design.md](../../templates/ui-design.md)。
 
 ## 调用 / 跳过
 
@@ -27,7 +27,7 @@ description: 编写界面与交互设计到 workflow/workspace/<id>/ui-design.md
 
 行为合同与验收属 `spec.md`；模块边界与技术选型属 `design.md`；任务拆分与验证命令属 `plan.md`。
 
-发现 Spec 缺必要的可见行为或验收时**停止并报告**，不得在此补写需求合同。禁止写实现代码或 Plan，禁止改 `<id>`、`<id>.md` 或 [STATUS.md](../../../STATUS.md)，禁止 git 提交（由 Manager 提交）。
+发现 Spec 缺必要的可见行为或验收时**停止并报告**，不得在此补写需求合同。禁止写实现代码或 Plan，禁止改 `<id>`、`main.md` 或 [STATUS.md](../../../STATUS.md)，禁止 git 提交（由 Manager 提交）。
 
 ## 自检与交接
 

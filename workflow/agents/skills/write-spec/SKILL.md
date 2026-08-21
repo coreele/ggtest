@@ -5,7 +5,7 @@ description: 编写工作项的需求与行为规格到 workflow/workspace/<id>/
 
 # write-spec — 需求与规格
 
-调用者 Analyst。调用条件：`workflow/workspace/<id>/<id>.md` 中 Spec 门禁为 `required`。时机：登记之后、Design 或 Plan 之前。
+调用者 Analyst。调用条件：`workflow/workspace/<id>/main.md` 中 Spec 门禁为 `required`。时机：登记之后、Design 或 Plan 之前。
 
 产出：`workflow/workspace/<id>/spec.md`，模板 [spec.md](../../templates/spec.md)。
 
@@ -13,7 +13,7 @@ description: 编写工作项的需求与行为规格到 workflow/workspace/<id>/
 
 ## 调研
 
-必读：用户表述、`workflow/workspace/<id>/<id>.md`、[WORKFLOW.md](../../../WORKFLOW.md)、相关源码与现有文档。不要求 `plan.md` 已存在。
+必读：用户表述、`workflow/workspace/<id>/main.md`、[WORKFLOW.md](../../../WORKFLOW.md)、相关源码与现有文档。不要求 `plan.md` 已存在。
 
 ## 必含内容
 
@@ -25,7 +25,7 @@ description: 编写工作项的需求与行为规格到 workflow/workspace/<id>/
 
 ## 边界
 
-遵循 [documentation.md](../../standards/documentation.md)。禁止写 Plan、Design 或代码，禁止改 `<id>.md`、[STATUS.md](../../../STATUS.md)、`<id>` 或门禁，禁止 git 提交（由 Manager 提交）。
+遵循 [documentation.md](../../standards/documentation.md)。禁止写 Plan、Design 或代码，禁止改 `main.md`、[STATUS.md](../../../STATUS.md)、`<id>` 或门禁，禁止 git 提交（由 Manager 提交）。
 
 ## 交接
 

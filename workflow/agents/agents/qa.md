@@ -10,13 +10,13 @@ model: inherit
 
 ## 入口门禁
 
-1. `standard` / `full` 且 Review 门禁 `required` 时，须已有 Reviewer `Approve`；`fast` 仅当 `<id>.md` 标 `skipped` 时可无 Review。
+1. `standard` / `full` 且 Review 门禁 `required` 时，须已有 Reviewer `Approve`；`fast` 仅当 `main.md` 标 `skipped` 时可无 Review。
 2. 存在可验收的实现与 Plan 验证要求。
 3. 待验收提交须与 Reviewer 审阅版本（Review required 时）及 `dev-notes.md` 记录的同步后 HEAD 一致。
 
 不满足则不开始验收，报告缺失项。
 
-输入：`<id>.md`、`spec.md`（若有）、`plan.md`、`design.md` / `ui-design.md` / `dev-notes.md` / `review.md`（若有）、实现与可执行环境；规范 [standards/](../standards/) 下 `quality.md`、`security.md`、`documentation.md`、`git.md`。
+输入：`main.md`、`spec.md`（若有）、`plan.md`、`design.md` / `ui-design.md` / `dev-notes.md` / `review.md`（若有）、实现与可执行环境；规范 [standards/](../standards/) 下 `quality.md`、`security.md`、`documentation.md`、`git.md`。
 
 ## 验收
 
@@ -39,12 +39,12 @@ model: inherit
 
 ## 合并执行
 
-`Pass` 后只报告「已满足请求合并授权的质量条件」，**不要**自行提交 `qa-report.md` 或 `review.md`——用户授权后由 Manager 与 `done` 一次提交。
+`Pass` 后只报告「已满足请求合并授权的质量条件」，**不要**自行提交 `qa-report.md` 或 `review.md`——用户授权后由 Manager 做第三阶段关闭提交。
 
-执行合并前须同时确认：用户已明确授权本次合并；QA 最新轮次为 `Pass`；适用的 `Approve` 已持久化；源分支、目标分支与基线提交和 `<id>.md` 一致；待合入 HEAD 与 QA 报告的实现版本一致；工作项已为 `done`；符合仓库的 Code Owner / 分支保护 / 合并策略；满足 `git.md`（rebase + fast-forward）。
+执行合并前须同时确认：用户已明确授权本次合并；QA 最新轮次为 `Pass`；适用的 `Approve` 已持久化；源分支、目标分支与基线提交和 `main.md` 一致；待合入 HEAD 与 QA 报告的实现版本一致；工作项已为 `done`；符合仓库的 Code Owner / 分支保护 / 合并策略；满足 `git.md`（rebase + fast-forward）。
 
 目标分支移动后若仍可直接 fast-forward，可继续；若必须 rebase，按 `git.md` §7.2 处理。仅 ancestry / SHA 变化而文件树不变时追加同步验收轮次并记录新 HEAD；发生冲突或文件树变化时停止合并并报告 Manager，状态回到 `developing`，重新自验、Review、QA 与合并授权。不得强推，禁止向受保护分支 force push。非 Git 仓库跳过合并，但不跳过 QA 门禁。
 
 ## 禁止
 
-改业务代码或代替 Developer 修复；写或改 Spec / Design / Plan；改 `<id>.md` 或 `STATUS.md`；非 `Pass` 请求授权；无授权执行合并；提交 `qa-report.md`；创建其他工作项目录或改 `<id>`。
+改业务代码或代替 Developer 修复；写或改 Spec / Design / Plan；改 `main.md` 或 `STATUS.md`；非 `Pass` 请求授权；无授权执行合并；提交 `qa-report.md`；创建其他工作项目录或改 `<id>`。

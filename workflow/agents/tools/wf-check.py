@@ -21,6 +21,8 @@ STATES = {
     "developing", "reviewing", "qa", "merge-approval", "done",
     "archived", "blocked", "cancelled",
 }
+# 已关闭：源分支允许已合入删除或取消后丢弃
+CLOSED_STATES = {"done", "archived", "cancelled"}
 # 达到该状态时必须已存在的产物
 REQUIRED_AT = [
     ("developing", "plan.md"),
@@ -37,7 +39,7 @@ GATES = {"required", "skipped"}
 SPEC_APPROVALS = {"required", "not-required", "approved", "rejected"}
 ARTIFACTS = {"spec.md", "design.md", "ui-design.md", "plan.md",
              "dev-notes.md", "review.md", "qa-report.md"}
-# 工作项记录与目录同名：workspace/<id>/<id>.md
+RECORD_NAME = "main.md"
 ID_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 PROTECTED = re.compile(r"^(main|master|release/.*)$")
 SHA_RE = re.compile(r"^[0-9a-fA-F]{7,40}$")
@@ -142,22 +144,34 @@ def check_links(path: Path) -> None:
                 err(f"{path.relative_to(REPO)}:{i}", f"坏链 {url}")
 
 
+def record_file(d: Path, archived: bool) -> Path:
+    """现行记录为 main.md；既有归档允许遗留的 <id>.md，避免改已完成归档。"""
+    current = d / RECORD_NAME
+    if current.exists():
+        return current
+    if archived:
+        legacy = d / f"{d.name}.md"
+        if legacy.exists():
+            return legacy
+    return current
+
+
 def check_entry(d: Path, archived: bool) -> tuple[str, str] | None:
-    """校验一个工作项目录。记录文件与目录同名：<id>/<id>.md。"""
+    """校验一个工作项目录。现行记录为 main.md；归档可回退到 <id>.md。"""
     rel = d.relative_to(REPO)
     if not ID_RE.match(d.name):
         err(str(rel), "目录名不是合法 <id>（小写短横线）")
-    record_name = f"{d.name}.md"
-    record = d / record_name
+    record = record_file(d, archived)
     if not record.exists():
-        err(str(rel), f"缺少工作项记录 {record_name}（须与目录同名）")
+        hint = "（或遗留 <id>.md）" if archived else ""
+        err(str(rel), f"缺少工作项记录 {RECORD_NAME}{hint}")
         return None
-    doc = str(rel / record_name)
+    doc = str(rel / record.name)
 
     for child in d.iterdir():
         if child.is_dir():
             err(str(rel), f"禁止子目录：{child.name}")
-        elif child.name not in ARTIFACTS and child.name != record_name:
+        elif child.name not in ARTIFACTS and child.name != record.name:
             if re.search(r"-v\d+\.md$", child.name):
                 err(str(rel), f"禁止版本后缀文件：{child.name}")
             else:
@@ -217,17 +231,21 @@ def check_entry(d: Path, archived: bool) -> tuple[str, str] | None:
         if target and target != "N/A" \
                 and git("rev-parse", "--verify", target)[0] != 0:
             err(doc, f"目标分支 `{target}` 在当前仓库中不存在")
+        closed = archived or state in CLOSED_STATES
         if source and source != "N/A":
-            if git("rev-parse", "--verify", source)[0] != 0:
-                err(doc, f"源分支 `{source}` 在当前仓库中不存在")
-            elif SHA_RE.match(baseline) and \
-                    git("merge-base", "--is-ancestor", baseline, source)[0] != 0:
-                err(doc, f"基线提交 `{baseline}` 不是源分支 `{source}` 的祖先")
-            if not archived and state not in {"done", "cancelled"}:
-                current = git("branch", "--show-current")[1]
-                if current != source:
-                    err(doc, f"当前分支 `{current or '(detached HEAD)'}` "
-                             f"与记录的源分支 `{source}` 不一致")
+            source_exists = git("rev-parse", "--verify", source)[0] == 0
+            if not source_exists:
+                if not closed:
+                    err(doc, f"源分支 `{source}` 在当前仓库中不存在")
+            else:
+                if SHA_RE.match(baseline) and \
+                        git("merge-base", "--is-ancestor", baseline, source)[0] != 0:
+                    err(doc, f"基线提交 `{baseline}` 不是源分支 `{source}` 的祖先")
+                if not closed:
+                    current = git("branch", "--show-current")[1]
+                    if current != source:
+                        err(doc, f"当前分支 `{current or '(detached HEAD)'}` "
+                                 f"与记录的源分支 `{source}` 不一致")
     elif any(v != "N/A" for v in (target, source, baseline)):
         err(doc, "非 Git 仓库的目标分支、源分支与基线提交应为 N/A")
 

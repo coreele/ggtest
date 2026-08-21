@@ -6,7 +6,7 @@
 基线提交: a6c8719bc48099cf772a6bd1807876dd4577259c
 文档影响: N/A
 
-> **本文件须保存为 `workflow/workspace/fix-sql-hash-comments/fix-sql-hash-comments.md`**，文件名与目录同名。
+> **本文件须保存为 `workflow/workspace/fix-sql-hash-comments/main.md`**。
 > 流程定义见 `workflow/WORKFLOW.md`；看板见 `workflow/STATUS.md`。
 > 本工作项的全部产物平铺在 `workflow/workspace/fix-sql-hash-comments/`，无子目录、无版本后缀。
 > 表内只填枚举、短标签或路径；理由与长说明写进「进度笔记」。
