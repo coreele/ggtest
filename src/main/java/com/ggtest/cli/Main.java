@@ -152,7 +152,7 @@ public final class Main {
         out.println("  --user <name>               Database user (or GGTEST_USER)");
         out.println("  --password <pass>           Database password (or GGTEST_PASSWORD)");
         out.println("  --engine <sqlite|postgres|xugu|mysql>  Target engine (default: sqlite; 'xugudb' is an alias for 'xugu'; or GGTEST_ENGINE)");
-        out.println("  --hash-threshold <n>        Hash result sets larger than n rows (default: 8)");
+        out.println("  --hash-threshold <n>        Initial hash threshold; 0 disables until file directive (default: 8)");
         out.println("  --color <auto|always|never> ANSI color mode (or GGTEST_COLOR / -Dggtest.color)");
         out.println("  --halt                      Stop after first failure");
         out.println("  --parallel <N>              Run at most N files concurrently (1 = sequential)");
