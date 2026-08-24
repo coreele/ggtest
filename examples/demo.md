@@ -13,6 +13,7 @@
 > examples/demo.slt
 
 ## setup
+
 ```sql
 statement ok
 DROP TABLE IF EXISTS items;
@@ -32,6 +33,7 @@ INSERT INTO items VALUES
 ## I / T / R type signatures + sort modes
 
 > T + rowsort: result is re-sorted lexicographically
+
 ```sql
 query T rowsort
 SELECT name FROM items WHERE id <= 3;
@@ -42,6 +44,7 @@ cherry
 ```
 
 > I + nosort: order must match ORDER BY
+
 ```sql
 query I nosort
 SELECT id FROM items WHERE id <= 3 ORDER BY id;
@@ -52,6 +55,7 @@ SELECT id FROM items WHERE id <= 3 ORDER BY id;
 ```
 
 > R: REAL formatted as %.3f
+
 ```sql
 query R nosort
 SELECT price FROM items WHERE id <= 3 ORDER BY id;
@@ -62,6 +66,7 @@ SELECT price FROM items WHERE id <= 3 ORDER BY id;
 ```
 
 > valuesort: flatten all cells then sort as strings
+
 ```sql
 query II valuesort
 SELECT id, CAST(price AS INTEGER) FROM items WHERE id IN (1, 2) ORDER BY id;
@@ -89,6 +94,7 @@ NULL
 ## value-per-line vs row-wise (separator=<delim>)
 
 > Plain ---- is always value-per-line (one physical line = one cell)
+
 ```sql
 query IIT nosort
 SELECT 1, 1, 'hello world';
@@ -99,6 +105,7 @@ hello world
 ```
 
 > Row-wise: declare separator=<delim> on the query header; tokens are trimmed
+
 ```sql
 query IIT nosort separator=|
 SELECT 1, 1, 'hello world';
@@ -107,12 +114,14 @@ SELECT 1, 1, 'hello world';
 ```
 
 ## execute-only (no ---- block): run SQL, do not compare
+
 ```sql
 query I nosort
 SELECT id FROM items WHERE id = 1;
 ```
 
 ## label: same label must yield the same result view
+
 ```sql
 query I nosort same_id
 SELECT id FROM items WHERE id = 1;
@@ -126,6 +135,7 @@ SELECT id FROM items WHERE name = 'apple';
 ```
 
 ## statement error: execution MUST fail
+
 ```sql
 statement error
 SELECT * FROM missing_table;
@@ -151,6 +161,7 @@ SELECT 1;
 ```
 
 ## hash-threshold: above N values → MD5 form
+
 ```sql
 hash-threshold 1
 
@@ -161,6 +172,7 @@ SELECT id FROM items WHERE id IN (1, 2) ORDER BY id;
 ```
 
 ## teardown
+
 ```sql
 statement ok
 DROP TABLE IF EXISTS items;
@@ -228,7 +240,6 @@ SELECT * FROM fibonacci(13);
 13
 ```
 
-
 ## PL/pgSQL cleanup
 
 ```sql
@@ -242,11 +253,13 @@ DROP FUNCTION IF EXISTS fibonacci(integer);
 ```
 
 > halt: everything after is skipped
+
 ```sql
 halt
 ```
 
 > This statement will be skipped
+
 ```sql
 statement ok
 INSERT INTO absent_after_halt VALUES (1);
