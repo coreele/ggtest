@@ -1,44 +1,57 @@
 # GGTEST — 后续推进方向
 
-> 生成日期：2026-08-11。已完成的项目不在此列。
+> 生成日期：2026-08-11；最近重整：2026-08-27（对比 sqllogictest-rs 0.29.1 功能盘点）。已完成的项目不在此列。
+
+## P1 — 官方语料合规（sqllogictest-rs 对比差距；验收目标：select1/2/3 零失败）
+
+- [ ] `fix-sql-hash-comments`（已登记 `workflow/workspace/fix-sql-hash-comments/`）：SQL 体内 `#` 注释裁剪，跑官方语料的前置
+- [ ] `add-statement-count`：`statement count <n>` 校验受影响行数（JDBC `getUpdateCount()` 现成）
+- [ ] `add-error-matching`：`query error` 支持 + statement/query 错误匹配增强——行内 regex、SQLSTATE `(42P01)`、`----` 多行精确匹配（现仅单行大小写不敏感 contains；语义变更，需走 standard 门禁）
+- [ ] `add-include-directive`：`include <glob>` 文件引入 + glob 展开；需与 `--override` 分层回写联动（参考 rs BeginInclude/EndInclude 伪记录方案）
 
 ## P1 — CI 增强
 
-- [ ] GitHub Actions 增加 PostgreSQL service container，跑 PG 集成测试
+- [ ] GitHub Actions 增加 PostgreSQL service container，跑 PG 集成测试（语料合规验收的前提）
 - [ ] 覆盖率上报（Codecov 或 GitHub Actions artifact）
 - [ ] 多 JDK 版本矩阵（17 / 21）
 - [ ] `mvn verify`（SpotBugs + dependency-check）纳入 CI pipeline
 
 ## P2 — 测试报告输出
 
-- [ ] `--format junit-xml|json` 输出，便于 CI（GitHub Actions、Jenkins）集成
+- [ ] `--format junit-xml|json`（已登记 `workflow/workspace/add-report-format/`，blocked：Spec 已确认，恢复后直接续 Planner）
 - [ ] 当前仅 human-readable stdout，缺乏机器可读格式
+
+## P2 — CI / 工程化增强（sqllogictest-rs 对比差距）
+
+- [ ] `add-partition-options`：`--partition-id <i> --partition-count <n>` 按文件路径哈希分片，配 CI matrix 并行
+- [ ] `add-keep-db-on-failure`：失败用例跳过 schema teardown 保留现场（schema 隔离下成本低，调试体验提升明显）
+- [ ] `add-label-injection`：`--label <name>` 多标签注入 skipif/onlyif（现仅按 engine 名匹配）
 
 ## P2 — 更多引擎支持
 
 - [ ] DuckDB（嵌入式 OLAP）— `DatabaseExecutor` 接口已就绪
-- [ ] MySQL — 每引擎仅需一个 executor 实现
 - [ ] H2 — 纯 Java 内存数据库，适合 CI 无外部依赖测试
 
-## P3 — 并行文件执行
+## P3 — 高级特性（按需，语料实际需求驱动）
 
-- [ ] `--parallel <N>` 并行执行独立文件
-- [ ] 需注意 PG schema 隔离的并发安全（每文件独立 schema 已支持）
-- [ ] 大语料（select1/2/3 数千条）下显著加速
+- [ ] `add-let-substitution`：`let <var>` 记录 + 变量替换 `$VAR`、`${VAR:default}`、`__TEST_DIR__`、`__NOW__`（数据导入类语料需要）
+- [ ] `add-retry-clause`：`retry <n> backoff <dur>` 子句（statement/query/system；接入不稳定引擎时再上）
+- [ ] `add-column-type-boolean`：列类型 `B`（布尔；PG/MySQL 布尔列有用）
+- [ ] `add-slt-ignore-marker`：期望输出 `<slt:ignore>` 片段匹配（EXPLAIN 等易变输出）
+- [ ] `add-control-directives`：`control sortmode/resultmode/substitution` 文件级开关
+- [ ] `add-connection-record`：`connection <name>` 记录语法（与现有 `conn=` 属性等价，跑 rs 生态语料的别名兼容）
+- [ ] `add-graceful-shutdown`：Ctrl-C 优雅关停（shutdown hook）+ 长查询主动取消（`Statement.cancel()`）
+- [ ] `add-external-engine`：external 引擎子进程 JSON 流协议（非 JDBC 引擎接入）
+- [ ] `--watch` 模式：文件变更自动重跑（开发工作流）
+- [ ] 条件表达式增强：skipif/onlyif 支持版本检查、特性探测
+- [ ] 事务 savepoint/rollback 更复杂场景支持
+- [ ] `--format`（仅重新格式化 .slt 不执行）：parse→unparse 往返规范化（rs 有，bin/ 脚本已覆盖转换场景）
 
 ## P3 — Backlog 清理
 
-- [ ] `fix-sql-hash-comments`：SQL 体内 `#` 注释裁剪（影响取决于语料）
-- [ ] `add-lcs-diff-guard`（CA-007）：超大 diff 截断（accepted，按需）
+- [ ] `add-lcs-diff-guard`（CA-007，已登记）：超大 diff 截断（accepted，按需）
 - [ ] CA-009：CredentialRedaction URL 查询参数脱敏覆盖
 - [ ] CA-011：hash-threshold 非负范围校验
 - [ ] CA-012：splitLiteral / splitOnEol 字符串分割工具收敛
 - [ ] CA-013：DotEnvLoader 白名单外部化
 - [ ] CA-014：LineBuffer 流式读取（大文件优化）
-
-## P3 — 功能增强（按需）
-
-- [ ] `--watch` 模式：文件变更自动重跑（开发工作流）
-- [ ] 条件表达式增强：skipif/onlyif 支持版本检查、特性探测
-- [ ] 事务 savepoint/rollback 更复杂场景支持
-- [ ] 官方 sqllogictest 语料合规测试（select1/2/3 零失败目标）
