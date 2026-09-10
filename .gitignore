@@ -11,6 +11,9 @@ target/
 .env
 .env.*
 !.env.example
+
+# Git worktrees for parallel workflow items
+.worktree/
 .worktrees/
 superpowers/
 
