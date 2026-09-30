@@ -9,8 +9,8 @@
 | 泳道 | 数量 |
 |---|---|
 | 等待用户 | 0 |
-| 进行中 | 0 |
-| 待办 | 2 |
+| 进行中 | 1 |
+| 待办 | 1 |
 | 阻塞 | 1 |
 | 已关闭 | 0 |
 | 已归档 | 56 |
@@ -27,14 +27,13 @@
 
 | 工作项 | 状态 | 路径 | 下一步 | 摘要 |
 |---|---|---|---|---|
-| — | | | | |
+| fix-sql-hash-comments | developing | fast | Developer | SQL 体内 `#` 注释行剥离 |
 
 ## 待办
 
 | 工作项 | 路径 | 下一步 | 摘要 |
 |---|---|---|---|
 | add-lcs-diff-guard | fast | Planner | LCS diff 大小门限（CA-007） |
-| fix-sql-hash-comments | fast | Planner | SQL 体内 `#` 注释裁剪 |
 
 ## 阻塞
 
