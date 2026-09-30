@@ -183,6 +183,34 @@ class SqlLogicTestParserTest {
     }
 
     @Test
+    void hashCommentLinesInsideSqlBodyAreStripped() {
+        String content = """
+                query I
+                SELECT 1
+                # comment inside query body
+                SELECT 2
+                ----
+                1
+                2
+
+                statement ok
+                # comment at start of statement body
+                CREATE TABLE t(a INT)
+                """;
+
+        List<SqlTestRecord> records = parser.parse("hash-comment.test", content);
+
+        assertEquals(2, records.size());
+
+        QueryRecord query = assertInstanceOf(QueryRecord.class, records.get(0));
+        assertEquals("SELECT 1\nSELECT 2", query.sql());
+
+        StatementRecord stmt = assertInstanceOf(StatementRecord.class, records.get(1));
+        assertEquals(StatementExpectation.OK, stmt.expectation());
+        assertEquals("CREATE TABLE t(a INT)", stmt.sql());
+    }
+
+    @Test
     void onlyif_trailingHashComment_parsesDbName() {
         String content = """
                 onlyif sqlite # empty RHS

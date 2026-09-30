@@ -294,6 +294,10 @@ public final class SqlLogicTestParser {
             if (line.isEmpty()) {
                 break;
             }
+            if (line.startsWith("#")) {
+                lines.next();
+                continue;
+            }
             if (isExpectationHeaderCandidate(line)) {
                 requireExactExpectationHeader(sourceName, lines.peekLineNumber(), line);
                 expectedHeaderLine = lines.peekLineNumber();
@@ -493,6 +497,10 @@ public final class SqlLogicTestParser {
             String line = lines.peek();
             if (line.isEmpty()) {
                 break;
+            }
+            if (line.startsWith("#")) {
+                lines.next();
+                continue;
             }
             if (isRecordStart(line) && !sqlLines.isEmpty()) {
                 break;
