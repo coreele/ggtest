@@ -12,8 +12,8 @@
 | 进行中 | 0 |
 | 待办 | 1 |
 | 阻塞 | 1 |
-| 已关闭 | 1 |
-| 已归档 | 56 |
+| 已关闭 | 0 |
+| 已归档 | 57 |
 
 ## 等待用户
 
@@ -47,7 +47,7 @@
 
 | 工作项 | 源分支 → 目标分支 | 备注 |
 |---|---|---|
-| fix-sql-hash-comments | fix-sql-hash-comments → main | QA Pass，待合入 |
+| — | | |
 
 ## 归档索引
 
@@ -89,6 +89,7 @@
 | fix-pg-teardown-once | done | [fix-pg-teardown-once.md](archive/2026/fix-pg-teardown-once/fix-pg-teardown-once.md) |
 | fix-rowwise-value-per-line-compat | done | [fix-rowwise-value-per-line-compat.md](archive/2026/fix-rowwise-value-per-line-compat/fix-rowwise-value-per-line-compat.md) |
 | fix-shared-defaults | done | [fix-shared-defaults.md](archive/2026/fix-shared-defaults/fix-shared-defaults.md) |
+| fix-sql-hash-comments | done | [fix-sql-hash-comments.md](archive/2026/fix-sql-hash-comments/fix-sql-hash-comments.md) |
 | ggtest-cli-help | done | [ggtest-cli-help.md](archive/2026/ggtest-cli-help/ggtest-cli-help.md) |
 | ggtest-cli-report | done | [ggtest-cli-report.md](archive/2026/ggtest-cli-report/ggtest-cli-report.md) |
 | ggtest-core | cancelled | [ggtest-core.md](archive/2026/ggtest-core/ggtest-core.md) |

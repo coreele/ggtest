@@ -21,7 +21,7 @@
 
 | 状态 | 下一步 | 阻塞原因 | 恢复条件 | 恢复后目标 |
 |---|---|---|---|---|
-| done | 合入 main 并归档 |  |  |  |
+| archived | — |  |  |  |
 
 ## 进度笔记
 
@@ -32,3 +32,4 @@
 - 2026-09-30：Developer 实现并自验，产出 `dev-notes.md`；代码提交 `ff97c29`（`fix(parser): strip hash comment lines inside SQL body`）。Review 门禁 skipped。
 - 2026-09-30：QA 首测 `Pass`（`qa-report.md`，427 用例 0 失败）。状态 `developing → merge-approval`，等用户授权合并。
 - 2026-09-30：用户授权合并。状态 `merge-approval → done`，待合入 main 并归档。
+- 2026-09-30：合入 main（fast-forward `67647ea..5d7329c`），源分支已删；归档至 `workflow/archive/2026/fix-sql-hash-comments/`。状态 `done → archived`。
