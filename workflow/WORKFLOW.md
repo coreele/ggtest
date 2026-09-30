@@ -56,7 +56,7 @@ workflow/workspace/<id>/
 | 引用位置 | 形式 | 示例 |
 |---|---|---|
 | 本文件、STATUS.md → 机制文件 | 链接，文本与目标同为相对路径 | [agents/standards/git.md](agents/standards/git.md) |
-| 机制文件互引 | 链接，文本用文件名 | [quality.md](../standards/quality.md) |
+| 机制文件互引 | 链接，文本用文件名 | [quality.md](agents/standards/quality.md) |
 | 含 `<id>` 的工作项产物路径 | 反引号写相对仓库根的路径 | `` `workflow/workspace/<id>/plan.md` `` |
 | 模板内指向机制文件 | 反引号写相对仓库根的路径 | `` `workflow/agents/standards/quality.md` `` |
 
