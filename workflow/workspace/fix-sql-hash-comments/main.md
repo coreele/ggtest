@@ -21,7 +21,7 @@
 
 | 状态 | 下一步 | 阻塞原因 | 恢复条件 | 恢复后目标 |
 |---|---|---|---|---|
-| developing | Developer |  |  |  |
+| done | 合入 main 并归档 |  |  |  |
 
 ## 进度笔记
 
@@ -29,3 +29,6 @@
 - 2026-08-14：按 ggnote `WORKFLOW.md` 标准迁移工作流目录（记录与产物合并为同一目录；权威文件改为 `workflow/WORKFLOW.md`）。
 - 2026-09-30：Manager 创建源分支 `fix-sql-hash-comments`。基线由登记时预留的 `a6c8719` 调整为实际分支点 `67647ea`（main 当前 HEAD）——原登记仅留名未建分支，且实现须基于最新 parser 代码。状态 `backlog → planning`。
 - 2026-09-30：Planner 产出 `plan.md`（fast 路径，Spec/Design/Review skipped，最低验证层 unit）。状态 `planning → developing`，调度 Developer。
+- 2026-09-30：Developer 实现并自验，产出 `dev-notes.md`；代码提交 `ff97c29`（`fix(parser): strip hash comment lines inside SQL body`）。Review 门禁 skipped。
+- 2026-09-30：QA 首测 `Pass`（`qa-report.md`，427 用例 0 失败）。状态 `developing → merge-approval`，等用户授权合并。
+- 2026-09-30：用户授权合并。状态 `merge-approval → done`，待合入 main 并归档。
